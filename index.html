@@ -28,6 +28,8 @@
   --rule: #dde1df;
   --accent: #e8511c;
   --accent-ink: #ffffff;
+  --accent-strong: #c4430f;
+  --accent-strong-ink: #ffffff;
   --brand: #ff5500;
   --logo-ink: #1d1d1b;
   --alert: #e8511c;
@@ -49,14 +51,14 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #0e1317; --surface: #161d23; --sunk: #1b232a; --ink: #e7ebee; --muted: #94a0aa;
-    --rule: #2a343c; --accent: #ff7a3d; --accent-ink: #1f0c00; --focus: #7aa7ff; --map-bg: #121417;
+    --rule: #2a343c; --accent: #ff7a3d; --accent-ink: #1f0c00; --accent-strong: #ff7a3d; --accent-strong-ink: #1f0c00; --focus: #7aa7ff; --map-bg: #121417;
     --ok: #3ccf7f; --late: #ff9a3c; --theo: #7f8a94; --me: #5b9bff; --brand: #ff6a1a; --logo-ink: #f1f1ef; --alert: #ff7a3d; --map-case: #121417;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #0e1317; --surface: #161d23; --sunk: #1b232a; --ink: #e7ebee; --muted: #94a0aa;
-  --rule: #2a343c; --accent: #ff7a3d; --accent-ink: #1f0c00; --focus: #7aa7ff; --map-bg: #121417;
+  --rule: #2a343c; --accent: #ff7a3d; --accent-ink: #1f0c00; --accent-strong: #ff7a3d; --accent-strong-ink: #1f0c00; --focus: #7aa7ff; --map-bg: #121417;
   --ok: #3ccf7f; --late: #ff9a3c; --theo: #7f8a94; --me: #5b9bff; --brand: #ff6a1a; --logo-ink: #f1f1ef; --alert: #ff7a3d; --map-case: #121417;
   color-scheme: dark;
 }
@@ -202,6 +204,14 @@ details.when .whenbody { padding: 4px 12px 12px; display: flex; flex-direction: 
 .mini .t1 { display: inline-flex; align-items: center; gap: 5px; font: 700 17px/1 var(--font-display); }
 .mini .t2 { font: 600 13.5px/1 var(--font-display); color: var(--muted); }
 .mini .none { padding: 10px 14px; border-top: 1px solid var(--rule); color: var(--muted); font-size: 13.5px; }
+/* fin de service : ligne terminée à un arrêt */
+.mini .endrow { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; padding: 9px 14px; border-top: 1px solid var(--rule); min-height: 48px; }
+.endt { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; text-align: right; }
+.endt b { font: 700 13.5px/1.15 var(--font-display); color: var(--muted); }
+.endt small { font-size: 12px; color: var(--muted); }
+.endt.big { grid-column: 1 / -1; align-items: flex-start; text-align: left; }
+.endt.big b { font-size: 15px; }
+.dep.ended .dir { color: var(--muted); }
 
 .tripcard { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; padding: 12px 14px; border: 0; background: none; text-align: left; width: 100%; }
 .tripcard .od { font: 700 16.5px/1.2 var(--font-display); }
@@ -469,6 +479,20 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
 .mbbar .hint { flex: 1 1 160px; font-size: 12.5px; color: var(--muted); }
 .alertbtn { gap: 6px; }
 .alertbtn[aria-pressed="true"] { background: color-mix(in srgb, var(--accent) 12%, var(--surface)); color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, var(--rule)); }
+/* fin de service du réseau : bandeau discret + pop-up une fois par nuit */
+.nightbar { flex: none; display: flex; align-items: center; gap: 8px; margin: 0 16px 8px; min-height: 32px; padding: 6px 12px; border-radius: 999px; background: var(--sunk); color: var(--muted); font-size: 13px; font-weight: 500; }
+.nightbar[hidden] { display: none; }
+.nightbar svg { flex: none; }
+#nightpop { position: fixed; inset: 0; z-index: 95; background: rgb(14 19 23 / .55); display: none; place-items: center; padding: 24px; }
+#nightpop.on { display: grid; }
+#nightpop .np-in { width: min(340px, 100%); background: var(--surface); color: var(--ink); border-radius: 22px; padding: 28px 24px 20px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; box-shadow: 0 20px 50px rgb(0 0 0 / .25); animation: nprise .35s ease-out both; }
+@keyframes nprise { from { transform: translateY(16px) scale(.97); opacity: 0; } to { transform: none; opacity: 1; } }
+#nightpop .np-ico { width: 64px; height: 64px; border-radius: 50%; background: color-mix(in srgb, var(--accent) 16%, var(--surface)); color: var(--accent-strong); display: grid; place-items: center; }
+#nightpop h2 { font-size: 22px; line-height: 1.2; }
+#nightpop p { margin: 0; }
+#nightpop .np-s { font-size: 13px; color: var(--muted); }
+#nightpop .np-ok { margin-top: 8px; width: 100%; height: 50px; border: 0; border-radius: 14px; background: var(--accent-strong); color: var(--accent-strong-ink); font: 700 16px/1 var(--font-display); }
+.simu { position: fixed; z-index: 96; left: 50%; top: calc(6px + var(--sat)); transform: translateX(-50%); background: #15202b; color: #fff; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; pointer-events: none; }
 #takeover { position: fixed; inset: 0; z-index: 90; background: var(--accent); color: #fff; display: none; place-items: center; padding: 24px 18px calc(24px + var(--sab)); overflow: auto; }
 #takeover.on { display: grid; animation: tkin .3s ease-out; }
 @keyframes tkin { from { opacity: 0; transform: scale(1.04); } to { opacity: 1; transform: none; } }
@@ -574,6 +598,7 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
       <h1 id="title">Horaires Grand Reims</h1>
       <button type="button" class="rt" id="rt" title="État du temps réel"><i></i><span>Temps réel…</span></button>
     </header>
+    <div class="nightbar" id="nightbar" role="status" hidden></div>
     <div class="scroll" id="scroll">
 
       <!-- Accueil -->
@@ -940,7 +965,84 @@ function departures(net, pStop, day, t0, horizon = 120) {
   return rows;
 }
 
-if (typeof module !== "undefined") module.exports = { makeNet, raptor, planDepart, planArrive, departures, firstTrip, applyRT, arr, isLive };
+// ---------- fin de service ----------
+// Jour de service « en cours » à la minute t du jour calendaire `day` : avant 3 h, c'est encore celui de la veille.
+const svcDayAt = (day, t) => (t < 180 ? day - 1 : day);
+
+// Lignes et sens desservis à un arrêt (toutes destinations confondues), avec la destination la plus fréquente.
+function stopLineDirs(net, pStop) {
+  const g = new Map();
+  for (const q of net.P[pStop][3]) {
+    const lst = net.qp[q];
+    for (let x = 0; x < lst.length; x += 2) {
+      const p = net.pats[lst[x]], i = lst[x + 1];
+      if (i === p.nS - 1) continue;
+      const key = p.r + "|" + p.dir;
+      if (!g.has(key)) g.set(key, { r: p.r, dir: p.dir, items: [], hs: new Map() });
+      const G = g.get(key);
+      G.items.push([lst[x], i]);
+      G.hs.set(p.h, (G.hs.get(p.h) || 0) + p.nT);
+    }
+  }
+  for (const G of g.values()) G.h = [...G.hs.entries()].sort((a, b) => b[1] - a[1])[0][0];
+  return g;
+}
+
+// État du service d'une ligne/sens à un arrêt à la minute t du jour `day` (horaires théoriques).
+// Rend { state: "run" | "gap" | "end" | "none", next, nextDay } ; next = minutes depuis minuit du jour `day`.
+//  run : passage dans l'horizon ; gap : plus rien dans l'horizon mais encore des passages aujourd'hui ;
+//  end : la ligne a circulé aujourd'hui et c'est fini ; none : aucune circulation aujourd'hui.
+function lineDirService(net, items, day, t, horizon = 120) {
+  const sd = svcDayAt(day, t);
+  let next = Infinity, nextDk = -1, ranToday = false;
+  for (const [pi, i] of items) {
+    const p = net.pats[pi];
+    for (let k = 0; k < p.nT; k++) {
+      const st = p.D[k * p.nS + i];
+      for (let dk = day - 1; dk <= day + 8; dk++) {
+        if (!net.svcOn(p.sv[k], dk)) continue;
+        if (dk === sd) ranToday = true;
+        const abs = st + (dk - day) * 1440;
+        if (abs >= t && abs < next) { next = abs; nextDk = dk; }
+      }
+    }
+  }
+  const nx = next === Infinity ? null : next;
+  if (nx != null && nx - t <= horizon) return { state: "run", next: nx, nextDay: nextDk };
+  if (nx != null && nextDk === sd) return { state: "gap", next: nx, nextDay: nextDk };
+  return { state: ranToday ? "end" : "none", next: nx, nextDay: nextDk };
+}
+
+// Fenêtre de nuit du réseau : fin du dernier trajet du jour de service sd, premier départ du jour sd + 1.
+const _netWin = new Map();
+function netServiceWindow(net, sd) {
+  if (_netWin.has(sd)) return _netWin.get(sd);
+  let last = -1, first = Infinity;
+  for (const p of net.pats) {
+    for (let k = 0; k < p.nT; k++) {
+      if (net.svcOn(p.sv[k], sd)) last = Math.max(last, p.A[k * p.nS + p.nS - 1]);
+      if (net.svcOn(p.sv[k], sd + 1)) first = Math.min(first, p.D[k * p.nS]);
+    }
+  }
+  const w = { last: last < 0 ? null : last, first: first === Infinity ? null : first };
+  _netWin.set(sd, w);
+  return w;
+}
+// Nuit (plus aucun bus ni tram en circulation) à la minute t du jour `day` ? Rend { sd, until } ou null.
+// until = premier départ du lendemain, en minutes depuis minuit du jour `day`.
+function networkNight(net, day, t) {
+  for (const sd of [day - 1, day]) {
+    if (sd < 0 || sd >= net.nd) continue;
+    const w = netServiceWindow(net, sd);
+    if (w.last == null) continue;
+    const now = t + (day - sd) * 1440;             // minutes depuis minuit du jour de service sd
+    const until = w.first == null ? Infinity : 1440 + w.first;
+    if (now >= w.last && now < until) return { sd, until: until - (day - sd) * 1440 };
+  }
+  return null;
+}
+
+if (typeof module !== "undefined") module.exports = { makeNet, raptor, planDepart, planArrive, departures, firstTrip, applyRT, arr, isLive, stopLineDirs, lineDirService, networkNight, netServiceWindow, svcDayAt };
 
 // Décodeur GTFS-RT minimal (protobuf) : TripUpdates et VehiclePositions.
 function pbRead(buf) {
@@ -1053,8 +1155,15 @@ const walkSvg = `<svg width="13" height="13" viewBox="0 0 16 16" fill="currentCo
 
 // ---------- heure de Paris ----------
 const _fmtMin = new Intl.DateTimeFormat("fr-FR", { timeZone: "Europe/Paris", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23" });
-function parisNow() {
+// ?simu=2026-11-08T01:05 : fait comme s'il était cette heure-là à Reims (essais ; le temps réel est coupé)
+const SIMU = (() => {
+  const m = /[?&]simu=(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(location.search); if (!m) return 0;
   const o = Object.fromEntries(_fmtMin.formatToParts(new Date()).map((x) => [x.type, x.value]));
+  const wall = Date.UTC(+o.year, +o.month - 1, +o.day, +o.hour, +o.minute, +o.second);
+  return Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]) - wall || 1;
+})();
+function parisNow() {
+  const o = Object.fromEntries(_fmtMin.formatToParts(new Date(Date.now() + SIMU)).map((x) => [x.type, x.value]));
   return { iso: `${o.year}-${o.month}-${o.day}`, min: +o.hour * 60 + +o.minute, minF: +o.hour * 60 + +o.minute + +o.second / 60 };
 }
 const nowMinF = () => parisNow().minF;
@@ -1202,16 +1311,44 @@ function nextByLine(stop, maxGroups = 4) {
   const day = net.dayIndex(iso), t = Math.floor(nowMinF());
   const rows = departures(net, stop, day, t - 1, 120).filter((x) => x.t >= nowMinF() - 0.5);
   const g = new Map();
-  for (const x of rows) { const p = net.pats[x.pat]; const key = p.r + "|" + p.h; if (!g.has(key)) g.set(key, { r: p.r, h: p.h, list: [] }); const G = g.get(key); if (G.list.length < 2) G.list.push(x); }
-  return [...g.values()].sort((a, b) => a.list[0].t - b.list[0].t).slice(0, maxGroups);
+  for (const x of rows) { const p = net.pats[x.pat]; const key = p.r + "|" + p.h; if (!g.has(key)) g.set(key, { r: p.r, h: p.h, dir: p.dir, list: [] }); const G = g.get(key); if (G.list.length < 2) G.list.push(x); }
+  const act = [...g.values()].sort((a, b) => a.list[0].t - b.list[0].t);
+  // lignes dont le service est terminé (ou absent aujourd'hui) à cet arrêt, après celles qui passent
+  const ended = endedLines(stop, act, day, t, 120);
+  return [...act, ...ended].slice(0, maxGroups);
 }
+// ---------- fin de service : lignes terminées à un arrêt ----------
+const hmFr = (m) => { m = ((Math.round(m) % 1440) + 1440) % 1440; return Math.floor(m / 60) + " h " + String(m % 60).padStart(2, "0"); };
+const JOURS = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
+const weekdayOf = (k) => JOURS[new Date(net.isoOf(k) + "T12:00:00").getDay()];
+// « reprise à 5 h 32 », « reprise demain à 5 h 32 », « reprise lundi à 6 h 10 » ; sans heure pour « pas de service »
+function repriseTxt(st, day, withTime) {
+  if (st.next == null) return "reprise non connue";
+  const cal = day + Math.floor(st.next / 1440), at = withTime ? " à " + hmFr(st.next) : "";
+  if (cal === day) return withTime ? "reprise à " + hmFr(st.next) : "reprise plus tard";
+  if (cal === day + 1) return "reprise demain" + at;
+  return "reprise " + weekdayOf(cal) + at;
+}
+// act : groupes qui ont un passage dans l'horizon (r, dir) ; rend les lignes/sens terminés ou sans service aujourd'hui
+function endedLines(stop, act, day, t, horizon) {
+  const busy = new Set(act.map((G) => G.r + "|" + G.dir));
+  const out = [];
+  for (const [key, L] of stopLineDirs(net, stop)) {
+    if (busy.has(key)) continue;
+    const st = lineDirService(net, L.items, day, t, horizon);
+    if (st.state === "end") out.push({ r: L.r, h: L.h, dir: L.dir, end: "Service terminé", sub: repriseTxt(st, day, true), next: st.next });
+    else if (st.state === "none") out.push({ r: L.r, h: L.h, dir: L.dir, end: "Pas de service aujourd'hui", sub: repriseTxt(st, day, false), next: st.next });
+  }
+  return out.sort((a, b) => (a.next ?? 1e9) - (b.next ?? 1e9) || a.r - b.r);
+}
+const endRowHtml = (G) => `<div class="endrow">${badge(G.r)}<span class="dir">${esc(G.h)}</span><span class="endt"><b>${G.end}</b><small>${G.sub}</small></span></div>`;
 function stopCard(i, sub) {
   const gs = nextByLine(i);
   const star = isFavStop(i);
   return `<div class="card stopcard" data-stop="${i}">
     <div class="sc-h"><div class="nm"><b>${esc(pName(i))}</b>${sub ? `<small>${sub}</small>` : ""}</div>
       <button type="button" class="icon-btn star" data-favstop="${i}" aria-pressed="${star}" aria-label="${star ? "Retirer des favoris" : "Ajouter aux favoris"}">${starSvg}</button></div>
-    <div class="mini">${gs.length ? gs.map((G) => { const a = G.list[0], b = G.list[1]; return `<button type="button" data-follow="${a.pat}:${a.k}:${a.off}">${badge(G.r)}<span class="dir">${esc(G.h)}</span><span class="tw"><span class="t1">${dot(a.live)}${waitLabel(a.t, true)}</span>${b ? `<span class="t2">${waitLabel(b.t, true)}</span>` : ""}</span></button>`; }).join("") : `<div class="none">Aucun départ dans les 2 prochaines heures.</div>`}
+    <div class="mini">${gs.length ? gs.map((G) => { if (!G.list) return endRowHtml(G); const a = G.list[0], b = G.list[1]; return `<button type="button" data-follow="${a.pat}:${a.k}:${a.off}">${badge(G.r)}<span class="dir">${esc(G.h)}</span><span class="tw"><span class="t1">${dot(a.live)}${waitLabel(a.t, true)}</span>${b ? `<span class="t2">${waitLabel(b.t, true)}</span>` : ""}</span></button>`; }).join("") : `<div class="none">Aucun départ dans les 2 prochaines heures.</div>`}
       <button type="button" data-openstop="${i}" style="grid-template-columns:1fr auto;color:var(--focus);font-weight:600;font-size:14px">Tous les passages ${chevR}</button></div>
   </div>`;
 }
@@ -1384,13 +1521,19 @@ function runPa() {
     if (g.list.length < 6 && !g.list.some((y) => Math.round(y.t) === Math.round(x.t))) g.list.push(x);
   }
   const gs = [...groups.values()].sort((a, b) => a.r - b.r || a.list[0].t - b.list[0].t);
-  if (!gs.length) { res.innerHTML = `<div class="empty">Aucun passage dans les 3 heures après ${hm(t0)} le ${fmtDateLong(iso)}.</div>`; drawMap(); return; }
+  // aujourd'hui : lignes/sens dont le service est terminé (ou absent aujourd'hui) à cet arrêt
+  const ended = isToday ? endedLines(S.paStop, gs, day, Math.max(t0, 0), 180) : [];
+  const endHtml = ended.map((G) => `
+    <div class="dep ended">${badge(G.r, "lg")}<div class="dir">→ ${esc(G.h)}<small>${esc(net.R[G.r].l)}</small></div>
+      <div class="endt big"><b>${G.end}</b><small>${G.sub}</small></div>
+    </div>`).join("");
+  if (!gs.length && !ended.length) { res.innerHTML = `<div class="empty">Aucun passage dans les 3 heures après ${hm(t0)} le ${fmtDateLong(iso)}.</div>`; drawMap(); return; }
   const nowF = nowMinF();
   res.innerHTML = trNoteFor(net.pRoutes[S.paStop]).replace('class="trnote"', 'class="trnote" style="margin-bottom:10px"') + `<div class="legend-dots" style="margin:0 0 10px"><span>${dot(true)}temps réel</span><span>${dot(false)}horaire théorique</span><span>Touchez un horaire pour suivre le bus</span></div><div class="deps">` + gs.map((g) => `
     <div class="dep">${badge(g.r, "lg")}<div class="dir">→ ${esc(g.h)}<small>${esc(net.R[g.r].l)}</small></div>
       <div class="tt">${g.list.map((x, k) => { const w = x.t - nowF; return `<button type="button" class="chip${k === 0 && isToday && w <= 15 && w > -1 ? " soon" : ""}" data-follow="${x.pat}:${x.k}:${x.off}" title="${x.live ? "Temps réel, passage à " + hm(x.t) : "Horaire théorique, passage à " + hm(x.t)}"><span class="main">${dot(x.live)}${waitLabel(x.t, isToday)}</span>${x.live && Math.round(x.t) !== Math.round(x.st) ? `<small>${delayTxt(x.t, x.st)}</small>` : isToday && w >= 59.5 ? "" : isToday ? `<small>${hm(x.t)}</small>` : ""}</button>`; }).join("")}</div>
       <button type="button" class="linkbtn open" data-r="${g.r}" data-d="${g.dir}">Fiche horaire de la ligne ${esc(net.R[g.r].s)} ${chevR}</button>
-    </div>`).join("") + `</div>`;
+    </div>`).join("") + endHtml + `</div>`;
   res.querySelectorAll(".open").forEach((b) => b.addEventListener("click", () => { S.line = +b.dataset.r; S.dir = +b.dataset.d; $("#li-date").value = $("#pa-date").value; $("#li-time").value = $("#pa-time").value; go("lignes"); }));
   res.querySelectorAll("[data-follow]").forEach((b) => b.addEventListener("click", () => { const [pi, k, off] = b.dataset.follow.split(":").map(Number); startFollow(pi, k, day + (off ? -1 : 0), S.paStop); }));
   drawMap();
@@ -2520,6 +2663,7 @@ rtEl.addEventListener("click", () => { toast(RT.ok ? `${RT.n} courses suivies en
 let rtTimer = 0;
 async function pollRT() {
   clearTimeout(rtTimer);
+  if (SIMU) { RT.ok = false; RT.err = "Simulation d'heure : temps réel coupé."; rtLabel(); return; }
   try {
     const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 12000);
     const r = await fetch(RT_URL, { cache: "no-store", signal: ctl.signal }); clearTimeout(to);
@@ -2541,6 +2685,36 @@ async function pollRT() {
   rtLabel();
   rtTimer = setTimeout(pollRT, 30000);
 }
+// ---------- fin de service du réseau ----------
+const moonSvg = (n) => `<svg width="${n}" height="${n}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${n > 20 ? 1.9 : 2}" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M19.5 14.6A8 8 0 1 1 9.4 4.5a6.4 6.4 0 0 0 10.1 10.1z"/>${n > 20 ? `<path d="M17 3.5v3M15.5 5h3"/>` : ""}</svg>`;
+function nightPop() {
+  let el = $("#nightpop");
+  if (!el) { el = document.createElement("div"); el.id = "nightpop"; document.body.appendChild(el); }
+  el.innerHTML = `<div class="np-in" role="dialog" aria-modal="true" aria-labelledby="np-t">
+    <span class="np-ico">${moonSvg(32)}</span>
+    <h2 id="np-t">Fin de service sur le réseau</h2>
+    <p>Les derniers bus et trams ont terminé leur service.<br>À demain sur nos lignes !</p>
+    <p class="np-s">Les horaires et les itinéraires de demain restent disponibles.</p>
+    <button type="button" class="np-ok">Bonne nuit</button>
+  </div>`;
+  const close = () => { el.classList.remove("on"); document.removeEventListener("keydown", esc_); };
+  const esc_ = (e) => { if (e.key === "Escape") close(); };
+  $(".np-ok", el).onclick = close;
+  el.onclick = (e) => { if (e.target === el) close(); };
+  document.addEventListener("keydown", esc_);
+  el.classList.add("on");
+  setTimeout(() => { try { $(".np-ok", el).focus(); } catch (e) {} }, 50);
+}
+function checkNight() {
+  const n = parisNow(), bar = $("#nightbar");
+  const nt = networkNight(net, net.dayIndex(n.iso), n.minF);
+  if (!nt) { bar.hidden = true; return; }
+  bar.innerHTML = `${moonSvg(16)}<span>Fin de service sur le réseau · à demain</span>`;
+  bar.hidden = false;
+  const key = net.isoOf(nt.sd);
+  if (store.get("nightSeen") !== key) { store.set("nightSeen", key); nightPop(); }
+}
+
 function rerender() {
   if (document.activeElement && document.activeElement.matches("input")) return; // ne pas gêner la saisie
   const key = S.journeys[S.selJ]?.key;
@@ -2640,10 +2814,13 @@ setInterval(() => { if (S.view !== "suivi" && (S.guide || (S.follow && S.follow.
 // service worker : uniquement pour afficher les notifications (pas de cache hors ligne)
 if ("serviceWorker" in navigator && !/claude/.test(location.hostname)) navigator.serviceWorker.register("sw.js").then((r) => { swReg = r; }).catch(() => {});
 setInterval(() => { if (!document.hidden && S.view !== "suivi" && !RT.ok) rerender(); }, 30000);
-document.addEventListener("visibilitychange", () => { if (!document.hidden) { pollRT(); loadTrafic(); rerender(); } });
+document.addEventListener("visibilitychange", () => { if (!document.hidden) { pollRT(); loadTrafic(); rerender(); checkNight(); } });
 pollRT();
 loadTrafic();
 setInterval(() => { if (!document.hidden) loadTrafic(); }, 5 * 60000);
+checkNight();
+setInterval(() => { if (!document.hidden) checkNight(); }, 30000);
+if (SIMU) { const sb = document.createElement("div"); sb.className = "simu"; const n = parisNow(); sb.textContent = `Simulation · ${fmtDateShort(n.iso)} ${hm(n.min)}`; document.body.appendChild(sb); }
 runSplash();
 })();
 </script>

@@ -25,6 +25,7 @@ Outil web pour le réseau Grand Reims Mobilités, pensé pour le téléphone : a
 | `sw.js` | Service worker minimal pour les notifications (alertes de descente, correspondances). |
 | `info-trafic.json` | Info trafic relevée (générée, ne pas modifier à la main). |
 | `build/make.py` | Reconstruit `index.html` : `python build/make.py gtfs.zip` (ou `--data` pour réutiliser `build/data.json`) |
+| `test/index.html` | Version d'essai d'une nouveauté avant mise en ligne : `python build/make.py --data --test`. Ajouter `?simu=AAAA-MM-JJTHH:MM` à l'adresse pour simuler une heure (temps réel coupé). |
 | `.github/workflows/mise-a-jour-horaires.yml` | Mise à jour automatique deux fois par semaine. |
 | `.github/workflows/info-trafic.yml` | Relevé de l'info trafic toutes les 15 minutes. |
 | `.github/workflows/plans.yml` | Plans du réseau, chaque semaine. |
