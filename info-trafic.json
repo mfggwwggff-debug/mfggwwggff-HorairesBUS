@@ -1,0 +1,2684 @@
+{
+ "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
+ "at": "2026-11-05T15:23:03Z",
+ "items": [
+  {
+   "id": "20acd05e39",
+   "t": "108èmè Anniversaire de l'armistice de 1918",
+   "lines": [
+    "C",
+    "U3",
+    "U4"
+   ],
+   "p": "Le mercredi 11 novembre 2026 jusqu'à 14h00",
+   "start": "2026-11-11",
+   "end": "2026-11-11",
+   "b": [
+    {
+     "l": "U3",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "LUNDY",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "C.C. CERNAY",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt BRIAND",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U3",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "LUNDY",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "MAURENCIENNE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt BRIAND de la ligne U1 vers P+R Thillois",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U3",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "COQUEBERT",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "C.C. CERNAY",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt BRIAND",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U3",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "COQUEBERT",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "MAURENCIENNE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt BRIAND de la ligne U1 vers P+R Thillois",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U3",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "GARE CENTRE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "MAURENCIENNE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt GARE CENTRE de a ligne O1 vers Danemark",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U4",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "GARE CENTRE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "ORGEVAL",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt GARE CENTRE de la ligne O1 vers Moulin de la Housse",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U3",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "PORTE DE MARS",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "C.C. CERNAY",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt GARE CENTRE",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U4",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "PORTE DE MARS",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "ORGEVAL",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt GARE CENTRE de la ligne O1 vers Moulin de la Housse",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "C",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "MUMM / FOUJITA",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "CITYBUS - GARE CENTRE",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "au 20 rue du Docteur Lemoine",
+       1
+      ]
+     ]
+    },
+    {
+     "img": "https://prod.deviations.info/carte/grandreims/public/img/86717.jpg"
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "bcf248c5c4",
+   "t": "Reports des arrêts Rethel et Thierot vers Cormontreuil Blancs Monts",
+   "lines": [
+    "U4"
+   ],
+   "p": "A partir du mardi 10 novembre 2026 jusqu'au vendredi 20 novembre 2026",
+   "start": "2026-11-10",
+   "end": "2026-11-20",
+   "b": [
+    {
+     "l": "U4",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "RETHEL",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "BLANCS MONTS",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "au 179 rue de Neufchâtel",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U4",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "THIEROT",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "BLANCS MONTS",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "au 179 rue de Neufchâtel",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "16eb3530f2",
+   "t": "En raison de contraintes d'exploitation, certains départs ne sont pas assurés aujourd'hui :",
+   "lines": [
+    "U20"
+   ],
+   "p": "",
+   "start": null,
+   "end": null,
+   "b": [
+    {
+     "r": [
+      [
+       "Mercredi 4 novembre et jeudi 5 novembre 2026:",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Départs de Gare Clairmarais non assurés: 7h19-8h31-9h43-10h55-12h07-13h19-14h30-15h42-16h54-18h08-19h22",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Départs de Fac des Sciences non assurés: 7h57-9h09-10h21-11h33-12h45-13h57-15h09-16h21-17h34-18h47-20h",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Conseil déplacement",
+       1
+      ],
+      [
+       ": nous vous invitons à anticiper votre trajet ou à privilégier les lignes à proximité ( https://grandreims-mobilites.fr/fr/3RW-Itineraire.html)",
+       0
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "e1166714f6",
+   "t": "Nouveaux arrêts ESI ligne U5",
+   "lines": [
+    "U5"
+   ],
+   "p": "A partir du mardi 03 novembre 2026: Les arrêts ESI sont desservis par la ligne U5",
+   "start": "2026-11-03",
+   "end": null,
+   "b": [
+    {
+     "l": "U5",
+     "r": [
+      [
+       "Nouveaux arrêts ",
+       0
+      ],
+      [
+       "ESI",
+       1
+      ],
+      [
+       " situés au niveau du 83 Avenue Henri farman",
+       0
+      ]
+     ]
+    },
+    {
+     "img": "https://prod.deviations.info/carte/grandreims/public/img/86835.jpg"
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "f8feabe17f",
+   "t": "Horaires en temps réel Kif&go en dysfonctionnement",
+   "lines": [],
+   "p": "",
+   "start": null,
+   "end": null,
+   "b": [
+    {
+     "r": [
+      [
+       "Nous vous invitons à consulter les horaires en temps réel sur notre site intenet",
+       0
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "391d31b0d6",
+   "t": "Travaux rue des Sablières à Champigny",
+   "lines": [
+    "U8"
+   ],
+   "p": "A partir du lundi 19 octobre 2026 jusqu'au lundi 21 décembre 2026",
+   "start": "2026-10-19",
+   "end": "2026-12-21",
+   "b": [
+    {
+     "l": "U8",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "SABLIERES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "LA COUTURELLE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt GARENNE",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U8",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "SABLIERES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "CHAMPEA",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt GARENNE",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U8",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "CROIX BLANCHE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "LA COUTURELLE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt REDONT",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U8",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "CROIX BLANCHE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "CHAMPEA",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt REDONT",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "1539d33ccb",
+   "t": "Travaux de voirie à Treslon",
+   "lines": [
+    "E6"
+   ],
+   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 16 avril 2027",
+   "start": "2026-10-19",
+   "end": "2027-04-16",
+   "b": [
+    {
+     "l": "",
+     "r": [
+      [
+       "Forte perturbation sur les horaires de la ligne durant cette période",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "E6",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "TRESLON",
+       1
+      ],
+      [
+       " dans les deux sens est non desservi par la ligne, mais reste desservi par le",
+       0
+      ],
+      [
+       "Transport A la Demande",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "2f036d5c93",
+   "t": "Travaux rue Pierre Maître et rue de Courcelles",
+   "lines": [
+    "U7"
+   ],
+   "p": "A partir du lundi 19 octobre 2026 jusqu'au dimanche 21 février 2027",
+   "start": "2026-10-19",
+   "end": "2027-02-21",
+   "b": [
+    {
+     "l": "U7",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "VERRERIES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "HOPITAL DEBRE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt VERRERIES de la ligne U7 vers BOUTREAUX",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U7",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "PONT ST BRICE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "HOPITAL DEBRE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt VERRERIES de la ligne U7 vers BOUTREAUX",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U7",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "PONT ST BRICE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "BOUTREAUX",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "au 14 rue Pierre Maitre",
+       1
+      ]
+     ]
+    },
+    {
+     "img": "https://prod.deviations.info/carte/grandreims/public/img/86603.jpg"
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "25a156ef9e",
+   "t": "Report de l'arrêt Tinqueux Mairie vers P+R Thillois",
+   "lines": [
+    "U1"
+   ],
+   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 18 décembre 2026",
+   "start": "2026-10-19",
+   "end": "2026-12-18",
+   "b": [
+    {
+     "l": "U1",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "TINQUEUX MAIRIE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "P+R THILLOIS",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "50 mètres avant l'arrêt",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "7f0499f1fe",
+   "t": "Report de l'arrêt Folle Peine",
+   "lines": [
+    "E5",
+    "O2"
+   ],
+   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 18 décembre 2026",
+   "start": "2026-10-19",
+   "end": "2026-12-18",
+   "b": [
+    {
+     "l": "E5",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "FOLLE PEINE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "CATHEDRALE",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "60 mètres avant l'arrêt, au niveau du 86 rue de Venise",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "O2",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "FOLLE PEINE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "GARE CENTRE",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "60 mètres avant l'arrêt, au niveau du 86 rue de Venise",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "32c957c36c",
+   "t": "Report de l'arrêt St Symphorien",
+   "lines": [
+    "E2",
+    "E3",
+    "E4"
+   ],
+   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 6 novembre 2026",
+   "start": "2026-10-19",
+   "end": "2026-11-06",
+   "b": [
+    {
+     "l": "E2",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "SAINT-SYMPHORIEN",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "ST ETIENNE SUR SUIPPE",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "au niveau du 7 rue Eugène Desteuque",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "E3",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "SAINT-SYMPHORIEN",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "WARMERIVILLE",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "au niveau du 7 rue Eugène Desteuque",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "E4",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "SAINT-SYMPHORIEN",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "BETHENIVILLE",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "au niveau du 7 rue Eugène Desteuque",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "b7890436b6",
+   "t": "Report de l'arrêt Stade de Muire vers C.C Cernay",
+   "lines": [
+    "U1"
+   ],
+   "p": "A partir du jeudi 15 octobre 2026 jusqu'au vendredi 30 novembre 2026",
+   "start": "2026-10-15",
+   "end": "2026-11-30",
+   "b": [
+    {
+     "l": "U1",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "STADE DE MUIRE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "C.C. CERNAY",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "à l'arrêt ISLE DE FRANCE",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "2ea8abe072",
+   "t": "Travaux Bld Charles Arnould et rue de Courcelles",
+   "lines": [
+    "U3"
+   ],
+   "p": "A partir du lundi 12 octobre 2026 jusqu'au 31 décembre 2026",
+   "start": "2026-10-12",
+   "end": "2026-12-31",
+   "b": [
+    {
+     "l": "U3",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "LEONARD DE VINCI",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "C.C. CERNAY",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "face au 104 Bld Albert 1er",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U3",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "LEONARD DE VINCI",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "MAURENCIENNE",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "au 106 Bld Albert 1er",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U3",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "ARNOULD",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "C.C. CERNAY",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "face au 104 Bld Albert 1er",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U3",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "ARNOULD",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "MAURENCIENNE",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "au 106 Bld Albert 1er",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U3",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "RAPHAEL",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "C.C. CERNAY",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt BAUSSONNET de la ligne O1",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U3",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "RAPHAEL",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "MAURENCIENNE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt BAUSSONNET de la ligne O1",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U3",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "BELGIQUE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "C.C. CERNAY",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt BAUSSONNET de la ligne O1",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U3",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "BELGIQUE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "MAURENCIENNE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt BAUSSONNET de la ligne O1",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U3",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "GERUZEZ",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "C.C. CERNAY",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt ROMAINS",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U3",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "GERUZEZ",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "MAURENCIENNE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt ROMAINS",
+       1
+      ]
+     ]
+    },
+    {
+     "img": "https://prod.deviations.info/carte/grandreims/public/img/86473.jpg"
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "f9f6989857",
+   "t": "Travaux rue de Louvois",
+   "lines": [
+    "U5"
+   ],
+   "p": "A partir du jeudi 01 octobre 2026 jusqu'au jeudi 31 decembre 2026",
+   "start": "2026-10-01",
+   "end": "2026-12-31",
+   "b": [
+    {
+     "l": "U5",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "SAINTE-ANNE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "PARC DES EXPOSITIONS",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt SAINTE-ANNE de la ligne U4",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U5",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "SAINTE-ANNE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "CROIX DU SUD",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt SAINTE-ANNE de la ligne U4",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U5",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "HARMAN",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "PARC DES EXPOSITIONS",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt SAINTE-ANNE de la ligne U4",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U5",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "HARMAN",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "CROIX DU SUD",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt SAINTE-ANNE de la ligne U4",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U5",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "ALEXANDRE 1ER",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "CROIX DU SUD",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "au 57 bld du Président Wilson (ex arrêt WILSON de la ligne 2)",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U5",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "ALEXANDRE 1ER",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "PARC DES EXPOSITIONS",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "face au 61 bld du Président Wilson (ex arrêt WILSON de la ligne 2)",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U5",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "D'ORVES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "PARC DES EXPOSITIONS",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "face au 61 bld du Président Wilson (ex arrêt WILSON de la ligne 2)",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U5",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "D'ORVES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "CROIX DU SUD",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "au 57 bld du Président Wilson (ex arrêt WILSON de la ligne 2)",
+       1
+      ]
+     ]
+    },
+    {
+     "img": "https://prod.deviations.info/carte/grandreims/public/img/86421.jpg"
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "f168938f84",
+   "t": "Report des arrêts Alexandre 1er",
+   "lines": [
+    "O2"
+   ],
+   "p": "A partir du lundi 28 septembre 2026 jusqu'au jeudi 31 décembre 2026",
+   "start": "2026-09-28",
+   "end": "2026-12-31",
+   "b": [
+    {
+     "l": "O2",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "ALEXANDRE 1ER",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "GARE CENTRE",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "(100 mètres après) au niveau du 15 Bld Louis Barthou",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "O2",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "ALEXANDRE 1ER",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "C.C. CORMONTREUIL",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "(100 mètres avant) au niveau du 18 Bld Louis Barthou",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "f118b20ae9",
+   "t": "Report de l'arrêt D'Orves vers C.C Cormontreuil",
+   "lines": [
+    "O2",
+    "U5"
+   ],
+   "p": "A partir du lundi 28 septembre 2026 jusqu'au jeudi 31 décembre 2026",
+   "start": "2026-09-28",
+   "end": "2026-12-31",
+   "b": [
+    {
+     "l": "O2",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "D'ORVES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "C.C. CORMONTREUIL",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "200 mètres avant, face au 61 Bld du Président Wilson (ancien arrêt de la ligne 2)",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U5",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "D'ORVES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "PARC DES EXPOSITIONS",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "200 mètres avant, face au 61 Bld du Président Wilson (ancien arrêt de la ligne 2)",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "34f3c220d0",
+   "t": "Report de l'arrêt St Nicaise vers Parc des Expositions",
+   "lines": [
+    "U5"
+   ],
+   "p": "A partir du jeudi 24 septembre 2026 jusqu'au 31 décembre 2026",
+   "start": "2026-09-24",
+   "end": "2026-12-31",
+   "b": [
+    {
+     "l": "U5",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "ST NICAISE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "PARC DES EXPOSITIONS",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "20 mètres après l'arrêt",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ed1db1ef0e",
+   "t": "Travaux rue Libergier",
+   "lines": [
+    "U8"
+   ],
+   "p": "A partir du mardi 08 septembre 2026 jusqu'au lundi 31 mai 2027",
+   "start": "2026-09-08",
+   "end": "2027-05-31",
+   "b": [
+    {
+     "l": "U8",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "VESLE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "LA COUTURELLE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt VESLE de la ligne U1 vers C.C CERNAY",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U8",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "LIBERGIER",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "LA COUTURELLE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt VESLE de la ligne U1 vers C.C CERNAY",
+       1
+      ]
+     ]
+    },
+    {
+     "img": "https://prod.deviations.info/carte/grandreims/public/img/86105.jpg"
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "10b804cffd",
+   "t": "Fin de report des arrêts Hôpital Debré (nouvelle desserte)",
+   "lines": [
+    "U21",
+    "U4"
+   ],
+   "p": "A partir du 30 octobre 2026: Nouvelle desserte",
+   "start": "2026-10-30",
+   "end": null,
+   "b": [
+    {
+     "img": "https://prod.deviations.info/carte/grandreims/public/img/86115.jpg"
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cb96a7d272",
+   "t": "Fermeture de la Grande Place à Pomacle",
+   "lines": [
+    "E3"
+   ],
+   "p": "A partir du lundi 15 juin 2026 jusqu'au samedi 26 juin 2027",
+   "start": "2026-06-15",
+   "end": "2027-06-26",
+   "b": [
+    {
+     "l": "E3",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "POMACLE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "ST SYMPHORIEN",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "au 4 Chemin de la Billotière",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "E3",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "POMACLE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "WARMERIVILLE",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "Chemin de la Couture (Salle des Fêtes)",
+       1
+      ]
+     ]
+    },
+    {
+     "img": "https://grandreims-mobilites.fr/photos/ImportsEditeur/image_8857.png"
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "e29d74191b",
+   "t": "Marché du dimanche rue de Louvois",
+   "lines": [
+    "U5"
+   ],
+   "p": "Tous les dimanches jusque 15h00.",
+   "start": null,
+   "end": null,
+   "b": [
+    {
+     "l": "U5",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "SAINTE-ANNE",
+       1
+      ],
+      [
+       " dans les deux sens est reporté à l'",
+       0
+      ],
+      [
+       "arrêt SAINTE-ANNE de la ligne U4",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U5",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "HARMAN",
+       1
+      ],
+      [
+       " dans les deux sens est reporté à l'",
+       0
+      ],
+      [
+       "arrêt SAINTE-ANNE de la ligne U4",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U5",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "ALEXANDRE 1ER",
+       1
+      ],
+      [
+       " dans les deux sens est déplacé ",
+       0
+      ],
+      [
+       "aux anciens arrêts WILSON de la ligne 2 ( 57 et 62 bld du Président Wilson)",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U5",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "D'ORVES",
+       1
+      ],
+      [
+       " dans les deux sens est déplacé ",
+       0
+      ],
+      [
+       "aux anciens arrêts WILSON de la ligne 2 ( 57 et 62 bld du Président Wilson)",
+       1
+      ]
+     ]
+    },
+    {
+     "img": "https://prod.deviations.info/carte/grandreims/public/img/84487.jpg"
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "92830cbe2a",
+   "t": "Report de l'arrêt Chaise au Plafond",
+   "lines": [
+    "U7"
+   ],
+   "p": "A partir du lundi 13 avril 2026 jusqu'au 30 juin 2027",
+   "start": "2026-04-13",
+   "end": "2027-06-30",
+   "b": [
+    {
+     "l": "U7",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "CHAISE AU PLAFOND",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "BOUTREAUX",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "100 mètres avant, au niveau de l'Avenue d'Epernay",
+       1
+      ]
+     ]
+    },
+    {
+     "img": "https://prod.deviations.info/carte/grandreims/public/img/84431.jpg"
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "b04f0f8730",
+   "t": "Report de l'arrêt Pont d'Epernay",
+   "lines": [
+    "U1",
+    "U7",
+    "U8"
+   ],
+   "p": "A partir du lundi 09 mars 2026 jusqu'au 30 juin 2028",
+   "start": "2026-03-09",
+   "end": "2028-06-30",
+   "b": [
+    {
+     "l": "U1",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "PONT D'EPERNAY",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "C.C. CERNAY",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "au niveau du 29 avenue de Paris",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U7",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "PONT D'EPERNAY",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "BOUTREAUX",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "dans l'avenue d'Epernay, 15 mètres avant le feu",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U8",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "PONT D'EPERNAY",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "LA COUTURELLE",
+       1
+      ],
+      [
+       " est déplacé",
+       0
+      ],
+      [
+       "dans l'Avenue d'Epernay, 15 mètres avant le feu",
+       1
+      ]
+     ]
+    },
+    {
+     "img": "https://prod.deviations.info/carte/grandreims/public/img/84249.jpg"
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "0a42915a79",
+   "t": "Marché Jean-Jaures (tous les dimanches)",
+   "lines": [
+    "U2"
+   ],
+   "p": "Tous les dimanches jusqu'à 15h00.",
+   "start": null,
+   "end": null,
+   "b": [
+    {
+     "l": "U2",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "BROUETTE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "ROUTE DE WITRY",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt BROUETTE du dimanche, boulevard Jamin",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U2",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "GOBELINS",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "ROUTE DE WITRY",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt BROUETTE du dimanche, boulevard Jamin",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U2",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "GOBELINS",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "C.C. CHAMPFLEURY",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt BROUETTE",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U2",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "CHALET",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "C.C. CHAMPFLEURY",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt CIMETIERE EST",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U2",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "CHALET",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "ROUTE DE WITRY",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt CIMETIERE EST",
+       1
+      ]
+     ]
+    },
+    {
+     "img": "https://prod.deviations.info/carte/grandreims/public/img/84051.jpg"
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "23d9c88ab7",
+   "t": "Spectacle Arena : Congestion de la circulation rue de la Petite Vitesse",
+   "lines": [
+    "U20",
+    "U4"
+   ],
+   "p": "Spectacle Arena : Seulement en cas de congestion de la circulation rue de la Petite Vitesse",
+   "start": null,
+   "end": null,
+   "b": [
+    {
+     "l": "U20",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "REPUBLIQUE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "FACULTE DES SCIENCES",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt SCHNEITER",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U4",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "REPUBLIQUE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "ORGEVAL",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt SCHNEITER",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U20",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "REPUBLIQUE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "GARE CLAIRMARAIS",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "au 8 Bld Joffre",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U4",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "REPUBLIQUE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "BLANCS MONTS",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "au 8 Bld Joffre",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U20",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "JUSTICE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "FACULTE DES SCIENCES",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt LEMOINE",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U20",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "JUSTICE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "GARE CLAIRMARAIS",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "face au 12 rue du Champ de Mars",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U4",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "ROBESPIERRE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "ORGEVAL",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "au 84 rue Lesage",
+       1
+      ]
+     ]
+    },
+    {
+     "img": "https://grandreims-mobilites.fr/photos/ImportsEditeur/image_9587.png"
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ]
+  }
+ ]
+}
