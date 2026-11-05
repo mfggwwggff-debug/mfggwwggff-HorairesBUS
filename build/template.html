@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Horaires Grand Reims</title>
 <!--__HEAD__-->
+<script>if (navigator.standalone) document.documentElement.classList.add("standalone");</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
@@ -54,6 +55,10 @@
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { height: 100%; margin: 0; overflow: hidden; overscroll-behavior: none; }
+/* Appli installée (écran d'accueil iOS) : avec la barre d'état translucide, iOS retire la hauteur de la barre d'état
+   à height:100% et laisse une bande vide en bas. 100vh y vaut bien tout l'écran. */
+@media (display-mode: standalone) { html, body, #app { height: 100vh; } }
+html.standalone, html.standalone body, html.standalone #app { height: 100vh; }
 body { background: var(--bg); color: var(--ink); font: 400 15px/1.45 var(--font-body); font-variant-numeric: tabular-nums; }
 button, input, select { font: inherit; color: inherit; }
 button { cursor: pointer; }
