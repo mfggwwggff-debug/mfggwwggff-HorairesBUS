@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Horaires Grand Reims</title>
+<!--__HEAD__-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Plan : signalétique de réseau. Encre bleu nuit, rouge tram en accent rare, couleurs des lignes comme seul vrai décor.
+   Mise en page : panneau de recherche à gauche, plan du réseau à droite (empilés sur mobile). */
+:root {
+  --bg: #eef0ef;
+  --surface: #ffffff;
+  --sunk: #f5f6f5;
+  --ink: #15202b;
+  --muted: #5a6670;
+  --rule: #d8dcda;
+  --accent: #c8001a;
+  --accent-ink: #ffffff;
+  --focus: #1a5fd0;
+  --map-bg: #e6e9e7;
+  --ok: #11834a;
+  --theo: #e07b00;
+  --late: #c05600;
+  --font-display: "Barlow Semi Condensed", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --r: 10px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1317; --surface: #161d23; --sunk: #11171c; --ink: #e7ebee; --muted: #94a0aa;
+    --rule: #28323a; --accent: #ff5468; --accent-ink: #1a0005; --focus: #7aa7ff; --map-bg: #10161b; --ok: #3ccf7f; --late: #ff9a3c; --theo: #ffa035;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1317; --surface: #161d23; --sunk: #11171c; --ink: #e7ebee; --muted: #94a0aa;
+  --rule: #28323a; --accent: #ff5468; --accent-ink: #1a0005; --focus: #7aa7ff; --map-bg: #10161b; --ok: #3ccf7f; --late: #ff9a3c; --theo: #ffa035;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 400 15px/1.45 var(--font-body); font-variant-numeric: tabular-nums; }
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; }
+
+.app { display: grid; grid-template-columns: minmax(340px, 460px) 1fr; height: 100%; }
+.panel { display: flex; flex-direction: column; min-height: 0; background: var(--surface); border-right: 1px solid var(--rule); }
+.mapwrap { position: relative; min-height: 0; background: var(--map-bg); }
+@media (max-width: 860px) {
+  .app { grid-template-columns: 1fr; grid-template-rows: auto 380px; height: auto; }
+  .panel { border-right: 0; border-bottom: 1px solid var(--rule); }
+}
+
+header.top { display: flex; align-items: center; gap: 12px; padding: 14px 18px 10px; }
+.mark { width: 30px; height: 30px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font: 700 15px/1 var(--font-display); letter-spacing: .02em; flex: none; }
+header.top h1 { font-size: 21px; font-weight: 700; letter-spacing: .01em; }
+header.top .valid { margin-left: auto; font-size: 12.5px; color: var(--muted); text-align: right; line-height: 1.25; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+
+nav.tabs { display: flex; gap: 4px; padding: 0 14px; border-bottom: 1px solid var(--rule); }
+nav.tabs a { padding: 10px 10px 9px; text-decoration: none; color: var(--muted); font: 600 15.5px/1 var(--font-display); border-bottom: 3px solid transparent; margin-bottom: -1px; }
+nav.tabs a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--accent); }
+nav.tabs a:hover { color: var(--ink); }
+
+.scroll { overflow: auto; min-height: 0; flex: 1; }
+.view { display: none; padding: 16px 18px 28px; }
+.view.on { display: flex; flex-direction: column; gap: 14px; }
+
+/* champs */
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field > label, .lbl { font: 600 12px/1 var(--font-display); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.inp { width: 100%; height: 42px; padding: 0 12px; border: 1px solid var(--rule); border-radius: 8px; background: var(--sunk); }
+.inp:focus { border-color: var(--focus); outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 22%, transparent); }
+.row { display: flex; gap: 8px; align-items: end; flex-wrap: wrap; }
+.row > .field { flex: 1 1 120px; }
+.od { display: grid; grid-template-columns: 1fr 40px; gap: 8px 8px; align-items: center; }
+.od .stack { display: flex; flex-direction: column; gap: 8px; }
+.swap { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--rule); background: var(--surface); cursor: pointer; display: grid; place-items: center; }
+.swap:hover { border-color: var(--ink); }
+.picker { position: relative; }
+.picker .dot { position: absolute; left: 12px; top: 50%; width: 10px; height: 10px; border-radius: 50%; transform: translateY(-50%); border: 2.5px solid var(--ink); background: var(--surface); }
+.picker.to .dot { background: var(--ink); border-radius: 2px; }
+.picker .inp { padding-left: 32px; }
+.sugg { position: absolute; z-index: 30; left: 0; right: 0; top: calc(100% + 4px); background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; box-shadow: 0 10px 30px rgb(0 0 0 / .14); max-height: 300px; overflow: auto; display: none; padding: 4px; }
+.sugg.on { display: block; }
+.sugg button { display: flex; width: 100%; gap: 8px; align-items: center; justify-content: space-between; padding: 8px 10px; border: 0; background: none; text-align: left; border-radius: 6px; cursor: pointer; }
+.sugg button[aria-selected="true"], .sugg button:hover { background: var(--sunk); }
+.sugg .badges { display: flex; gap: 3px; flex-wrap: wrap; justify-content: flex-end; max-width: 55%; }
+
+.seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 8px; padding: 2px; background: var(--sunk); }
+.seg button { border: 0; background: none; padding: 7px 12px; border-radius: 6px; cursor: pointer; font-weight: 500; color: var(--muted); }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgb(0 0 0 / .12); }
+.btn { height: 42px; padding: 0 16px; border-radius: 8px; border: 1px solid var(--rule); background: var(--surface); cursor: pointer; font-weight: 600; }
+.btn:hover { border-color: var(--ink); }
+.btn.primary { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.btn.small { height: 32px; padding: 0 10px; font-size: 13.5px; }
+
+.note { font-size: 13.5px; color: var(--muted); padding: 10px 12px; border-radius: 8px; background: var(--sunk); border-left: 3px solid var(--rule); }
+.note.warn { border-left-color: #d98a00; }
+
+/* badges de ligne */
+.bd { display: inline-flex; align-items: center; justify-content: center; min-width: 30px; height: 22px; padding: 0 6px; border-radius: 5px; font: 700 13.5px/1 var(--font-display); letter-spacing: .02em; flex: none; }
+.bd.tram { border-radius: 11px; min-width: 46px; }
+.bd.sm { min-width: 24px; height: 18px; font-size: 11.5px; padding: 0 4px; border-radius: 4px; }
+.bd.sm.tram { min-width: 36px; border-radius: 9px; }
+
+/* résultats */
+.results { display: flex; flex-direction: column; gap: 10px; }
+.jc { border: 1px solid var(--rule); border-radius: var(--r); background: var(--surface); overflow: hidden; }
+.jc.sel { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
+.jc > button.head { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; width: 100%; text-align: left; padding: 12px 14px; border: 0; background: none; cursor: pointer; }
+.jc .times { font: 700 22px/1.1 var(--font-display); letter-spacing: .01em; }
+.jc .times .arrow { color: var(--muted); font-weight: 500; margin: 0 4px; }
+.jc .dur { font: 600 16px/1.1 var(--font-display); text-align: right; }
+.jc .chain { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; color: var(--muted); font-size: 13px; }
+.jc .meta { text-align: right; color: var(--muted); font-size: 13px; }
+.tag { font: 600 11.5px/1 var(--font-display); text-transform: uppercase; letter-spacing: .06em; padding: 4px 6px; border-radius: 4px; background: var(--sunk); color: var(--muted); }
+.tag.hot { background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); }
+.walkico { display: inline-flex; align-items: center; gap: 2px; }
+.sep { width: 10px; height: 1px; background: var(--rule); }
+
+/* fil détaillé */
+.tl { padding: 4px 14px 14px; display: none; }
+.jc.sel .tl { display: block; }
+.st { display: grid; grid-template-columns: 50px 22px 1fr; column-gap: 8px; }
+.st .t { font: 600 15px/1.2 var(--font-display); text-align: right; padding-top: 1px; }
+.st .rail { position: relative; display: flex; justify-content: center; }
+.st .rail::before { content: ""; position: absolute; top: 0; bottom: 0; width: 5px; background: var(--c, var(--rule)); border-radius: 3px; }
+.st.walk .rail::before { width: 0; border-left: 3px dotted var(--muted); background: none; }
+.st .node { position: relative; z-index: 1; width: 13px; height: 13px; border-radius: 50%; background: var(--surface); border: 3px solid var(--c, var(--ink)); margin-top: 3px; }
+.st .body { padding-bottom: 12px; min-width: 0; }
+.st .name { font-weight: 600; }
+.st .sub { color: var(--muted); font-size: 13.5px; }
+.st.cap .rail::before { top: 9px; }
+.st.end .rail::before { bottom: auto; height: 9px; }
+.st.mid .rail::before { }
+details.inter summary { cursor: pointer; color: var(--muted); font-size: 13.5px; list-style: none; }
+details.inter summary::-webkit-details-marker { display: none; }
+details.inter summary::before { content: "▸ "; }
+details.inter[open] summary::before { content: "▾ "; }
+details.inter ol { margin: 6px 0 0; padding: 0; list-style: none; font-size: 13.5px; display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; }
+details.inter li { display: contents; }
+details.inter li span:first-child { color: var(--muted); }
+
+/* passages */
+.deps { display: flex; flex-direction: column; border: 1px solid var(--rule); border-radius: var(--r); overflow: hidden; }
+.dep { display: grid; grid-template-columns: auto 1fr; gap: 6px 10px; padding: 11px 12px; border-top: 1px solid var(--rule); align-items: center; background: var(--surface); }
+.dep:first-child { border-top: 0; }
+.dep .dir { font-weight: 600; min-width: 0; }
+.dep .dir small { display: block; font-weight: 400; color: var(--muted); font-size: 12.5px; }
+.dep .tt { grid-column: 2; display: flex; gap: 6px; flex-wrap: wrap; }
+.chip { font: 600 14.5px/1 var(--font-display); padding: 6px 8px; border-radius: 6px; background: var(--sunk); border: 1px solid var(--rule); }
+.chip.soon { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.chip.prev { opacity: .75; font-style: italic; }
+.dep .open { grid-column: 2; justify-self: start; border: 0; background: none; padding: 0; color: var(--focus); cursor: pointer; font-size: 13px; }
+
+/* lignes */
+.lgrid { display: flex; flex-wrap: wrap; gap: 6px; }
+.lgrid button { border: 0; padding: 0; background: none; cursor: pointer; border-radius: 6px; }
+.lgrid button .bd { height: 30px; min-width: 40px; font-size: 15.5px; }
+.lgrid button .bd.tram { min-width: 60px; border-radius: 15px; }
+.lgrid button[aria-pressed="true"] { outline: 2px solid var(--ink); outline-offset: 2px; }
+.lgroup { display: flex; flex-direction: column; gap: 6px; }
+.lhead { display: flex; gap: 10px; align-items: center; }
+.lhead h2 { font-size: 20px; font-weight: 600; }
+.ttwrap { overflow: auto; max-height: 60vh; border: 1px solid var(--rule); border-radius: var(--r); background: var(--surface); }
+@media (max-width: 860px) { .ttwrap { max-height: none; } }
+table.tt { border-collapse: separate; border-spacing: 0; font-size: 13.5px; }
+table.tt th, table.tt td { padding: 5px 8px; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+table.tt thead th { position: sticky; top: 0; background: var(--sunk); z-index: 2; font: 600 12px/1.1 var(--font-display); color: var(--muted); text-align: center; }
+table.tt tbody th { position: sticky; left: 0; background: var(--surface); z-index: 1; text-align: left; font-weight: 500; max-width: 170px; overflow: hidden; text-overflow: ellipsis; border-right: 1px solid var(--rule); }
+table.tt thead th:first-child { left: 0; z-index: 3; text-align: left; }
+table.tt td { text-align: center; font: 500 14px/1 var(--font-display); }
+table.tt td.no { color: var(--rule); }
+table.tt tr:hover td, table.tt tr:hover th { background: color-mix(in srgb, var(--focus) 7%, var(--surface)); }
+table.tt td.past { color: var(--muted); }
+
+/* carte */
+canvas#map { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: grab; }
+canvas#map.drag { cursor: grabbing; }
+.mapctl { position: absolute; right: 12px; top: 12px; display: flex; flex-direction: column; gap: 6px; }
+.mapctl button { width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--rule); background: var(--surface); cursor: pointer; font-size: 18px; line-height: 1; box-shadow: 0 1px 3px rgb(0 0 0 / .12); }
+.maplegend { position: absolute; left: 12px; bottom: 12px; pointer-events: none; font-size: 12px; color: var(--muted); background: color-mix(in srgb, var(--surface) 85%, transparent); padding: 6px 8px; border-radius: 6px; max-width: calc(100% - 24px); }
+.pop { position: absolute; z-index: 5; min-width: 200px; max-width: 260px; background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; box-shadow: 0 10px 30px rgb(0 0 0 / .2); padding: 10px 12px; display: none; }
+.pop.on { display: block; }
+.pop h3 { font-size: 17px; font-weight: 600; margin-bottom: 6px; padding-right: 20px; }
+.pop .badges { display: flex; gap: 3px; flex-wrap: wrap; margin-bottom: 10px; }
+.pop .acts { display: flex; gap: 6px; flex-wrap: wrap; }
+.pop .x { position: absolute; right: 6px; top: 6px; border: 0; background: none; cursor: pointer; font-size: 18px; color: var(--muted); }
+.rt { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--muted); border: 1px solid var(--rule); border-radius: 999px; padding: 3px 9px 3px 7px; background: var(--sunk); cursor: pointer; white-space: nowrap; }
+.rt i { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none; }
+.rt.ok i { background: var(--ok); box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 60%, transparent); animation: pulse 2s infinite; }
+.rt.ok { color: var(--ink); }
+.rt.err i { background: var(--late); }
+@keyframes pulse { 70% { box-shadow: 0 0 0 6px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+@media (prefers-reduced-motion: reduce) { .rt.ok i { animation: none; } }
+.lv { font: 600 12px/1 var(--font-body); padding: 2px 5px; border-radius: 4px; white-space: nowrap; }
+.lv.on { color: var(--ok); background: color-mix(in srgb, var(--ok) 13%, transparent); }
+.lv.late { color: var(--late); background: color-mix(in srgb, var(--late) 13%, transparent); }
+.lv.early { color: var(--focus); background: color-mix(in srgb, var(--focus) 13%, transparent); }
+s.sched { color: var(--muted); font-weight: 400; font-size: .72em; margin-left: 3px; }
+table.tt td.live { color: var(--ok); }
+table.tt td.live.late { color: var(--late); }
+.dotlive, .dottheo { display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.dotlive { background: var(--ok); }
+.dottheo { background: var(--theo); }
+.wait { display: inline-flex; align-items: center; gap: 6px; }
+.wait small { font: 500 11.5px/1 var(--font-body); color: var(--muted); }
+.chip { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 3px; min-width: 64px; }
+.chip .main { display: inline-flex; align-items: center; gap: 6px; }
+.chip small { font: 500 11px/1 var(--font-body); color: var(--muted); }
+.chip.soon small { color: inherit; opacity: .8; }
+.chip.soon .dotlive, .chip.soon .dottheo { box-shadow: 0 0 0 2px var(--ink); }
+.jc .next { grid-column: 1 / -1; display: flex; gap: 8px; align-items: center; font-size: 13.5px; }
+.jc .next b { font: 700 15px/1 var(--font-display); }
+.legend-dots { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; font-size: 12px; color: var(--muted); }
+.legend-dots span { display: inline-flex; align-items: center; gap: 5px; }
+.mapctl button[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.pop .sub { font-size: 13.5px; color: var(--muted); }
+.pop .sub b { color: var(--ink); font-weight: 600; }
+canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.empty { color: var(--muted); padding: 18px 4px; text-align: center; }
+footer.src { padding: 10px 18px 14px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--rule); }
+footer.src a { color: inherit; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="panel">
+    <header class="top">
+      <div class="mark" aria-hidden="true">GR</div>
+      <h1>Horaires Grand Reims</h1>
+      <div class="valid"><span id="valid"></span><button type="button" class="rt" id="rt" title="État du temps réel"><i></i><span>Temps réel…</span></button></div>
+    </header>
+    <nav class="tabs" aria-label="Sections">
+      <a href="#itineraire" data-v="itineraire">Itinéraire</a>
+      <a href="#passages" data-v="passages">Prochains passages</a>
+      <a href="#lignes" data-v="lignes">Lignes</a>
+    </nav>
+    <div class="scroll">
+      <!-- Itinéraire -->
+      <section class="view" id="v-itineraire" aria-label="Itinéraire">
+        <form id="f-it" class="od" autocomplete="off">
+          <div class="stack">
+            <div class="picker from"><span class="dot"></span><input class="inp" id="it-from" placeholder="Arrêt de départ" aria-label="Arrêt de départ"><div class="sugg" role="listbox"></div></div>
+            <div class="picker to"><span class="dot"></span><input class="inp" id="it-to" placeholder="Arrêt d'arrivée" aria-label="Arrêt d'arrivée"><div class="sugg" role="listbox"></div></div>
+          </div>
+          <button type="button" class="swap" id="it-swap" title="Inverser départ et arrivée" aria-label="Inverser départ et arrivée">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 2v12M5 14l-3-3M5 14l3-3M11 14V2M11 2l-3 3M11 2l3 3"/></svg>
+          </button>
+        </form>
+        <div class="row">
+          <div class="seg" role="group" aria-label="Type d'horaire">
+            <button type="button" id="it-dep" aria-pressed="true">Partir à</button>
+            <button type="button" id="it-arr" aria-pressed="false">Arriver avant</button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="it-date">Date</label><input type="date" class="inp" id="it-date"></div>
+          <div class="field"><label for="it-time">Heure</label><input type="time" class="inp" id="it-time" step="60"></div>
+          <button type="button" class="btn" id="it-now">Maintenant</button>
+        </div>
+        <div id="it-msg"></div>
+        <div class="results" id="it-res"></div>
+      </section>
+
+      <!-- Passages -->
+      <section class="view" id="v-passages" aria-label="Prochains passages">
+        <div class="picker from"><span class="dot"></span><input class="inp" id="pa-stop" placeholder="Choisir un arrêt" aria-label="Arrêt" autocomplete="off"><div class="sugg" role="listbox"></div></div>
+        <div class="row">
+          <div class="field"><label for="pa-date">Date</label><input type="date" class="inp" id="pa-date"></div>
+          <div class="field"><label for="pa-time">À partir de</label><input type="time" class="inp" id="pa-time" step="60"></div>
+          <button type="button" class="btn" id="pa-now">Maintenant</button>
+        </div>
+        <div id="pa-msg"></div>
+        <div id="pa-res"></div>
+      </section>
+
+      <!-- Lignes -->
+      <section class="view" id="v-lignes" aria-label="Lignes">
+        <div id="li-grid" class="lgroup"></div>
+        <div id="li-head"></div>
+        <div class="row">
+          <div class="field"><label for="li-date">Date</label><input type="date" class="inp" id="li-date"></div>
+          <div class="field"><label for="li-time">À partir de</label><input type="time" class="inp" id="li-time" step="60"></div>
+        </div>
+        <div id="li-msg"></div>
+        <div id="li-res"></div>
+      </section>
+    </div>
+    <footer class="src" id="src"></footer>
+  </aside>
+  <section class="mapwrap" aria-label="Plan du réseau">
+    <canvas id="map"></canvas>
+    <div class="mapctl">
+      <button type="button" id="z-in" aria-label="Zoomer">+</button>
+      <button type="button" id="z-out" aria-label="Dézoomer">−</button>
+      <button type="button" id="z-bus" aria-label="Bus en circulation" aria-pressed="true">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="3" y="2" width="12" height="11.5" rx="2.5"/><path d="M3 8.5h12M5.5 13.5V16M12.5 13.5V16"/><circle cx="6" cy="11" r=".9" fill="currentColor"/><circle cx="12" cy="11" r=".9" fill="currentColor"/></svg>
+      </button>
+      <button type="button" id="z-fit" aria-label="Recentrer" title="Recentrer">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 6V2h4M14 6V2h-4M2 10v4h4M14 10v4h-4"/></svg>
+      </button>
+    </div>
+    <div class="maplegend" id="legend"><div class="legend-dots"><span><i class="dotlive"></i>bus suivi en temps réel</span><span><i class="dottheo"></i>position d'après l'horaire théorique</span></div></div>
+    <div class="pop" id="pop"></div>
+  </section>
+</div>
+
+<script type="application/json" id="gtfs">__DATA__</script>
+<script>
+/*__ENGINE__*/
+</script>
+<script>
+(() => {
+"use strict";
+const D = JSON.parse(document.getElementById("gtfs").textContent);
+const net = makeNet(D);
+const $ = (s, r = document) => r.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const hm = (m) => { m = ((m % 1440) + 1440) % 1440; return String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0"); };
+const dur = (m) => m < 60 ? m + " min" : Math.floor(m / 60) + " h " + String(m % 60).padStart(2, "0");
+const pName = (p) => net.P[p][0];
+const fmtWait = (w) => w < 0.5 ? "maintenant" : w < 59.5 ? Math.round(w) + " min" : null;
+const delayTxt = (live, sched) => { const d = live - sched; return d >= 1 ? `retard ${d} min` : d <= -1 ? `avance ${-d} min` : "à l'heure"; };
+const dot = (live) => `<i class="${live ? "dotlive" : "dottheo"}" title="${live ? "Temps réel" : "Horaire théorique"}"></i>`;
+const lvTag = (live, sched, isLiveTrip) => { if (!isLiveTrip) return ""; const d = live - sched; return d >= 2 ? `<span class="lv late">+${d} min</span>` : d <= -2 ? `<span class="lv early">${d} min</span>` : `<span class="lv on">à l'heure</span>`; };
+const qName = (q) => net.P[net.Q[q][0]][0];
+const store = { get(k) { try { return JSON.parse(localStorage.getItem("grm:" + k)); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem("grm:" + k, JSON.stringify(v)); } catch (e) {} } };
+const badge = (ri, sm) => { const r = net.R[ri]; return `<span class="bd${r.m === 1 ? " tram" : ""}${sm ? " sm" : ""}" style="background:${r.c};color:${r.t}" title="${esc(r.s + " · " + r.l)}">${esc(r.s)}</span>`; };
+const fmtDateLong = (iso) => new Date(iso + "T12:00:00").toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" });
+
+// ---------- date et heure de Paris ----------
+function parisNow() {
+  const f = new Intl.DateTimeFormat("fr-FR", { timeZone: "Europe/Paris", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+  const o = Object.fromEntries(f.formatToParts(new Date()).map((x) => [x.type, x.value]));
+  return { iso: `${o.year}-${o.month}-${o.day}`, min: +o.hour * 60 + +o.minute };
+}
+const NOW = parisNow();
+const minIso = net.isoOf(0), maxIso = net.isoOf(net.nd - 1);
+const inRange = (iso) => iso >= minIso && iso <= maxIso;
+const startIso = inRange(NOW.iso) ? NOW.iso : (NOW.iso < minIso ? minIso : maxIso);
+$("#valid").innerHTML = `Horaires du ${new Date(minIso + "T12:00").toLocaleDateString("fr-FR", { day: "numeric", month: "short" })} au ${new Date(maxIso + "T12:00").toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}`;
+$("#src").innerHTML = `Horaires théoriques ${esc(D.feed.name)}, GTFS version ${esc(D.feed.version)} · Licence ouverte, <a href="https://transport.data.gouv.fr/datasets/aom/114">transport.data.gouv.fr</a>. Temps réel : flux GTFS-RT Grand Reims Mobilités, actualisé toutes les 30 s quand il est joignable.`;
+const toMin = (v) => { const [h, m] = (v || "0:0").split(":").map(Number); return h * 60 + m; };
+const toVal = (m) => hm(m);
+function setupDT(dateEl, timeEl, nowBtn, cb) {
+  dateEl.min = minIso; dateEl.max = maxIso; dateEl.value = startIso; timeEl.value = toVal(inRange(NOW.iso) ? NOW.min : 7 * 60);
+  dateEl.addEventListener("change", cb); timeEl.addEventListener("change", cb);
+  if (nowBtn) nowBtn.addEventListener("click", () => { const n = parisNow(); dateEl.value = inRange(n.iso) ? n.iso : startIso; timeEl.value = toVal(n.min); cb(); });
+}
+function rangeNote(iso) {
+  if (!iso) return "";
+  if (!inRange(iso)) return `<div class="note warn">Ce fichier d'horaires couvre du ${fmtDateLong(minIso)} au ${fmtDateLong(maxIso)}. Choisissez une date dans cette période.</div>`;
+  return "";
+}
+
+// ---------- sélecteur d'arrêt ----------
+const norm = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+const stopIdx = net.P.map((p, i) => ({ i, n: norm(p[0]) }));
+function picker(root, onPick) {
+  const inp = $("input", root), box = $(".sugg", root);
+  let items = [], sel = -1, value = null;
+  const render = () => {
+    const q = norm(inp.value);
+    if (!q) { box.classList.remove("on"); return; }
+    const words = q.split(" ");
+    items = stopIdx.filter((s) => words.every((w) => s.n.includes(w)))
+      .sort((a, b) => (a.n.startsWith(q) ? 0 : 1) - (b.n.startsWith(q) ? 0 : 1) || a.n.localeCompare(b.n)).slice(0, 30);
+    sel = items.length ? 0 : -1;
+    box.innerHTML = items.length ? items.map((s, k) => `<button type="button" role="option" data-k="${k}" aria-selected="${k === sel}"><span>${esc(pName(s.i))}</span><span class="badges">${net.pRoutes[s.i].slice(0, 6).map((r) => badge(r, 1)).join("")}${net.pRoutes[s.i].length > 6 ? "…" : ""}</span></button>`).join("") : `<div class="empty">Aucun arrêt ne correspond.</div>`;
+    box.classList.add("on");
+  };
+  const choose = (k) => { if (k < 0 || !items[k]) return; set(items[k].i); onPick(value); };
+  const set = (i) => { value = i; inp.value = i == null ? "" : pName(i); box.classList.remove("on"); };
+  inp.addEventListener("input", render);
+  inp.addEventListener("focus", () => { inp.select(); });
+  inp.addEventListener("keydown", (e) => {
+    if (!box.classList.contains("on")) return;
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); sel = Math.max(0, Math.min(items.length - 1, sel + (e.key === "ArrowDown" ? 1 : -1))); box.querySelectorAll("button").forEach((b, k) => { b.setAttribute("aria-selected", k === sel); if (k === sel) b.scrollIntoView({ block: "nearest" }); }); }
+    else if (e.key === "Enter") { e.preventDefault(); choose(sel); }
+    else if (e.key === "Escape") { box.classList.remove("on"); }
+  });
+  box.addEventListener("mousedown", (e) => e.preventDefault());
+  box.addEventListener("click", (e) => { const b = e.target.closest("button[data-k]"); if (b) choose(+b.dataset.k); });
+  inp.addEventListener("blur", () => { setTimeout(() => { box.classList.remove("on"); if (value != null) inp.value = pName(value); }, 120); });
+  return { get: () => value, set };
+}
+const findStop = (name) => net.P.findIndex((p) => p[0] === name);
+
+// ---------- état ----------
+const S = { view: "itineraire", mode: "dep", from: null, to: null, journeys: [], selJ: 0, paStop: null, line: null, dir: 0 };
+
+// ---------- Itinéraire ----------
+const fromP = picker($("#it-from").parentNode, (v) => { S.from = v; runIt(); });
+const toP = picker($("#it-to").parentNode, (v) => { S.to = v; runIt(); });
+setupDT($("#it-date"), $("#it-time"), $("#it-now"), () => runIt());
+$("#it-swap").addEventListener("click", () => { [S.from, S.to] = [S.to, S.from]; fromP.set(S.from); toP.set(S.to); runIt(); });
+const setMode = (m) => { S.mode = m; $("#it-dep").setAttribute("aria-pressed", m === "dep"); $("#it-arr").setAttribute("aria-pressed", m === "arr"); runIt(); };
+$("#it-dep").addEventListener("click", () => setMode("dep"));
+$("#it-arr").addEventListener("click", () => setMode("arr"));
+
+function runIt(noFit) {
+  const msg = $("#it-msg"), res = $("#it-res");
+  store.set("od", [S.from, S.to].map((x) => x == null ? null : pName(x)));
+  const iso = $("#it-date").value, t = toMin($("#it-time").value);
+  msg.innerHTML = rangeNote(iso);
+  S.journeys = [];
+  if (S.from == null || S.to == null) { res.innerHTML = `<div class="empty">Choisissez un arrêt de départ et un arrêt d'arrivée.</div>`; drawMap(); return; }
+  if (S.from === S.to) { res.innerHTML = `<div class="empty">Le départ et l'arrivée sont le même arrêt.</div>`; drawMap(); return; }
+  if (!inRange(iso)) { res.innerHTML = ""; drawMap(); return; }
+  const day = net.dayIndex(iso);
+  const js = S.mode === "dep" ? planDepart(net, S.from, S.to, day, t, 4) : planArrive(net, S.from, S.to, day, t, 3);
+  S.journeys = js; S.selJ = 0;
+  if (!js.length) {
+    res.innerHTML = `<div class="empty">Aucun trajet trouvé ${S.mode === "dep" ? "après " + hm(t) : "arrivant avant " + hm(t)} le ${fmtDateLong(iso)}. Essayez une autre heure ou un autre jour : certaines lignes ne circulent qu'en semaine ou en journée.</div>`;
+    drawMap(); return;
+  }
+  const fastest = Math.min(...js.map((j) => j.arr - j.dep)), fewest = Math.min(...js.map((j) => j.rides));
+  if (S.mode === "arr") S.selJ = js.length - 1;
+  res.innerHTML = js.map((j, k) => {
+    const tags = [];
+    if (j.arr - j.dep === fastest) tags.push(`<span class="tag hot">Le plus rapide</span>`);
+    if (j.rides === fewest && js.some((x) => x.rides > fewest)) tags.push(`<span class="tag">Moins de correspondances</span>`);
+    const chain = j.legs.map((g) => g.type === "ride" ? badge(net.pats[g.pat].r) : `<span class="walkico" title="Marche">${walkSvg}${g.dur}′</span>`).join(`<span class="sep"></span>`);
+    const nCh = j.rides - 1;
+    return `<article class="jc${k === S.selJ ? " sel" : ""}" data-k="${k}">
+      <button type="button" class="head" aria-expanded="${k === S.selJ}">
+        <div class="times">${hm(j.dep)}<span class="arrow">→</span>${hm(j.arr)}</div>
+        <div class="dur">${dur(j.arr - j.dep)}</div>
+        <div class="chain">${chain}</div>
+        <div class="meta">${nCh === 0 ? "Direct" : nCh + " correspondance" + (nCh > 1 ? "s" : "")}</div>
+        ${(() => { const fr = j.legs.find((x) => x.type === "ride"); if (!fr) return ""; const isToday = iso === parisNow().iso; const w = fr.dep - nowMinF(); const fw = isToday && w > -1 ? fmtWait(Math.max(0, w)) : null; const R0 = net.R[net.pats[fr.pat].r];
+          return `<div class="next">${dot(fr.live)}<span>${esc(R0.s)} ${fw ? (fw === "maintenant" ? "<b>à l'arrêt</b>" : `dans <b>${fw}</b>`) : `à <b>${hm(fr.dep)}</b>`}</span><span style="color:var(--muted);font-size:12.5px">${fr.live ? delayTxt(fr.dep, fr.sdep) : "horaire théorique"}</span></div>`; })()}
+        ${tags.length ? `<div class="chain" style="grid-column:1/-1">${tags.join("")}</div>` : ""}
+      </button>
+      <div class="tl">${timeline(j)}</div>
+    </article>`;
+  }).join("");
+  res.querySelectorAll(".jc > .head").forEach((b) => b.addEventListener("click", () => {
+    const k = +b.parentNode.dataset.k; S.selJ = S.selJ === k ? -1 : k;
+    res.querySelectorAll(".jc").forEach((c) => { const on = +c.dataset.k === S.selJ; c.classList.toggle("sel", on); $(".head", c).setAttribute("aria-expanded", on); });
+    drawMap(); if (S.selJ >= 0) fitJourney(S.journeys[S.selJ]);
+  }));
+  drawMap(); if (!noFit) fitJourney(js[S.selJ]);
+}
+const walkSvg = `<svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><circle cx="9" cy="2.3" r="1.6"/><path d="M7.4 5.2 5 6.6 4 9.4l1.3.4.8-2.1 1.2-.6-1 4.6L4.2 15l1.2.8 2.2-3.2.4-1.6 1.6 1.7.6 3.3 1.4-.2-.7-3.9-1.7-1.9.5-2.4.6 1.2 2.4 1.1.5-1.2-2-1-1.1-2.2c-.3-.6-.9-1-1.6-1-.3 0-.7.1-1 .3Z"/></svg>`;
+function timeline(j) {
+  let h = "";
+  const L = j.legs;
+  L.forEach((g, i) => {
+    if (g.type === "walk") {
+      const same = net.Q[g.from][0] === net.Q[g.to][0];
+      const label = same ? `Changement de quai à ${esc(qName(g.to))}` : `Marche jusqu'à ${esc(qName(g.to))}`;
+      if (i === 0) h += `<div class="st cap"><div class="t">${hm(g.dep)}</div><div class="rail"><span class="node"></span></div><div class="body"><div class="name">${esc(qName(g.from))}</div><div class="sub">Départ à pied</div></div></div>`;
+      h += `<div class="st walk"><div class="t"></div><div class="rail"></div><div class="body"><div class="sub">${walkSvg} ${label} · ${g.dur} min</div></div></div>`;
+      if (i === L.length - 1) h += `<div class="st end"><div class="t">${hm(g.arr)}</div><div class="rail"><span class="node" style="--c:var(--ink);border-radius:3px"></span></div><div class="body"><div class="name">${esc(qName(g.to))}</div><div class="sub">Arrivée</div></div></div>`;
+      return;
+    }
+    const p = net.pats[g.pat], r = net.R[p.r];
+    const c = `--c:${r.c}`;
+    const inter = [];
+    const [LA] = arr(net, p, g.svcDay);
+    for (let s = g.bi + 1; s < g.ai; s++) inter.push(`<li><span>${hm(LA[g.trip * p.nS + s] + g.off)}</span><span>${esc(qName(p.stops[s]))}</span></li>`);
+    const nS = g.ai - g.bi;
+    h += `<div class="st" style="${c}"><div class="t">${hm(g.dep)}</div><div class="rail"><span class="node"></span></div><div class="body">
+      <div class="name">${esc(qName(p.stops[g.bi]))}</div>
+      <div class="sub" style="display:flex;gap:6px;align-items:center;margin:4px 0;flex-wrap:wrap">${badge(p.r)} <span>direction <b>${esc(p.h)}</b></span><span class="wait">${dot(g.live)}<small>${g.live ? "temps réel · " + delayTxt(g.dep, g.sdep) : "horaire théorique"}</small></span></div>
+      ${inter.length ? `<details class="inter"><summary>${nS} arrêts · ${dur(g.arr - g.dep)}</summary><ol>${inter.join("")}</ol></details>` : `<div class="sub">${nS} arrêt · ${dur(g.arr - g.dep)}</div>`}
+    </div></div>`;
+    const next = L[i + 1];
+    const isEnd = !next;
+    h += `<div class="st ${isEnd ? "end" : ""}" style="${c}"><div class="t">${hm(g.arr)}</div><div class="rail"><span class="node"${isEnd ? ' style="border-radius:3px;background:var(--c)"' : ""}></span></div><div class="body"><div class="name">${esc(qName(p.stops[g.ai]))}</div>${isEnd ? `<div class="sub">Arrivée</div>` : (next && next.type === "ride" ? `<div class="sub">Correspondance · ${next.dep - g.arr} min</div>` : "")}</div></div>`;
+  });
+  return h;
+}
+
+// ---------- Prochains passages ----------
+const paP = picker($("#pa-stop").parentNode, (v) => { S.paStop = v; store.set("pa", pName(v)); runPa(); fitStop(v); });
+let paFollowNow = true;
+setupDT($("#pa-date"), $("#pa-time"), $("#pa-now"), () => runPa());
+$("#pa-time").addEventListener("input", () => { paFollowNow = false; });
+$("#pa-date").addEventListener("input", () => { paFollowNow = false; });
+$("#pa-now").addEventListener("click", () => { paFollowNow = true; runPa(); });
+function runPa() {
+  if (paFollowNow) { const n = parisNow(); if (inRange(n.iso)) { $("#pa-date").value = n.iso; $("#pa-time").value = toVal(n.min); } }
+  const iso = $("#pa-date").value, t = toMin($("#pa-time").value), res = $("#pa-res");
+  $("#pa-msg").innerHTML = rangeNote(iso);
+  if (S.paStop == null) { res.innerHTML = `<div class="empty">Choisissez un arrêt, ou touchez-en un sur le plan.</div>`; drawMap(); return; }
+  if (!inRange(iso)) { res.innerHTML = ""; drawMap(); return; }
+  const day = net.dayIndex(iso);
+  const rows = departures(net, S.paStop, day, t, 180);
+  const groups = new Map();
+  for (const x of rows) {
+    const p = net.pats[x.pat]; const key = p.r + "|" + p.h;
+    if (!groups.has(key)) groups.set(key, { r: p.r, h: p.h, dir: p.dir, list: [] });
+    const g = groups.get(key);
+    if (g.list.length < 6 && !g.list.some((y) => y.t === x.t)) g.list.push(x);
+  }
+  const isToday = iso === parisNow().iso, nowM = nowMinF();
+  const anyLive = rows.some((x) => x.live);
+  const gs = [...groups.values()].sort((a, b) => a.r - b.r || a.list[0].t - b.list[0].t);
+  if (!gs.length) { res.innerHTML = `<div class="empty">Aucun passage dans les 3 heures après ${hm(t)} le ${fmtDateLong(iso)}.</div>`; drawMap(); return; }
+  res.innerHTML = `<div class="lbl" style="margin-bottom:8px">${esc(pName(S.paStop))} · ${fmtDateLong(iso)}, à partir de ${hm(t)}</div><div class="legend-dots" style="margin:-2px 0 8px"><span>${dot(true)}temps réel</span><span>${dot(false)}horaire théorique</span>${isToday ? "<span>temps d'attente à partir de maintenant</span>" : ""}</div><div class="deps">` + gs.map((g) => `
+    <div class="dep">${badge(g.r)}<div class="dir">→ ${esc(g.h)}<small>${esc(net.R[g.r].l)}</small></div>
+      <div class="tt">${g.list.map((x, k) => {  const wait = x.t - nowM; const fw = isToday && wait > -1 ? fmtWait(Math.max(0, wait)) : null; return `<span class="chip${k === 0 && isToday && wait <= 15 ? " soon" : ""}" title="${x.live ? "Temps réel, passage à " + hm(x.t) : "Horaire théorique, passage à " + hm(x.t)}"><span class="main">${dot(x.live)}${fw ? (fw === "maintenant" ? "à l'arrêt" : fw) : hm(x.t)}</span>${x.live && x.t !== x.st ? `<small>${delayTxt(x.t, x.st)}</small>` : ""}</span>`; }).join("")}</div>
+      <button type="button" class="open" data-r="${g.r}" data-d="${g.dir}">Fiche horaire de la ligne ${esc(net.R[g.r].s)} →</button>
+    </div>`).join("") + `</div>`;
+  res.querySelectorAll(".open").forEach((b) => b.addEventListener("click", () => { S.line = +b.dataset.r; S.dir = +b.dataset.d; $("#li-date").value = $("#pa-date").value; $("#li-time").value = $("#pa-time").value; location.hash = "lignes"; }));
+  drawMap();
+}
+
+// ---------- Lignes ----------
+setupDT($("#li-date"), $("#li-time"), null, () => runLi());
+(function buildGrid() {
+  const groups = [["Tram", (r) => r.m === 1], ["Urbaines", (r) => /^U/.test(r.s)], ["Centre, soirée et spéciales", (r) => /^[COS]/.test(r.s)], ["Express", (r) => /^E/.test(r.s)]];
+  $("#li-grid").innerHTML = groups.map(([n, f]) => { const ids = net.R.map((r, i) => [r, i]).filter(([r]) => f(r)).map(([, i]) => i); return ids.length ? `<div class="lbl">${n}</div><div class="lgrid">${ids.map((i) => `<button type="button" data-r="${i}" aria-pressed="false" aria-label="Ligne ${esc(net.R[i].s)}">${badge(i)}</button>`).join("")}</div>` : ""; }).join("");
+  $("#li-grid").addEventListener("click", (e) => { const b = e.target.closest("button[data-r]"); if (!b) return; S.line = +b.dataset.r; S.dir = 0; runLi(); fitLine(S.line); });
+})();
+function linePats(ri, dir) { return net.pats.map((p, i) => [p, i]).filter(([p]) => p.r === ri && p.dir === dir); }
+function runLi() {
+  $("#li-grid").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", +b.dataset.r === S.line));
+  const head = $("#li-head"), res = $("#li-res");
+  const iso = $("#li-date").value, t = toMin($("#li-time").value);
+  $("#li-msg").innerHTML = rangeNote(iso);
+  if (S.line == null) { head.innerHTML = ""; res.innerHTML = `<div class="empty">Choisissez une ligne pour afficher sa fiche horaire.</div>`; drawMap(); return; }
+  const r = net.R[S.line];
+  const dirs = [0, 1].filter((d) => linePats(S.line, d).length);
+  if (!dirs.includes(S.dir)) S.dir = dirs[0];
+  const dirName = (d) => { const ps = linePats(S.line, d); const cnt = {}; ps.forEach(([p]) => cnt[p.h] = (cnt[p.h] || 0) + p.nT); return Object.entries(cnt).sort((a, b) => b[1] - a[1])[0][0]; };
+  head.innerHTML = `<div class="lhead">${badge(S.line)}<h2>${esc(r.l)}</h2></div>
+    <div class="row" style="margin-top:10px"><div class="seg" role="group" aria-label="Sens">${dirs.map((d) => `<button type="button" data-d="${d}" aria-pressed="${d === S.dir}">→ ${esc(dirName(d))}</button>`).join("")}</div></div>`;
+  head.querySelectorAll("[data-d]").forEach((b) => b.addEventListener("click", () => { S.dir = +b.dataset.d; runLi(); }));
+  if (!inRange(iso)) { res.innerHTML = ""; drawMap(); return; }
+  const day = net.dayIndex(iso);
+  const ps = linePats(S.line, S.dir);
+  // ordre des arrêts : fusion des motifs, le plus fréquent d'abord
+  ps.sort((a, b) => b[0].nT - a[0].nT || b[0].nS - a[0].nS);
+  const order = [];
+  for (const [p] of ps) {
+    let last = -1;
+    p.stops.forEach((q) => {
+      const par = net.Q[q][0];
+      const at = order.indexOf(par);
+      if (at >= 0) { last = at; return; }
+      order.splice(last + 1, 0, par); last = last + 1;
+    });
+  }
+  // courses du jour
+  const cols = [];
+  for (const [p] of ps) for (const off of [0, -1440]) for (let k = 0; k < p.nT; k++) {
+    if (!net.svcOn(p.sv[k], off ? day - 1 : day)) continue;
+    const first = p.D[k * p.nS] + off;
+    if (off && first < 0) continue; // la course appartient à la fiche de la veille
+    const cells = new Map();
+    const sd = off ? day - 1 : day, [LA, LD] = arr(net, p, sd), lv = isLive(net, p, k, sd);
+    p.stops.forEach((q, i) => cells.set(net.Q[q][0], [LD[k * p.nS + i] + off, p.D[k * p.nS + i] + off]));
+    cols.push({ first, last: LA[k * p.nS + p.nS - 1] + off, cells, h: p.h, lv });
+  }
+  cols.sort((a, b) => a.first - b.first);
+  const vis = cols.filter((c) => c.last >= t);
+  if (!cols.length) { res.innerHTML = `<div class="empty">La ligne ${esc(r.s)} ne circule pas dans ce sens le ${fmtDateLong(iso)}.</div>`; drawMap(); return; }
+  if (!vis.length) { res.innerHTML = `<div class="empty">Plus de départ après ${hm(t)} ce jour-là. Premier départ : ${hm(cols[0].first)}, dernier : ${hm(cols[cols.length - 1].first)}.</div>`; drawMap(); return; }
+  const show = vis.slice(0, 60);
+  res.innerHTML = `<div class="lbl" style="margin-bottom:8px">${cols.length} départs le ${fmtDateLong(iso)} · premier ${hm(cols[0].first)}, dernier ${hm(cols[cols.length - 1].first)}${vis.length > show.length ? ` · ${show.length} affichés à partir de ${hm(t)}` : ""}</div>
+  <div class="ttwrap"><table class="tt"><thead><tr><th>Arrêt</th>${show.map((c, k) => { const hh = hm(c.first).slice(0, 2); const nw = k === 0 || hm(show[k - 1].first).slice(0, 2) !== hh; return `<th title="direction ${esc(c.h)}">${nw ? hh + " h" : ""}</th>`; }).join("")}</tr></thead><tbody>
+  ${order.map((par) => `<tr><th title="${esc(pName(par))}">${esc(pName(par))}</th>${show.map((c) => c.cells.has(par) ? (() => { const [v, sc] = c.cells.get(par); return `<td class="${c.lv ? "live" + (v - sc >= 2 ? " late" : "") : ""}" title="${c.lv ? "Temps réel, prévu " + hm(sc) : "Horaire prévu"}">${hm(v)}</td>`; })() : `<td class="no">·</td>`).join("")}</tr>`).join("")}
+  </tbody></table></div>`;
+  drawMap();
+}
+
+// ---------- Plan du réseau (canvas) ----------
+const cv = $("#map"), ctx = cv.getContext("2d");
+const KX = Math.cos(49.25 * Math.PI / 180);
+const PX = (lon) => lon * KX, PY = (lat) => lat;
+const view = { cx: PX(4.03), cy: PY(49.255), s: 9000 };
+const ZMIN = 1500, ZMAX = 120000;
+let W = 0, H = 0, DPR = 1;
+const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const toS = (x, y) => [(x - view.cx) * view.s + W / 2, H / 2 - (y - view.cy) * view.s];
+const fromS = (sx, sy) => [(sx - W / 2) / view.s + view.cx, view.cy - (sy - H / 2) / view.s];
+const geoS = (lon, lat) => toS(PX(lon), PY(lat));
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// tracés : un par motif distinct
+const shapeOfPat = net.pats.map((p) => p.sh >= 0 ? net.shapes[p.sh] : p.stops.map((q) => [net.Q[q][2], net.Q[q][1]]));
+const routeShapes = net.R.map(() => new Set());
+const shapeKey = (i) => net.pats[i].sh >= 0 ? "s" + net.pats[i].sh : "p" + i;
+net.pats.forEach((p, i) => routeShapes[p.r].add(shapeKey(i)));
+const keyToPts = new Map(); net.pats.forEach((p, i) => keyToPts.set(shapeKey(i), shapeOfPat[i]));
+// arrêts de correspondance (≥ 3 lignes) : mis en avant dès les zooms moyens
+const hubs = new Set(net.P.map((p, i) => i).filter((i) => net.pRoutes[i].length >= 3));
+
+// géométrie des motifs : tracé projeté, distances cumulées, position de chaque arrêt sur le tracé
+const geoCache = new Map();
+function patGeo(pi) {
+  if (geoCache.has(pi)) return geoCache.get(pi);
+  const p = net.pats[pi], pts = shapeOfPat[pi].map(([lo, la]) => [PX(lo), PY(la)]);
+  const cum = [0]; for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+  // projection de chaque arrêt sur le segment le plus proche, dans l'ordre
+  const sOff = []; let from = 0;
+  for (const q of p.stops) {
+    const x = PX(net.Q[q][2]), y = PY(net.Q[q][1]);
+    let best = Infinity, bd = cum[from] || 0, bseg = from;
+    const lim = Math.min(pts.length - 1, from + 400);
+    for (let i = from; i < lim; i++) {
+      const [ax, ay] = pts[i], [bx, by] = pts[i + 1], dx = bx - ax, dy = by - ay, L2 = dx * dx + dy * dy || 1e-18;
+      const t = Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / L2));
+      const d = (ax + t * dx - x) ** 2 + (ay + t * dy - y) ** 2;
+      if (d < best - 1e-14) { best = d; bd = cum[i] + t * Math.sqrt(L2); bseg = i; }
+    }
+    if (pts.length < 2) bd = 0;
+    sOff.push(Math.max(bd, sOff.length ? sOff[sOff.length - 1] : 0)); from = bseg;
+  }
+  const g = { pts, cum, sOff };
+  geoCache.set(pi, g); return g;
+}
+function pointAt(g, d) {
+  const { pts, cum } = g;
+  if (pts.length < 2) return [pts[0][0], pts[0][1], 0];
+  let lo = 0, hi = cum.length - 1;
+  while (hi - lo > 1) { const m = (lo + hi) >> 1; if (cum[m] <= d) lo = m; else hi = m; }
+  const L = cum[hi] - cum[lo] || 1e-12, t = Math.max(0, Math.min(1, (d - cum[lo]) / L));
+  return [pts[lo][0] + t * (pts[hi][0] - pts[lo][0]), pts[lo][1] + t * (pts[hi][1] - pts[lo][1]), Math.atan2(pts[hi][1] - pts[lo][1], pts[hi][0] - pts[lo][0])];
+}
+
+// ---------- véhicules : position estimée ----------
+// Entre deux arrêts, le bus est placé au prorata du temps écoulé entre le départ du précédent et l'arrivée au suivant,
+// le long du tracé. Horaires temps réel quand la course est suivie, horaires théoriques sinon.
+const _fmtSec = new Intl.DateTimeFormat("fr-FR", { timeZone: "Europe/Paris", hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23" });
+function nowMinF() {
+  const f = _fmtSec;
+  const o = Object.fromEntries(f.formatToParts(new Date()).map((x) => [x.type, x.value]));
+  return +o.hour * 60 + +o.minute + +o.second / 60;
+}
+let showBuses = store.get("buses") !== false;
+function vehicles() {
+  const n = parisNow(); const day = net.dayIndex(n.iso); const t = nowMinF();
+  if (day < 0 || day > net.nd) return [];
+  const out = [];
+  net.pats.forEach((p, pi) => {
+    for (const off of [0, -1440]) {
+      const dk = off ? day - 1 : day;
+      if (dk < 0 || dk >= net.nd) continue;
+      const [A, D] = arr(net, p, dk);
+      for (let k = 0; k < p.nT; k++) {
+        const o = k * p.nS;
+        if (t < D[o] + off || t > A[o + p.nS - 1] + off) continue;
+        if (!net.svcOn(p.sv[k], dk)) continue;
+        let i = 0; while (i < p.nS - 1 && A[o + i + 1] + off <= t) i++;
+        // i : dernier arrêt atteint ; arrêt suivant i+1
+        const g = patGeo(pi);
+        let d, nextI, atStop = false;
+        const ai = A[o + i] + off, di = D[o + i] + off;
+        if (t <= di && t >= ai) { d = g.sOff[i]; nextI = i; atStop = true; }
+        else if (i >= p.nS - 1) { d = g.sOff[p.nS - 1]; nextI = p.nS - 1; atStop = true; }
+        else {
+          const t0 = di, t1 = A[o + i + 1] + off, f = t1 > t0 ? (t - t0) / (t1 - t0) : 1;
+          d = g.sOff[i] + Math.max(0, Math.min(1, f)) * (g.sOff[i + 1] - g.sOff[i]); nextI = i + 1;
+        }
+        const [x, y, ang] = pointAt(g, d);
+        const live = isLive(net, p, k, dk);
+        out.push({ pi, k, off, dk, x, y, ang, live, nextI, atStop, next: A[o + nextI] + off, delay: live ? Math.round((A[o + nextI] - p.A[o + nextI])) : 0, r: p.r });
+      }
+    }
+  });
+  return out;
+}
+
+function resize() {
+  const r = cv.getBoundingClientRect(); DPR = window.devicePixelRatio || 1; W = r.width; H = r.height;
+  cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR); paint();
+}
+function path(pts) { ctx.beginPath(); for (let i = 0; i < pts.length; i++) { const [x, y] = geoS(pts[i][0], pts[i][1]); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } }
+function segment(pi, bi, ai) {
+  const g = patGeo(pi), a = g.sOff[bi], b = g.sOff[ai], out = [];
+  const pa = pointAt(g, a); out.push([pa[0] / KX, pa[1]]);
+  for (let i = 0; i < g.pts.length; i++) if (g.cum[i] > a && g.cum[i] < b) out.push([g.pts[i][0] / KX, g.pts[i][1]]);
+  const pb = pointAt(g, b); out.push([pb[0] / KX, pb[1]]);
+  return out;
+}
+function highlight() {
+  const H = { routes: null, legs: [], stops: [], ends: [], trips: null };
+  if (S.view === "itineraire") {
+    const j = S.journeys[S.selJ];
+    if (j) {
+      H.routes = new Set(); H.trips = new Set();
+      j.legs.forEach((g) => {
+        if (g.type === "ride") {
+          const p = net.pats[g.pat];
+          H.legs.push({ pts: segment(g.pat, g.bi, g.ai), c: net.R[p.r].c });
+          H.routes.add(p.r); H.trips.add(g.pat + ":" + g.trip);
+          for (let s = g.bi; s <= g.ai; s++) H.stops.push(net.Q[p.stops[s]][0]);
+        } else {
+          const a = net.Q[g.from], b = net.Q[g.to];
+          H.legs.push({ pts: [[a[2], a[1]], [b[2], b[1]]], walk: true });
+        }
+      });
+    }
+    if (S.from != null) H.ends.push([S.from, "from"]);
+    if (S.to != null) H.ends.push([S.to, "to"]);
+  } else if (S.view === "passages" && S.paStop != null) {
+    H.routes = new Set(net.pRoutes[S.paStop]); H.ends.push([S.paStop, "from"]);
+  } else if (S.view === "lignes" && S.line != null) {
+    H.routes = new Set([S.line]);
+    net.pats.forEach((p) => { if (p.r === S.line) p.stops.forEach((q) => H.stops.push(net.Q[q][0])); });
+  }
+  return H;
+}
+
+let raf = 0, hover = null, lastVeh = [];
+function drawMap() { if (!raf) raf = requestAnimationFrame(() => { raf = 0; paint(); }); }
+function roundRect(x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+function paint() {
+  if (!W) return;
+  const C = { bg: css("--map-bg"), ink: css("--ink"), surf: css("--surface"), muted: css("--muted"), rule: css("--rule"), ok: css("--ok"), th: css("--theo"), font: css("--font-display") };
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  ctx.fillStyle = C.bg; ctx.fillRect(0, 0, W, H);
+  const hl = highlight();
+  const z = view.s / 9000;
+  const lw = Math.max(1.6, Math.min(6, 2.2 * Math.pow(z, 0.55)));
+  ctx.lineJoin = "round"; ctx.lineCap = "round";
+  const focus = hl.routes && hl.routes.size > 0;
+  const journey = hl.legs.length > 0;
+  const order = net.R.map((r, i) => i).sort((a, b) => ((hl.routes?.has(a) ? 1 : 0) - (hl.routes?.has(b) ? 1 : 0)) || ((net.R[a].m === 1) - (net.R[b].m === 1)));
+  // 1) liseré de fond puis couleur de ligne : les lignes qui se superposent restent lisibles
+  for (const pass of [0, 1]) {
+    for (const ri of order) {
+      const on = !focus || hl.routes.has(ri);
+      const strong = on && focus && !journey;
+      const w = (net.R[ri].m === 1 ? lw * 1.7 : lw) * (strong ? 1.5 : 1);
+      ctx.globalAlpha = !focus ? 1 : journey ? 0.16 : on ? 1 : 0.14;
+      if (pass === 0) { if (ctx.globalAlpha < 0.5) continue; ctx.strokeStyle = C.bg; ctx.lineWidth = w + 3; }
+      else { ctx.strokeStyle = net.R[ri].c; ctx.lineWidth = w; }
+      for (const k of routeShapes[ri]) { path(keyToPts.get(k)); ctx.stroke(); }
+    }
+  }
+  ctx.globalAlpha = 1;
+  // 2) trajet choisi
+  for (const L of hl.legs) {
+    path(L.pts);
+    if (L.walk) { ctx.setLineDash([1, 7]); ctx.strokeStyle = C.ink; ctx.lineWidth = 4; ctx.stroke(); ctx.setLineDash([]); }
+    else { ctx.strokeStyle = C.surf; ctx.lineWidth = lw * 2.6 + 5; ctx.stroke(); ctx.strokeStyle = L.c; ctx.lineWidth = lw * 2.6; ctx.stroke(); }
+  }
+  // 3) arrêts
+  const hs = new Set(hl.stops);
+  const showAll = z > 1.7;
+  net.P.forEach((p, i) => {
+    const on = hs.has(i), hub = hubs.has(i) && z > 0.75 && (!focus || hl.routes && net.pRoutes[i].some((r) => hl.routes.has(r)));
+    if (!on && !showAll && !hub) return;
+    const [x, y] = geoS(p[2], p[1]);
+    if (x < -20 || y < -20 || x > W + 20 || y > H + 20) return;
+    const r = on ? 4 : hub ? 3.6 : 2.6;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, 7);
+    ctx.fillStyle = C.surf; ctx.fill(); ctx.lineWidth = on || hub ? 2 : 1.3; ctx.strokeStyle = on || hub ? C.ink : C.muted; ctx.stroke();
+  });
+  // 4) étiquettes (évitement des chevauchements)
+  ctx.textBaseline = "middle";
+  const placed = [], done = new Set();
+  const label = (i, strong) => {
+    if (done.has(i)) return;
+    const p = net.P[i]; const [x, y] = geoS(p[2], p[1]);
+    if (x < 0 || y < 0 || x > W || y > H) return;
+    ctx.font = `${strong ? 700 : 600} ${strong ? 13.5 : z > 3 ? 13 : 12}px ${C.font}`;
+    const w = ctx.measureText(p[0]).width;
+    // à droite, sinon à gauche
+    for (const side of [1, -1]) {
+      const bx = side > 0 ? x + 8 : x - 8 - w, box = [bx - 2, y - 8, bx + w + 2, y + 8];
+      if (box[0] < 2 || box[2] > W - 2) continue;
+      if (!strong && placed.some((b) => !(box[2] < b[0] || box[0] > b[2] || box[3] < b[1] || box[1] > b[3]))) continue;
+      placed.push(box); done.add(i);
+      ctx.lineWidth = 4; ctx.strokeStyle = C.bg; ctx.strokeText(p[0], bx, y);
+      ctx.fillStyle = strong ? C.ink : C.muted; ctx.fillText(p[0], bx, y);
+      return;
+    }
+  };
+  hl.ends.forEach(([i]) => label(i, true));
+  if (S.view === "itineraire" && S.journeys[S.selJ]) S.journeys[S.selJ].legs.forEach((g) => { if (g.type === "ride") { const p = net.pats[g.pat]; label(net.Q[p.stops[g.bi]][0], true); label(net.Q[p.stops[g.ai]][0], true); } });
+  if (hover && hover.kind === "stop") label(hover.i, true);
+  if (hs.size && z > 1.1) [...hs].forEach((i) => label(i, false));
+  if (z > 1.0) [...hubs].forEach((i) => label(i, false));
+  if (showAll && z > 2.4) net.P.forEach((p, i) => label(i, false));
+  // 5) départ / arrivée
+  hl.ends.forEach(([i, kind]) => {
+    const p = net.P[i]; const [x, y] = geoS(p[2], p[1]);
+    ctx.beginPath();
+    if (kind === "to") roundRect(x - 7.5, y - 7.5, 15, 15, 3); else ctx.arc(x, y, 8, 0, 7);
+    ctx.fillStyle = kind === "to" ? C.ink : C.surf; ctx.fill(); ctx.lineWidth = 3.5; ctx.strokeStyle = C.ink; ctx.stroke();
+  });
+  // 6) bus en circulation
+  lastVeh = [];
+  if (showBuses) {
+    const vs = vehicles();
+    const sel = hl.trips;
+    for (const v of vs) {
+      if (hl.routes && hl.routes.size && !hl.routes.has(v.r)) continue;
+      const [sx, sy] = toS(v.x, v.y);
+      if (sx < -20 || sy < -20 || sx > W + 20 || sy > H + 20) continue;
+      lastVeh.push({ ...v, sx, sy });
+    }
+    // les courses du trajet choisi en dernier (au-dessus)
+    lastVeh.sort((a, b) => (sel?.has(a.pi + ":" + a.k) ? 1 : 0) - (sel?.has(b.pi + ":" + b.k) ? 1 : 0));
+    const big = z > 1.3 || (sel && sel.size);
+    for (const v of lastVeh) {
+      const R = net.R[v.r], mine = sel?.has(v.pi + ":" + v.k), isHover = hover && hover.kind === "veh" && hover.v.pi === v.pi && hover.v.k === v.k;
+      const dim = sel && sel.size && !mine;
+      ctx.globalAlpha = dim ? 0.45 : 1;
+      const rad = mine || isHover ? 11 : big ? 9 : 6;
+      // flèche de direction
+      const ang = -v.ang;
+      ctx.save(); ctx.translate(v.sx, v.sy); ctx.rotate(ang);
+      ctx.beginPath(); ctx.moveTo(rad + 6, 0); ctx.lineTo(rad - 1, -5); ctx.lineTo(rad - 1, 5); ctx.closePath();
+      ctx.fillStyle = C.ink; ctx.fill(); ctx.restore();
+      // pastille
+      ctx.beginPath(); ctx.arc(v.sx, v.sy, rad, 0, 7);
+      ctx.fillStyle = R.c; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = C.surf; ctx.stroke();
+      if (mine) { ctx.beginPath(); ctx.arc(v.sx, v.sy, rad + 3.5, 0, 7); ctx.lineWidth = 2; ctx.strokeStyle = C.ink; ctx.stroke(); }
+      if (rad >= 9) {
+        const txt = R.s === "TRAM" ? "T" : R.s;
+        ctx.font = `700 ${txt.length > 2 ? 9 : 10.5}px ${C.font}`; ctx.textAlign = "center"; ctx.fillStyle = R.t; ctx.fillText(txt, v.sx, v.sy + 0.5); ctx.textAlign = "start";
+      }
+      // statut : vert = temps réel, orange = théorique
+      ctx.beginPath(); ctx.arc(v.sx + rad * 0.72, v.sy - rad * 0.72, rad >= 9 ? 3.6 : 2.6, 0, 7);
+      ctx.fillStyle = v.live ? C.ok : C.th; ctx.fill(); ctx.lineWidth = 1.5; ctx.strokeStyle = C.surf; ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+  }
+  // 7) échelle
+  const mpp = 111320 / view.s; // mètres par pixel
+  const nice = [50, 100, 200, 250, 500, 1000, 2000, 5000, 10000, 20000].find((m) => m / mpp >= 60) || 20000;
+  const len = nice / mpp, bx = W - len - 16, by = H - 18;
+  ctx.strokeStyle = C.ink; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(bx, by - 5); ctx.lineTo(bx, by); ctx.lineTo(bx + len, by); ctx.lineTo(bx + len, by - 5); ctx.stroke();
+  ctx.font = `600 11.5px ${C.font}`; ctx.fillStyle = C.ink; ctx.textAlign = "center";
+  ctx.lineWidth = 3; ctx.strokeStyle = C.bg; const st = nice >= 1000 ? nice / 1000 + " km" : nice + " m";
+  ctx.strokeText(st, bx + len / 2, by - 10); ctx.fillText(st, bx + len / 2, by - 10); ctx.textAlign = "start";
+  placePop();
+}
+
+// ---------- vue : déplacement animé ----------
+let anim = 0;
+function animateTo(cx, cy, s) {
+  s = Math.max(ZMIN, Math.min(ZMAX, s));
+  cancelAnimationFrame(anim);
+  if (reduceMotion || !W) { view.cx = cx; view.cy = cy; view.s = s; drawMap(); return; }
+  const a = { cx: view.cx, cy: view.cy, s: view.s }, t0 = performance.now(), T = 420;
+  const step = (now) => {
+    const u = Math.min(1, (now - t0) / T), e = u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+    const ls = Math.log(a.s) + (Math.log(s) - Math.log(a.s)) * e;
+    view.s = Math.exp(ls); view.cx = a.cx + (cx - a.cx) * e; view.cy = a.cy + (cy - a.cy) * e;
+    paint(); if (u < 1) anim = requestAnimationFrame(step);
+  };
+  anim = requestAnimationFrame(step);
+}
+function fitBox(pts, pad = 50) {
+  if (!pts.length || !W) return;
+  let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+  pts.forEach(([lo, la]) => { const x = PX(lo), y = PY(la); x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); });
+  const p = Math.min(pad, W / 5, H / 5);
+  const s = Math.min((W - p * 2) / Math.max(x1 - x0, 0.004), (H - p * 2) / Math.max(y1 - y0, 0.003), 60000);
+  animateTo((x0 + x1) / 2, (y0 + y1) / 2, s);
+}
+function fitJourney(j) { if (!j) return; const pts = []; j.legs.forEach((g) => { if (g.type === "ride") { const p = net.pats[g.pat]; for (let s = g.bi; s <= g.ai; s++) { const q = net.Q[p.stops[s]]; pts.push([q[2], q[1]]); } } else { [g.from, g.to].forEach((q) => pts.push([net.Q[q][2], net.Q[q][1]])); } }); fitBox(pts, 80); }
+function fitLine(ri) { const pts = []; routeShapes[ri].forEach((k) => keyToPts.get(k).forEach((p) => pts.push(p))); fitBox(pts, 40); }
+function fitStop(i) { const p = net.P[i]; animateTo(PX(p[2]), PY(p[1]), Math.max(view.s, 26000)); }
+function fitHome() { const pts = net.pats.filter((p) => !/^E/.test(net.R[p.r].s)).flatMap((p) => p.stops.map((q) => [net.Q[q][2], net.Q[q][1]])); fitBox(pts, 20); }
+
+// ---------- interactions ----------
+function hitTest(sx, sy) {
+  let best = null, bd = 16 * 16;
+  for (const v of lastVeh) { const d = (v.sx - sx) ** 2 + (v.sy - sy) ** 2; if (d < bd) { bd = d; best = { kind: "veh", v }; } }
+  if (best) return best;
+  bd = 13 * 13;
+  const z = view.s / 9000;
+  net.P.forEach((p, i) => { const [x, y] = geoS(p[2], p[1]); const d = (x - sx) ** 2 + (y - sy) ** 2; if (d < bd) { bd = d; best = { kind: "stop", i }; } });
+  return best;
+}
+const ptrs = new Map(); let moved = false, pinch0 = null, downAt = null;
+const pos = (e) => { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+cv.addEventListener("pointerdown", (e) => {
+  cv.setPointerCapture(e.pointerId); cancelAnimationFrame(anim);
+  ptrs.set(e.pointerId, pos(e)); moved = false; downAt = pos(e);
+  if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinch0 = { d: Math.hypot(a[0] - b[0], a[1] - b[1]) || 1, s: view.s, m: fromS((a[0] + b[0]) / 2, (a[1] + b[1]) / 2) }; }
+});
+cv.addEventListener("pointermove", (e) => {
+  const [px, py] = pos(e);
+  if (!ptrs.has(e.pointerId)) {
+    if (e.pointerType === "mouse") { const h = hitTest(px, py); const key = h ? h.kind + (h.i ?? h.v.pi + ":" + h.v.k) : ""; const old = hover ? hover.kind + (hover.i ?? hover.v.pi + ":" + hover.v.k) : ""; cv.style.cursor = h ? "pointer" : ""; if (key !== old) { hover = h; drawMap(); } }
+    return;
+  }
+  const [ox, oy] = ptrs.get(e.pointerId); ptrs.set(e.pointerId, [px, py]);
+  if (ptrs.size === 1) {
+    if (!moved && Math.hypot(px - downAt[0], py - downAt[1]) < 4) return;
+    if (!moved) { moved = true; cv.classList.add("drag"); }
+    view.cx -= (px - ox) / view.s; view.cy += (py - oy) / view.s; drawMap();
+  } else if (ptrs.size === 2 && pinch0) {
+    moved = true;
+    const [a, b] = [...ptrs.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]);
+    view.s = Math.max(ZMIN, Math.min(ZMAX, pinch0.s * d / pinch0.d));
+    const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2;
+    view.cx = pinch0.m[0] - (mx - W / 2) / view.s; view.cy = pinch0.m[1] + (my - H / 2) / view.s; drawMap();
+  }
+});
+const up = (e) => { ptrs.delete(e.pointerId); if (ptrs.size < 2) pinch0 = null; if (ptrs.size === 1) { const [k] = ptrs.keys(); downAt = ptrs.get(k); } if (!ptrs.size) cv.classList.remove("drag"); };
+cv.addEventListener("pointerup", (e) => { const wasMoved = moved; const single = ptrs.size === 1; up(e); if (!wasMoved && single) { const [px, py] = pos(e); clickMap(px, py); } });
+cv.addEventListener("pointercancel", up);
+cv.addEventListener("pointerleave", () => { if (hover) { hover = null; drawMap(); } });
+cv.addEventListener("dblclick", (e) => { e.preventDefault(); const [px, py] = pos(e); zoomAt(px, py, 2, true); });
+cv.addEventListener("wheel", (e) => {
+  e.preventDefault(); cancelAnimationFrame(anim);
+  const dy = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * 400 : e.deltaY;
+  const [px, py] = pos(e); zoomAt(px, py, Math.exp(-Math.max(-300, Math.min(300, dy)) * (e.ctrlKey ? 0.01 : 0.0022)));
+}, { passive: false });
+function zoomAt(sx, sy, f, smooth) {
+  const [x, y] = fromS(sx, sy); const s = Math.max(ZMIN, Math.min(ZMAX, view.s * f));
+  const cx = x - (sx - W / 2) / s, cy = y + (sy - H / 2) / s;
+  if (smooth) animateTo(cx, cy, s); else { view.s = s; view.cx = cx; view.cy = cy; drawMap(); }
+}
+$("#z-in").addEventListener("click", () => zoomAt(W / 2, H / 2, 1.8, true));
+$("#z-out").addEventListener("click", () => zoomAt(W / 2, H / 2, 1 / 1.8, true));
+$("#z-fit").addEventListener("click", () => { hidePop(); if (S.view === "itineraire" && S.journeys[S.selJ]) fitJourney(S.journeys[S.selJ]); else if (S.view === "lignes" && S.line != null) fitLine(S.line); else if (S.view === "passages" && S.paStop != null) fitStop(S.paStop); else fitHome(); });
+const busBtn = $("#z-bus");
+const syncBusBtn = () => { busBtn.setAttribute("aria-pressed", showBuses); busBtn.title = showBuses ? "Masquer les bus en circulation" : "Afficher les bus en circulation"; };
+busBtn.addEventListener("click", () => { showBuses = !showBuses; store.set("buses", showBuses); syncBusBtn(); drawMap(); });
+syncBusBtn();
+cv.tabIndex = 0;
+cv.addEventListener("keydown", (e) => {
+  const k = e.key, step = 80;
+  if (k === "+" || k === "=") zoomAt(W / 2, H / 2, 1.5, true);
+  else if (k === "-") zoomAt(W / 2, H / 2, 1 / 1.5, true);
+  else if (k.startsWith("Arrow")) { view.cx += (k === "ArrowLeft" ? -step : k === "ArrowRight" ? step : 0) / view.s; view.cy += (k === "ArrowUp" ? step : k === "ArrowDown" ? -step : 0) / view.s; drawMap(); }
+  else if (k === "Escape") hidePop();
+  else return;
+  e.preventDefault();
+});
+
+// ---------- info-bulle ancrée sur le plan ----------
+const pop = $("#pop"); let popAt = null;
+function hidePop() { pop.classList.remove("on"); popAt = null; }
+function placePop() {
+  if (!popAt) return;
+  let sx, sy;
+  if (popAt.veh) { const v = lastVeh.find((x) => x.pi === popAt.veh.pi && x.k === popAt.veh.k); if (!v) { hidePop(); return; } sx = v.sx; sy = v.sy; fillVehPop(v); }
+  else [sx, sy] = toS(popAt.x, popAt.y);
+  const pw = pop.offsetWidth || 240, ph = pop.offsetHeight || 140;
+  let left = sx + 14, top = sy + 14;
+  if (left + pw > W - 8) left = sx - pw - 14;
+  if (top + ph > H - 8) top = sy - ph - 14;
+  pop.style.left = Math.max(8, left) + "px"; pop.style.top = Math.max(8, top) + "px";
+  pop.style.visibility = sx < -10 || sy < -10 || sx > W + 10 || sy > H + 10 ? "hidden" : "visible";
+}
+function fillVehPop(v) {
+  const p = net.pats[v.pi], R = net.R[p.r];
+  const nm = qName(p.stops[v.nextI]);
+  const wait = v.next - nowMinF();
+  const html = `<button type="button" class="x" aria-label="Fermer">×</button>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">${badge(p.r)}<h3 style="margin:0">→ ${esc(p.h)}</h3></div>
+    <div class="sub">${v.atStop ? "À l'arrêt" : "Prochain arrêt"} : <b>${esc(nm)}</b>${v.atStop ? "" : ` · ${wait < 1 ? "imminent" : "dans " + Math.round(wait) + " min"}`}</div>
+    <div class="sub" style="margin-top:6px;display:flex;gap:6px;align-items:center">${v.live ? `<span class="dotlive"></span>Position estimée d'après le temps réel${Math.abs(v.delay) >= 1 ? ` · ${v.delay > 0 ? "retard " + v.delay : "avance " + -v.delay} min` : " · à l'heure"}` : `<span class="dottheo"></span>Position estimée d'après l'horaire théorique`}</div>`;
+  if (pop.dataset.html !== html) { pop.innerHTML = html; pop.dataset.html = html; }
+}
+pop.addEventListener("click", (e) => {
+  if (e.target.closest(".x")) return hidePop();
+  const a = e.target.closest("[data-a]")?.dataset.a; if (!a || popAt?.stop == null) return;
+  const best = popAt.stop; hidePop();
+  if (a === "pa") { S.paStop = best; paP.set(best); store.set("pa", pName(best)); if (location.hash !== "#passages") location.hash = "passages"; else { runPa(); fitStop(best); } return; }
+  if (a === "from") { S.from = best; fromP.set(best); } else { S.to = best; toP.set(best); }
+  if (location.hash !== "#itineraire") location.hash = "itineraire"; else runIt();
+});
+function clickMap(sx, sy) {
+  const h = hitTest(sx, sy);
+  if (!h) { hidePop(); return; }
+  if (h.kind === "veh") { pop.dataset.html = ""; popAt = { veh: { pi: h.v.pi, k: h.v.k } }; fillVehPop(h.v); pop.classList.add("on"); placePop(); return; }
+  const best = h.i, p = net.P[best];
+  pop.dataset.html = "";
+  pop.innerHTML = `<button type="button" class="x" aria-label="Fermer">×</button><h3>${esc(pName(best))}</h3><div class="badges">${net.pRoutes[best].map((r) => badge(r, 1)).join("")}</div>
+    <div class="acts"><button type="button" class="btn small" data-a="from">Partir d'ici</button><button type="button" class="btn small" data-a="to">Y aller</button><button type="button" class="btn small" data-a="pa">Passages</button></div>`;
+  popAt = { x: PX(p[2]), y: PY(p[1]), stop: best };
+  pop.classList.add("on"); placePop();
+}
+// rafraîchit la position des bus (toutes les 2 s, seulement si la page est visible)
+setInterval(() => { if (showBuses && !document.hidden && !ptrs.size) drawMap(); }, 2000);
+
+// ---------- vues ----------
+function route() {
+  const v = (location.hash || "#itineraire").slice(1);
+  S.view = ["itineraire", "passages", "lignes"].includes(v) ? v : "itineraire";
+  document.querySelectorAll(".view").forEach((s) => s.classList.toggle("on", s.id === "v-" + S.view));
+  document.querySelectorAll("nav.tabs a").forEach((a) => a.toggleAttribute("aria-current", false) || (a.dataset.v === S.view && a.setAttribute("aria-current", "page")));
+  if (S.view === "itineraire") { runIt(); }
+  else if (S.view === "passages") { runPa(); if (S.paStop != null) fitStop(S.paStop); }
+  else { runLi(); if (S.line != null) fitLine(S.line); }
+  drawMap();
+}
+window.addEventListener("hashchange", route);
+new ResizeObserver(resize).observe(cv);
+matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", drawMap);
+new MutationObserver(drawMap).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
+// état initial : derniers choix, sinon un exemple
+const od = store.get("od") || ["Gare de Reims - Centre", "Hôpital Debré"];
+S.from = findStop(od[0]); S.to = findStop(od[1]);
+if (S.from < 0) S.from = findStop("Gare de Reims - Centre"); if (S.to < 0) S.to = findStop("Hôpital Debré");
+fromP.set(S.from); toP.set(S.to);
+const pa = store.get("pa") || "Opéra-Cathédrale"; S.paStop = findStop(pa); if (S.paStop < 0) S.paStop = findStop("Opéra-Cathédrale"); paP.set(S.paStop);
+S.line = net.R.findIndex((r) => r.m === 1);
+resize(); fitHome(); route();
+
+// ---------- temps réel ----------
+const RT_URL = "https://proxy.transport.data.gouv.fr/resource/fluo-citura-reims-gtfs-rt";
+const rtEl = $("#rt"); const RT = { at: 0, ok: false, n: 0, err: "" };
+function parisMidnightEpoch(k) {
+  const iso = net.isoOf(k), noon = Date.parse(iso + "T12:00:00Z");
+  const h = +new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Paris", hour: "2-digit", hourCycle: "h23" }).format(new Date(noon));
+  return noon / 1000 - (h - 12) * 3600 - 12 * 3600;
+}
+function rtLabel() {
+  if (RT.ok) { const s = Math.round((Date.now() - RT.at) / 1000); rtEl.className = "rt ok"; rtEl.lastChild.textContent = `Temps réel · ${RT.n} courses · ${s < 60 ? "à l'instant" : "il y a " + Math.round(s / 60) + " min"}`; }
+  else if (RT.err) { rtEl.className = "rt err"; rtEl.lastChild.textContent = "Horaires prévus uniquement"; }
+}
+rtEl.addEventListener("click", () => { if (!RT.ok && RT.err) { rtEl.title = RT.err; } pollRT(); });
+let rtTimer = 0;
+async function pollRT() {
+  clearTimeout(rtTimer);
+  try {
+    const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 12000);
+    const r = await fetch(RT_URL, { cache: "no-store", signal: ctl.signal }); clearTimeout(to);
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const feed = decodeFeed(new Uint8Array(await r.arrayBuffer()));
+    const now = parisNow(); const today = net.dayIndex(now.iso);
+    if (today < 0 || today >= net.nd) throw new Error("Le flux temps réel concerne une date hors du fichier d'horaires.");
+    const st = applyRT(net, feed, today, parisMidnightEpoch);
+    RT.ok = true; RT.at = Date.now(); RT.n = st.matched; RT.err = "";
+    rtEl.title = `${st.matched} courses suivies en temps réel sur ${st.total} annoncées. Actualisation toutes les 30 s.`;
+    rerender();
+  } catch (e) {
+    RT.ok = false;
+    RT.err = !/claude/.test(location.hostname) ? "Flux temps réel injoignable pour le moment (" + (e.message || e) + "). Nouvel essai dans 30 s." : "Le temps réel ne peut pas être chargé dans cette page hébergée. Ouvrez la version locale (fichier .html) pour en profiter.";
+    rtEl.title = RT.err;
+    if (net.liveDay >= 0) { net.pats.forEach((p) => { p.LA = p.LD = p.live = null; }); net.liveDay = -1; rerender(); }
+  }
+  rtLabel();
+  rtTimer = setTimeout(pollRT, 30000);
+}
+function rerender() {
+  // garde le trajet choisi s'il existe encore
+  const key = S.journeys[S.selJ]?.key;
+  if (S.view === "itineraire") { const keepSel = S.selJ; runIt(true); const k = S.journeys.findIndex((j) => j.key === key); if (k >= 0 && k !== S.selJ) { S.selJ = k; document.querySelectorAll(".jc").forEach((c) => { const on = +c.dataset.k === k; c.classList.toggle("sel", on); $(".head", c).setAttribute("aria-expanded", on); }); drawMap(); } else if (keepSel < 0) { S.selJ = -1; document.querySelectorAll(".jc").forEach((c) => c.classList.remove("sel")); drawMap(); } }
+  else if (S.view === "passages") runPa(); else runLi();
+}
+setInterval(rtLabel, 15000);
+// compte à rebours : on rafraîchit l'affichage toutes les 30 s même sans temps réel
+setInterval(() => { if (!document.hidden && !RT.ok) rerender(); }, 30000);
+pollRT();
+})();
+</script>
+</body>
+</html>

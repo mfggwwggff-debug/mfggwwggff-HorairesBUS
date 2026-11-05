@@ -1,0 +1,49 @@
+name: Mise à jour des horaires
+
+# Télécharge chaque semaine le GTFS publié par Grand Reims Mobilités
+# et reconstruit index.html si les horaires ont changé.
+on:
+  schedule:
+    - cron: "17 4 * * 1,4"   # lundi et jeudi, 4h17 UTC
+  workflow_dispatch:          # lancement manuel depuis l'onglet Actions
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mise-a-jour-horaires
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Installer pandas
+        run: pip install pandas==2.2.3
+
+      - name: Télécharger le GTFS
+        run: |
+          curl -fsSL --retry 3 -o gtfs.zip "https://transport.data.gouv.fr/resources/80594/download"
+          python -c "import zipfile; z = zipfile.ZipFile('gtfs.zip'); assert 'stop_times.txt' in z.namelist(), 'archive GTFS invalide'"
+
+      - name: Reconstruire la page
+        run: python build/make.py gtfs.zip
+
+      - name: Publier si quelque chose a changé
+        run: |
+          rm -f gtfs.zip
+          if git diff --quiet; then
+            echo "Horaires inchangés."
+            exit 0
+          fi
+          git config user.name "horaires-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html build/data.json
+          git commit -m "Mise à jour automatique des horaires"
+          git push
