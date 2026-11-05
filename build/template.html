@@ -385,6 +385,132 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
 .vhead { display: flex; gap: 10px; align-items: center; }
 .vhead h2 { font-size: 21px; font-weight: 700; flex: 1; }
 
+
+/* Mon bus */
+.fh-t { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.fh-t h2 { font-size: 19px; font-weight: 700; line-height: 1.15; }
+.fh-s { font-size: 12.5px; color: var(--muted); display: flex; gap: 6px; align-items: center; }
+.pillmode { font: 700 11px/1 var(--font-body); letter-spacing: .08em; color: var(--accent); border: 1.5px solid var(--accent); border-radius: 999px; padding: 5px 8px; flex: none; }
+.mbh { border-radius: 18px; background: #15202b; color: #fff; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+:root[data-theme="dark"] .mbh:not(.near) { background: #222c35; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .mbh:not(.near) { background: #222c35; } }
+.mbh .r1 { display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; }
+.mbh .c { display: flex; flex-direction: column; min-width: 0; }
+.mbh .k { font-size: 11.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: #aab4bd; }
+.mbh b { font-size: 23px; font-weight: 700; line-height: 1.12; }
+.mbh .eta { font-size: 22px; font-weight: 700; white-space: nowrap; color: #ff9a6b; }
+.mbh .pg { height: 6px; border-radius: 3px; background: rgb(255 255 255 / .16); overflow: hidden; }
+.mbh .pg i { display: block; height: 6px; border-radius: 3px; transition: width 1s linear; }
+.mbh .r2 { display: flex; justify-content: space-between; gap: 8px; font-size: 12.5px; color: #cfd6dc; }
+.mbh .r2 b { font-size: inherit; color: #fff; font-weight: 600; }
+.mbh.near { flex-direction: row; align-items: center; gap: 16px; background: var(--c); color: var(--ct); position: relative; overflow: hidden; }
+.mbh.near .tx { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.mbh.near .k { color: inherit; opacity: .9; }
+.mbh.near b { font-size: 26px; }
+.mbh.near .tx > span:last-child { font-size: 13.5px; opacity: .95; }
+.wv { position: relative; width: 70px; height: 70px; flex: none; }
+.wv i { position: absolute; left: 50%; top: 50%; width: 70px; height: 70px; border-radius: 50%; border: 3px solid currentColor; box-sizing: border-box; animation: wave 1.8s ease-out infinite; }
+.wv i:nth-child(2) { animation-delay: .6s; } .wv i:nth-child(3) { animation-delay: 1.2s; }
+.wv span { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 30px; height: 30px; border-radius: 50%; background: var(--ct); display: grid; place-items: center; }
+@keyframes wave { 0% { transform: translate(-50%, -50%) scale(.35); opacity: .7; } 100% { transform: translate(-50%, -50%) scale(1.25); opacity: 0; } }
+.crs { border: 1px solid var(--rule); border-radius: 14px; overflow: hidden; margin-top: 8px; }
+.cr { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; padding: 9px 12px; border-top: 1px solid var(--rule); }
+.cr:first-child { border-top: 0; }
+.cr .d { font-weight: 600; font-size: 14px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cr .w { display: flex; gap: 6px; align-items: center; }
+.cr .w b { font: 700 16px/1 var(--font-display); }
+.cr .w small { font-size: 12.5px; color: var(--muted); font-weight: 600; }
+.mbal { display: flex; gap: 10px; align-items: center; border-radius: 14px; background: var(--accent); color: #fff; padding: 10px 14px; }
+.mbal svg { width: 22px; height: 22px; flex: none; }
+.mbal div { display: flex; flex-direction: column; }
+.mbal b { font-size: 15px; } .mbal span { font-size: 12.5px; opacity: .92; }
+.mbal.hot { animation: glow 1.2s ease-in-out infinite; }
+@keyframes glow { 0%, 100% { background: var(--accent); } 50% { background: color-mix(in srgb, var(--accent) 70%, #ffb38f); } }
+.mbt { position: relative; margin: 0 -4px; }
+.mbt-rail, .mbt-done { position: absolute; left: 69px; width: 6px; border-radius: 3px; }
+.mbt-rail { background: var(--c); }
+.mbt-done { background: var(--rule); transition: height 1s linear; }
+.mbr { position: absolute; left: 0; right: 0; height: 58px; display: grid; grid-template-columns: 50px 34px 1fr; column-gap: 0; align-items: center; border: 0; background: none; text-align: left; padding: 0 6px 0 0; transition: opacity .4s; }
+.mbr .t { font: 600 14px/1 var(--font-display); text-align: right; color: var(--muted); padding-right: 6px; }
+.mbr .nd { justify-self: center; width: 14px; height: 14px; border-radius: 50%; background: var(--surface); border: 3.5px solid var(--c); box-sizing: border-box; position: relative; z-index: 1; transition: all .3s; }
+.mbr .nm { display: flex; flex-direction: column; gap: 4px; min-width: 0; padding-left: 6px; }
+.mbr .n1 { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.mbr .nmt { font-size: 15px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mbr .cxs { display: flex; gap: 6px; align-items: center; white-space: nowrap; overflow: hidden; min-height: 18px; }
+.cx { display: inline-flex; align-items: center; gap: 3px; } .cx b { font: 600 12.5px/1 var(--font-display); color: var(--muted); }
+.mbr.passed { opacity: .45; } .mbr.passed .nd { border-color: var(--rule); }
+.mbr.next .nmt { font-weight: 700; font-size: 16.5px; } .mbr.next .nd { width: 18px; height: 18px; } .mbr.next .t { color: var(--ink); }
+.mbr.near .nd { animation: ring 1s ease-out infinite; }
+@keyframes ring { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--c) 60%, transparent); } 100% { box-shadow: 0 0 0 14px transparent; } }
+.mbr.dest .nd { width: 20px; height: 20px; border-radius: 5px; background: var(--ink); border-color: var(--ink); }
+.mbr.dest .nmt { font-weight: 700; }
+.mbr.from .nd { background: var(--c); }
+.tagx { font: 700 10.5px/1 var(--font-body); letter-spacing: .03em; color: var(--surface); background: var(--ink); border-radius: 5px; padding: 3px 5px; flex: none; }
+.tagx.up { background: var(--c); color: var(--ct); }
+.mbt-bus { position: absolute; left: 72px; width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--surface); box-shadow: 0 0 0 2px var(--ink), 0 6px 16px rgb(0 0 0 / .25); display: grid; place-items: center; z-index: 2; transform: translate(-50%, -50%); transition: top 1s linear; animation: bob 1.4s ease-in-out infinite; }
+.mbt-bus.hide { display: none; }
+@keyframes bob { 0%, 100% { margin-top: 0; } 50% { margin-top: -3px; } }
+.mbbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; border-top: 1px solid var(--rule); padding-top: 12px; }
+.mbbar .hint { flex: 1 1 160px; font-size: 12.5px; color: var(--muted); }
+.alertbtn { gap: 6px; }
+.alertbtn[aria-pressed="true"] { background: color-mix(in srgb, var(--accent) 12%, var(--surface)); color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, var(--rule)); }
+#takeover { position: fixed; inset: 0; z-index: 90; background: var(--accent); color: #fff; display: none; place-items: center; padding: 24px 18px calc(24px + var(--sab)); overflow: auto; }
+#takeover.on { display: grid; animation: tkin .3s ease-out; }
+@keyframes tkin { from { opacity: 0; transform: scale(1.04); } to { opacity: 1; transform: none; } }
+.tk-in { width: min(420px, 100%); display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
+.tk-ico { width: 92px; height: 92px; border-radius: 50%; background: rgb(255 255 255 / .18); display: grid; place-items: center; animation: halo 1.6s ease-out infinite; }
+.tk-ico svg { animation: shake 1.6s ease-in-out infinite; transform-origin: 50% 10%; }
+@keyframes halo { 0% { box-shadow: 0 0 0 0 rgb(255 255 255 / .45); } 100% { box-shadow: 0 0 0 26px rgb(255 255 255 / 0); } }
+@keyframes shake { 0%, 100% { transform: rotate(0); } 15% { transform: rotate(-14deg); } 30% { transform: rotate(12deg); } 45% { transform: rotate(-8deg); } 60% { transform: rotate(5deg); } 75% { transform: rotate(0); } }
+.tk-k { font: 700 13px/1 var(--font-body); letter-spacing: .12em; text-transform: uppercase; opacity: .9; }
+.tk-t { font: 700 32px/1.08 var(--font-display); }
+.tk-s { display: inline-flex; gap: 8px; align-items: center; font-weight: 600; background: rgb(0 0 0 / .14); border-radius: 999px; padding: 7px 14px; }
+.tk-next { width: 100%; background: #fff; color: #15202b; border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; text-align: left; font-size: 14px; }
+.tk-next .tk-line { display: flex; gap: 8px; align-items: center; font-size: 17px; }
+.tk-card { width: 100%; background: #fff; color: #15202b; border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 8px; text-align: left; }
+.tk-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.tc { border: 1px solid #dde1df; border-radius: 12px; padding: 8px; display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+.tc b { font-size: 16px; } .tc small { font-size: 11.5px; color: #4e5a64; }
+.tk-ok { width: 100%; height: 50px; border-radius: 14px; border: 0; background: #fff; color: #b83c10; font: 700 16px var(--font-body); margin-top: 6px; }
+/* guidage */
+.gchain { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+.gs { display: inline-flex; align-items: center; gap: 2px; padding: 3px; border-radius: 8px; color: var(--muted); font-size: 12.5px; }
+.gs.on { box-shadow: 0 0 0 2px var(--accent); }
+.gs.ok { opacity: .45; }
+.gcard { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--rule); border-radius: 16px; padding: 12px 14px; background: var(--sunk); font-size: 14px; }
+.gcard.ok { flex-direction: row; align-items: center; gap: 12px; } .gcard.ok div { display: flex; flex-direction: column; }
+.gcard .k { font: 600 11.5px/1.2 var(--font-display); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.gcard .gl { display: flex; align-items: center; gap: 10px; font-size: 18px; }
+.gcard small { color: var(--muted); }
+.gcard .gw { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); flex-wrap: wrap; }
+.gcard .gw .bdi, .gcard .gw .bd { vertical-align: middle; }
+.gmiss { border: 1.5px solid var(--alert); border-radius: 16px; background: color-mix(in srgb, var(--alert) 7%, var(--surface)); padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+.gm-h { display: flex; gap: 10px; align-items: flex-start; color: var(--alert); }
+.gm-h div { display: flex; flex-direction: column; color: var(--ink); font-size: 13.5px; } .gm-h b { font-size: 15px; }
+.galt { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; align-items: center; width: 100%; text-align: left; border: 1px solid var(--rule); border-radius: 12px; background: var(--surface); padding: 10px 12px; }
+.galt .chain { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }
+.galt .tm { font: 600 15px/1 var(--font-display); } .galt .tm b { font-weight: 700; }
+.galt .why { grid-column: 1 / -1; font-size: 12px; color: var(--muted); }
+.guidebtn { width: 100%; margin: 4px 0 12px; }
+
+/* plans */
+.plgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.plc { display: flex; flex-direction: column; border: 1px solid var(--rule); border-radius: var(--r); background: var(--surface); overflow: hidden; padding: 0; text-align: left; }
+.plc:hover { border-color: var(--ink); }
+.plc .im { aspect-ratio: 4 / 3; background: var(--sunk) center / cover no-repeat; border-bottom: 1px solid var(--rule); }
+.plc .tx { display: flex; flex-direction: column; gap: 3px; padding: 9px 10px 10px; align-items: flex-start; }
+.plc b { font-size: 14.5px; line-height: 1.2; } .plc small { font-size: 12px; color: var(--muted); }
+#plv { position: fixed; inset: 0; z-index: 80; background: var(--bg); display: none; flex-direction: column; }
+#plv.on { display: flex; }
+.plv-top { display: flex; align-items: center; gap: 10px; padding: calc(var(--sat) + 10px) 12px 10px; background: var(--surface); border-bottom: 1px solid var(--rule); }
+.plv-t { flex: 1; min-width: 0; display: flex; flex-direction: column; } .plv-t b { font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .plv-t small { color: var(--muted); font-size: 12.5px; }
+.plv-top a.btn { text-decoration: none; color: inherit; }
+.plv-stage { flex: 1; position: relative; overflow: hidden; touch-action: none; cursor: grab; background: #ffffff; }
+.plv-stage img { position: absolute; left: 0; top: 0; transform-origin: 0 0; user-select: none; -webkit-user-drag: none; max-width: none; }
+.plv-ctl { position: absolute; left: 50%; bottom: calc(var(--sab) + 16px); transform: translateX(-50%); display: flex; gap: 8px; padding: 6px; border-radius: 16px; background: color-mix(in srgb, var(--surface) 92%, transparent); box-shadow: 0 6px 20px rgb(0 0 0 / .2); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.plv-ctl .icon-btn { font-size: 20px; } .plv-ctl .icon-btn:disabled { opacity: .35; }
+#fo { display: flex; flex-direction: column; gap: 12px; }
+#fo > div:empty { display: none; }
 /* animation de démarrage */
 #splash { position: fixed; inset: 0; z-index: 100; background: var(--surface); display: grid; place-items: center; transition: opacity .4s ease; cursor: pointer; }
 #splash.out { opacity: 0; pointer-events: none; }
@@ -423,6 +549,7 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
     <a href="#itineraire" data-v="itineraire"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="6" cy="5.5" r="2.5"/><rect x="15.5" y="16" width="5" height="5" rx="1"/><path d="M6 8v4.5a3 3 0 0 0 3 3h6.5"/></svg>Itinéraire</a>
     <a href="#passages" data-v="passages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2"/></svg>Passages</a>
     <a href="#lignes" data-v="lignes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>Lignes</a>
+    <a href="#plans" data-v="plans"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M3 6.5 9 4l6 2.5L21 4v13.5L15 20l-6-2.5L3 20z"/><path d="M9 4v13.5M15 6.5V20"/></svg>Plans</a>
   </nav>
 
   <aside class="sheet" id="sheet">
@@ -513,6 +640,13 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
         <div id="li-res"></div>
       </section>
 
+      <!-- Plans du réseau -->
+      <section class="view" id="v-plans" aria-label="Plans du réseau">
+        <div class="sec-h"><h2>Plans du réseau</h2></div>
+        <div id="pl-res" class="plgrid"></div>
+        <footer class="src" id="pl-src"></footer>
+      </section>
+
       <!-- Info trafic -->
       <section class="view" id="v-trafic" aria-label="Info trafic">
         <div id="tr-head"></div>
@@ -558,9 +692,11 @@ const badge = (ri, size, noAlert) => {
 // pictos des modes (DA validée : forme pleine, détails en creux, version encadrée)
 const MODE_SVG = {
   tram: `<path d="M18 2.5H30M21 7.5 26 5 22 2.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path fill="currentColor" fill-rule="evenodd" d="M13 7.5H35Q39.5 7.5 39 12L36.2 32.5C35.4 38.5 32.5 42 28 42.5H20C15.5 42 12.6 38.5 11.8 32.5L9 12Q8.5 7.5 13 7.5ZM13.6 10H34.4Q34.9 10 34.9 10.5V12Q34.9 12.5 34.4 12.5H13.6Q13.1 12.5 13.1 12V10.5Q13.1 10 13.6 10ZM12.8 15H35.2L33.6 27.5C33.1 31.5 30.6 33.6 27 33.6H21C17.4 33.6 14.9 31.5 14.4 27.5ZM21.3 38A1.3 1.3 0 1 0 21.3 37.99ZM26.7 38A1.3 1.3 0 1 0 26.7 37.99Z"/><path d="M10 46H38" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>`,
+  bhns: `<path fill="currentColor" fill-rule="evenodd" d="M14 6.5H34Q38.5 6.5 38.3 11L37 34Q36.6 38.5 32 39H16Q11.4 38.5 11 34L9.7 11Q9.5 6.5 14 6.5ZM13.6 9H34.4Q34.9 9 34.9 9.5V11Q34.9 11.5 34.4 11.5H13.6Q13.1 11.5 13.1 11V9.5Q13.1 9 13.6 9ZM12.7 14H35.3L34.6 26.5C34.3 30.5 31.5 32.3 28 32.3H20C16.5 32.3 13.7 30.5 13.4 26.5ZM14.6 34.8L18.6 35.6Q19.3 35.8 19.1 36.4Q18.9 37 18.2 36.9L14.6 36.3Q13.9 36.1 14 35.5Q14.1 34.8 14.6 34.8ZM33.4 34.8L29.4 35.6Q28.7 35.8 28.9 36.4Q29.1 37 29.8 36.9L33.4 36.3Q34.1 36.1 34 35.5Q33.9 34.8 33.4 34.8Z"/><path fill="currentColor" d="M13.5 38.5H18V41.5Q18 43 16.5 43H15Q13.5 43 13.5 41.5Z M30 38.5H34.5V41.5Q34.5 43 33 43H31.5Q30 43 30 41.5Z"/><path d="M9 46.3H39" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>`,
   bus: `<path d="M10 14.5H7.5V21M38 14.5H40.5V21" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path fill="currentColor" fill-rule="evenodd" d="M14.5 8H33.5Q38 8 38 12.5V37.5Q38 40.5 35 40.5H13Q10 40.5 10 37.5V12.5Q10 8 14.5 8ZM13.5 10.5H34.5Q35 10.5 35 11V12.5Q35 13 34.5 13H13.5Q13 13 13 12.5V11Q13 10.5 13.5 10.5ZM14.5 15.5H33.5Q35.5 15.5 35.5 17.5V29Q35.5 31 33.5 31H14.5Q12.5 31 12.5 29V17.5Q12.5 15.5 14.5 15.5ZM13.6 35H17.4Q18.2 35 18.2 35.8Q18.2 36.6 17.4 36.6H13.6Q12.8 36.6 12.8 35.8Q12.8 35 13.6 35ZM30.6 35H34.4Q35.2 35 35.2 35.8Q35.2 36.6 34.4 36.6H30.6Q29.8 36.6 29.8 35.8Q29.8 35 30.6 35Z"/><path fill="currentColor" d="M12.5 40H17V43Q17 44.5 15.5 44.5H14Q12.5 44.5 12.5 43Z M31 40H35.5V43Q35.5 44.5 34 44.5H32.5Q31 44.5 31 43Z"/>`,
 };
-const modeIcon = (m) => `<svg class="mode" viewBox="0 0 48 48" fill="none" aria-hidden="true"><rect x="2" y="2" width="44" height="44" rx="10" stroke="currentColor" stroke-width="3"/><g transform="translate(6.2 6.2) scale(.74)">${MODE_SVG[m === 1 ? "tram" : "bus"]}</g></svg>`;
+const modeIcon = (m) => `<svg class="mode" viewBox="0 0 48 48" fill="none" aria-hidden="true"><rect x="2" y="2" width="44" height="44" rx="10" stroke="currentColor" stroke-width="3"/><g transform="translate(6.2 6.2) scale(.74)">${MODE_SVG[m === 1 ? "tram" : typeof m === "string" ? m : "bus"]}</g></svg>`;
+const modeOf = (ri) => net.R[ri].m === 1 ? "tram" : /^O\d/.test(net.R[ri].s) ? "bhns" : "bus";
 const alertSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.2 22 20.5H2z" fill="currentColor"/><path d="M12 9.5v5.2" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="17.6" r="1.25" fill="#fff"/></svg>`;
 const okSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>`;
 const backSvg = `<svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="m10 3-5 5 5 5"/></svg>`;
@@ -830,7 +966,7 @@ function runIt(noFit) {
         ${next}
         ${tags.length ? `<div class="chain" style="grid-column:1/-1">${tags.join("")}</div>` : ""}
       </button>
-      <div class="tl">${timeline(j, k)}</div>
+      <div class="tl">${isToday ? `<button type="button" class="btn primary guidebtn" data-guide="${k}">${bellSvg.replace('width="40" height="40"', 'width="18" height="18"')}Me guider jusqu'à l'arrivée</button>` : ""}${timeline(j, k)}</div>
     </article>`;
   }).join("");
   res.querySelectorAll(".jc > .head").forEach((b) => b.addEventListener("click", () => {
@@ -838,6 +974,7 @@ function runIt(noFit) {
     res.querySelectorAll(".jc").forEach((c) => { const on = +c.dataset.k === S.selJ; c.classList.toggle("sel", on); $(".head", c).setAttribute("aria-expanded", on); });
     drawMap(); if (S.selJ >= 0) fitJourney(S.journeys[S.selJ]);
   }));
+  res.querySelectorAll("[data-guide]").forEach((b) => b.addEventListener("click", () => startGuide(S.journeys[+b.dataset.guide], S.to)));
   res.querySelectorAll("[data-followleg]").forEach((b) => b.addEventListener("click", () => {
     const [k, li] = b.dataset.followleg.split(":").map(Number); const g = S.journeys[k].legs[li];
     startFollow(g.pat, g.trip, g.svcDay, net.Q[net.pats[g.pat].stops[g.bi]][0], net.Q[net.pats[g.pat].stops[g.ai]][0]);
@@ -918,7 +1055,7 @@ function runPa() {
 // ---------- Lignes ----------
 setupDT($("#li-date"), $("#li-time"), () => runLi());
 function buildGrid() {
-  const groups = [["Tram", (r) => r.m === 1, 1], ["Urbaines", (r) => /^U/.test(r.s), 3], ["Centre, soirée et spéciales", (r) => /^[COS]/.test(r.s), 3], ["Express", (r) => /^E/.test(r.s), 3]];
+  const groups = [["Tram", (r) => r.m === 1, 1], ["BHNS", (r) => /^O\d/.test(r.s), "bhns"], ["Urbaines", (r) => /^U/.test(r.s), 3], ["Centre et spéciales", (r) => /^[CS]/.test(r.s), 3], ["Express", (r) => /^E/.test(r.s), 3]];
   $("#li-grid").innerHTML = groups.map(([n, f, m]) => { const ids = net.R.map((r, i) => [r, i]).filter(([r]) => f(r)).map(([, i]) => i); return ids.length ? `<div class="lbl withico">${modeIcon(m)}${n}</div><div class="lgrid">${ids.map((i) => `<button type="button" data-r="${i}" aria-pressed="${i === S.line}" aria-label="Ligne ${esc(net.R[i].s)}">${badge(i, "lg")}</button>`).join("")}</div>` : ""; }).join("");
 }
 buildGrid();
@@ -966,7 +1103,7 @@ function runLi() {
   drawMap();
 }
 
-// ---------- Suivre un bus ----------
+// ---------- Mon bus : suivi d'une course, arrêt de descente, alertes ----------
 function tripState(pi, k, dk) {
   // état d'une course à l'instant : arrêt atteint, position, horaires
   const p = net.pats[pi], today = todayIdx(), off = (dk - today) * 1440, t = nowMinF();
@@ -978,7 +1115,12 @@ function tripState(pi, k, dk) {
   else if (t > at(p.nS - 1)) { state = "done"; i = p.nS - 1; }
   else { while (i < p.nS - 1 && at(i + 1) <= t) i++; }
   const atStop = state === "running" && t >= at(i) && t <= dp(i);
-  return { p, live, at, dp, sched: (i) => p.A[o + i] + off, state, i, atStop, t };
+  // position continue le long de la ligne (en nombre d'arrêts), pour faire avancer le bus
+  let pos = i;
+  if (state === "before") pos = -0.35;
+  else if (state === "running" && !atStop && i < p.nS - 1) pos = i + Math.max(0, Math.min(1, (t - dp(i)) / Math.max(0.2, at(i + 1) - dp(i))));
+  const next = state === "before" ? 0 : state === "done" ? p.nS - 1 : atStop ? i : i + 1;
+  return { p, live, at, dp, sched: (i) => p.A[o + i] + off, state, i, atStop, t, pos, next };
 }
 function startFollow(pi, k, dk, fromStop, destStop) {
   const p = net.pats[pi];
@@ -986,49 +1128,315 @@ function startFollow(pi, k, dk, fromStop, destStop) {
   if (destStop != null) { const ix = p.stops.findIndex((q) => net.Q[q][0] === destStop); if (ix >= 0) dest = ix; }
   let from = null;
   if (fromStop != null) { const ix = p.stops.findIndex((q) => net.Q[q][0] === fromStop); if (ix >= 0) from = ix; }
-  S.follow = { pi, k, dk, dest, from };
+  S.guide = null;
+  S.follow = { pi, k, dk, dest, from, alert: true };
   S.followFree = false;
   if (S.view !== "suivi") S.prevView = S.view;
   store.set("follow", { tid: null, pi, k, dk, dest, at: Date.now() });
   go("suivi");
 }
+
+// --- signaux : bandeau, son, vibration, notification ---
+const PINGED = new Set();
+let audioCtx = null, swReg = null;
+document.addEventListener("pointerdown", () => { try { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === "suspended") audioCtx.resume(); } catch (e) {} }, { passive: true });
+function beep() {
+  try {
+    if (!audioCtx) return;
+    [880, 1318].forEach((f, i) => {
+      const o = audioCtx.createOscillator(), g = audioCtx.createGain(), t = audioCtx.currentTime + i * 0.17;
+      o.frequency.value = f; o.connect(g); g.connect(audioCtx.destination);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.22, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
+      o.start(t); o.stop(t + 0.18);
+    });
+  } catch (e) {}
+}
+function askNotify() { try { if ("Notification" in window && Notification.permission === "default") Notification.requestPermission(); } catch (e) {} }
+function ping(key, title, body, big) {
+  if (PINGED.has(key)) return false;
+  PINGED.add(key);
+  beep();
+  try { navigator.vibrate && navigator.vibrate(big ? [260, 120, 260, 120, 260] : [200, 100, 200]); } catch (e) {}
+  try { if (swReg && "Notification" in window && Notification.permission === "granted" && (document.hidden || big)) swReg.showNotification(title, { body, icon: "icon-192.png", badge: "icon-192.png", tag: "grm-" + key.split(":")[0], renotify: true, vibrate: [200, 100, 200] }); } catch (e) {}
+  if (S.view !== "suivi") toast(title + (body ? " · " + body : ""), 6000);
+  return true;
+}
+// alerte plein écran (« Descendez au prochain arrêt »)
+function takeover(o) {
+  let el = $("#takeover");
+  if (!el) { el = document.createElement("div"); el.id = "takeover"; el.setAttribute("role", "alertdialog"); el.setAttribute("aria-modal", "true"); document.body.appendChild(el); }
+  el.innerHTML = `<div class="tk-in">
+    <span class="tk-ico">${bellSvg}</span>
+    <span class="tk-k">${esc(o.kicker)}</span>
+    <span class="tk-t">${esc(o.title)}</span>
+    ${o.sub ? `<span class="tk-s">${o.sub}</span>` : ""}
+    ${o.next ? `<div class="tk-next">${o.next}</div>` : ""}
+    ${o.conns ? `<div class="tk-card"><span class="lbl">${esc(o.connTitle || "Correspondances")}</span><div class="tk-grid">${o.conns}</div></div>` : ""}
+    <button type="button" class="tk-ok">J'ai compris</button>
+  </div>`;
+  el.classList.add("on");
+  $(".tk-ok", el).onclick = () => el.classList.remove("on");
+}
+const bellSvg = `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10.3 20a2 2 0 0 0 3.4 0"/></svg>`;
+const busPicto = (c) => `<svg width="18" height="18" viewBox="0 0 48 48" fill="${c}" aria-hidden="true"><path fill-rule="evenodd" d="M14.5 8H33.5Q38 8 38 12.5V37.5Q38 40.5 35 40.5H13Q10 40.5 10 37.5V12.5Q10 8 14.5 8ZM14.5 15.5H33.5Q35.5 15.5 35.5 17.5V29Q35.5 31 33.5 31H14.5Q12.5 31 12.5 29V17.5Q12.5 15.5 14.5 15.5Z"/><path d="M12.5 40H17V44.5H12.5ZM31 40H35.5V44.5H31Z"/></svg>`;
+
+// prochains départs des autres lignes à un arrêt, après l'heure t (une ligne + direction par groupe)
+const connCache = new Map();
+function connsAt(par, t, exclR, max = 6) {
+  const key = par + ":" + Math.floor(t) + ":" + exclR + ":" + (net.liveDay) + ":" + Math.floor(Date.now() / 30000);
+  if (connCache.has(key)) return connCache.get(key);
+  const day = todayIdx(); let out = [];
+  if (day >= 0 && day < net.nd) {
+    const g = new Map();
+    for (const x of departures(net, par, day, Math.floor(t), 75)) {
+      const p = net.pats[x.pat]; if (p.r === exclR || x.t < t) continue;
+      const k = p.r + "|" + p.h; if (!g.has(k)) g.set(k, { r: p.r, h: p.h, list: [] });
+      const G = g.get(k); if (G.list.length < 2) G.list.push(x);
+    }
+    out = [...g.values()].sort((a, b) => a.list[0].t - b.list[0].t).slice(0, max);
+  }
+  if (connCache.size > 200) connCache.clear();
+  connCache.set(key, out); return out;
+}
+const connChips = (cs) => cs.map((G) => `<span class="cx">${badge(G.r, "sm", true)}<b>${waitLabel(G.list[0].t, true)}</b></span>`).join("");
+const connRows = (cs) => cs.map((G) => `<div class="cr">${badge(G.r)}<span class="d">→ ${esc(G.h)}</span><span class="w">${dot(G.list[0].live)}<b>${waitLabel(G.list[0].t, true)}</b>${G.list[1] ? `<small>${waitLabel(G.list[1].t, true)}</small>` : ""}</span></div>`).join("");
+const connCards = (cs) => cs.slice(0, 3).map((G) => `<div class="tc">${badge(G.r)}<b>${waitLabel(G.list[0].t, true)}</b><small>→ ${esc(G.h)}</small></div>`).join("");
+
+// --- rendu du suivi (structure construite une fois, puis mise à jour chaque seconde) ---
+const MB = { key: "", rows: 0, first: 0, lastNext: -1, userScrollAt: 0, progScroll: false };
+$("#scroll").addEventListener("scroll", () => { if (!MB.progScroll) MB.userScrollAt = Date.now(); }, { passive: true });
+const ROWH = 58;
 function renderFollow() {
   const el = $("#fo");
-  if (!S.follow) { el.innerHTML = `<div class="empty">Aucun bus suivi. Touchez un horaire dans Passages ou un bus sur le plan.</div>`; return; }
-  const { pi, k, dk, dest, from } = S.follow;
+  if (S.guide) guideTick();
+  if (!S.follow) { if (!S.guide) { el.innerHTML = `<div class="empty">Aucun bus suivi. Touchez un horaire dans Passages ou un bus sur le plan.</div>`; MB.key = ""; } return; }
+  const { pi, k, dk, from } = S.follow, dest = S.follow.dest;
   const st = tripState(pi, k, dk), p = st.p, R = net.R[p.r];
-  const c = `--c:${R.c};--ct:${R.t}`;
-  const kind = R.m === 1 ? "tram" : "bus";
-  const delay = Math.round(st.at(Math.min(p.nS - 1, st.i + (st.atStop ? 0 : 1))) - st.sched(Math.min(p.nS - 1, st.i + (st.atStop ? 0 : 1))));
-  const statusTxt = st.live ? `Temps réel · ${delay >= 1 ? "retard " + delay + " min" : delay <= -1 ? "avance " + -delay + " min" : "à l'heure"}` : "Horaire théorique (position estimée)";
-  let boxes = "";
-  const w = (x) => { const d = x - st.t; return d < 0.5 ? "à l'approche" : d < 59.5 ? Math.round(d) + " min" : hm(x); };
-  if (st.state === "before") boxes += `<div class="fbox"><span class="k">Départ du terminus</span><span class="v">${w(st.dp(0))}</span><span class="s">${esc(qName(p.stops[0]))} · ${hm(st.dp(0))}</span></div>`;
-  else if (st.state === "done") boxes += `<div class="fbox"><span class="k">Course terminée</span><span class="v">${hm(st.at(p.nS - 1))}</span><span class="s">Arrivé à ${esc(qName(p.stops[p.nS - 1]))}</span></div>`;
-  else { const ni = st.atStop ? st.i : st.i + 1; boxes += `<div class="fbox"><span class="k">${st.atStop ? "À l'arrêt" : "Prochain arrêt"}</span><span class="v">${st.atStop ? "maintenant" : w(st.at(ni))}</span><span class="s">${esc(qName(p.stops[ni]))}</span></div>`; }
-  if (from != null && st.state !== "done" && (st.state === "before" || st.i < from || (st.i === from && st.atStop))) boxes += `<div class="fbox"><span class="k">À votre arrêt</span><span class="v">${w(st.dp(from))}</span><span class="s">${esc(qName(p.stops[from]))} · ${hm(st.dp(from))}</span></div>`;
-  if (dest != null) boxes += `<div class="fbox dest"><span class="k">Je descends à</span><span class="v">${st.state === "done" || (st.i >= dest && !(st.i === dest && st.atStop)) ? "arrivé" : hm(st.at(dest))}</span><span class="s">${esc(qName(p.stops[dest]))}${st.i < dest || st.state === "before" ? " · dans " + Math.max(0, Math.round(st.at(dest) - st.t)) + " min" : ""}</span></div>`;
-  else boxes += `<div class="fbox"><span class="k">Terminus</span><span class="v">${hm(st.at(p.nS - 1))}</span><span class="s">${esc(qName(p.stops[p.nS - 1]))}</span></div>`;
-  let list = "";
-  p.stops.forEach((q, i) => {
-    const past = st.state === "done" || (st.state === "running" && (i < st.i || (i === st.i && !st.atStop)));
-    const isDest = dest === i, isFrom = from === i;
-    const tt = i === 0 ? st.dp(0) : st.at(i);
-    list += `<button type="button" class="fs${past ? " past" : ""}${isDest ? " is-dest" : ""}${i === 0 ? " first" : ""}${i === p.nS - 1 ? " last" : ""}" style="${c}" data-dest="${i}" aria-label="${isDest ? "Ne plus marquer" : "Marquer comme arrêt de descente"} : ${esc(qName(q))}">
-      <span class="t">${hm(tt)}</span><span class="rail">${st.state === "running" && st.atStop && i === st.i ? `<span class="bus">${esc(R.s)}</span>` : `<span class="node"></span>`}</span><span class="nm">${esc(qName(q))}${isFrom ? "<small>votre arrêt de montée</small>" : ""}</span><span class="pin">${isDest ? "je descends ici" : ""}</span></button>`;
-    if (st.state === "running" && i === st.i && !st.atStop && i < p.nS - 1) list += `<div class="fbus" style="${c}"><span></span><span class="rail"><span class="bus">${esc(R.s)}</span></span><span class="lbl2">${dot(st.live)} en route</span></div>`;
+  const key = [pi, k, dk, from, dest, !!S.guide].join(":");
+  if (MB.key !== key) {
+    MB.key = key; MB.lastNext = -1;
+    // la ligne affichée commence un arrêt avant le bus (ou avant l'arrêt de montée s'il est plus tôt)
+    MB.first = Math.max(0, Math.min(from ?? Infinity, Math.max(0, st.i), p.nS - 1) - 1);
+    el.innerHTML = `<div class="fhead"><button type="button" class="icon-btn" id="fo-back" aria-label="Retour">${backSvg}</button>${badge(p.r, "lg")}<div class="fh-t"><h2>→ ${esc(p.h)}</h2><span class="fh-s" id="mb-status"></span></div><span class="pillmode">${S.guide ? "GUIDAGE" : "MON BUS"}</span></div>
+      <div id="gd-card"></div>
+      <div id="mb-banner"></div>
+      <div id="mb-hero"></div>
+      <div class="mbt" id="mb-track" style="--c:${R.c};--ct:${R.t}">
+        <div class="mbt-rail" style="top:${ROWH / 2}px;height:${(p.nS - 1 - MB.first) * ROWH}px"></div>
+        <div class="mbt-done" id="mb-done" style="top:${ROWH / 2}px"></div>
+        ${p.stops.slice(MB.first).map((q, j) => { const i = MB.first + j; return `<button type="button" class="mbr" data-i="${i}" style="top:${j * ROWH}px" aria-label="${dest === i ? "Ne plus marquer" : "Marquer comme arrêt de descente"} : ${esc(qName(q))}">
+          <span class="t">${hm(i === 0 ? st.dp(0) : st.at(i))}</span><span class="nd"></span>
+          <span class="nm"><span class="n1"><span class="nmt">${esc(qName(q))}</span>${from === i ? `<span class="tagx up">JE MONTE</span>` : ""}${dest === i ? `<span class="tagx">JE DESCENDS</span>` : ""}</span><span class="cxs" data-cx="${i}"></span></span></button>`; }).join("")}
+        <div class="mbt-bus" id="mb-bus" style="background:${R.c}">${busPicto(R.t)}</div>
+      </div>
+      <div class="mbbar" id="mb-bar"></div>`;
+    $("#mb-track").style.height = (p.nS - MB.first) * ROWH + "px";
+    $("#fo-back").onclick = () => go(S.guide ? "itineraire" : S.prevView && !["suivi"].includes(S.prevView) ? S.prevView : "accueil");
+    el.querySelectorAll(".mbr").forEach((b) => b.onclick = () => { if (S.guide) return; const i = +b.dataset.i; if (S.follow.from != null && i <= S.follow.from) { toast("Choisissez un arrêt après votre arrêt de montée", 2500); return; } S.follow.dest = S.follow.dest === i ? null : i; if (S.follow.dest != null) askNotify(); renderFollow(); drawMap(); });
+    // badges des correspondances (statiques), les temps sont ajoutés pour l'arrêt suivant et la descente
+    el.querySelectorAll("[data-cx]").forEach((c) => { const i = +c.dataset.cx; const rs = net.pRoutes[net.Q[p.stops[i]][0]].filter((r) => r !== p.r); c.dataset.base = rs.slice(0, 7).map((r) => badge(r, "sm", true)).join(""); c.innerHTML = c.dataset.base; });
+  }
+  // --- mise à jour ---
+  const nS = p.nS, next = st.next, t = st.t;
+  const near = st.state === "running" && !st.atStop && st.at(next) - t <= 1.1;
+  const delay = Math.round(st.at(Math.min(nS - 1, next)) - st.sched(Math.min(nS - 1, next)));
+  $("#mb-status").innerHTML = `${dot(st.live)}${st.live ? `Temps réel · ${delay >= 1 ? "retard " + delay + " min" : delay <= -1 ? "avance " + -delay + " min" : "à l'heure"}` : "Horaire théorique (position estimée)"}`;
+  // ligne : arrêts passés, arrêt suivant, bus
+  const busTop = (Math.max(-0.35, st.pos) - MB.first) * ROWH + ROWH / 2;
+  $("#mb-bus").style.top = busTop + "px";
+  $("#mb-bus").classList.toggle("hide", st.state === "done");
+  $("#mb-done").style.height = Math.max(0, busTop - ROWH / 2) + "px";
+  $$("#mb-track .mbr").forEach((r) => {
+    const i = +r.dataset.i;
+    const passed = st.state === "done" || (st.state === "running" && (i < st.i || (i === st.i && !st.atStop)));
+    r.classList.toggle("passed", passed); r.classList.toggle("next", i === next && st.state !== "done"); r.classList.toggle("near", i === next && near);
+    r.classList.toggle("dest", dest === i); r.classList.toggle("from", from === i);
   });
-  el.innerHTML = `<div class="fhead"><button type="button" class="icon-btn" id="fo-back" aria-label="Retour">${`<svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="m10 3-5 5 5 5"/></svg>`}</button>${badge(p.r, "lg")}<h2>→ ${esc(p.h)}</h2></div>
-    <div class="wait" style="font-size:13.5px">${dot(st.live)}<span>${statusTxt}</span></div>
-    <div class="fstat">${boxes}</div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">${S.followFree ? `<button type="button" class="btn small primary" id="fo-recenter">Recentrer sur le ${kind}</button>` : ""}<button type="button" class="btn small ghost" id="fo-stop">Arrêter le suivi</button></div>
-    <div class="lbl">Touchez un arrêt pour marquer votre descente</div>
-    <div class="fstops">${list}</div>`;
-  $("#fo-back").onclick = () => go(S.prevView && S.prevView !== "suivi" ? S.prevView : "accueil");
-  $("#fo-stop").onclick = () => { S.follow = null; go(S.prevView && S.prevView !== "suivi" ? S.prevView : "accueil"); };
-  const rc = $("#fo-recenter"); if (rc) rc.onclick = () => { S.followFree = false; renderFollow(); followCam(true); };
-  el.querySelectorAll("[data-dest]").forEach((b) => b.onclick = () => { const i = +b.dataset.dest; S.follow.dest = S.follow.dest === i ? null : i; renderFollow(); drawMap(); });
+  // temps des correspondances : arrêt suivant et arrêt de descente
+  $$("#mb-track [data-cx]").forEach((c) => {
+    const i = +c.dataset.cx, show = (i === next && st.state !== "done") || i === dest;
+    const html = show ? connChips(connsAt(net.Q[p.stops[i]][0], st.at(i), p.r, 4)) || "" : c.dataset.base;
+    if (c.dataset.html !== html) { c.innerHTML = html; c.dataset.html = html; }
+  });
+  // défilement : garde l'arrêt suivant en vue (sauf si l'utilisateur fait défiler lui-même)
+  if (MB.lastNext !== next && Date.now() - MB.userScrollAt > 8000) {
+    const row = $(`#mb-track .mbr[data-i="${Math.max(MB.first, next - 1)}"]`);
+    if (row) { MB.progScroll = true; row.scrollIntoView({ block: "start", behavior: MB.lastNext < 0 ? "auto" : "smooth" }); setTimeout(() => { MB.progScroll = false; }, 700); }
+  }
+  MB.lastNext = next;
+  // carte du haut
+  const target = dest ?? nS - 1;
+  const left = target - next;
+  let hero;
+  const boarding = from != null && st.pos < from - 0.02 && st.state !== "done";
+  if (boarding) {
+    // le bus n'est pas encore à l'arrêt de montée
+    const w = st.dp(from) - t, away = st.state === "before" ? null : from - st.next + 1;
+    const prog = Math.max(0, Math.min(1, (st.pos - MB.first) / Math.max(0.01, from - MB.first)));
+    hero = `<div class="mbh"><div class="r1"><div class="c"><span class="k">Votre ${modeOf(p.r) === "tram" ? "tram" : "bus"} arrive à</span><b>${esc(qName(p.stops[from]))}</b></div><span class="eta">${w < 0.6 ? "approche" : w < 59.5 ? Math.round(w) + " min" : hm(st.dp(from))}</span></div>
+      <div class="pg"><i style="width:${Math.round(prog * 100)}%;background:${R.c}"></i></div>
+      <div class="r2"><span>${away == null ? "Départ du terminus à " + hm(st.dp(0)) : away <= 1 ? "Il arrive à votre arrêt" : "Il est à " + away + " arrêts"}</span><span>${dest != null ? "Descente : <b>" + esc(qName(p.stops[dest])) + "</b>" : "départ " + hm(st.dp(from))}</span></div></div>`;
+  } else if (near) {
+    const cs = connsAt(net.Q[p.stops[next]][0], st.at(next), p.r, 4);
+    hero = `<div class="mbh near" style="--c:${R.c};--ct:${R.t}"><div class="wv"><i></i><i></i><i></i><span>${busPicto(R.c)}</span></div><div class="tx"><span class="k">Arrivée imminente</span><b>${esc(qName(p.stops[next]))}</b><span>${st.at(next) - t < 0.5 ? "à l'approche" : "dans moins d'une minute"}${cs.length ? ` · ${cs.length} correspondance${cs.length > 1 ? "s" : ""}` : ""}</span></div></div>
+      ${cs.length ? `<div class="crs">${connRows(cs)}</div>` : ""}`;
+  } else {
+    const k1 = st.state === "before" ? "Départ du terminus" : st.state === "done" ? "Course terminée" : st.atStop ? "À l'arrêt" : "Prochain arrêt";
+    const eta = st.state === "before" ? st.dp(0) - t : st.at(next) - t;
+    const big = st.state === "done" ? hm(st.at(nS - 1)) : st.atStop ? "maintenant" : eta < 0.6 ? "approche" : eta < 59.5 ? Math.round(eta) + " min" : hm(st.at(next));
+    const start = from ?? 0, prog = Math.max(0, Math.min(1, (st.pos - start) / Math.max(0.01, target - start)));
+    const tl = target < next && st.state !== "before" ? (dest != null ? "arrêt dépassé" : "") : `${left <= 0 ? "prochain arrêt" : left + 1 + " arrêts"} · ${Math.max(0, Math.round(st.at(target) - t))} min`;
+    hero = `<div class="mbh"><div class="r1"><div class="c"><span class="k">${k1}</span><b>${esc(qName(p.stops[next]))}</b></div><span class="eta">${big}</span></div>
+      <div class="pg"><i style="width:${Math.round(prog * 100)}%;background:${R.c}"></i></div>
+      <div class="r2"><span>${dest != null ? "Descente" : "Terminus"} : <b>${esc(qName(p.stops[target]))}</b></span><span>${st.state === "done" ? "arrivé" : tl}</span></div></div>`;
+  }
+  if ($("#mb-hero").dataset.html !== hero) { $("#mb-hero").innerHTML = hero; $("#mb-hero").dataset.html = hero; }
+  // alertes de descente
+  let banner = "";
+  if (dest != null && S.follow.alert && st.state !== "before") {
+    const dn = qName(p.stops[dest]);
+    if (st.state !== "done" && st.atStop && st.i === dest || (st.state === "done" && dest === nS - 1)) {
+      banner = `<div class="mbal hot">${bellSvg}<div><b>Vous êtes arrivé</b><span>${esc(dn)}</span></div></div>`;
+      if (!S.guide) ping(key + ":arr", "Vous êtes arrivé", dn);
+    } else if (next === dest && st.i < dest) {
+      banner = `<div class="mbal hot">${bellSvg}<div><b>Descendez au prochain arrêt</b><span>${esc(dn)} · ${st.at(dest) - t < 0.6 ? "à l'approche" : "dans " + Math.round(st.at(dest) - t) + " min"}</span></div></div>`;
+      const nx = S.guide ? guideNextInfo() : null;
+      if (ping(key + ":down", "Descendez au prochain arrêt", dn + (nx ? " · ensuite " + nx.txt : ""), true)) {
+        const cs = connsAt(net.Q[p.stops[dest]][0], st.at(dest), p.r, 3);
+        takeover({ kicker: "Prochain arrêt", title: "Descendez à " + dn, sub: `${badge(p.r, "sm", true)} ${st.at(dest) - t < 0.6 ? "à l'approche" : "dans " + Math.round(st.at(dest) - t) + " min"} · arrivée ${hm(st.at(dest))}`,
+          next: nx ? nx.html : "", conns: nx ? "" : connCards(cs), connTitle: "Correspondances à " + dn });
+      }
+    } else if (next === dest - 1) {
+      banner = `<div class="mbal">${bellSvg}<div><b>Préparez-vous à descendre</b><span>Plus que 2 arrêts avant ${esc(dn)}</span></div></div>`;
+      ping(key + ":prep", "Préparez-vous à descendre", "Plus que 2 arrêts avant " + dn);
+    }
+  }
+  if ($("#mb-banner").dataset.html !== banner) { $("#mb-banner").innerHTML = banner; $("#mb-banner").dataset.html = banner; }
+  // barre du bas
+  const bar = S.guide ? `<button type="button" class="btn small ghost" id="fo-stop">Arrêter le guidage</button>${S.followFree ? `<button type="button" class="btn small primary" id="fo-recenter">Recentrer</button>` : ""}`
+    : `<span class="hint">${dest == null ? "Touchez un arrêt pour le choisir comme descente" : "Touchez un autre arrêt pour changer de descente"}</span>
+      ${dest != null ? `<button type="button" class="btn small alertbtn" id="fo-alert" aria-pressed="${S.follow.alert}">${bellSvg.replace('width="40" height="40"', 'width="16" height="16"')}${S.follow.alert ? "Alerte activée" : "Alerte coupée"}</button>` : ""}
+      ${S.followFree ? `<button type="button" class="btn small primary" id="fo-recenter">Recentrer</button>` : ""}<button type="button" class="btn small ghost" id="fo-stop">Arrêter</button>`;
+  if ($("#mb-bar").dataset.html !== bar) {
+    $("#mb-bar").innerHTML = bar; $("#mb-bar").dataset.html = bar;
+    $("#fo-stop").onclick = () => { const g = !!S.guide; S.follow = null; S.guide = null; MB.key = ""; go(g ? "itineraire" : S.prevView && S.prevView !== "suivi" ? S.prevView : "accueil"); };
+    const rc = $("#fo-recenter"); if (rc) rc.onclick = () => { S.followFree = false; renderFollow(); followCam(true); };
+    const al = $("#fo-alert"); if (al) al.onclick = () => { S.follow.alert = !S.follow.alert; if (S.follow.alert) askNotify(); renderFollow(); };
+  }
+  if (S.guide) guideTick();
 }
+
+const renderFollowBg = () => renderFollow();
+
+// ---------- Itinéraire guidé ----------
+// Les étapes d'un trajet s'enchaînent : attente à l'arrêt, trajet dans le bus (vue Mon bus), correspondance.
+// Si un retard fait manquer la correspondance, on prévient et on propose d'autres solutions.
+function startGuide(j, to) {
+  if (!j) return;
+  askNotify();
+  S.guide = { legs: j.legs.map((g) => ({ ...g })), to, alt: null, altFor: null, dismissed: new Set(), id: Date.now().toString(36) };
+  S.follow = null; S.followFree = false; MB.key = "";
+  if (S.view !== "suivi") S.prevView = S.view;
+  guideTick();
+  go("suivi");
+}
+function legTimes(g) {
+  const p = net.pats[g.pat], off = (g.svcDay - todayIdx()) * 1440, [A, D] = arr(net, p, g.svcDay), o = g.trip * p.nS;
+  return { p, dep: D[o + g.bi] + off, arr: A[o + g.ai] + off, sdep: p.D[o + g.bi] + off, live: isLive(net, p, g.trip, g.svcDay) };
+}
+function guideState() {
+  const G = S.guide, t = nowMinF();
+  const rides = G.legs.map((g, i) => [g, i]).filter(([g]) => g.type === "ride");
+  let cur = rides.findIndex(([g]) => legTimes(g).arr > t - 0.3);
+  if (cur < 0) return { done: true, rides };
+  const [g, li] = rides[cur], lt = legTimes(g), st = tripState(g.pat, g.trip, g.svcDay);
+  const riding = st.state !== "before" && (st.i > g.bi || (st.i === g.bi && !st.atStop));
+  const walks = G.legs.slice(cur ? rides[cur - 1][1] + 1 : 0, li).filter((x) => x.type === "walk");
+  return { done: false, rides, cur, g, li, lt, st, riding, walks, prev: cur ? rides[cur - 1] : null, nextR: rides[cur + 1] || null };
+}
+// ce qui suit la descente du bus en cours (pour l'alerte de descente)
+function guideNextInfo() {
+  const s = guideState(); if (s.done) return null;
+  const walk = S.guide.legs.slice(s.li + 1, s.nextR ? s.nextR[1] : undefined).filter((x) => x.type === "walk").reduce((a, x) => a + x.dur, 0);
+  if (!s.nextR) return walk ? { txt: `${walk} min à pied jusqu'à l'arrivée`, html: `<span class="lbl">Ensuite</span><span>${walkSvg} ${walk} min à pied jusqu'à ${esc(pName(S.guide.to))}</span>` } : null;
+  const [g2] = s.nextR, l2 = legTimes(g2), p2 = l2.p;
+  return { txt: `${net.R[p2.r].s} → ${p2.h} à ${hm(l2.dep)}`,
+    html: `<span class="lbl">Ensuite, correspondance</span><span class="tk-line">${badge(p2.r, "", true)}<b>→ ${esc(p2.h)}</b></span><span>${walk ? walkSvg + " " + walk + " min à pied, puis " : ""}départ ${waitLabel(l2.dep, true) === hm(l2.dep) ? "à " + hm(l2.dep) : "dans " + waitLabel(l2.dep, true)} de ${esc(qName(p2.stops[g2.bi]))}</span>` };
+}
+function guideTick() {
+  const G = S.guide; if (!G) return;
+  const s = guideState(), t = nowMinF(), card = $("#gd-card");
+  const total = s.rides.length;
+  const chain = G.legs.map((g, i) => g.type === "ride" ? `<span class="gs${!s.done && i === s.li ? " on" : ""}${s.done || (s.li != null && i < s.li) ? " ok" : ""}">${badge(net.pats[g.pat].r, "sm", true)}</span>` : `<span class="gs w">${walkSvg}${g.dur}′</span>`).join(`<span class="sep"></span>`);
+  if (s.done) {
+    S.follow = null;
+    const html = `<div class="fhead"><button type="button" class="icon-btn" id="gd-back" aria-label="Retour">${backSvg}</button><div class="fh-t"><h2>Vous êtes arrivé</h2><span class="fh-s">${esc(pName(G.to))}</span></div><span class="pillmode">GUIDAGE</span></div>
+      <div class="gchain">${chain}</div><div class="gcard ok"><span class="tric ok">${okSvg}</span><div><b>Trajet terminé</b><span>Bonne journée !</span></div></div>
+      <button type="button" class="btn primary" id="gd-end">Terminer le guidage</button>`;
+    const fo = $("#fo"); if (fo.dataset.html !== html) { fo.innerHTML = html; fo.dataset.html = html; MB.key = ""; $("#gd-end").onclick = $("#gd-back").onclick = () => { S.guide = null; go("itineraire"); }; }
+    ping(G.id + ":fin", "Vous êtes arrivé", pName(G.to));
+    return;
+  }
+  $("#fo").dataset.html = "";
+  const { g, lt, st, riding } = s, p = lt.p;
+  // la vue Mon bus suit le bus de l'étape en cours, de l'arrêt de montée à l'arrêt de descente
+  if (!S.follow || S.follow.pi !== g.pat || S.follow.k !== g.trip || S.follow.dk !== g.svcDay || S.follow.dest !== g.ai) S.follow = { pi: g.pat, k: g.trip, dk: g.svcDay, from: g.bi, dest: g.ai, alert: true };
+  // correspondance manquée ? (arrivée prévue du bus en cours + marche > départ du suivant)
+  let missed = null;
+  if (s.nextR && riding) {
+    const walk = G.legs.slice(s.li + 1, s.nextR[1]).filter((x) => x.type === "walk").reduce((a, x) => a + x.dur, 0);
+    const ready = lt.arr + Math.max(1, walk), dep2 = legTimes(s.nextR[0]).dep;
+    if (ready > dep2 + 0.25) missed = { ready, dep2, walk, from: net.Q[p.stops[g.ai]][0], at: s.li };
+  }
+  const mkey = missed ? s.li + ":" + s.nextR[1] : null;
+  if (missed && !G.dismissed.has(mkey)) {
+    if (G.altFor !== mkey || !G.alt) {
+      G.altFor = mkey;
+      const day = todayIdx();
+      G.alt = day >= 0 && day < net.nd ? planDepart(net, missed.from, G.to, day, Math.ceil(missed.ready - Math.max(1, missed.walk)), 3).filter((j) => j.legs.some((x) => x.type === "ride")).slice(0, 3) : [];
+      const p2 = net.pats[s.nextR[0].pat];
+      ping(G.id + ":miss:" + mkey, "Correspondance compromise", `Votre ${net.R[p.r].s} arrive à ${hm(lt.arr)}, le ${net.R[p2.r].s} part à ${hm(missed.dep2)}. Touchez pour voir les solutions.`, true);
+    }
+  } else if (!missed) { G.alt = null; G.altFor = null; }
+  // carte d'étape
+  const step = `Étape ${s.cur + 1}/${total}`;
+  let body;
+  if (!riding) {
+    const walkTot = s.walks.reduce((a, x) => a + x.dur, 0);
+    const away = st.state === "running" && st.i < g.bi ? g.bi - st.next + 1 : null;
+    const w = lt.dep - t;
+    body = `<span class="k">${step} · ${s.prev ? "Correspondance" : "Départ"}</span>
+      <span class="gl">${badge(p.r, "lg", false)}<b>→ ${esc(p.h)}</b></span>
+      <span>à <b>${esc(qName(p.stops[g.bi]))}</b> · ${w < 0.5 ? "<b>à l'arrêt</b>" : w < 59.5 ? `départ dans <b>${Math.round(w)} min</b>` : `départ à <b>${hm(lt.dep)}</b>`} · ${dot(lt.live)} <small>${lt.live ? delayTxt(lt.dep, lt.sdep) : "horaire théorique"}</small></span>
+      ${walkTot ? `<span class="gw">${walkSvg} ${s.walks.length === 1 && net.Q[s.walks[0].from][0] === net.Q[s.walks[0].to][0] ? "Changez de quai" : "Marchez jusqu'à " + esc(qName(p.stops[g.bi]))} · ${walkTot} min</span>` : ""}
+      ${away != null && away > 0 ? `<span class="gw">${busPicto("currentColor")} le ${modeOf(p.r) === "tram" ? "tram" : "bus"} est à ${away} arrêt${away > 1 ? "s" : ""}</span>` : ""}`;
+    if (s.prev) ping(G.id + ":corr:" + s.li, `Correspondance : ${net.R[p.r].s} → ${p.h}`, `à ${qName(p.stops[g.bi])}, départ ${w < 59.5 ? "dans " + Math.max(0, Math.round(w)) + " min" : "à " + hm(lt.dep)}`, true);
+    if (w <= 2.2 && w > 0) ping(G.id + ":soon:" + s.li, `Votre ${net.R[p.r].s} arrive`, `${qName(p.stops[g.bi])} · dans ${Math.max(1, Math.round(w))} min`);
+  } else {
+    const nx = guideNextInfo();
+    body = `<span class="k">${step} · Dans le ${net.R[p.r].m === 1 ? "tram" : "bus"}</span>
+      <span>Descendez à <b>${esc(qName(p.stops[g.ai]))}</b> · ${hm(lt.arr)}</span>
+      ${nx ? `<span class="gw">${nx.html.replace(/<span class="lbl">[^<]*<\/span>/, "Ensuite : ")}</span>` : `<span class="gw">Arrivée à destination</span>`}`;
+  }
+  let alt = "";
+  if (missed && !G.dismissed.has(mkey)) {
+    const p2 = net.pats[s.nextR[0].pat];
+    alt = `<div class="gmiss"><div class="gm-h">${alertSvg}<div><b>Correspondance compromise</b><span>Votre ${esc(net.R[p.r].s)} arrive à ${hm(lt.arr)}${missed.walk ? ` (+${missed.walk} min à pied)` : ""}, le ${esc(net.R[p2.r].s)} part à ${hm(missed.dep2)}.</span></div></div>
+      ${(G.alt || []).map((j, i) => `<button type="button" class="galt" data-alt="${i}"><span class="chain">${j.legs.map((x) => x.type === "ride" ? badge(net.pats[x.pat].r, "sm", true) : `<span class="walkico">${walkSvg}${x.dur}′</span>`).join(`<span class="sep"></span>`)}</span><span class="tm"><b>${hm((j.legs.find((x) => x.type === "ride") || j).dep)}</b> → ${hm(j.arr)}</span><span class="why">${i === 0 ? "Le plus tôt" : j.rides < (G.alt[0].rides || 9) ? "Moins de changements" : "Autre solution"}</span></button>`).join("") || `<div class="empty">Pas d'autre solution trouvée pour le moment.</div>`}
+      <button type="button" class="linkbtn" id="gd-keep">Garder mon trajet (le bus peut rattraper son retard)</button></div>`;
+  }
+  const html = `<div class="gchain">${chain}</div>${alt}<div class="gcard">${body}</div>`;
+  if (card && card.dataset.html !== html) {
+    card.innerHTML = html; card.dataset.html = html;
+    card.querySelectorAll("[data-alt]").forEach((b) => b.onclick = () => {
+      const j = G.alt[+b.dataset.alt]; if (!j) return;
+      G.legs = G.legs.slice(0, s.li + 1).concat(j.legs.map((x) => ({ ...x })));
+      G.alt = null; G.altFor = null; MB.key = ""; toast("Nouveau trajet enregistré", 2500); renderFollow(); drawMap();
+    });
+    const kb = $("#gd-keep"); if (kb) kb.onclick = () => { G.dismissed.add(mkey); renderFollow(); };
+  }
+}
+
 // mise en page de la ligne du bus quand il est à l'arrêt : le marqueur est sur le nœud
 function followCam(force) {
   if (S.view !== "suivi" || !S.follow || (S.followFree && !force)) return;
@@ -1118,12 +1526,65 @@ function renderTrafic() {
   drawMap();
 }
 
+// ---------- Plans du réseau ----------
+// PDF officiels convertis en images chaque semaine par une tâche GitHub (dossier plans/).
+const PL = { list: null, err: false, src: "" };
+async function loadPlans() {
+  try { const r = await fetch("plans/plans.json?v=" + Math.floor(Date.now() / 3600000), { cache: "no-cache" }); if (!r.ok) throw 0; const d = await r.json(); PL.list = d.plans || []; PL.src = d.src || ""; }
+  catch (e) { PL.err = true; }
+  if (S.view === "plans") renderPlans();
+}
+function renderPlans() {
+  const res = $("#pl-res");
+  const site = PL.src || "https://www.grandreims-mobilites.fr/fr/w48-Telecharger-les-plans-du-reseau.html";
+  if (!PL.list) {
+    res.innerHTML = PL.err ? `<div class="empty" style="grid-column:1/-1">${/claude/.test(location.hostname) ? "Les plans ne peuvent pas être chargés dans cette page hébergée sur claude.ai. Ils sont dans la version GitHub." : "Plans indisponibles pour le moment."} <a href="${site}" target="_blank" rel="noopener">Voir sur le site du réseau</a></div>` : `<div class="empty" style="grid-column:1/-1">Chargement…</div>`;
+    if (!PL.err && !PL.loading) { PL.loading = true; loadPlans(); }
+    return;
+  }
+  res.innerHTML = PL.list.map((p) => { const m = p.title.match(/^(.*?)\s*\((.*)\)\s*$/); const ri = p.line ? net.R.findIndex((r) => r.s === p.line) : -1;
+    return `<button type="button" class="plc" data-pl="${esc(p.id)}"><span class="im" style="background-image:url('plans/${esc(p.thumb)}')"></span><span class="tx">${ri >= 0 ? badge(ri, "sm", true) : ""}<b>${esc(m ? m[1] : p.title)}</b>${m ? `<small>${esc(m[2])}</small>` : ""}<small>${p.pages.length > 1 ? p.pages.length + " pages · " : ""}PDF ${p.mb} Mo</small></span></button>`; }).join("");
+  res.querySelectorAll("[data-pl]").forEach((b) => b.onclick = () => openPlan(b.dataset.pl, 0));
+  $("#pl-src").innerHTML = `Plans officiels de Grand Reims Mobilités, <a href="${esc(site)}" target="_blank" rel="noopener">téléchargeables sur leur site</a>. Mis à jour automatiquement chaque semaine.`;
+}
+function openPlan(id, page) {
+  const P = PL.list.find((x) => x.id === id); if (!P) return;
+  const pg = P.pages[page];
+  let el = $("#plv");
+  if (!el) { el = document.createElement("div"); el.id = "plv"; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); document.body.appendChild(el); }
+  el.innerHTML = `<div class="plv-top"><button type="button" class="icon-btn" id="plv-x" aria-label="Fermer">${backSvg}</button><div class="plv-t"><b>${esc(P.title.replace(/\s*\(.*\)\s*$/, ""))}</b>${P.pages.length > 1 ? `<small>Page ${page + 1} / ${P.pages.length}</small>` : ""}</div><a class="btn small" href="${esc(P.pdf)}" target="_blank" rel="noopener">PDF</a></div>
+    <div class="plv-stage" id="plv-st"><img id="plv-img" alt="${esc(P.title)}" src="plans/${esc(P.thumb)}" draggable="false"></div>
+    <div class="plv-ctl">${P.pages.length > 1 ? `<button type="button" class="icon-btn" id="plv-prev" aria-label="Page précédente" ${page ? "" : "disabled"}>‹</button>` : ""}<button type="button" class="icon-btn" id="plv-out" aria-label="Dézoomer">−</button><button type="button" class="icon-btn" id="plv-fit" aria-label="Plan entier"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 6V2h4M14 6V2h-4M2 10v4h4M14 10v4h-4"/></svg></button><button type="button" class="icon-btn" id="plv-in" aria-label="Zoomer">+</button>${P.pages.length > 1 ? `<button type="button" class="icon-btn" id="plv-next" aria-label="Page suivante" ${page < P.pages.length - 1 ? "" : "disabled"}>›</button>` : ""}</div>`;
+  el.classList.add("on");
+  const st = $("#plv-st"), img = $("#plv-img"), V = { s: 1, x: 0, y: 0, w: pg.w || 2600, h: pg.h || 1800 };
+  const apply = () => { img.style.width = V.w + "px"; img.style.height = V.h + "px"; img.style.transform = `translate(${V.x}px,${V.y}px) scale(${V.s})`; };
+  const fit = () => { const r = st.getBoundingClientRect(); V.s = Math.min(r.width / V.w, r.height / V.h); V.x = (r.width - V.w * V.s) / 2; V.y = (r.height - V.h * V.s) / 2; apply(); };
+  const zoom = (f, cx, cy) => { const r = st.getBoundingClientRect(); cx = cx ?? r.width / 2; cy = cy ?? r.height / 2; const fitS = Math.min(r.width / V.w, r.height / V.h); const ns = Math.max(fitS * 0.8, Math.min(3, V.s * f)); V.x = cx - (cx - V.x) * ns / V.s; V.y = cy - (cy - V.y) * ns / V.s; V.s = ns; apply(); };
+  fit();
+  const full = new Image(); full.onload = () => { img.src = full.src; }; full.src = "plans/" + pg.src;
+  const ptr = new Map(); let pinch = null;
+  const P0 = (e) => { const r = st.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+  st.onpointerdown = (e) => { st.setPointerCapture(e.pointerId); ptr.set(e.pointerId, P0(e)); if (ptr.size === 2) { const [a, b] = [...ptr.values()]; pinch = { d: Math.hypot(a[0] - b[0], a[1] - b[1]), s: V.s }; } };
+  st.onpointermove = (e) => { if (!ptr.has(e.pointerId)) return; const [ox, oy] = ptr.get(e.pointerId), [nx, ny] = P0(e); ptr.set(e.pointerId, [nx, ny]);
+    if (ptr.size === 1) { V.x += nx - ox; V.y += ny - oy; apply(); }
+    else if (ptr.size === 2 && pinch) { const [a, b] = [...ptr.values()]; const d = Math.hypot(a[0] - b[0], a[1] - b[1]); zoom(pinch.s * d / pinch.d / V.s, (a[0] + b[0]) / 2, (a[1] + b[1]) / 2); } };
+  st.onpointerup = st.onpointercancel = (e) => { ptr.delete(e.pointerId); if (ptr.size < 2) pinch = null; };
+  st.onwheel = (e) => { e.preventDefault(); const [x, y] = P0(e); zoom(Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.002)), x, y); };
+  st.ondblclick = (e) => { const [x, y] = P0(e); zoom(2, x, y); };
+  $("#plv-in").onclick = () => zoom(1.6); $("#plv-out").onclick = () => zoom(1 / 1.6); $("#plv-fit").onclick = fit;
+  const pv = $("#plv-prev"), nx = $("#plv-next"); if (pv) pv.onclick = () => openPlan(id, page - 1); if (nx) nx.onclick = () => openPlan(id, page + 1);
+  const close = () => { el.classList.remove("on"); el.innerHTML = ""; document.removeEventListener("keydown", esck); };
+  const esck = (e) => { if (e.key === "Escape") close(); };
+  document.addEventListener("keydown", esck);
+  $("#plv-x").onclick = close;
+}
+
 // ---------- vues ----------
 function go(v) { if (location.hash !== "#" + v) location.hash = v; else route(); }
 function route() {
   const v = (location.hash || "#accueil").slice(1);
-  S.view = ["accueil", "itineraire", "passages", "lignes", "suivi", "trafic"].includes(v) ? v : "accueil";
-  if (S.view === "suivi" && !S.follow) { S.view = "accueil"; }
+  S.view = ["accueil", "itineraire", "passages", "lignes", "suivi", "trafic", "plans"].includes(v) ? v : "accueil";
+  if (S.view === "suivi" && !S.follow && !S.guide) { S.view = "accueil"; }
   $$(".view").forEach((s) => s.classList.toggle("on", s.id === "v-" + S.view));
   const tabV = S.view === "trafic" ? "accueil" : S.view;
   $$(".tabbar a").forEach((a) => { if (a.dataset.v === tabV) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
@@ -1133,6 +1594,7 @@ function route() {
   else if (S.view === "itineraire") runIt();
   else if (S.view === "passages") { runPa(); if (S.paStop != null) fitStop(S.paStop); }
   else if (S.view === "lignes") { runLi(); if (S.line != null) fitLine(S.line); }
+  else if (S.view === "plans") renderPlans();
   else if (S.view === "trafic") { renderTrafic(); if (TR.filter && TR.filter.length === 1) fitLine(TR.filter[0]); else fitHome(); }
   else { renderFollow(); if (isMobile() && sheetState === "full") setSheet("half", true); followCam(true); }
   if (isMobile() && sheetState === "peek") setSheet("half", true);
@@ -1270,7 +1732,11 @@ if (isMobile()) setSheet("half", true);
 resize(); fitHome(); route();
 if (store.get("geo")) locate(null, true); // déjà autorisé : on relance discrètement
 setInterval(rtLabel, 15000);
-setInterval(() => { if (!document.hidden && S.view === "suivi") renderFollow(); }, 5000);
+setInterval(() => { if (!document.hidden && S.view === "suivi") renderFollow(); }, 1000);
+// suivi et guidage continuent en arrière-plan tant que la page tourne (alertes)
+setInterval(() => { if (S.view !== "suivi" && (S.guide || (S.follow && S.follow.dest != null))) renderFollowBg(); }, 5000);
+// service worker : uniquement pour afficher les notifications (pas de cache hors ligne)
+if ("serviceWorker" in navigator && !/claude/.test(location.hostname)) navigator.serviceWorker.register("sw.js").then((r) => { swReg = r; }).catch(() => {});
 setInterval(() => { if (!document.hidden && S.view !== "suivi" && !RT.ok) rerender(); }, 30000);
 document.addEventListener("visibilitychange", () => { if (!document.hidden) { pollRT(); loadTrafic(); rerender(); } });
 pollRT();

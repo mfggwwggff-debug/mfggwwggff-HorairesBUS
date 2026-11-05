@@ -167,7 +167,7 @@ const LN = (net.D.LN || []).map(([r, c, sl]) => {
 });
 const lnByRoute = net.R.map(() => []); LN.forEach((f) => lnByRoute[f.r].push(f));
 function offsetPath(f, sp) {
-  const n = f.xs.length, P = new Array(n);
+  const n = f.xs.length, P = new Array(n), O = new Array(n);
   for (let i = 0; i < n; i++) P[i] = toS(f.xs[i], f.ys[i]);
   ctx.beginPath();
   for (let i = 0; i < n; i++) {
@@ -179,9 +179,13 @@ function offsetPath(f, sp) {
     if (!d1) { n1x = n2x; n1y = n2y; } if (!d2) { n2x = n1x; n2y = n1y; }
     let mx = n1x + n2x, my = n1y + n2y; const ml = Math.hypot(mx, my) || 1; mx /= ml; my /= ml;
     const k = f.sl[i] * sp / Math.max(0.55, mx * n2x + my * n2y);
-    const X = b[0] - mx * k, Y = b[1] - my * k;
-    i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y);
+    O[i] = [b[0] - mx * k, b[1] - my * k];
   }
+  // angles arrondis : courbes passant par le milieu des segments (rendu « plan de réseau »)
+  ctx.moveTo(O[0][0], O[0][1]);
+  if (n < 3) { if (n === 2) ctx.lineTo(O[1][0], O[1][1]); return; }
+  for (let i = 1; i < n - 1; i++) ctx.quadraticCurveTo(O[i][0], O[i][1], (O[i][0] + O[i + 1][0]) / 2, (O[i][1] + O[i + 1][1]) / 2);
+  ctx.lineTo(O[n - 1][0], O[n - 1][1]);
 }
 
 // ---------- fond de carte (rues) ----------
@@ -250,22 +254,22 @@ function paint() {
   const caseC = css("--map-case");
   const hl = highlight();
   const z = view.s / 9000;
-  const lw = Math.max(1.6, Math.min(4.6, 2.2 * Math.pow(z, 0.5)));
+  const lw = Math.max(2, Math.min(6, 2.6 * Math.pow(z, 0.5)));
   ctx.lineJoin = "round"; ctx.lineCap = "round";
   const focus = hl.routes && hl.routes.size > 0;
   const journey = hl.legs.length > 0;
   const order = net.R.map((r, i) => i).sort((a, b) => ((hl.routes?.has(a) ? 1 : 0) - (hl.routes?.has(b) ? 1 : 0)) || ((net.R[a].m === 1) - (net.R[b].m === 1)));
-  // écartement entre lignes parallèles (px) : un peu plus que l'épaisseur d'un trait
-  const sp = lw * 1.35 + 1.4;
+  // écartement entre lignes parallèles (px) : les traits se touchent, comme sur le plan officiel
+  const sp = lw;
   const [vx0, vy1] = fromS(-40, -40), [vx1, vy0] = fromS(W + 40, H + 40);
   const visible = (b) => !(b[2] < vx0 || b[0] > vx1 || b[3] < vy0 || b[1] > vy1);
   for (const pass of [0, 1]) {
     for (const ri of order) {
       const on = !focus || hl.routes.has(ri);
       const strong = on && focus && !journey;
-      const w = (net.R[ri].m === 1 ? lw * 1.3 : lw) * (strong ? 1.5 : 1);
+      const w = (net.R[ri].m === 1 ? lw * 1.15 : lw) * (strong ? 1.35 : 1) + 0.4;
       ctx.globalAlpha = !focus ? 1 : journey ? 0.16 : on ? 1 : 0.14;
-      if (pass === 0) { if (ctx.globalAlpha < 0.5) continue; ctx.strokeStyle = caseC; ctx.lineWidth = w + 3; }
+      if (pass === 0) { if (ctx.globalAlpha < 0.5) continue; ctx.strokeStyle = caseC; ctx.lineWidth = w + 3.5; }
       else { ctx.strokeStyle = net.R[ri].c; ctx.lineWidth = w; }
       if (LN.length) { for (const f of lnByRoute[ri]) { if (visible(f.box)) { offsetPath(f, sp); ctx.stroke(); } } }
       else for (const k of routeShapes[ri]) { path(keyToPts.get(k)); ctx.stroke(); }

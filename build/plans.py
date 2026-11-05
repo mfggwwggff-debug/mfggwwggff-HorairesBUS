@@ -9,6 +9,7 @@ import os, re, sys, json, html, hashlib, subprocess, tempfile, shutil, urllib.re
 PAGE = "https://www.grandreims-mobilites.fr/fr/w48-Telecharger-les-plans-du-reseau.html"
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "plans")
+RES = 3400  # taille des images (px) : changer cette valeur force la reconversion
 UA = {"User-Agent": "Mozilla/5.0 (compatible; horaires-grand-reims; +https://github.com/mfggwwggff-debug/mfggwwggff-HorairesBUS)"}
 
 
@@ -54,9 +55,9 @@ def slug(s):
 
 
 def render(pdf_path, prefix):
-    """Une image JPEG par page (2600 px de large au plus) + une vignette de la 1re page."""
+    """Une image JPEG par page (3400 px de côté au plus) + une vignette de la 1re page."""
     tmp = tempfile.mkdtemp()
-    subprocess.run(["pdftoppm", "-jpeg", "-jpegopt", "quality=82,progressive=y", "-scale-to", "2600", pdf_path, os.path.join(tmp, "p")], check=True)
+    subprocess.run(["pdftoppm", "-jpeg", "-jpegopt", "quality=82,progressive=y", "-scale-to", str(RES), pdf_path, os.path.join(tmp, "p")], check=True)
     subprocess.run(["pdftoppm", "-jpeg", "-jpegopt", "quality=78", "-scale-to", "520", "-f", "1", "-l", "1", pdf_path, os.path.join(tmp, "t")], check=True)
     pages = []
     for f in sorted(os.listdir(tmp)):
@@ -99,7 +100,7 @@ def main():
         sha = hashlib.sha1(data).hexdigest()[:12]
         prev = known.get(p["pdf"].split("?")[0])
         prefix = slug(p["title"])
-        if prev and prev.get("sha") == sha and all(os.path.exists(os.path.join(OUT, x["src"])) for x in prev["pages"]):
+        if prev and prev.get("sha") == sha and prev.get("res") == RES and all(os.path.exists(os.path.join(OUT, x["src"])) for x in prev["pages"]):
             entry = {**prev, "title": p["title"], "line": p["line"]}
         else:
             for f in os.listdir(OUT):
@@ -108,7 +109,7 @@ def main():
                 fh.write(data); pdf = fh.name
             pages, thumb = render(pdf, prefix)
             os.remove(pdf)
-            entry = {"id": prefix, "title": p["title"], "line": p["line"], "pdf": p["pdf"], "sha": sha, "mb": round(len(data) / 1e6, 1),
+            entry = {"id": prefix, "res": RES, "title": p["title"], "line": p["line"], "pdf": p["pdf"], "sha": sha, "mb": round(len(data) / 1e6, 1),
                      "thumb": thumb, "pages": [dict(zip(("src", "w", "h"), (x, *size_of(os.path.join(OUT, x))))) for x in pages]}
             print("nouveau ou modifié :", p["title"])
         plans.append(entry)

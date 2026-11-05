@@ -203,12 +203,11 @@ def parallel_lines(data, step=8.0, dedupe=20.0, near=14.0, slot_m=10.0):
         # lissage : médiane (supprime les faux contacts aux carrefours) puis moyenne glissante
         n = len(raw)
         med = [sorted(raw[max(0, i - 3): i + 4])[len(raw[max(0, i - 3): i + 4]) // 2] for i in range(n)]
-        sm = []
-        for i in range(n):
-            w = med[max(0, i - 4): i + 5]
-            sm.append(sum(w) / len(w))
+        sm = med
+        for _ in range(2):  # deux passes : transitions douces entre faisceaux
+            sm = [sum(sm[max(0, i - 6): i + 7]) / len(sm[max(0, i - 6): i + 7]) for i in range(n)]
         p3 = [(x, y, s * slot_m) for (x, y), s in zip(pts, sm)]
-        idx = rdp3(p3, 2.5)
+        idx = rdp3(p3, 4.5)  # tracé simplifié (le plan arrondit ensuite les angles)
         coords, slots = [], []
         px = py = 0
         for i in idx:

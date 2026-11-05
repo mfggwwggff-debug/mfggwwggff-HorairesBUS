@@ -21,10 +21,13 @@ Outil web pour le réseau Grand Reims Mobilités, pensé pour le téléphone : a
 | `build/post.py` | Tram T1/T2, couleurs de texte des pastilles, dessin en parallèle des tronçons communs. |
 | `build/assets.js` | Logo Grand Reims Mobilités (vectoriel) et logos des lignes. |
 | `build/infotrafic.py` | Relève l'info trafic du site du réseau. |
+| `build/plans.py` | Télécharge les plans PDF du réseau et les convertit en images (`plans/`). |
+| `sw.js` | Service worker minimal pour les notifications (alertes de descente, correspondances). |
 | `info-trafic.json` | Info trafic relevée (générée, ne pas modifier à la main). |
 | `build/make.py` | Reconstruit `index.html` : `python build/make.py gtfs.zip` (ou `--data` pour réutiliser `build/data.json`) |
 | `.github/workflows/mise-a-jour-horaires.yml` | Mise à jour automatique deux fois par semaine. |
 | `.github/workflows/info-trafic.yml` | Relevé de l'info trafic toutes les 15 minutes. |
+| `.github/workflows/plans.yml` | Plans du réseau, chaque semaine. |
 
 ## Mise à jour
 
