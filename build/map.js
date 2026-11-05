@@ -250,7 +250,7 @@ function paint() {
   const caseC = css("--map-case");
   const hl = highlight();
   const z = view.s / 9000;
-  const lw = Math.max(1.6, Math.min(6, 2.2 * Math.pow(z, 0.55)));
+  const lw = Math.max(1.6, Math.min(4.6, 2.2 * Math.pow(z, 0.5)));
   ctx.lineJoin = "round"; ctx.lineCap = "round";
   const focus = hl.routes && hl.routes.size > 0;
   const journey = hl.legs.length > 0;
