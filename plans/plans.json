@@ -1,0 +1,117 @@
+{
+ "src": "https://www.grandreims-mobilites.fr/fr/w48-Telecharger-les-plans-du-reseau.html",
+ "plans": [
+  {
+   "id": "plan-du-reseau-valable-a-partir-du-31-aout-2026",
+   "title": "Plan du réseau (valable à partir du 31 août 2026)",
+   "line": "",
+   "pdf": "https://grandreims-mobilites.fr/upload/PLANS/SEPT_26/Geoschematique-Reims_v13-web.pdf",
+   "sha": "04db4fcf728f",
+   "mb": 3.4,
+   "thumb": "plan-du-reseau-valable-a-partir-du-31-aout-2026-vignette.jpg",
+   "pages": [
+    {
+     "src": "plan-du-reseau-valable-a-partir-du-31-aout-2026-1.jpg",
+     "w": 2600,
+     "h": 2600
+    }
+   ]
+  },
+  {
+   "id": "ligne-o1",
+   "title": "Ligne O1",
+   "line": "O1",
+   "pdf": "https://grandreims-mobilites.fr/upload/PLANS/BHNS/Plan-ligne-BHNS-O1-CC_compressed.pdf",
+   "sha": "915c4ea1b5fa",
+   "mb": 3.5,
+   "thumb": "ligne-o1-vignette.jpg",
+   "pages": [
+    {
+     "src": "ligne-o1-1.jpg",
+     "w": 2600,
+     "h": 929
+    }
+   ]
+  },
+  {
+   "id": "ligne-o2",
+   "title": "Ligne O2",
+   "line": "O2",
+   "pdf": "https://grandreims-mobilites.fr/upload/PLANS/SEPT_26/LigneO2_11ke_02-web.pdf",
+   "sha": "72d3f99f3bff",
+   "mb": 3.3,
+   "thumb": "ligne-o2-vignette.jpg",
+   "pages": [
+    {
+     "src": "ligne-o2-1.jpg",
+     "w": 2600,
+     "h": 929
+    }
+   ]
+  },
+  {
+   "id": "pole-gare-centre-valable-a-partir-du-31-aout-202",
+   "title": "Pôle Gare Centre (valable à partir du 31 août 2026)",
+   "line": "",
+   "pdf": "https://grandreims-mobilites.fr/upload/PLANS/SEPT_26/Pole-Gare-Centre-rentree-26.pdf",
+   "sha": "24201ae1f8ce",
+   "mb": 3.5,
+   "thumb": "pole-gare-centre-valable-a-partir-du-31-aout-202-vignette.jpg",
+   "pages": [
+    {
+     "src": "pole-gare-centre-valable-a-partir-du-31-aout-202-1.jpg",
+     "w": 2600,
+     "h": 1849
+    }
+   ]
+  },
+  {
+   "id": "pole-opera-cathedrale-valable-a-partir-du-31-aou",
+   "title": "Pôle Opéra-Cathédrale (valable à partir du 31 août 2026)",
+   "line": "",
+   "pdf": "https://grandreims-mobilites.fr/upload/PLANS/SEPT_26/Pole_Opera-Cathedrale_rentree26_9Mo.pdf",
+   "sha": "91b9bc800cb8",
+   "mb": 1.8,
+   "thumb": "pole-opera-cathedrale-valable-a-partir-du-31-aou-vignette.jpg",
+   "pages": [
+    {
+     "src": "pole-opera-cathedrale-valable-a-partir-du-31-aou-1.jpg",
+     "w": 2600,
+     "h": 1839
+    }
+   ]
+  },
+  {
+   "id": "plan-du-reseau-periurbain-lignes-express",
+   "title": "Plan du réseau périurbain (lignes Express)",
+   "line": "",
+   "pdf": "https://grandreims-mobilites.fr/upload/PLANS/SEPT_26/Plan-reseau-periurbain-rentree-2026.pdf",
+   "sha": "203eda626032",
+   "mb": 2.2,
+   "thumb": "plan-du-reseau-periurbain-lignes-express-vignette.jpg",
+   "pages": [
+    {
+     "src": "plan-du-reseau-periurbain-lignes-express-1.jpg",
+     "w": 1839,
+     "h": 2600
+    }
+   ]
+  },
+  {
+   "id": "ligne-sub",
+   "title": "Ligne Sub",
+   "line": "Sub",
+   "pdf": "https://grandreims-mobilites.fr/upload/PLANS/SUB/Plan_SUB_310826.pdf?nocache=1793286291",
+   "sha": "92e9c4ad15ec",
+   "mb": 4.0,
+   "thumb": "ligne-sub-vignette.jpg",
+   "pages": [
+    {
+     "src": "ligne-sub-1.jpg",
+     "w": 1984,
+     "h": 2600
+    }
+   ]
+  }
+ ]
+}
