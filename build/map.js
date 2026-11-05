@@ -93,7 +93,7 @@ const vehicleOf = (pi, k, dk) => posOf(pi, k, dk, nowMinF(), todayIdx());
 
 function resize() {
   const r = cv.getBoundingClientRect(); DPR = window.devicePixelRatio || 1; W = r.width; H = r.height;
-  cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR); paint();
+  cv.width = tcv.width = Math.round(W * DPR); cv.height = tcv.height = Math.round(H * DPR); paint();
 }
 function path(pts) { ctx.beginPath(); for (let i = 0; i < pts.length; i++) { const [x, y] = geoS(pts[i][0], pts[i][1]); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } }
 function segment(pi, bi, ai) {
@@ -185,12 +185,14 @@ function offsetPath(f, sp) {
 }
 
 // ---------- fond de carte (rues) ----------
-// Tuiles CARTO (données OpenStreetMap), claires ou sombres selon le thème. Pas sur claude.ai, qui les bloque.
+// Tuiles OpenStreetMap dessinées dans un calque à part (#tiles), adouci par un filtre CSS : gris clair
+// le jour, inversé la nuit. Pas sur claude.ai, qui bloque les images externes.
 const TILES_OK = !/claude/.test(location.hostname);
+const tcv = $("#tiles"), tctx = tcv.getContext("2d");
 const tileCache = new Map(); let tilesLoading = 0;
 const isDark = () => { const t = document.documentElement.dataset.theme; return t === "dark" || (t !== "light" && matchMedia("(prefers-color-scheme: dark)").matches); };
-function tileImg(style, z, x, y) {
-  const key = style + "/" + z + "/" + x + "/" + y;
+function tileImg(z, x, y) {
+  const key = z + "/" + x + "/" + y;
   let e = tileCache.get(key);
   if (!e) {
     if (tilesLoading > 24) return null;
@@ -198,18 +200,21 @@ function tileImg(style, z, x, y) {
     img.onload = () => { e.ok = true; tilesLoading--; drawMap(); };
     img.onerror = () => { e.err = true; tilesLoading--; };
     tilesLoading++;
-    img.src = `https://${"abcd"[(x + y) % 4]}.basemaps.cartocdn.com/${style}/${z}/${x}/${y}${DPR > 1 ? "@2x" : ""}.png`;
+    img.src = `https://tile.openstreetmap.org/${z}/${x}/${y}.png`;
     tileCache.set(key, e);
     if (tileCache.size > 400) { for (const [k, v] of tileCache) { if (v.ok || v.err) { tileCache.delete(k); if (tileCache.size <= 320) break; } } }
   }
   e.t = performance.now();
   return e.ok ? e.img : null;
 }
-function drawTiles() {
-  if (!TILES_OK) return;
-  const zf = Math.log2(view.s * 360 * KX / 256);
+function drawTiles(bg) {
+  const ctx = tctx;
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+  const dark = isDark(), f = dark ? "grayscale(1) invert(1) brightness(.78) contrast(.92)" : "grayscale(1) brightness(1.05) contrast(.82)";
+  if (tcv.style.filter !== f) { tcv.style.filter = f; tcv.style.opacity = dark ? ".75" : ".85"; }
+  const zf = Math.log2(view.s * 360 * KX / 256) + (DPR > 1 ? 0.45 : 0);
   const z = Math.max(9, Math.min(19, Math.round(zf))), N = 2 ** z;
-  const style = (isDark() ? "dark_" : "light_") + (z >= 15 ? "all" : "nolabels");
   const tx = (X) => (IX(X) + 180) / 360 * N, ty = (Y) => (1 - Y / (180 * KX)) / 2 * N;
   const [ax, ay] = fromS(0, 0), [bx, by] = fromS(W, H);
   const x0 = Math.floor(tx(ax)), x1 = Math.floor(tx(bx)), y0 = Math.floor(ty(ay)), y1 = Math.floor(ty(by));
@@ -218,17 +223,15 @@ function drawTiles() {
   for (let j = y0; j <= y1; j++) for (let i = x0; i <= x1; i++) {
     if (j < 0 || j >= N) continue;
     const X0 = sx(i), X1 = sx(i + 1), Y0 = sy(j), Y1 = sy(j + 1);
-    const img = tileImg(style, z, ((i % N) + N) % N, j);
+    const img = tileImg(z, ((i % N) + N) % N, j);
     if (img) { ctx.drawImage(img, X0, Y0, X1 - X0 + 0.5, Y1 - Y0 + 0.5); continue; }
     // en attendant : la tuile parente déjà chargée, agrandie
     for (let up = 1; up <= 4; up++) {
       const pz = z - up, pi = i >> up, pj = j >> up, k = 1 << up;
-      const e = tileCache.get(style + "/" + pz + "/" + pi + "/" + pj);
+      const e = tileCache.get(pz + "/" + pi + "/" + pj);
       if (e && e.ok) { const w = e.img.naturalWidth / k, h = e.img.naturalHeight / k; ctx.drawImage(e.img, (i - pi * k) * w, (j - pj * k) * h, w, h, X0, Y0, X1 - X0 + 0.5, Y1 - Y0 + 0.5); break; }
     }
   }
-  // voile léger : les lignes du réseau restent au premier plan
-  ctx.globalAlpha = isDark() ? 0.18 : 0.22; ctx.fillStyle = css("--map-bg"); ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1;
 }
 
 let raf = 0, hover = null, lastVeh = [];
@@ -243,8 +246,7 @@ function paint() {
   }
   const C = { bg: css("--map-bg"), ink: css("--ink"), surf: css("--surface"), muted: css("--muted"), ok: css("--ok"), th: css("--theo"), me: css("--me"), font: css("--font-display") };
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-  ctx.fillStyle = C.bg; ctx.fillRect(0, 0, W, H);
-  drawTiles();
+  if (TILES_OK) { ctx.clearRect(0, 0, W, H); drawTiles(C.bg); } else { ctx.fillStyle = C.bg; ctx.fillRect(0, 0, W, H); }
   const caseC = css("--map-case");
   const hl = highlight();
   const z = view.s / 9000;
@@ -375,7 +377,7 @@ function paint() {
   ctx.strokeText(st, bx + len / 2, by - 10); ctx.fillText(st, bx + len / 2, by - 10); ctx.textAlign = "start";
   if (TILES_OK) {
     ctx.font = `500 10px ${C.font}`; ctx.textAlign = mob ? "left" : "right"; ctx.lineWidth = 3; ctx.strokeStyle = C.bg; ctx.fillStyle = C.muted;
-    const at = "© OpenStreetMap · © CARTO", ax = mob ? 14 : W - 12, ay = mob ? topInset() + 44 : H - 6;
+    const at = "© les contributeurs d'OpenStreetMap", ax = mob ? 14 : W - 12, ay = mob ? topInset() + 44 : H - 6;
     ctx.strokeText(at, ax, ay); ctx.fillText(at, ax, ay); ctx.textAlign = "start";
   }
   placePop();
