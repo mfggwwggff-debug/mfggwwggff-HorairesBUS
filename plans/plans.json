@@ -3,6 +3,7 @@
  "plans": [
   {
    "id": "plan-du-reseau-valable-a-partir-du-31-aout-2026",
+   "res": 3400,
    "title": "Plan du réseau (valable à partir du 31 août 2026)",
    "line": "",
    "pdf": "https://grandreims-mobilites.fr/upload/PLANS/SEPT_26/Geoschematique-Reims_v13-web.pdf",
@@ -12,13 +13,14 @@
    "pages": [
     {
      "src": "plan-du-reseau-valable-a-partir-du-31-aout-2026-1.jpg",
-     "w": 2600,
-     "h": 2600
+     "w": 3400,
+     "h": 3400
     }
    ]
   },
   {
    "id": "ligne-o1",
+   "res": 3400,
    "title": "Ligne O1",
    "line": "O1",
    "pdf": "https://grandreims-mobilites.fr/upload/PLANS/BHNS/Plan-ligne-BHNS-O1-CC_compressed.pdf",
@@ -28,13 +30,14 @@
    "pages": [
     {
      "src": "ligne-o1-1.jpg",
-     "w": 2600,
-     "h": 929
+     "w": 3400,
+     "h": 1215
     }
    ]
   },
   {
    "id": "ligne-o2",
+   "res": 3400,
    "title": "Ligne O2",
    "line": "O2",
    "pdf": "https://grandreims-mobilites.fr/upload/PLANS/SEPT_26/LigneO2_11ke_02-web.pdf",
@@ -44,13 +47,14 @@
    "pages": [
     {
      "src": "ligne-o2-1.jpg",
-     "w": 2600,
-     "h": 929
+     "w": 3400,
+     "h": 1215
     }
    ]
   },
   {
    "id": "pole-gare-centre-valable-a-partir-du-31-aout-202",
+   "res": 3400,
    "title": "Pôle Gare Centre (valable à partir du 31 août 2026)",
    "line": "",
    "pdf": "https://grandreims-mobilites.fr/upload/PLANS/SEPT_26/Pole-Gare-Centre-rentree-26.pdf",
@@ -60,13 +64,14 @@
    "pages": [
     {
      "src": "pole-gare-centre-valable-a-partir-du-31-aout-202-1.jpg",
-     "w": 2600,
-     "h": 1849
+     "w": 3400,
+     "h": 2417
     }
    ]
   },
   {
    "id": "pole-opera-cathedrale-valable-a-partir-du-31-aou",
+   "res": 3400,
    "title": "Pôle Opéra-Cathédrale (valable à partir du 31 août 2026)",
    "line": "",
    "pdf": "https://grandreims-mobilites.fr/upload/PLANS/SEPT_26/Pole_Opera-Cathedrale_rentree26_9Mo.pdf",
@@ -76,13 +81,14 @@
    "pages": [
     {
      "src": "pole-opera-cathedrale-valable-a-partir-du-31-aou-1.jpg",
-     "w": 2600,
-     "h": 1839
+     "w": 3400,
+     "h": 2405
     }
    ]
   },
   {
    "id": "plan-du-reseau-periurbain-lignes-express",
+   "res": 3400,
    "title": "Plan du réseau périurbain (lignes Express)",
    "line": "",
    "pdf": "https://grandreims-mobilites.fr/upload/PLANS/SEPT_26/Plan-reseau-periurbain-rentree-2026.pdf",
@@ -92,13 +98,14 @@
    "pages": [
     {
      "src": "plan-du-reseau-periurbain-lignes-express-1.jpg",
-     "w": 1839,
-     "h": 2600
+     "w": 2405,
+     "h": 3400
     }
    ]
   },
   {
    "id": "ligne-sub",
+   "res": 3400,
    "title": "Ligne Sub",
    "line": "Sub",
    "pdf": "https://grandreims-mobilites.fr/upload/PLANS/SUB/Plan_SUB_310826.pdf?nocache=1793286291",
@@ -108,8 +115,8 @@
    "pages": [
     {
      "src": "ligne-sub-1.jpg",
-     "w": 1984,
-     "h": 2600
+     "w": 2594,
+     "h": 3400
     }
    ]
   }
