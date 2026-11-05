@@ -1,0 +1,41 @@
+name: Plans du réseau
+
+# Télécharge chaque semaine les plans PDF publiés par Grand Reims Mobilités,
+# les convertit en images pour l'onglet Plans et publie s'ils ont changé.
+on:
+  schedule:
+    - cron: "41 4 * * 2"   # mardi, 4h41 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: plans
+  cancel-in-progress: false
+
+jobs:
+  plans:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer poppler (pdftoppm)
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils
+
+      - name: Télécharger et convertir les plans
+        run: python3 build/plans.py
+
+      - name: Publier si quelque chose a changé
+        run: |
+          git add -A plans
+          if git diff --cached --quiet; then
+            echo "Plans inchangés."
+            exit 0
+          fi
+          git config user.name "plans-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Plans du réseau : mise à jour"
+          for i in 1 2 3; do git pull --rebase -q && git push -q && exit 0; sleep 5; done
+          exit 1
