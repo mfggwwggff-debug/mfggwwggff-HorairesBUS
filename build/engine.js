@@ -259,4 +259,81 @@ function departures(net, pStop, day, t0, horizon = 120) {
   return rows;
 }
 
-if (typeof module !== "undefined") module.exports = { makeNet, raptor, planDepart, planArrive, departures, firstTrip, applyRT, arr, isLive };
+// ---------- fin de service ----------
+// Jour de service « en cours » à la minute t du jour calendaire `day` : avant 3 h, c'est encore celui de la veille.
+const svcDayAt = (day, t) => (t < 180 ? day - 1 : day);
+
+// Lignes et sens desservis à un arrêt (toutes destinations confondues), avec la destination la plus fréquente.
+function stopLineDirs(net, pStop) {
+  const g = new Map();
+  for (const q of net.P[pStop][3]) {
+    const lst = net.qp[q];
+    for (let x = 0; x < lst.length; x += 2) {
+      const p = net.pats[lst[x]], i = lst[x + 1];
+      if (i === p.nS - 1) continue;
+      const key = p.r + "|" + p.dir;
+      if (!g.has(key)) g.set(key, { r: p.r, dir: p.dir, items: [], hs: new Map() });
+      const G = g.get(key);
+      G.items.push([lst[x], i]);
+      G.hs.set(p.h, (G.hs.get(p.h) || 0) + p.nT);
+    }
+  }
+  for (const G of g.values()) G.h = [...G.hs.entries()].sort((a, b) => b[1] - a[1])[0][0];
+  return g;
+}
+
+// État du service d'une ligne/sens à un arrêt à la minute t du jour `day` (horaires théoriques).
+// Rend { state: "run" | "gap" | "end" | "none", next, nextDay } ; next = minutes depuis minuit du jour `day`.
+//  run : passage dans l'horizon ; gap : plus rien dans l'horizon mais encore des passages aujourd'hui ;
+//  end : la ligne a circulé aujourd'hui et c'est fini ; none : aucune circulation aujourd'hui.
+function lineDirService(net, items, day, t, horizon = 120) {
+  const sd = svcDayAt(day, t);
+  let next = Infinity, nextDk = -1, ranToday = false;
+  for (const [pi, i] of items) {
+    const p = net.pats[pi];
+    for (let k = 0; k < p.nT; k++) {
+      const st = p.D[k * p.nS + i];
+      for (let dk = day - 1; dk <= day + 8; dk++) {
+        if (!net.svcOn(p.sv[k], dk)) continue;
+        if (dk === sd) ranToday = true;
+        const abs = st + (dk - day) * 1440;
+        if (abs >= t && abs < next) { next = abs; nextDk = dk; }
+      }
+    }
+  }
+  const nx = next === Infinity ? null : next;
+  if (nx != null && nx - t <= horizon) return { state: "run", next: nx, nextDay: nextDk };
+  if (nx != null && nextDk === sd) return { state: "gap", next: nx, nextDay: nextDk };
+  return { state: ranToday ? "end" : "none", next: nx, nextDay: nextDk };
+}
+
+// Fenêtre de nuit du réseau : fin du dernier trajet du jour de service sd, premier départ du jour sd + 1.
+const _netWin = new Map();
+function netServiceWindow(net, sd) {
+  if (_netWin.has(sd)) return _netWin.get(sd);
+  let last = -1, first = Infinity;
+  for (const p of net.pats) {
+    for (let k = 0; k < p.nT; k++) {
+      if (net.svcOn(p.sv[k], sd)) last = Math.max(last, p.A[k * p.nS + p.nS - 1]);
+      if (net.svcOn(p.sv[k], sd + 1)) first = Math.min(first, p.D[k * p.nS]);
+    }
+  }
+  const w = { last: last < 0 ? null : last, first: first === Infinity ? null : first };
+  _netWin.set(sd, w);
+  return w;
+}
+// Nuit (plus aucun bus ni tram en circulation) à la minute t du jour `day` ? Rend { sd, until } ou null.
+// until = premier départ du lendemain, en minutes depuis minuit du jour `day`.
+function networkNight(net, day, t) {
+  for (const sd of [day - 1, day]) {
+    if (sd < 0 || sd >= net.nd) continue;
+    const w = netServiceWindow(net, sd);
+    if (w.last == null) continue;
+    const now = t + (day - sd) * 1440;             // minutes depuis minuit du jour de service sd
+    const until = w.first == null ? Infinity : 1440 + w.first;
+    if (now >= w.last && now < until) return { sd, until: until - (day - sd) * 1440 };
+  }
+  return null;
+}
+
+if (typeof module !== "undefined") module.exports = { makeNet, raptor, planDepart, planArrive, departures, firstTrip, applyRT, arr, isLive, stopLineDirs, lineDirService, networkNight, netServiceWindow, svcDayAt };
