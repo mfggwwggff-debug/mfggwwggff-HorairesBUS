@@ -416,10 +416,10 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
 .mbh.near b { font-size: 26px; }
 .mbh.near .tx > span:last-child { font-size: 13.5px; opacity: .95; }
 .wv { position: relative; width: 70px; height: 70px; flex: none; }
-.wv i { position: absolute; left: 50%; top: 50%; width: 70px; height: 70px; border-radius: 50%; border: 3px solid currentColor; box-sizing: border-box; animation: wave 1.8s ease-out infinite; }
+.wv i { position: absolute; inset: 0; margin: auto; width: 70px; height: 70px; border-radius: 50%; border: 3px solid currentColor; box-sizing: border-box; opacity: 0; transform: scale(.35); animation: wave 1.8s ease-out infinite both; will-change: transform, opacity; }
 .wv i:nth-child(2) { animation-delay: .6s; } .wv i:nth-child(3) { animation-delay: 1.2s; }
-.wv span { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 30px; height: 30px; border-radius: 50%; background: var(--ct); display: grid; place-items: center; }
-@keyframes wave { 0% { transform: translate(-50%, -50%) scale(.35); opacity: .7; } 100% { transform: translate(-50%, -50%) scale(1.25); opacity: 0; } }
+.wv span { position: absolute; inset: 0; margin: auto; width: 30px; height: 30px; border-radius: 50%; background: var(--ct); display: grid; place-items: center; }
+@keyframes wave { 0% { transform: scale(.35); opacity: .7; } 100% { transform: scale(1.25); opacity: 0; } }
 .crs { border: 1px solid var(--rule); border-radius: 14px; overflow: hidden; margin-top: 8px; }
 .cr { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; padding: 9px 12px; border-top: 1px solid var(--rule); }
 .cr:first-child { border-top: 0; }
@@ -434,7 +434,7 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
 .mbal.hot { animation: glow 1.2s ease-in-out infinite; }
 @keyframes glow { 0%, 100% { background: var(--accent); } 50% { background: color-mix(in srgb, var(--accent) 70%, #ffb38f); } }
 .mbt { position: relative; margin: 0 -4px; }
-.mbt-rail, .mbt-done { position: absolute; left: 69px; width: 6px; border-radius: 3px; }
+.mbt-rail, .mbt-done { position: absolute; left: 64px; width: 6px; border-radius: 3px; }
 .mbt-rail { background: var(--c); }
 .mbt-done { background: var(--rule); transition: height 1s linear; }
 .mbr { position: absolute; left: 0; right: 0; height: 58px; display: grid; grid-template-columns: 50px 34px 1fr; column-gap: 0; align-items: center; border: 0; background: none; text-align: left; padding: 0 6px 0 0; transition: opacity .4s; }
@@ -454,7 +454,7 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
 .mbr.from .nd { background: var(--c); }
 .tagx { font: 700 10.5px/1 var(--font-body); letter-spacing: .03em; color: var(--surface); background: var(--ink); border-radius: 5px; padding: 3px 5px; flex: none; }
 .tagx.up { background: var(--c); color: var(--ct); }
-.mbt-bus { position: absolute; left: 72px; width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--surface); box-shadow: 0 0 0 2px var(--ink), 0 6px 16px rgb(0 0 0 / .25); display: grid; place-items: center; z-index: 2; transform: translate(-50%, -50%); transition: top 1s linear; animation: bob 1.4s ease-in-out infinite; }
+.mbt-bus { position: absolute; left: 67px; width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--surface); box-shadow: 0 0 0 2px var(--ink), 0 6px 16px rgb(0 0 0 / .25); display: grid; place-items: center; z-index: 2; transform: translate(-50%, -50%); transition: top 1s linear; animation: bob 1.4s ease-in-out infinite; }
 .mbt-bus.hide { display: none; }
 @keyframes bob { 0%, 100% { margin-top: 0; } 50% { margin-top: -3px; } }
 .mbbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; border-top: 1px solid var(--rule); padding-top: 12px; }
@@ -748,12 +748,15 @@ function applyRT(net, feed, liveDay, dayStartEpoch) {
     if (!upd.size) continue;
     if (!p.LA) { p.LA = Int32Array.from(p.A); p.LD = Int32Array.from(p.D); p.live = new Uint8Array(p.nT); }
     const first = Math.min(...upd.keys());
-    let delayA = upd.get(first)[0] - p.A[k * p.nS + first], delayD = upd.get(first)[1] - p.D[k * p.nS + first];
+    // arrêts sans prévision : un seul retard propagé (celui du départ du dernier arrêt connu),
+    // sinon un écart arrivée/départ à un arrêt de régulation se recopiait en attente fictive à chaque arrêt
+    let delay = upd.get(first)[0] - p.A[k * p.nS + first];
     let prev = -Infinity;
     for (let i = 0; i < p.nS; i++) {
       const o = k * p.nS + i;
-      if (upd.has(i)) { const [a, d] = upd.get(i); delayA = a - p.A[o]; delayD = d - p.D[o]; }
-      let a = p.A[o] + delayA, d = Math.max(a, p.D[o] + delayD);
+      let a, d;
+      if (upd.has(i)) { [a, d] = upd.get(i); delay = d - p.D[o]; }
+      else { a = p.A[o] + delay; d = p.D[o] + delay; }
       if (a < prev) a = prev; if (d < a) d = a; prev = d;
       p.LA[o] = a; p.LD[o] = d;
     }
@@ -1437,11 +1440,14 @@ function runLi() {
 }
 
 // ---------- Mon bus : suivi d'une course, arrêt de descente, alertes ----------
+const RT_LEAD = 0.5; // minutes d'avance appliquées aux courses en temps réel
 function tripState(pi, k, dk) {
   // état d'une course à l'instant : arrêt atteint, position, horaires
-  const p = net.pats[pi], today = todayIdx(), off = (dk - today) * 1440, t = nowMinF();
+  const p = net.pats[pi], today = todayIdx(), off = (dk - today) * 1440;
   const [A, D] = arr(net, p, dk), o = k * p.nS;
   const live = isLive(net, p, k, dk);
+  // le flux temps réel a environ 30 s de retard sur la réalité : on avance l'affichage d'autant
+  const t = nowMinF() + (live ? RT_LEAD : 0);
   const at = (i) => A[o + i] + off, dp = (i) => D[o + i] + off;
   let state = "running", i = 0;
   if (t < dp(0)) state = "before";
@@ -2521,7 +2527,8 @@ async function pollRT() {
     RT.ok = false;
     RT.err = /claude/.test(location.hostname) ? "Le temps réel ne peut pas être chargé dans cette page hébergée sur claude.ai. Utilisez la version GitHub." : "Flux temps réel injoignable pour le moment (" + (e.message || e) + "). Nouvel essai dans 30 s.";
     rtEl.title = RT.err;
-    if (net.liveDay >= 0) { net.pats.forEach((p) => { p.LA = p.LD = p.live = null; }); net.liveDay = -1; rerender(); }
+    // un échec ponctuel ne fait plus repasser en théorique (le bus sautait puis revenait) : on garde le dernier flux 3 min
+    if (net.liveDay >= 0 && !(RT.at && Date.now() - RT.at < 180000)) { net.pats.forEach((p) => { p.LA = p.LD = p.live = null; }); net.liveDay = -1; rerender(); }
   }
   rtLabel();
   rtTimer = setTimeout(pollRT, 30000);

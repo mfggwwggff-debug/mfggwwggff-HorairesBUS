@@ -75,12 +75,15 @@ function applyRT(net, feed, liveDay, dayStartEpoch) {
     if (!upd.size) continue;
     if (!p.LA) { p.LA = Int32Array.from(p.A); p.LD = Int32Array.from(p.D); p.live = new Uint8Array(p.nT); }
     const first = Math.min(...upd.keys());
-    let delayA = upd.get(first)[0] - p.A[k * p.nS + first], delayD = upd.get(first)[1] - p.D[k * p.nS + first];
+    // arrêts sans prévision : un seul retard propagé (celui du départ du dernier arrêt connu),
+    // sinon un écart arrivée/départ à un arrêt de régulation se recopiait en attente fictive à chaque arrêt
+    let delay = upd.get(first)[0] - p.A[k * p.nS + first];
     let prev = -Infinity;
     for (let i = 0; i < p.nS; i++) {
       const o = k * p.nS + i;
-      if (upd.has(i)) { const [a, d] = upd.get(i); delayA = a - p.A[o]; delayD = d - p.D[o]; }
-      let a = p.A[o] + delayA, d = Math.max(a, p.D[o] + delayD);
+      let a, d;
+      if (upd.has(i)) { [a, d] = upd.get(i); delay = d - p.D[o]; }
+      else { a = p.A[o] + delay; d = p.D[o] + delay; }
       if (a < prev) a = prev; if (d < a) d = a; prev = d;
       p.LA[o] = a; p.LD[o] = d;
     }
