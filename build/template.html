@@ -7,9 +7,9 @@
 <!--__HEAD__-->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
 <style>
-/* Plan : signalétique de réseau, en appli. Encre bleu nuit, rouge tram en accent rare, couleurs des lignes comme décor.
+/* DA Grand Reims Mobilités : orange du réseau en accent, police DM Sans (celle du site), couleurs des lignes comme décor.
    Mobile : plan plein écran, panneau qui glisse depuis le bas, onglets en bas. Bureau : panneau à gauche, plan à droite. */
 :root {
   --bg: #eef0ef;
@@ -18,16 +18,20 @@
   --ink: #15202b;
   --muted: #5a6670;
   --rule: #dde1df;
-  --accent: #c8001a;
+  --accent: #e8511c;
   --accent-ink: #ffffff;
+  --brand: #ff5500;
+  --logo-ink: #1d1d1b;
+  --alert: #e8511c;
+  --map-case: #ffffff;
   --focus: #1a5fd0;
-  --map-bg: #e6e9e7;
+  --map-bg: #f2f2ef;
   --ok: #11834a;
-  --theo: #e07b00;
+  --theo: #8a959f;
   --late: #c05600;
   --me: #1a6dff;
-  --font-display: "Barlow Semi Condensed", "Arial Narrow", system-ui, sans-serif;
-  --font-body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --r: 14px;
   --tab-h: 58px;
   --sat: env(safe-area-inset-top, 0px);
@@ -37,15 +41,15 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #0e1317; --surface: #161d23; --sunk: #1b232a; --ink: #e7ebee; --muted: #94a0aa;
-    --rule: #2a343c; --accent: #ff5468; --accent-ink: #1a0005; --focus: #7aa7ff; --map-bg: #10161b;
-    --ok: #3ccf7f; --late: #ff9a3c; --theo: #ffa035; --me: #5b9bff;
+    --rule: #2a343c; --accent: #ff7a3d; --accent-ink: #1f0c00; --focus: #7aa7ff; --map-bg: #121417;
+    --ok: #3ccf7f; --late: #ff9a3c; --theo: #7f8a94; --me: #5b9bff; --brand: #ff6a1a; --logo-ink: #f1f1ef; --alert: #ff7a3d; --map-case: #121417;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #0e1317; --surface: #161d23; --sunk: #1b232a; --ink: #e7ebee; --muted: #94a0aa;
-  --rule: #2a343c; --accent: #ff5468; --accent-ink: #1a0005; --focus: #7aa7ff; --map-bg: #10161b;
-  --ok: #3ccf7f; --late: #ff9a3c; --theo: #ffa035; --me: #5b9bff;
+  --rule: #2a343c; --accent: #ff7a3d; --accent-ink: #1f0c00; --focus: #7aa7ff; --map-bg: #121417;
+  --ok: #3ccf7f; --late: #ff9a3c; --theo: #7f8a94; --me: #5b9bff; --brand: #ff6a1a; --logo-ink: #f1f1ef; --alert: #ff7a3d; --map-case: #121417;
   color-scheme: dark;
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -86,7 +90,8 @@ h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; }
 }
 
 header.top { display: flex; align-items: center; gap: 10px; padding: 14px 18px 8px; flex: none; }
-.mark { width: 28px; height: 28px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; flex: none; }
+.mark { width: 40px; height: 24px; color: var(--brand); display: grid; place-items: center; flex: none; }
+.mark svg { width: 100%; height: 100%; }
 header.top h1 { font-size: 19px; font-weight: 700; letter-spacing: .01em; white-space: nowrap; }
 .rt { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); border: 1px solid var(--rule); border-radius: 999px; padding: 4px 10px 4px 8px; background: var(--sunk); white-space: nowrap; max-width: 60%; overflow: hidden; text-overflow: ellipsis; }
 .rt i { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none; }
@@ -153,7 +158,7 @@ details.when .whenbody { padding: 4px 12px 12px; display: flex; flex-direction: 
 .seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgb(0 0 0 / .14); }
 
 /* badges de ligne */
-.bd { display: inline-flex; align-items: center; justify-content: center; min-width: 30px; height: 22px; padding: 0 6px; border-radius: 5px; font: 700 13.5px/1 var(--font-display); letter-spacing: .02em; flex: none; }
+.bd { position: relative; display: inline-flex; align-items: center; justify-content: center; min-width: 30px; height: 22px; padding: 0 6px; border-radius: 5px; font: 700 13.5px/1 var(--font-display); letter-spacing: .02em; flex: none; }
 .bd.tram { border-radius: 11px; min-width: 46px; }
 .bd.sm { min-width: 24px; height: 18px; font-size: 11.5px; padding: 0 4px; border-radius: 4px; }
 .bd.sm.tram { min-width: 36px; border-radius: 9px; }
@@ -324,10 +329,70 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
 .pop .sub b { color: var(--ink); font-weight: 600; }
 .toast { position: absolute; left: 50%; top: calc(var(--sat) + 14px); transform: translateX(-50%); z-index: 8; background: var(--ink); color: var(--surface); padding: 9px 14px; border-radius: 999px; font-size: 13.5px; font-weight: 500; box-shadow: 0 6px 20px rgb(0 0 0 / .25); display: none; max-width: calc(100% - 120px); text-align: center; }
 .toast.on { display: block; }
+
+/* pastilles de ligne (logos officiels) */
+.bdi { position: relative; display: inline-block; height: 22px; width: calc(22px * var(--ar, 1.25)); background: center / contain no-repeat; flex: none; vertical-align: middle; }
+.bdi.sm { height: 18px; width: calc(18px * var(--ar, 1.25)); }
+.bdi.lg { height: 30px; width: calc(30px * var(--ar, 1.25)); }
+.al::after { content: "!"; position: absolute; top: -5px; right: -6px; width: 14px; height: 14px; border-radius: 50%; background: var(--alert); color: #fff; font: 700 10px/14px var(--font-body); text-align: center; box-shadow: 0 0 0 2px var(--surface); }
+.sm.al::after { width: 12px; height: 12px; line-height: 12px; font-size: 9px; top: -4px; right: -5px; }
+
+/* pictos des modes */
+.mode { width: 20px; height: 20px; flex: none; color: currentColor; }
+.lbl.withico { display: flex; align-items: center; gap: 7px; }
+
+/* logo du réseau */
+.brandfoot { display: flex; justify-content: center; padding: 22px 0 0; }
+.brandfoot svg { height: 30px; width: auto; }
+
+/* info trafic */
+.trcard { border: 1px solid var(--rule); border-radius: var(--r); background: var(--surface); overflow: hidden; }
+.trcard.has { border-color: color-mix(in srgb, var(--alert) 45%, var(--rule)); }
+.trh { display: flex; align-items: center; gap: 10px; padding: 12px 12px 10px 14px; }
+.trh .nm { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.trh b { font: 700 16.5px/1.15 var(--font-display); }
+.trh small { color: var(--muted); font-size: 12.5px; }
+.tric { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; flex: none; background: color-mix(in srgb, var(--alert) 14%, transparent); color: var(--alert); }
+.tric.ok { background: color-mix(in srgb, var(--ok) 14%, transparent); color: var(--ok); }
+.trlines { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 14px 12px; }
+.trrow { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; align-items: center; width: 100%; padding: 10px 14px; border: 0; border-top: 1px solid var(--rule); background: none; text-align: left; min-height: 48px; }
+.trrow:hover { background: var(--sunk); }
+.trrow .tt2 { font-weight: 600; font-size: 14.5px; line-height: 1.3; }
+.trrow .bs { display: flex; gap: 4px; flex-wrap: wrap; grid-column: 1; }
+.trrow svg { grid-row: 1 / span 2; grid-column: 2; color: var(--muted); }
+.trall { width: 100%; border: 0; border-top: 1px solid var(--rule); background: none; padding: 11px 14px; text-align: left; color: var(--focus); font-weight: 600; font-size: 14px; display: flex; justify-content: space-between; align-items: center; }
+.trnote { display: flex; gap: 10px; align-items: center; width: 100%; text-align: left; padding: 10px 12px; border-radius: 10px; border: 1px solid color-mix(in srgb, var(--alert) 40%, var(--rule)); background: color-mix(in srgb, var(--alert) 7%, var(--surface)); font-size: 13.5px; }
+.trnote b { font-weight: 600; }
+.trnote .tric { width: 26px; height: 26px; border-radius: 8px; }
+.trf { display: flex; gap: 6px; flex-wrap: wrap; }
+.trf button { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--rule); background: var(--surface); font-weight: 600; font-size: 13.5px; }
+.trf button[aria-pressed="true"] { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
+.tritem { border: 1px solid var(--rule); border-radius: var(--r); background: var(--surface); }
+.tritem > summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; padding: 12px 14px; }
+.tritem > summary::-webkit-details-marker { display: none; }
+.tritem > summary .chev { grid-column: 2; grid-row: 1; color: var(--muted); transition: transform .2s; }
+.tritem[open] > summary .chev { transform: rotate(180deg); }
+.tritem .tt2 { font: 700 15.5px/1.25 var(--font-display); }
+.tritem .pp { grid-column: 1 / -1; color: var(--muted); font-size: 13px; }
+.tritem .bs { grid-column: 1 / -1; display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+.tritem .body { padding: 0 14px 12px; display: flex; flex-direction: column; font-size: 14px; }
+.tritem .body .rw { display: flex; gap: 8px; align-items: flex-start; padding: 8px 0; border-top: 1px solid var(--rule); }
+.tritem .body .rw .bdi, .tritem .body .rw .bd { margin-top: 1px; }
+.tritem .body b { font-weight: 600; }
+.tag.now { background: color-mix(in srgb, var(--alert) 14%, transparent); color: var(--alert); }
+.tag.soon { background: var(--sunk); color: var(--muted); }
+.vhead { display: flex; gap: 10px; align-items: center; }
+.vhead h2 { font-size: 21px; font-weight: 700; flex: 1; }
+
+/* animation de démarrage */
+#splash { position: fixed; inset: 0; z-index: 100; background: var(--surface); display: grid; place-items: center; transition: opacity .4s ease; cursor: pointer; }
+#splash.out { opacity: 0; pointer-events: none; }
+#splash svg { width: min(84vw, 460px); height: auto; overflow: visible; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 </head>
 <body>
+<div id="splash" aria-hidden="true"></div>
 <div id="app">
   <section class="mapwrap" aria-label="Plan du réseau">
     <canvas id="map" aria-label="Plan interactif du réseau"></canvas>
@@ -369,9 +434,11 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
 
       <!-- Accueil -->
       <section class="view" id="v-accueil" aria-label="Accueil">
+        <div class="sec" id="trhome"></div>
         <div class="sec" id="near"></div>
         <div class="sec" id="favstops"></div>
         <div class="sec" id="favtrips"></div>
+        <div class="brandfoot" id="brandfoot"></div>
         <footer class="src" id="src"></footer>
       </section>
 
@@ -444,6 +511,13 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
         <div id="li-res"></div>
       </section>
 
+      <!-- Info trafic -->
+      <section class="view" id="v-trafic" aria-label="Info trafic">
+        <div id="tr-head"></div>
+        <div id="tr-res" style="display:flex;flex-direction:column;gap:10px"></div>
+        <footer class="src" id="tr-src"></footer>
+      </section>
+
       <!-- Suivi d'un bus -->
       <section class="view" id="v-suivi" aria-label="Suivi d'un bus">
         <div id="fo"></div>
@@ -469,7 +543,25 @@ const dur = (m) => m < 60 ? m + " min" : Math.floor(m / 60) + " h " + String(m %
 const pName = (p) => net.P[p][0];
 const qName = (q) => net.P[net.Q[q][0]][0];
 const store = { get(k) { try { return JSON.parse(localStorage.getItem("grm:" + k)); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem("grm:" + k, JSON.stringify(v)); } catch (e) {} } };
-const badge = (ri, size) => { const r = net.R[ri]; return `<span class="bd${r.m === 1 ? " tram" : ""}${size ? " " + size : ""}" style="background:${r.c};color:${r.t}" title="${esc(r.s + " · " + r.l)}">${esc(r.s)}</span>`; };
+// pastilles de ligne : logos officiels, déclarés une seule fois dans une feuille de style
+const logoCls = (s) => "ln-" + s.replace(/[^A-Za-z0-9]/g, "");
+(function () { const st = document.createElement("style"); st.textContent = Object.entries(LINE_LOGOS).map(([k, [src, ar]]) => `.${logoCls(k)}{background-image:url(${src});--ar:${ar.toFixed(3)}}`).join("\n"); document.head.appendChild(st); })();
+const TR = { ok: false, items: [], at: null, src: "", byRoute: new Map(), filter: null, open: null };
+const badge = (ri, size, noAlert) => {
+  const r = net.R[ri], al = !noAlert && TR.byRoute.has(ri) ? " al" : "";
+  const t = esc(r.s + " · " + r.l + (al ? " · info trafic en cours" : ""));
+  return LINE_LOGOS[r.s] ? `<span class="bdi ${logoCls(r.s)}${size ? " " + size : ""}${al}" role="img" aria-label="Ligne ${esc(r.s)}" title="${t}"></span>`
+    : `<span class="bd${r.m === 1 ? " tram" : ""}${size ? " " + size : ""}${al}" style="background:${r.c};color:${r.t}" title="${t}">${esc(r.s)}</span>`;
+};
+// pictos des modes (DA validée : forme pleine, détails en creux, version encadrée)
+const MODE_SVG = {
+  tram: `<path d="M18 2.5H30M21 7.5 26 5 22 2.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path fill="currentColor" fill-rule="evenodd" d="M13 7.5H35Q39.5 7.5 39 12L36.2 32.5C35.4 38.5 32.5 42 28 42.5H20C15.5 42 12.6 38.5 11.8 32.5L9 12Q8.5 7.5 13 7.5ZM13.6 10H34.4Q34.9 10 34.9 10.5V12Q34.9 12.5 34.4 12.5H13.6Q13.1 12.5 13.1 12V10.5Q13.1 10 13.6 10ZM12.8 15H35.2L33.6 27.5C33.1 31.5 30.6 33.6 27 33.6H21C17.4 33.6 14.9 31.5 14.4 27.5ZM21.3 38A1.3 1.3 0 1 0 21.3 37.99ZM26.7 38A1.3 1.3 0 1 0 26.7 37.99Z"/><path d="M10 46H38" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>`,
+  bus: `<path d="M10 14.5H7.5V21M38 14.5H40.5V21" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path fill="currentColor" fill-rule="evenodd" d="M14.5 8H33.5Q38 8 38 12.5V37.5Q38 40.5 35 40.5H13Q10 40.5 10 37.5V12.5Q10 8 14.5 8ZM13.5 10.5H34.5Q35 10.5 35 11V12.5Q35 13 34.5 13H13.5Q13 13 13 12.5V11Q13 10.5 13.5 10.5ZM14.5 15.5H33.5Q35.5 15.5 35.5 17.5V29Q35.5 31 33.5 31H14.5Q12.5 31 12.5 29V17.5Q12.5 15.5 14.5 15.5ZM13.6 35H17.4Q18.2 35 18.2 35.8Q18.2 36.6 17.4 36.6H13.6Q12.8 36.6 12.8 35.8Q12.8 35 13.6 35ZM30.6 35H34.4Q35.2 35 35.2 35.8Q35.2 36.6 34.4 36.6H30.6Q29.8 36.6 29.8 35.8Q29.8 35 30.6 35Z"/><path fill="currentColor" d="M12.5 40H17V43Q17 44.5 15.5 44.5H14Q12.5 44.5 12.5 43Z M31 40H35.5V43Q35.5 44.5 34 44.5H32.5Q31 44.5 31 43Z"/>`,
+};
+const modeIcon = (m) => `<svg class="mode" viewBox="0 0 48 48" fill="none" aria-hidden="true"><rect x="2" y="2" width="44" height="44" rx="10" stroke="currentColor" stroke-width="3"/><g transform="translate(6.2 6.2) scale(.74)">${MODE_SVG[m === 1 ? "tram" : "bus"]}</g></svg>`;
+const alertSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.2 22 20.5H2z" fill="currentColor"/><path d="M12 9.5v5.2" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="17.6" r="1.25" fill="#fff"/></svg>`;
+const okSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>`;
+const backSvg = `<svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="m10 3-5 5 5 5"/></svg>`;
 const fmtDateLong = (iso) => new Date(iso + "T12:00:00").toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" });
 const fmtDateShort = (iso) => new Date(iso + "T12:00:00").toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" });
 const isMobile = () => matchMedia("(max-width: 899px)").matches;
@@ -491,6 +583,8 @@ const startIso = inRange(NOW.iso) ? NOW.iso : (NOW.iso < minIso ? minIso : maxIs
 const todayIdx = () => net.dayIndex(parisNow().iso);
 const toMin = (v) => { const [h, m] = (v || "0:0").split(":").map(Number); return h * 60 + m; };
 const toVal = (m) => hm(m);
+$(".mark").innerHTML = grmSymbol();
+$("#brandfoot").innerHTML = grmLogo();
 $("#src").innerHTML = `Horaires théoriques ${esc(D.feed.name)} du ${new Date(minIso + "T12:00").toLocaleDateString("fr-FR", { day: "numeric", month: "long" })} au ${new Date(maxIso + "T12:00").toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })} (version ${esc(D.feed.version)}). Temps réel : flux GTFS-RT du réseau, actualisé toutes les 30 s. Données sous Licence ouverte, <a href="https://transport.data.gouv.fr/datasets/aom/114">transport.data.gouv.fr</a>.`;
 function rangeNote(iso) {
   if (!iso || inRange(iso)) return "";
@@ -654,6 +748,7 @@ function tripCardHtml(a, b, k) {
 }
 function renderHome() {
   if (S.view !== "accueil") return;
+  const trh = trHomeHtml(); $("#trhome").innerHTML = trh; $("#trhome").style.display = trh ? "" : "none";
   // autour de moi
   let h = `<div class="sec-h"><h2>Autour de moi</h2>${ME.pos ? `<span class="lbl">± ${Math.round(ME.acc)} m</span>` : ""}</div>`;
   if (!ME.pos) {
@@ -676,6 +771,7 @@ $("#v-accueil").addEventListener("click", (e) => {
   const fsb = t.closest("[data-favstop]"); if (fsb) { toggleFavStop(+fsb.dataset.favstop); renderHome(); return; }
   const fo = t.closest("[data-follow]"); if (fo) { const [pi, k, off] = fo.dataset.follow.split(":").map(Number); startFollow(pi, k, todayIdx() + (off ? -1 : 0), +fo.closest("[data-stop]")?.dataset.stop); return; }
   const os = t.closest("[data-openstop]"); if (os) { openPassages(+os.dataset.openstop); return; }
+  const trb = t.closest("[data-tr]"); if (trb) { openTrafic({ open: trb.dataset.tr || null }); return; }
   const tr = t.closest("[data-trip]"); if (tr) { const ft = fav.trips.map(([a, b]) => [findStop(a), findStop(b)]).filter(([a, b]) => a >= 0 && b >= 0)[+tr.dataset.trip]; if (ft) { S.from = ft[0]; S.to = ft[1]; fromP.set(S.from); toP.set(S.to); itFollowNow = true; go("itineraire"); } }
 });
 
@@ -769,6 +865,7 @@ function timeline(j, jk) {
       <div class="name">${esc(qName(p.stops[g.bi]))}</div>
       <div class="sub" style="display:flex;gap:6px;align-items:center;margin:4px 0;flex-wrap:wrap">${badge(p.r)} <span>direction <b>${esc(p.h)}</b></span><span class="wait">${dot(g.live)}<small>${g.live ? "temps réel · " + delayTxt(g.dep, g.sdep) : "horaire théorique"}</small></span></div>
       ${inter.length ? `<details class="inter"><summary>${nS} arrêts · ${dur(g.arr - g.dep)}</summary><ol>${inter.join("")}</ol></details>` : `<div class="sub">${nS} arrêt · ${dur(g.arr - g.dep)}</div>`}
+      ${trNoteFor([p.r], true)}
       ${canFollow ? `<button type="button" class="linkbtn" data-followleg="${jk}:${i}">Suivre ce ${r.m === 1 ? "tram" : "bus"} ${chevR}</button>` : ""}
     </div></div>`;
     const next = L[i + 1], isEnd = !next;
@@ -806,7 +903,7 @@ function runPa() {
   const gs = [...groups.values()].sort((a, b) => a.r - b.r || a.list[0].t - b.list[0].t);
   if (!gs.length) { res.innerHTML = `<div class="empty">Aucun passage dans les 3 heures après ${hm(t0)} le ${fmtDateLong(iso)}.</div>`; drawMap(); return; }
   const nowF = nowMinF();
-  res.innerHTML = `<div class="legend-dots" style="margin:0 0 10px"><span>${dot(true)}temps réel</span><span>${dot(false)}horaire théorique</span><span>Touchez un horaire pour suivre le bus</span></div><div class="deps">` + gs.map((g) => `
+  res.innerHTML = trNoteFor(net.pRoutes[S.paStop]).replace('class="trnote"', 'class="trnote" style="margin-bottom:10px"') + `<div class="legend-dots" style="margin:0 0 10px"><span>${dot(true)}temps réel</span><span>${dot(false)}horaire théorique</span><span>Touchez un horaire pour suivre le bus</span></div><div class="deps">` + gs.map((g) => `
     <div class="dep">${badge(g.r, "lg")}<div class="dir">→ ${esc(g.h)}<small>${esc(net.R[g.r].l)}</small></div>
       <div class="tt">${g.list.map((x, k) => { const w = x.t - nowF; return `<button type="button" class="chip${k === 0 && isToday && w <= 15 && w > -1 ? " soon" : ""}" data-follow="${x.pat}:${x.k}:${x.off}" title="${x.live ? "Temps réel, passage à " + hm(x.t) : "Horaire théorique, passage à " + hm(x.t)}"><span class="main">${dot(x.live)}${waitLabel(x.t, isToday)}</span>${x.live && Math.round(x.t) !== Math.round(x.st) ? `<small>${delayTxt(x.t, x.st)}</small>` : isToday && w >= 59.5 ? "" : isToday ? `<small>${hm(x.t)}</small>` : ""}</button>`; }).join("")}</div>
       <button type="button" class="linkbtn open" data-r="${g.r}" data-d="${g.dir}">Fiche horaire de la ligne ${esc(net.R[g.r].s)} ${chevR}</button>
@@ -818,11 +915,12 @@ function runPa() {
 
 // ---------- Lignes ----------
 setupDT($("#li-date"), $("#li-time"), () => runLi());
-(function buildGrid() {
-  const groups = [["Tram", (r) => r.m === 1], ["Urbaines", (r) => /^U/.test(r.s)], ["Centre, soirée et spéciales", (r) => /^[COS]/.test(r.s)], ["Express", (r) => /^E/.test(r.s)]];
-  $("#li-grid").innerHTML = groups.map(([n, f]) => { const ids = net.R.map((r, i) => [r, i]).filter(([r]) => f(r)).map(([, i]) => i); return ids.length ? `<div class="lbl">${n}</div><div class="lgrid">${ids.map((i) => `<button type="button" data-r="${i}" aria-pressed="false" aria-label="Ligne ${esc(net.R[i].s)}">${badge(i, "lg")}</button>`).join("")}</div>` : ""; }).join("");
-  $("#li-grid").addEventListener("click", (e) => { const b = e.target.closest("button[data-r]"); if (!b) return; S.line = +b.dataset.r; S.dir = 0; runLi(); fitLine(S.line); });
-})();
+function buildGrid() {
+  const groups = [["Tram", (r) => r.m === 1, 1], ["Urbaines", (r) => /^U/.test(r.s), 3], ["Centre, soirée et spéciales", (r) => /^[COS]/.test(r.s), 3], ["Express", (r) => /^E/.test(r.s), 3]];
+  $("#li-grid").innerHTML = groups.map(([n, f, m]) => { const ids = net.R.map((r, i) => [r, i]).filter(([r]) => f(r)).map(([, i]) => i); return ids.length ? `<div class="lbl withico">${modeIcon(m)}${n}</div><div class="lgrid">${ids.map((i) => `<button type="button" data-r="${i}" aria-pressed="${i === S.line}" aria-label="Ligne ${esc(net.R[i].s)}">${badge(i, "lg")}</button>`).join("")}</div>` : ""; }).join("");
+}
+buildGrid();
+$("#li-grid").addEventListener("click", (e) => { const b = e.target.closest("button[data-r]"); if (!b) return; S.line = +b.dataset.r; S.dir = 0; runLi(); fitLine(S.line); });
 function linePats(ri, dir) { return net.pats.map((p, i) => [p, i]).filter(([p]) => p.r === ri && p.dir === dir); }
 function runLi() {
   $("#li-grid").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", +b.dataset.r === S.line));
@@ -835,7 +933,7 @@ function runLi() {
   const dirs = [0, 1].filter((d) => linePats(S.line, d).length);
   if (!dirs.includes(S.dir)) S.dir = dirs[0];
   const dirName = (d) => { const ps = linePats(S.line, d); const cnt = {}; ps.forEach(([p]) => cnt[p.h] = (cnt[p.h] || 0) + p.nT); return Object.entries(cnt).sort((a, b) => b[1] - a[1])[0][0]; };
-  head.innerHTML = `<div class="lhead">${badge(S.line, "lg")}<h2>${esc(r.l)}</h2></div>
+  head.innerHTML = `<div class="lhead">${badge(S.line, "lg")}<h2>${esc(r.l)}</h2></div>${trNoteFor([S.line]).replace('class="trnote"', 'class="trnote" style="margin-top:10px"')}
     <div class="row" style="margin-top:10px"><div class="seg" role="group" aria-label="Sens">${dirs.map((d) => `<button type="button" data-d="${d}" aria-pressed="${d === S.dir}">→ ${esc(dirName(d))}</button>`).join("")}</div></div>`;
   head.querySelectorAll("[data-d]").forEach((b) => b.addEventListener("click", () => { S.dir = +b.dataset.d; runLi(); }));
   if (!inRange(iso)) { res.innerHTML = ""; drawMap(); return; }
@@ -915,8 +1013,8 @@ function renderFollow() {
     const isDest = dest === i, isFrom = from === i;
     const tt = i === 0 ? st.dp(0) : st.at(i);
     list += `<button type="button" class="fs${past ? " past" : ""}${isDest ? " is-dest" : ""}${i === 0 ? " first" : ""}${i === p.nS - 1 ? " last" : ""}" style="${c}" data-dest="${i}" aria-label="${isDest ? "Ne plus marquer" : "Marquer comme arrêt de descente"} : ${esc(qName(q))}">
-      <span class="t">${hm(tt)}</span><span class="rail">${st.state === "running" && st.atStop && i === st.i ? `<span class="bus">${R.s === "TRAM" ? "T" : esc(R.s)}</span>` : `<span class="node"></span>`}</span><span class="nm">${esc(qName(q))}${isFrom ? "<small>votre arrêt de montée</small>" : ""}</span><span class="pin">${isDest ? "je descends ici" : ""}</span></button>`;
-    if (st.state === "running" && i === st.i && !st.atStop && i < p.nS - 1) list += `<div class="fbus" style="${c}"><span></span><span class="rail"><span class="bus">${R.s === "TRAM" ? "T" : esc(R.s)}</span></span><span class="lbl2">${dot(st.live)} en route</span></div>`;
+      <span class="t">${hm(tt)}</span><span class="rail">${st.state === "running" && st.atStop && i === st.i ? `<span class="bus">${esc(R.s)}</span>` : `<span class="node"></span>`}</span><span class="nm">${esc(qName(q))}${isFrom ? "<small>votre arrêt de montée</small>" : ""}</span><span class="pin">${isDest ? "je descends ici" : ""}</span></button>`;
+    if (st.state === "running" && i === st.i && !st.atStop && i < p.nS - 1) list += `<div class="fbus" style="${c}"><span></span><span class="rail"><span class="bus">${esc(R.s)}</span></span><span class="lbl2">${dot(st.live)} en route</span></div>`;
   });
   el.innerHTML = `<div class="fhead"><button type="button" class="icon-btn" id="fo-back" aria-label="Retour">${`<svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="m10 3-5 5 5 5"/></svg>`}</button>${badge(p.r, "lg")}<h2>→ ${esc(p.h)}</h2></div>
     <div class="wait" style="font-size:13.5px">${dot(st.live)}<span>${statusTxt}</span></div>
@@ -937,20 +1035,103 @@ function followCam(force) {
   centerOn(v.x, v.y, force ? Math.max(view.s, 26000) : view.s, force);
 }
 
+// ---------- Info trafic ----------
+// Relevée sur grandreims-mobilites.fr par une tâche GitHub (toutes les 15 min environ) dans info-trafic.json.
+const trActive = () => { const t = parisNow().iso; return TR.items.filter((x) => !x.end || x.end >= t); };
+const trStatus = (x) => x.start && x.start > parisNow().iso ? "soon" : "now";
+const trRoutes = (x) => x.lines.map((s) => net.R.findIndex((r) => r.s === s)).filter((i) => i >= 0);
+function trIndex() {
+  TR.byRoute = new Map();
+  trActive().forEach((x) => { if (trStatus(x) !== "now") return; trRoutes(x).forEach((ri) => { if (!TR.byRoute.has(ri)) TR.byRoute.set(ri, []); TR.byRoute.get(ri).push(x); }); });
+}
+async function loadTrafic() {
+  try {
+    const r = await fetch("info-trafic.json?v=" + Math.floor(Date.now() / 120000), { cache: "no-cache" });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const d = await r.json(); TR.items = d.items || []; TR.at = d.at || null; TR.src = d.src || ""; TR.ok = true;
+  } catch (e) { /* page hébergée ailleurs (claude.ai) ou fichier absent : on garde l'état précédent */ }
+  trIndex(); buildGrid();
+  if (S.view === "trafic") renderTrafic(); else rerender();
+}
+function trNoteFor(routes, small) {
+  const items = [...new Set(routes.flatMap((r) => TR.byRoute.get(r) || []))];
+  if (!items.length) return "";
+  const rs = [...new Set(items.flatMap(trRoutes))].filter((r) => routes.includes(r));
+  return `<button type="button" class="trnote" data-trlines="${rs.join(",")}"${small ? ' style="margin:4px 0;padding:7px 10px"' : ""}><span class="tric">${alertSvg}</span><span style="flex:1"><b>Info trafic</b> · ${items.length === 1 ? esc(items[0].t) : items.length + " perturbations sur " + (rs.length > 1 ? "ces lignes" : "la ligne " + esc(net.R[rs[0]].s))}</span>${chevR}</button>`;
+}
+document.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-trlines]"); if (!b) return;
+  const lines = b.dataset.trlines.split(",").filter(Boolean).map(Number);
+  const items = [...new Set(lines.flatMap((r) => TR.byRoute.get(r) || []))];
+  openTrafic({ lines: lines.length === 1 ? lines : null, open: items.length === 1 ? items[0].id : null });
+});
+function openTrafic(o) { TR.filter = o.lines || null; TR.open = o.open || null; if (S.view !== "trafic") S.prevView = S.view; go("trafic"); }
+function trHomeHtml() {
+  if (!TR.ok) return "";
+  const act = trActive(), now = act.filter((x) => trStatus(x) === "now"), soon = act.length - now.length;
+  if (!now.length) return `<div class="trcard"><div class="trh"><span class="tric ok">${okSvg}</span><div class="nm"><b>Trafic normal</b><small>Aucune perturbation en cours sur le réseau${soon ? ` · ${soon} à venir` : ""}</small></div></div>${soon ? `<button type="button" class="trall" data-tr="">Voir l'info trafic ${chevR}</button>` : ""}</div>`;
+  // en premier : les perturbations sur les lignes de mes arrêts et des arrêts proches
+  const mine = new Set();
+  fav.stops.map(findStop).filter((i) => i >= 0).forEach((i) => net.pRoutes[i].forEach((r) => mine.add(r)));
+  nearestStops(4, 1000).forEach((x) => net.pRoutes[x.i].forEach((r) => mine.add(r)));
+  const onMine = (x) => trRoutes(x).some((r) => mine.has(r));
+  const top = [...now].sort((a, b) => onMine(b) - onMine(a)).slice(0, 3);
+  const lines = [...new Set(now.flatMap(trRoutes))].sort((a, b) => a - b);
+  return `<div class="trcard has"><div class="trh"><span class="tric">${alertSvg}</span><div class="nm"><b>Info trafic</b><small>${now.length} perturbation${now.length > 1 ? "s" : ""} en cours${soon ? ` · ${soon} à venir` : ""}</small></div></div>
+    <div class="trlines">${lines.map((r) => badge(r, "sm", true)).join("")}</div>
+    ${top.map((x) => `<button type="button" class="trrow" data-tr="${esc(x.id)}"><span class="tt2">${esc(x.t)}</span>${chevR}<span class="bs">${trRoutes(x).map((r) => badge(r, "sm", true)).join("")}${onMine(x) ? `<span class="lbl" style="margin-left:4px;align-self:center">vos lignes</span>` : ""}</span></button>`).join("")}
+    <button type="button" class="trall" data-tr="">Toute l'info trafic ${chevR}</button></div>`;
+}
+const runsHtml = (r) => r.map(([t, b]) => b ? `<b>${esc(t)}</b>` : esc(t)).join("");
+function trItem(x) {
+  const st = trStatus(x);
+  const body = (x.b || []).map((b) => {
+    if (b.img) return /^https?:\/\//.test(b.img) ? `<a class="linkbtn" href="${esc(b.img)}" target="_blank" rel="noopener">Voir le plan ${chevR}</a>` : "";
+    const ri = b.l ? net.R.findIndex((r) => r.s === b.l) : -1;
+    return `<div class="rw">${ri >= 0 ? badge(ri, "sm", true) : ""}<span>${runsHtml(b.r || [])}</span></div>`;
+  }).join("");
+  return `<details class="tritem" data-id="${esc(x.id)}"${TR.open === x.id ? " open" : ""}><summary><span class="tt2">${esc(x.t)}</span><svg class="chev" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 5 4 4 4-4"/></svg>${x.p ? `<span class="pp">${esc(x.p)}</span>` : ""}<span class="bs"><span class="tag ${st}">${st === "now" ? "En cours" : "À venir"}</span>${trRoutes(x).map((r) => badge(r, "sm", true)).join("")}</span></summary>${body ? `<div class="body">${body}</div>` : ""}</details>`;
+}
+function renderTrafic() {
+  const head = $("#tr-head"), res = $("#tr-res");
+  let h = `<div class="vhead"><button type="button" class="icon-btn" id="tr-back" aria-label="Retour">${backSvg}</button><h2>Info trafic</h2></div>`;
+  if (!TR.ok) {
+    head.innerHTML = h;
+    res.innerHTML = `<div class="empty">${/claude/.test(location.hostname) ? "L'info trafic ne peut pas être chargée dans cette page hébergée sur claude.ai. Elle fonctionne sur la version GitHub." : "Info trafic indisponible pour le moment."}</div>`;
+    $("#tr-src").innerHTML = "";
+  } else {
+    const act = trActive(), f = TR.filter;
+    const lines = [...new Set(act.flatMap(trRoutes))].sort((a, b) => a - b);
+    h += `<div class="trf" role="group" aria-label="Filtrer par ligne" style="margin-top:12px"><button type="button" data-f="" aria-pressed="${!f}">Toutes</button>${lines.map((r) => `<button type="button" data-f="${r}" aria-pressed="${!!f && f.length === 1 && f[0] === r}" aria-label="Ligne ${esc(net.R[r].s)}">${badge(r, "sm", true)}</button>`).join("")}</div>`;
+    head.innerHTML = h;
+    const list = (f ? act.filter((x) => trRoutes(x).some((r) => f.includes(r))) : act).slice().sort((a, b) => (trStatus(a) === "soon") - (trStatus(b) === "soon"));
+    res.innerHTML = list.length ? list.map(trItem).join("") : `<div class="empty">Aucune perturbation annoncée${f ? " sur cette ligne" : ""}.</div>`;
+    const at = TR.at ? new Date(TR.at).toLocaleString("fr-FR", { timeZone: "Europe/Paris", weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }) : "";
+    $("#tr-src").innerHTML = `Source : <a href="${esc(TR.src || "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html")}" target="_blank" rel="noopener">grandreims-mobilites.fr</a>, relevée automatiquement toutes les 15 minutes environ.${at ? ` Dernier changement : ${esc(at)}.` : ""}`;
+    if (TR.open) { const el = res.querySelector(`[data-id="${CSS.escape(TR.open)}"]`); if (el) setTimeout(() => el.scrollIntoView({ block: "nearest" }), 50); }
+  }
+  $("#tr-back").onclick = () => go(S.prevView && !["trafic", "suivi"].includes(S.prevView) ? S.prevView : "accueil");
+  head.querySelectorAll("[data-f]").forEach((b) => b.onclick = () => { TR.filter = b.dataset.f === "" ? null : [+b.dataset.f]; TR.open = null; renderTrafic(); if (TR.filter) fitLine(TR.filter[0]); else fitHome(); drawMap(); });
+  res.querySelectorAll("details").forEach((d) => d.addEventListener("toggle", () => { if (d.open) TR.open = d.dataset.id; else if (TR.open === d.dataset.id) TR.open = null; }));
+  drawMap();
+}
+
 // ---------- vues ----------
 function go(v) { if (location.hash !== "#" + v) location.hash = v; else route(); }
 function route() {
   const v = (location.hash || "#accueil").slice(1);
-  S.view = ["accueil", "itineraire", "passages", "lignes", "suivi"].includes(v) ? v : "accueil";
+  S.view = ["accueil", "itineraire", "passages", "lignes", "suivi", "trafic"].includes(v) ? v : "accueil";
   if (S.view === "suivi" && !S.follow) { S.view = "accueil"; }
   $$(".view").forEach((s) => s.classList.toggle("on", s.id === "v-" + S.view));
-  $$(".tabbar a").forEach((a) => { if (a.dataset.v === S.view) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
+  const tabV = S.view === "trafic" ? "accueil" : S.view;
+  $$(".tabbar a").forEach((a) => { if (a.dataset.v === tabV) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
   $("#scroll").scrollTop = 0;
   hidePop();
   if (S.view === "accueil") { renderHome(); if (ME.pos) fitMe(); else fitHome(); }
   else if (S.view === "itineraire") runIt();
   else if (S.view === "passages") { runPa(); if (S.paStop != null) fitStop(S.paStop); }
   else if (S.view === "lignes") { runLi(); if (S.line != null) fitLine(S.line); }
+  else if (S.view === "trafic") { renderTrafic(); if (TR.filter && TR.filter.length === 1) fitLine(TR.filter[0]); else fitHome(); }
   else { renderFollow(); if (isMobile() && sheetState === "full") setSheet("half", true); followCam(true); }
   if (isMobile() && sheetState === "peek") setSheet("half", true);
   drawMap();
@@ -998,7 +1179,77 @@ function rerender() {
   if (document.activeElement && document.activeElement.matches("input")) return; // ne pas gêner la saisie
   const key = S.journeys[S.selJ]?.key;
   if (S.view === "itineraire") { const keepSel = S.selJ; runIt(true); const k = S.journeys.findIndex((j) => j.key === key); if (k >= 0 && k !== S.selJ) { S.selJ = k; $$(".jc").forEach((c) => { const on = +c.dataset.k === k; c.classList.toggle("sel", on); $(".head", c).setAttribute("aria-expanded", on); }); drawMap(); } else if (keepSel < 0) { S.selJ = -1; $$(".jc").forEach((c) => c.classList.remove("sel")); drawMap(); } }
-  else if (S.view === "passages") runPa(); else if (S.view === "lignes") runLi(); else if (S.view === "accueil") renderHome(); else renderFollow();
+  else if (S.view === "passages") runPa(); else if (S.view === "lignes") runLi(); else if (S.view === "accueil") renderHome(); else if (S.view === "trafic") renderTrafic(); else renderFollow();
+}
+
+// ---------- animation de démarrage ----------
+// Inspirée du film de lancement du logo : deux disques se rejoignent, deviennent un trait qui parcourt
+// deux fois la boucle de l'infini, puis le symbole apparaît avec ses bandes et le nom du réseau glisse à côté.
+function runSplash() {
+  const el = $("#splash"); if (!el) return;
+  let seen = false;
+  try { seen = sessionStorage.getItem("grm:splash") === "1"; sessionStorage.setItem("grm:splash", "1"); } catch (e) {}
+  if (seen) { el.remove(); return; }
+  const INF = "M83.8 50A33.8 33.8 0 1 0 151.4 50A33.8 33.8 0 1 0 83.8 50A33.8 33.8 0 1 1 16.2 50A33.8 33.8 0 1 1 83.8 50";
+  const bars = [[-40, 4, 190], [120, 18, 260], [-90, 36, 150], [260, 58, 220], [10, 76, 240], [200, 92, 170]];
+  el.innerHTML = `<svg viewBox="0 0 551 100" aria-hidden="true">
+    <g id="sp-bars" fill="var(--brand)" opacity="0">${bars.map(([x, y, w]) => `<rect x="${x}" y="${y}" width="${w}" height="7" rx="3.5"/>`).join("")}</g>
+    <g id="sp-all">
+      <circle id="sp-c1" cx="50" cy="50" r="0" fill="var(--brand)"/><circle id="sp-c2" cx="117.6" cy="50" r="0" fill="var(--brand)"/>
+      <path id="sp-inf" d="${INF + INF.replace(/^M83.8 50/, "")}" fill="none" stroke="var(--brand)" stroke-width="12" stroke-linecap="round" opacity="0"/>
+      <g id="sp-sym" fill="var(--brand)" opacity="0">${symInner("spl")}</g>
+    </g>
+    <g id="sp-wm" opacity="0"><path fill="var(--logo-ink)" d="${WM_DARK}"/><path fill="var(--brand)" d="${WM_ORANGE}"/></g>
+  </svg>`;
+  const g = (id) => el.querySelector("#" + id);
+  const all = g("sp-all"), c1 = g("sp-c1"), c2 = g("sp-c2"), inf = g("sp-inf"), sym = g("sp-sym"), wm = g("sp-wm"), br = g("sp-bars");
+  const L2 = inf.getTotalLength(), L = L2 / 2;
+  const clamp = (x) => Math.max(0, Math.min(1, x));
+  const seg = (t, a, b) => clamp((t - a) / (b - a));
+  const eo = (x) => 1 - Math.pow(1 - x, 3), eio = (x) => x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+  const back = (x) => { const c = 1.6; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+  const CX = 275.5 - 83.8; // symbole centré, puis décalé pour laisser la place au nom
+  let done = false, t0 = 0;
+  const finish = () => { if (done) return; done = true; el.classList.add("out"); setTimeout(() => el.remove(), 450); };
+  el.addEventListener("click", finish);
+  const set = (n, k, v) => n.setAttribute(k, v);
+  if (reduceMotion) {
+    set(sym, "opacity", 1); set(wm, "opacity", 1);
+    setTimeout(finish, 900); return;
+  }
+  const END = 2500;
+  const frame = (now) => {
+    if (done) return;
+    if (!t0) t0 = now;
+    const t = now - t0;
+    // 1. deux disques apparaissent de part et d'autre puis se rejoignent
+    const a = back(seg(t, 0, 320)), m = eio(seg(t, 300, 640)), sh = eo(seg(t, 620, 760));
+    const r = 50 * a * (1 - sh * 0.88);
+    set(c1, "r", Math.max(0, r)); set(c2, "r", Math.max(0, r));
+    set(c1, "cx", 50 - 110 * (1 - m) + 33.8 * m); set(c2, "cx", 117.6 + 110 * (1 - m) - 33.8 * m);
+    const discs = t < 780 ? 1 : 0; set(c1, "opacity", discs); set(c2, "opacity", discs);
+    // bandes de fond qui filent pendant la rencontre
+    const bt = seg(t, 250, 1100);
+    set(br, "opacity", (0.14 * Math.sin(Math.PI * bt)).toFixed(3));
+    set(br, "transform", `translate(${(-160 + 320 * eio(bt)).toFixed(1)} 0)`);
+    // 2. le trait parcourt deux fois la boucle de l'infini
+    const p = eio(seg(t, 740, 1700));
+    const head = p * L2, len = Math.min(head, L * (0.12 + 0.88 * p));
+    set(inf, "opacity", t < 740 ? 0 : t < 1950 ? 1 : 1 - seg(t, 1950, 2100));
+    set(inf, "stroke-dasharray", `${Math.max(0.01, len).toFixed(2)} ${L2 * 2}`);
+    set(inf, "stroke-dashoffset", (-(head - len)).toFixed(2));
+    // 3. le trait s'épaissit en deux anneaux, le symbole et ses bandes apparaissent
+    set(inf, "stroke-width", (12 + 21.6 * eo(seg(t, 1650, 1900))).toFixed(2));
+    set(sym, "opacity", eo(seg(t, 1850, 2050)).toFixed(3));
+    // 4. le symbole se décale, le nom du réseau glisse à côté
+    const sl = eio(seg(t, 2050, 2400));
+    set(all, "transform", `translate(${(CX * (1 - sl)).toFixed(2)} 0)`);
+    set(wm, "opacity", sl.toFixed(3)); set(wm, "transform", `translate(${(40 * (1 - sl)).toFixed(2)} 0)`);
+    if (t >= END + 350) { finish(); return; }
+    requestAnimationFrame(frame);
+  };
+  set(all, "transform", `translate(${CX} 0)`);
+  requestAnimationFrame(frame);
 }
 
 // ---------- démarrage ----------
@@ -1018,8 +1269,11 @@ if (store.get("geo")) locate(null, true); // déjà autorisé : on relance discr
 setInterval(rtLabel, 15000);
 setInterval(() => { if (!document.hidden && S.view === "suivi") renderFollow(); }, 5000);
 setInterval(() => { if (!document.hidden && S.view !== "suivi" && !RT.ok) rerender(); }, 30000);
-document.addEventListener("visibilitychange", () => { if (!document.hidden) { pollRT(); rerender(); } });
+document.addEventListener("visibilitychange", () => { if (!document.hidden) { pollRT(); loadTrafic(); rerender(); } });
 pollRT();
+loadTrafic();
+setInterval(() => { if (!document.hidden) loadTrafic(); }, 5 * 60000);
+runSplash();
 })();
 </script>
 </body>

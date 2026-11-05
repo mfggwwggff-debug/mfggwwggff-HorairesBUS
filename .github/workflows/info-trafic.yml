@@ -1,0 +1,45 @@
+name: Info trafic
+
+# Relève l'info trafic de grandreims-mobilites.fr environ toutes les 15 minutes
+# et publie info-trafic.json si les perturbations ont changé.
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: info-trafic
+  cancel-in-progress: false
+
+jobs:
+  releve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Relever l'info trafic
+        run: python build/infotrafic.py > info-trafic.new.json
+
+      - name: Publier si quelque chose a changé
+        run: |
+          # on compare sans l'horodatage
+          strip() { python -c "import json,sys; d=json.load(open(sys.argv[1])); d.pop('at',None); print(json.dumps(d,sort_keys=True))" "$1" 2>/dev/null; }
+          if [ -f info-trafic.json ] && [ "$(strip info-trafic.json)" = "$(strip info-trafic.new.json)" ]; then
+            echo "Info trafic inchangée."
+            exit 0
+          fi
+          mv info-trafic.new.json info-trafic.json
+          git config user.name "info-trafic-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add info-trafic.json
+          git commit -m "Info trafic : mise à jour"
+          for i in 1 2 3; do git pull --rebase -q && git push -q && exit 0; sleep 5; done
+          exit 1

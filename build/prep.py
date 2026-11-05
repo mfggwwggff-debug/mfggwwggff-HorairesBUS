@@ -237,6 +237,9 @@ for p in PAT:
         row.append(f"{num}.{sufs.index(suf)}")
     tis.append(" ".join(row))
 data["TI"] = {"suf": sufs, "t": tis}
+# tram T1/T2, couleurs de texte, tracés parallèles des tronçons communs
+import post
+post.finalize(data)
 with open(out, "w") as f:
     json.dump(data, f, separators=(",", ":"), ensure_ascii=False)
 print("parents", len(P), "quais", len(Q), "lignes", len(R), "motifs", len(PAT), "courses",

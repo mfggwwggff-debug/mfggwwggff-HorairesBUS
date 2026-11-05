@@ -1,7 +1,10 @@
 // ---------- Plan du réseau (canvas) ----------
 const cv = $("#map"), ctx = cv.getContext("2d");
-const KX = Math.cos(49.25 * Math.PI / 180);
-const PX = (lon) => lon * KX, PY = (lat) => lat;
+// Projection de Mercator (celle des fonds de carte), mise à l'échelle pour qu'une unité vaille
+// un degré de latitude autour de Reims : 111 320 m par unité, comme avant.
+const KX = Math.cos(49.25 * Math.PI / 180), DEG = 180 / Math.PI;
+const PX = (lon) => lon * KX, PY = (lat) => Math.log(Math.tan(Math.PI / 4 + lat / 2 / DEG)) * DEG * KX;
+const IX = (x) => x / KX, IY = (y) => (2 * Math.atan(Math.exp(y / KX / DEG)) - Math.PI / 2) * DEG;
 const view = { cx: PX(4.03), cy: PY(49.255), s: 9000 };
 const ZMIN = 1500, ZMAX = 120000;
 let W = 0, H = 0, DPR = 1;
@@ -95,16 +98,16 @@ function resize() {
 function path(pts) { ctx.beginPath(); for (let i = 0; i < pts.length; i++) { const [x, y] = geoS(pts[i][0], pts[i][1]); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } }
 function segment(pi, bi, ai) {
   const g = patGeo(pi), a = g.sOff[bi], b = g.sOff[ai], out = [];
-  const pa = pointAt(g, a); out.push([pa[0] / KX, pa[1]]);
-  for (let i = 0; i < g.pts.length; i++) if (g.cum[i] > a && g.cum[i] < b) out.push([g.pts[i][0] / KX, g.pts[i][1]]);
-  const pb = pointAt(g, b); out.push([pb[0] / KX, pb[1]]);
+  const pa = pointAt(g, a); out.push([IX(pa[0]), IY(pa[1])]);
+  for (let i = 0; i < g.pts.length; i++) if (g.cum[i] > a && g.cum[i] < b) out.push([IX(g.pts[i][0]), IY(g.pts[i][1])]);
+  const pb = pointAt(g, b); out.push([IX(pb[0]), IY(pb[1])]);
   return out;
 }
 function segmentD(pi, a, b) {
   const g = patGeo(pi), out = [];
-  const pa = pointAt(g, a); out.push([pa[0] / KX, pa[1]]);
-  for (let i = 0; i < g.pts.length; i++) if (g.cum[i] > a && g.cum[i] < b) out.push([g.pts[i][0] / KX, g.pts[i][1]]);
-  const pb = pointAt(g, b); out.push([pb[0] / KX, pb[1]]);
+  const pa = pointAt(g, a); out.push([IX(pa[0]), IY(pa[1])]);
+  for (let i = 0; i < g.pts.length; i++) if (g.cum[i] > a && g.cum[i] < b) out.push([IX(g.pts[i][0]), IY(g.pts[i][1])]);
+  const pb = pointAt(g, b); out.push([IX(pb[0]), IY(pb[1])]);
   return out;
 }
 function highlight() {
@@ -145,11 +148,87 @@ function highlight() {
     if (dest != null && dest < p.nS - 1) H.legs.push({ pts: segmentD(pi, end, g.sOff[p.nS - 1]), c: net.R[p.r].c, faded: true });
     p.stops.forEach((q) => H.stops.push(net.Q[q][0]));
     if (dest != null) H.ends.push([net.Q[p.stops[dest]][0], "to"]);
+  } else if (S.view === "trafic" && TR.filter) {
+    H.routes = new Set(TR.filter);
   } else if (S.view === "accueil") {
     if (ME.pos) nearestStops(4, 1000).forEach((x) => H.stops.push(x.i));
     fav.stops.map(findStop).filter((i) => i >= 0).forEach((i) => H.stops.push(i));
   }
   return H;
+}
+
+// ---------- tronçons communs dessinés en parallèle ----------
+// Données préparées par build/post.py : par ligne, des tronçons de tracé et, en chaque point, une place
+// dans le faisceau (slot). On décale chaque point de slot × écartement, perpendiculairement au tracé.
+const LN = (net.D.LN || []).map(([r, c, sl]) => {
+  const xs = [], ys = []; let x = 0, y = 0, x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+  for (let i = 0; i < c.length; i += 2) { x += c[i]; y += c[i + 1]; const X = PX(x / 1e5), Y = PY(y / 1e5); xs.push(X); ys.push(Y); x0 = Math.min(x0, X); x1 = Math.max(x1, X); y0 = Math.min(y0, Y); y1 = Math.max(y1, Y); }
+  return { r, xs, ys, sl: sl.map((v) => v / 4), box: [x0, y0, x1, y1] };
+});
+const lnByRoute = net.R.map(() => []); LN.forEach((f) => lnByRoute[f.r].push(f));
+function offsetPath(f, sp) {
+  const n = f.xs.length, P = new Array(n);
+  for (let i = 0; i < n; i++) P[i] = toS(f.xs[i], f.ys[i]);
+  ctx.beginPath();
+  for (let i = 0; i < n; i++) {
+    const a = P[Math.max(0, i - 1)], b = P[i], c = P[Math.min(n - 1, i + 1)];
+    let n1x = 0, n1y = 0, n2x = 0, n2y = 0;
+    const d1 = Math.hypot(b[0] - a[0], b[1] - a[1]), d2 = Math.hypot(c[0] - b[0], c[1] - b[1]);
+    if (d1 > 1e-6) { n1x = -(b[1] - a[1]) / d1; n1y = (b[0] - a[0]) / d1; }
+    if (d2 > 1e-6) { n2x = -(c[1] - b[1]) / d2; n2y = (c[0] - b[0]) / d2; }
+    if (!d1) { n1x = n2x; n1y = n2y; } if (!d2) { n2x = n1x; n2y = n1y; }
+    let mx = n1x + n2x, my = n1y + n2y; const ml = Math.hypot(mx, my) || 1; mx /= ml; my /= ml;
+    const k = f.sl[i] * sp / Math.max(0.55, mx * n2x + my * n2y);
+    const X = b[0] - mx * k, Y = b[1] - my * k;
+    i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y);
+  }
+}
+
+// ---------- fond de carte (rues) ----------
+// Tuiles CARTO (données OpenStreetMap), claires ou sombres selon le thème. Pas sur claude.ai, qui les bloque.
+const TILES_OK = !/claude/.test(location.hostname);
+const tileCache = new Map(); let tilesLoading = 0;
+const isDark = () => { const t = document.documentElement.dataset.theme; return t === "dark" || (t !== "light" && matchMedia("(prefers-color-scheme: dark)").matches); };
+function tileImg(style, z, x, y) {
+  const key = style + "/" + z + "/" + x + "/" + y;
+  let e = tileCache.get(key);
+  if (!e) {
+    if (tilesLoading > 24) return null;
+    const img = new Image(); e = { img, ok: false, t: 0 };
+    img.onload = () => { e.ok = true; tilesLoading--; drawMap(); };
+    img.onerror = () => { e.err = true; tilesLoading--; };
+    tilesLoading++;
+    img.src = `https://${"abcd"[(x + y) % 4]}.basemaps.cartocdn.com/${style}/${z}/${x}/${y}${DPR > 1 ? "@2x" : ""}.png`;
+    tileCache.set(key, e);
+    if (tileCache.size > 400) { for (const [k, v] of tileCache) { if (v.ok || v.err) { tileCache.delete(k); if (tileCache.size <= 320) break; } } }
+  }
+  e.t = performance.now();
+  return e.ok ? e.img : null;
+}
+function drawTiles() {
+  if (!TILES_OK) return;
+  const zf = Math.log2(view.s * 360 * KX / 256);
+  const z = Math.max(9, Math.min(19, Math.round(zf))), N = 2 ** z;
+  const style = (isDark() ? "dark_" : "light_") + (z >= 15 ? "all" : "nolabels");
+  const tx = (X) => (IX(X) + 180) / 360 * N, ty = (Y) => (1 - Y / (180 * KX)) / 2 * N;
+  const [ax, ay] = fromS(0, 0), [bx, by] = fromS(W, H);
+  const x0 = Math.floor(tx(ax)), x1 = Math.floor(tx(bx)), y0 = Math.floor(ty(ay)), y1 = Math.floor(ty(by));
+  const sx = (i) => toS(PX(i / N * 360 - 180), 0)[0], sy = (j) => toS(0, (1 - 2 * j / N) * 180 * KX)[1];
+  ctx.imageSmoothingQuality = "high";
+  for (let j = y0; j <= y1; j++) for (let i = x0; i <= x1; i++) {
+    if (j < 0 || j >= N) continue;
+    const X0 = sx(i), X1 = sx(i + 1), Y0 = sy(j), Y1 = sy(j + 1);
+    const img = tileImg(style, z, ((i % N) + N) % N, j);
+    if (img) { ctx.drawImage(img, X0, Y0, X1 - X0 + 0.5, Y1 - Y0 + 0.5); continue; }
+    // en attendant : la tuile parente déjà chargée, agrandie
+    for (let up = 1; up <= 4; up++) {
+      const pz = z - up, pi = i >> up, pj = j >> up, k = 1 << up;
+      const e = tileCache.get(style + "/" + pz + "/" + pi + "/" + pj);
+      if (e && e.ok) { const w = e.img.naturalWidth / k, h = e.img.naturalHeight / k; ctx.drawImage(e.img, (i - pi * k) * w, (j - pj * k) * h, w, h, X0, Y0, X1 - X0 + 0.5, Y1 - Y0 + 0.5); break; }
+    }
+  }
+  // voile léger : les lignes du réseau restent au premier plan
+  ctx.globalAlpha = isDark() ? 0.18 : 0.22; ctx.fillStyle = css("--map-bg"); ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1;
 }
 
 let raf = 0, hover = null, lastVeh = [];
@@ -165,6 +244,8 @@ function paint() {
   const C = { bg: css("--map-bg"), ink: css("--ink"), surf: css("--surface"), muted: css("--muted"), ok: css("--ok"), th: css("--theo"), me: css("--me"), font: css("--font-display") };
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
   ctx.fillStyle = C.bg; ctx.fillRect(0, 0, W, H);
+  drawTiles();
+  const caseC = css("--map-case");
   const hl = highlight();
   const z = view.s / 9000;
   const lw = Math.max(1.6, Math.min(6, 2.2 * Math.pow(z, 0.55)));
@@ -172,15 +253,20 @@ function paint() {
   const focus = hl.routes && hl.routes.size > 0;
   const journey = hl.legs.length > 0;
   const order = net.R.map((r, i) => i).sort((a, b) => ((hl.routes?.has(a) ? 1 : 0) - (hl.routes?.has(b) ? 1 : 0)) || ((net.R[a].m === 1) - (net.R[b].m === 1)));
+  // écartement entre lignes parallèles (px) : un peu plus que l'épaisseur d'un trait
+  const sp = lw * 1.35 + 1.4;
+  const [vx0, vy1] = fromS(-40, -40), [vx1, vy0] = fromS(W + 40, H + 40);
+  const visible = (b) => !(b[2] < vx0 || b[0] > vx1 || b[3] < vy0 || b[1] > vy1);
   for (const pass of [0, 1]) {
     for (const ri of order) {
       const on = !focus || hl.routes.has(ri);
       const strong = on && focus && !journey;
-      const w = (net.R[ri].m === 1 ? lw * 1.7 : lw) * (strong ? 1.5 : 1);
+      const w = (net.R[ri].m === 1 ? lw * 1.3 : lw) * (strong ? 1.5 : 1);
       ctx.globalAlpha = !focus ? 1 : journey ? 0.16 : on ? 1 : 0.14;
-      if (pass === 0) { if (ctx.globalAlpha < 0.5) continue; ctx.strokeStyle = C.bg; ctx.lineWidth = w + 3; }
+      if (pass === 0) { if (ctx.globalAlpha < 0.5) continue; ctx.strokeStyle = caseC; ctx.lineWidth = w + 3; }
       else { ctx.strokeStyle = net.R[ri].c; ctx.lineWidth = w; }
-      for (const k of routeShapes[ri]) { path(keyToPts.get(k)); ctx.stroke(); }
+      if (LN.length) { for (const f of lnByRoute[ri]) { if (visible(f.box)) { offsetPath(f, sp); ctx.stroke(); } } }
+      else for (const k of routeShapes[ri]) { path(keyToPts.get(k)); ctx.stroke(); }
     }
   }
   ctx.globalAlpha = 1;
@@ -269,7 +355,7 @@ function paint() {
       ctx.fillStyle = R.c; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = C.surf; ctx.stroke();
       if (mine) { ctx.beginPath(); ctx.arc(v.sx, v.sy, rad + 3.5, 0, 7); ctx.lineWidth = 2.5; ctx.strokeStyle = C.ink; ctx.stroke(); }
       if (rad >= 9) {
-        const txt = R.s === "TRAM" ? "T" : R.s;
+        const txt = R.s;
         ctx.font = `700 ${txt.length > 2 ? (mine ? 10.5 : 9) : (mine ? 12.5 : 10.5)}px ${C.font}`; ctx.textAlign = "center"; ctx.fillStyle = R.t; ctx.fillText(txt, v.sx, v.sy + 0.5); ctx.textAlign = "start";
       }
       ctx.beginPath(); ctx.arc(v.sx + rad * 0.72, v.sy - rad * 0.72, rad >= 9 ? 3.8 : 2.6, 0, 7);
@@ -282,11 +368,16 @@ function paint() {
   const nice = [50, 100, 200, 250, 500, 1000, 2000, 5000, 10000, 20000].find((m) => m / mpp >= 56) || 20000;
   const len = nice / mpp;
   const mob = isMobile();
-  const bx = mob ? 14 : W - len - 16, by = mob ? topInset() + 26 : H - 18;
+  const bx = mob ? 14 : W - len - 16, by = mob ? topInset() + 26 : H - 20;
   ctx.strokeStyle = C.ink; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(bx, by - 5); ctx.lineTo(bx, by); ctx.lineTo(bx + len, by); ctx.lineTo(bx + len, by - 5); ctx.stroke();
   ctx.font = `600 11.5px ${C.font}`; ctx.fillStyle = C.ink; ctx.textAlign = "center";
   ctx.lineWidth = 3; ctx.strokeStyle = C.bg; const st = nice >= 1000 ? nice / 1000 + " km" : nice + " m";
   ctx.strokeText(st, bx + len / 2, by - 10); ctx.fillText(st, bx + len / 2, by - 10); ctx.textAlign = "start";
+  if (TILES_OK) {
+    ctx.font = `500 10px ${C.font}`; ctx.textAlign = mob ? "left" : "right"; ctx.lineWidth = 3; ctx.strokeStyle = C.bg; ctx.fillStyle = C.muted;
+    const at = "© OpenStreetMap · © CARTO", ax = mob ? 14 : W - 12, ay = mob ? topInset() + 44 : H - 6;
+    ctx.strokeText(at, ax, ay); ctx.fillText(at, ax, ay); ctx.textAlign = "start";
+  }
   placePop();
 }
 
