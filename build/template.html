@@ -296,6 +296,8 @@ table.tt td.live.late { color: var(--late); }
 
 /* suivi d'un bus */
 .fhead { display: flex; gap: 10px; align-items: center; }
+.mbt-bus.gps::after { content: ""; position: absolute; right: -4px; top: -4px; width: 11px; height: 11px; border-radius: 50%; background: #1a73e8; border: 2px solid var(--surface); box-shadow: 0 0 0 1px rgb(0 0 0 / .15); }
+.gpsdot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #1a73e8; margin-right: 6px; vertical-align: 1px; }
 /* Mon bus : haut fixe (en-tête, alertes, carte « Prochain arrêt ») et plein écran */
 .mbtop { position: sticky; top: 0; z-index: 5; background: var(--surface); margin: -6px -16px 0; padding: 6px 16px 8px; display: flex; flex-direction: column; gap: 12px; }
 #fo-close { display: none; }
@@ -854,7 +856,7 @@ function toggleFavTrip(a, b) { const A = pName(a), B = pName(b); fav.trips = isF
 function setStar(btn, on) { btn.innerHTML = starSvg; btn.setAttribute("aria-pressed", on); }
 
 // ---------- position de l'utilisateur ----------
-const ME = { pos: null, acc: 0, watching: false, err: "" };
+const ME = { pos: null, acc: 0, watching: false, err: "", hist: [] };
 function distM(lat1, lon1, lat2, lon2) { const R = 6371000, r = Math.PI / 180; const a = Math.sin((lat2 - lat1) * r / 2) ** 2 + Math.cos(lat1 * r) * Math.cos(lat2 * r) * Math.sin((lon2 - lon1) * r / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(a)); }
 function nearestStops(n = 5, maxD = 1200) {
   if (!ME.pos) return [];
@@ -867,6 +869,7 @@ function locate(onOk, quiet) {
   try {
     navigator.geolocation.watchPosition((p) => {
       const first = !ME.pos; ME.pos = [p.coords.latitude, p.coords.longitude]; ME.acc = p.coords.accuracy; ME.err = "";
+      ME.hist.push({ t: Date.now(), lat: p.coords.latitude, lon: p.coords.longitude, acc: p.coords.accuracy || 30 }); while (ME.hist.length && Date.now() - ME.hist[0].t > 180000) ME.hist.shift();
       store.set("geo", true);
       if (first) { if (onOk) onOk(); if (S.view === "accueil") renderHome(); }
       drawMap();
@@ -1275,6 +1278,65 @@ function tripState(pi, k, dk) {
   const next = state === "before" ? 0 : state === "done" ? p.nS - 1 : atStop ? i : i + 1;
   return { p, live, at, dp, sched: (i) => p.A[o + i] + off, state, i, atStop, t, pos, next };
 }
+// ---------- #06 : je suis dans le bus suivi → le bus est calé sur ma position ----------
+// Détection prudente (~1 min) : sur le tracé, dans le sens du bus, à vitesse de véhicule, près de sa position
+// estimée, au moins un arrêt passé ensemble. Sert seulement dans Mon bus (carte du haut, alertes, thermomètre).
+const BOARD = { key: "", on: false, since: 0, offAt: 0 };
+let M_PER_U = 0;
+function userOnPat(pi, s) {
+  const g = patGeo(pi);
+  if (!M_PER_U) M_PER_U = distM(49.25, 4.03, 49.25, 4.04) / (PX(4.04) - PX(4.03));
+  const x = PX(s.lon), y = PY(s.lat); let best = null;
+  for (let i = 0; i < g.pts.length - 1; i++) {
+    const [ax, ay] = g.pts[i], [bx, by] = g.pts[i + 1], dx = bx - ax, dy = by - ay, L2 = dx * dx + dy * dy || 1e-18;
+    const t = Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / L2));
+    const d2 = (ax + t * dx - x) ** 2 + (ay + t * dy - y) ** 2;
+    if (!best || d2 < best.d2) best = { d2, along: g.cum[i] + t * Math.sqrt(L2) };
+  }
+  return best ? { off: Math.sqrt(best.d2) * M_PER_U, d: best.along * M_PER_U } : null;
+}
+function boardAdjust(st, pi, k, dk) {
+  const key = [pi, k, dk].join(":");
+  if (BOARD.key !== key) Object.assign(BOARD, { key, on: false, since: 0, offAt: 0 });
+  if (st.state !== "running" || !ME.hist.length || typeof patGeo !== "function") { BOARD.on = false; return st; }
+  const g = patGeo(pi), now = Date.now();
+  if (!M_PER_U) userOnPat(pi, ME.hist[ME.hist.length - 1]);
+  const sm = g.sOff.map((v) => v * M_PER_U);
+  const pts = ME.hist.filter((h) => now - h.t < 75000).map((h) => ({ ...h, ...userOnPat(pi, h) }));
+  const last = pts[pts.length - 1];
+  if (!last || now - last.t > 30000) { BOARD.on = false; return st; }
+  const onRoute = (h) => h.off <= Math.max(45, Math.min(80, h.acc));
+  // position estimée du bus le long du tracé (m)
+  const posToD = (pos) => { const i = Math.max(0, Math.min(sm.length - 2, Math.floor(pos))); return sm[i] + (pos - i) * (sm[i + 1] - sm[i]); };
+  if (!BOARD.on) {
+    const w = pts.filter((h) => now - h.t < 70000);
+    const span = w.length ? (w[w.length - 1].t - w[0].t) / 1000 : 0;
+    const prog = w.length ? w[w.length - 1].d - w[0].d : 0;
+    const back = w.some((h, j) => j && h.d < w[j - 1].d - 40);
+    const passed = w.length && sm.some((v) => v > w[0].d + 5 && v < w[w.length - 1].d - 5);
+    const near = Math.abs(last.d - posToD(st.pos)) < Math.max(450, 1.6 * (sm[Math.min(sm.length - 1, st.next)] - sm[Math.max(0, st.next - 1)]));
+    if (w.length >= 4 && span >= 45 && w.every(onRoute) && !back && prog >= 100 && prog / span >= 1.5 && (passed || prog >= 250) && near) { BOARD.on = true; BOARD.since = now; BOARD.offAt = 0; }
+  } else {
+    if (!onRoute(last)) { BOARD.offAt = BOARD.offAt || now; if (now - BOARD.offAt > 25000) BOARD.on = false; } else BOARD.offAt = 0;
+    // descendu et reparti à pied : quasi immobile ou lent depuis 60 s loin de tout arrêt du parcours
+    const w = pts.filter((h) => now - h.t < 60000);
+    if (w.length >= 4 && (w[w.length - 1].t - w[0].t) > 50000 && Math.abs(w[w.length - 1].d - w[0].d) < 25 && Math.min(...w.map((h) => h.off)) > 30) BOARD.on = false;
+  }
+  if (!BOARD.on) return st;
+  // le bus est là où je suis : position le long du parcours (en arrêts) et horaires suivants décalés d'autant
+  const d = Math.max(sm[0], Math.min(sm[sm.length - 1], last.d));
+  let i = 0; while (i < sm.length - 2 && sm[i + 1] <= d) i++;
+  const f = sm[i + 1] > sm[i] ? (d - sm[i]) / (sm[i + 1] - sm[i]) : 0;
+  const atStop = d - sm[i] < 20 || sm[i + 1] - d < 20;
+  const ci = atStop && sm[i + 1] - d < 20 ? i + 1 : i;
+  const pos = atStop ? ci : i + f;
+  const tAt = atStop ? st.at(ci) : st.dp(i) + f * (st.at(i + 1) - st.dp(i));
+  const shift = st.t - tAt;
+  const at = (j) => (j > pos ? st.at(j) + shift : st.at(j)), dp = (j) => (j > pos ? st.dp(j) + shift : st.dp(j));
+  const next = atStop ? ci : i + 1;
+  return { ...st, gps: true, i: ci, pos, atStop, next, at, dp };
+}
+
 function startFollow(pi, k, dk, fromStop, destStop) {
   const p = net.pats[pi];
   let dest = null;
@@ -1284,6 +1346,7 @@ function startFollow(pi, k, dk, fromStop, destStop) {
   S.guide = null;
   S.follow = { pi, k, dk, dest, from, alert: true };
   S.followFree = false;
+  BOARD.key = ""; locate(null, true); // #06 : ma position sert à caler le bus si je suis dedans
   if (S.view !== "suivi") S.prevView = S.view;
   store.set("follow", { tid: null, pi, k, dk, dest, at: Date.now() });
   go("suivi");
@@ -1364,7 +1427,7 @@ function renderFollow() {
   if (S.guide) guideTick();
   if (!S.follow) { if (!S.guide) { el.innerHTML = `<div class="empty">Aucun bus suivi. Touchez un horaire dans Passages ou un bus sur le plan.</div>`; MB.key = ""; } return; }
   const { pi, k, dk, from } = S.follow, dest = S.follow.dest;
-  const st = tripState(pi, k, dk), p = st.p, R = net.R[p.r];
+  const st = boardAdjust(tripState(pi, k, dk), pi, k, dk), p = st.p, R = net.R[p.r];
   const key = [pi, k, dk, from, dest, !!S.guide].join(":");
   if (MB.key !== key) {
     MB.key = key; MB.lastNext = -1;
@@ -1395,7 +1458,7 @@ function renderFollow() {
   const nS = p.nS, next = st.next, t = st.t;
   const near = st.state === "running" && !st.atStop && st.at(next) - t <= 1.1;
   const delay = Math.round(st.at(Math.min(nS - 1, next)) - st.sched(Math.min(nS - 1, next)));
-  $("#mb-status").innerHTML = `${dot(st.live)}${st.live ? `Temps réel · ${delay >= 1 ? "retard " + delay + " min" : delay <= -1 ? "avance " + -delay + " min" : "à l'heure"}` : "Horaire théorique (position estimée)"}`;
+  $("#mb-status").innerHTML = st.gps ? `<i class="gpsdot"></i>À bord · position GPS${delay >= 1 ? " · retard " + delay + " min" : ""}` : `${dot(st.live)}${st.live ? `Temps réel · ${delay >= 1 ? "retard " + delay + " min" : delay <= -1 ? "avance " + -delay + " min" : "à l'heure"}` : "Horaire théorique (position estimée)"}`;
   // ligne : arrêts passés, arrêt suivant, bus
   // en attente au terminus ou à un arrêt : bus immobile sur l'arrêt, halo lent, étiquette ; en route : chevrons
   const waiting = st.state === "before" || st.atStop, waitAt = st.state === "before" ? 0 : st.i;
@@ -1403,6 +1466,7 @@ function renderFollow() {
   $("#mb-bus").style.top = busTop + "px";
   $("#mb-bus").classList.toggle("hide", st.state === "done");
   $("#mb-bus").classList.toggle("wait", waiting);
+  $("#mb-bus").classList.toggle("gps", !!st.gps);
   // les chevrons partent de sous le bus et vont un peu au-delà de l'arrêt suivant, en s'estompant
   const goTop = busTop, goEnd = (Math.min(nS - 1, next + 0.6) - MB.first) * ROWH + ROWH / 2;
   const goEl = $("#mb-go"), showGo = st.state === "running" && !st.atStop && goEnd - goTop >= 24; // pas « go » : c'est la fonction de navigation
@@ -1511,7 +1575,7 @@ function mbCenter(st, instant) {
   clearTimeout(MB.progT); MB.progT = setTimeout(() => { MB.progScroll = false; }, 800);
 }
 // plein écran de Mon bus : en tirant le panneau tout en haut, le plan, l'en-tête et les onglets s'effacent
-if (/[?&]simu=/.test(location.search)) window.__t = { startFollow: (...a) => startFollow(...a), tripState: (...a) => tripState(...a), setSheet: (x) => setSheet(x), todayIdx: () => todayIdx(), net: () => net, MB };
+if (/[?&]simu=/.test(location.search)) window.__t = { startFollow: (...a) => startFollow(...a), tripState: (...a) => tripState(...a), setSheet: (x) => setSheet(x), todayIdx: () => todayIdx(), net: () => net, MB, shape: (pi) => shapeOfPat[pi], BOARD, ME, onPat: userOnPat };
 function updMbFull() { document.body.classList.toggle("mbfull", isMobile() && S.view === "suivi" && sheetState === "full"); }
 
 const renderFollowBg = () => renderFollow();
