@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-05T15:23:03Z",
+ "at": "2026-11-06T00:18:02Z",
  "items": [
   {
    "id": "20acd05e39",
@@ -273,7 +273,12 @@
        "au 20 rue du Docteur Lemoine",
        1
       ]
-     ]
+     ],
+     "geo": {
+      "lat": 49.264944,
+      "lon": 4.03946,
+      "a": "20 rue du Docteur Lemoine"
+     }
     },
     {
      "img": "https://prod.deviations.info/carte/grandreims/public/img/86717.jpg"
@@ -286,7 +291,9 @@
       ]
      ]
     }
-   ]
+   ],
+   "rt": false,
+   "sec": "infos trafic par ligne"
   },
   {
    "id": "bcf248c5c4",
@@ -325,7 +332,12 @@
        "au 179 rue de Neufchâtel",
        1
       ]
-     ]
+     ],
+     "geo": {
+      "lat": 49.278661,
+      "lon": 4.026916,
+      "a": "179 rue de Neufchâtel"
+     }
     },
     {
      "l": "U4",
@@ -354,7 +366,12 @@
        "au 179 rue de Neufchâtel",
        1
       ]
-     ]
+     ],
+     "geo": {
+      "lat": 49.278661,
+      "lon": 4.026916,
+      "a": "179 rue de Neufchâtel"
+     }
     },
     {
      "r": [
@@ -364,7 +381,9 @@
       ]
      ]
     }
-   ]
+   ],
+   "rt": false,
+   "sec": "infos trafic par ligne"
   },
   {
    "id": "16eb3530f2",
@@ -412,7 +431,9 @@
       ]
      ]
     }
-   ]
+   ],
+   "rt": false,
+   "sec": "infos trafic par ligne"
   },
   {
    "id": "e1166714f6",
@@ -452,7 +473,9 @@
       ]
      ]
     }
-   ]
+   ],
+   "rt": false,
+   "sec": "infos trafic par ligne"
   },
   {
    "id": "f8feabe17f",
@@ -470,7 +493,9 @@
       ]
      ]
     }
-   ]
+   ],
+   "rt": false,
+   "sec": "infos trafic par ligne"
   },
   {
    "id": "391d31b0d6",
@@ -606,7 +631,9 @@
       ]
      ]
     }
-   ]
+   ],
+   "rt": false,
+   "sec": "infos trafic par ligne"
   },
   {
    "id": "1539d33ccb",
@@ -656,7 +683,9 @@
       ]
      ]
     }
-   ]
+   ],
+   "rt": false,
+   "sec": "infos trafic par ligne"
   },
   {
    "id": "2f036d5c93",
@@ -753,7 +782,12 @@
        "au 14 rue Pierre Maitre",
        1
       ]
-     ]
+     ],
+     "geo": {
+      "lat": 49.262776,
+      "lon": 4.005758,
+      "a": "14 rue Pierre Maitre"
+     }
     },
     {
      "img": "https://prod.deviations.info/carte/grandreims/public/img/86603.jpg"
@@ -766,7 +800,9 @@
       ]
      ]
     }
-   ]
+   ],
+   "rt": false,
+   "sec": "infos trafic par ligne"
   },
   {
    "id": "25a156ef9e",
@@ -815,7 +851,9 @@
       ]
      ]
     }
-   ]
+   ],
+   "rt": false,
+   "sec": "infos trafic par ligne"
   },
   {
    "id": "7f0499f1fe",
@@ -894,7 +932,9 @@
       ]
      ]
     }
-   ]
+   ],
+   "rt": false,
+   "sec": "infos trafic par ligne"
   },
   {
    "id": "32c957c36c",
@@ -935,7 +975,12 @@
        "au niveau du 7 rue Eugène Desteuque",
        1
       ]
-     ]
+     ],
+     "geo": {
+      "lat": 49.255376,
+      "lon": 4.036537,
+      "a": "7 rue Eugène Desteuque"
+     }
     },
     {
      "l": "E3",
@@ -964,7 +1009,12 @@
        "au niveau du 7 rue Eugène Desteuque",
        1
       ]
-     ]
+     ],
+     "geo": {
+      "lat": 49.255376,
+      "lon": 4.036537,
+      "a": "7 rue Eugène Desteuque"
+     }
     },
     {
      "l": "E4",
@@ -993,7 +1043,12 @@
        "au niveau du 7 rue Eugène Desteuque",
        1
       ]
-     ]
+     ],
+     "geo": {
+      "lat": 49.255376,
+      "lon": 4.036537,
+      "a": "7 rue Eugène Desteuque"
+     }
     },
     {
      "r": [
@@ -1003,7 +1058,9 @@
       ]
      ]
     }
-   ]
+   ],
+   "rt": false,
+   "sec": "infos trafic par ligne"
   },
   {
    "id": "b7890436b6",
@@ -1052,7 +1109,9 @@
       ]
      ]
     }
-   ]
+   ],
+   "rt": false,
+   "sec": "infos trafic par ligne"
   },
   {
    "id": "2ea8abe072",
@@ -1091,7 +1150,12 @@
        "face au 104 Bld Albert 1er",
        1
       ]
-     ]
+     ],
+     "geo": {
+      "lat": 49.269308,
+      "lon": 4.010898,
+      "a": "104 boulevard Albert 1er"
+     }
     },
     {
      "l": "U3",
@@ -1120,7 +1184,12 @@
        "au 106 Bld Albert 1er",
        1
       ]
-     ]
+     ],
+     "geo": {
+      "lat": 49.269391,
+      "lon": 4.010913,
+      "a": "106 boulevard Albert 1er"
+     }
     },
     {
      "l": "U3",
@@ -1149,7 +1218,12 @@
        "face au 104 Bld Albert 1er",
        1
       ]
-     ]
+     ],
+     "geo": {
+      "lat": 49.269308,
+      "lon": 4.010898,
+      "a": "104 boulevard Albert 1er"
+     }
     },
     {
      "l": "U3",
@@ -1178,7 +1252,12 @@
        "au 106 Bld Albert 1er",
        1
       ]
-     ]
+     ],
+     "geo": {
+      "lat": 49.269391,
+      "lon": 4.010913,
+      "a": "106 boulevard Albert 1er"
+     }
     },
     {
      "l": "U3",
@@ -1365,7 +1444,9 @@
       ]
      ]
     }
-   ]
+   ],
+   "rt": false,
+   "sec": "infos trafic par ligne"
   },
   {
    "id": "f9f6989857",
@@ -1520,7 +1601,12 @@
        "au 57 bld du Président Wilson (ex arrêt WILSON de la ligne 2)",
        1
       ]
-     ]
+     ],
+     "geo": {
+      "lat": 49.236457,
+      "lon": 4.026221,
+      "a": "57 boulevard du Président Wilson"
+     }
     },
     {
      "l": "U5",
@@ -1549,7 +1635,12 @@
        "face au 61 bld du Président Wilson (ex arrêt WILSON de la ligne 2)",
        1
       ]
-     ]
+     ],
+     "geo": {
+      "lat": 49.235382,
+      "lon": 4.027754,
+      "a": "61 boulevard du Président Wilson"
+     }
     },
     {
      "l": "U5",
@@ -1578,7 +1669,12 @@
        "face au 61 bld du Président Wilson (ex arrêt WILSON de la ligne 2)",
        1
       ]
-     ]
+     ],
+     "geo": {
+      "lat": 49.235382,
+      "lon": 4.027754,
+      "a": "61 boulevard du Président Wilson"
+     }
     },
     {
      "l": "U5",
@@ -1607,7 +1703,12 @@
        "au 57 bld du Président Wilson (ex arrêt WILSON de la ligne 2)",
        1
       ]
-     ]
+     ],
+     "geo": {
+      "lat": 49.236457,
+      "lon": 4.026221,
+      "a": "57 boulevard du Président Wilson"
+     }
     },
     {
      "img": "https://prod.deviations.info/carte/grandreims/public/img/86421.jpg"
@@ -1620,7 +1721,9 @@
       ]
      ]
     }
-   ]
+   ],
+   "rt": false,
+   "sec": "infos trafic par ligne"
   },
   {
    "id": "f168938f84",
@@ -1659,7 +1762,12 @@
        "(100 mètres après) au niveau du 15 Bld Louis Barthou",
        1
       ]
-     ]
+     ],
+     "geo": {
+      "lat": 49.233404,
+      "lon": 4.031768,
+      "a": "15 boulevard Louis Barthou"
+     }
     },
     {
      "l": "O2",
@@ -1688,7 +1796,12 @@
        "(100 mètres avant) au niveau du 18 Bld Louis Barthou",
        1
       ]
-     ]
+     ],
+     "geo": {
+      "lat": 49.233146,
+      "lon": 4.030819,
+      "a": "18 boulevard Louis Barthou"
+     }
     },
     {
      "r": [
@@ -1698,7 +1811,9 @@
       ]
      ]
     }
-   ]
+   ],
+   "rt": false,
+   "sec": "infos trafic par ligne"
   },
   {
    "id": "f118b20ae9",
@@ -1777,7 +1892,9 @@
       ]
      ]
     }
-   ]
+   ],
+   "rt": false,
+   "sec": "infos trafic par ligne"
   },
   {
    "id": "34f3c220d0",
@@ -1826,7 +1943,9 @@
       ]
      ]
     }
-   ]
+   ],
+   "rt": false,
+   "sec": "infos trafic par ligne"
   },
   {
    "id": "ed1db1ef0e",
@@ -1907,7 +2026,9 @@
       ]
      ]
     }
-   ]
+   ],
+   "rt": false,
+   "sec": "infos trafic par ligne"
   },
   {
    "id": "10b804cffd",
@@ -1931,7 +2052,9 @@
       ]
      ]
     }
-   ]
+   ],
+   "rt": false,
+   "sec": "infos trafic par ligne"
   },
   {
    "id": "cb96a7d272",
@@ -1970,7 +2093,12 @@
        "au 4 Chemin de la Billotière",
        1
       ]
-     ]
+     ],
+     "geo": {
+      "lat": 49.336348,
+      "lon": 4.149237,
+      "a": "4 Chemin de la Billotière"
+     }
     },
     {
      "l": "E3",
@@ -2012,7 +2140,9 @@
       ]
      ]
     }
-   ]
+   ],
+   "rt": false,
+   "sec": "infos trafic par ligne"
   },
   {
    "id": "e29d74191b",
@@ -2119,7 +2249,9 @@
       ]
      ]
     }
-   ]
+   ],
+   "rt": false,
+   "sec": "infos trafic par ligne"
   },
   {
    "id": "92830cbe2a",
@@ -2171,7 +2303,9 @@
       ]
      ]
     }
-   ]
+   ],
+   "rt": false,
+   "sec": "infos trafic par ligne"
   },
   {
    "id": "b04f0f8730",
@@ -2212,7 +2346,12 @@
        "au niveau du 29 avenue de Paris",
        1
       ]
-     ]
+     ],
+     "geo": {
+      "lat": 49.248413,
+      "lon": 4.011839,
+      "a": "29 avenue de Paris"
+     }
     },
     {
      "l": "U7",
@@ -2283,7 +2422,9 @@
       ]
      ]
     }
-   ]
+   ],
+   "rt": false,
+   "sec": "infos trafic par ligne"
   },
   {
    "id": "0a42915a79",
@@ -2451,7 +2592,9 @@
       ]
      ]
     }
-   ]
+   ],
+   "rt": false,
+   "sec": "infos trafic par ligne"
   },
   {
    "id": "23d9c88ab7",
@@ -2636,7 +2779,12 @@
        "face au 12 rue du Champ de Mars",
        1
       ]
-     ]
+     ],
+     "geo": {
+      "lat": 49.262441,
+      "lon": 4.034651,
+      "a": "12 rue du Champ de Mars"
+     }
     },
     {
      "l": "U4",
@@ -2665,7 +2813,12 @@
        "au 84 rue Lesage",
        1
       ]
-     ]
+     ],
+     "geo": {
+      "lat": 49.267554,
+      "lon": 4.03202,
+      "a": "84 rue Lesage"
+     }
     },
     {
      "img": "https://grandreims-mobilites.fr/photos/ImportsEditeur/image_9587.png"
@@ -2678,7 +2831,9 @@
       ]
      ]
     }
-   ]
+   ],
+   "rt": false,
+   "sec": "infos trafic par ligne"
   }
  ]
 }
