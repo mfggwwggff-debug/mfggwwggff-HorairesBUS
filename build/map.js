@@ -350,6 +350,11 @@ function paint() {
       ctx.beginPath(); ctx.arc(x, y, 14, 0, 7); ctx.fillStyle = al; ctx.globalAlpha = 0.18; ctx.fill(); ctx.globalAlpha = 1;
       ctx.beginPath(); ctx.arc(x, y, 8, 0, 7); ctx.fillStyle = C.surf; ctx.fill(); ctx.lineWidth = 3.5; ctx.strokeStyle = al; ctx.stroke();
     }
+    for (const i of hl.tr.old) {
+      const [x, y] = geoS(net.P[i][2], net.P[i][1]);
+      ctx.beginPath(); ctx.arc(x, y, 8, 0, 7); ctx.fillStyle = C.surf; ctx.fill(); ctx.lineWidth = 2.2; ctx.strokeStyle = C.muted; ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x - 4, y - 4); ctx.lineTo(x + 4, y + 4); ctx.moveTo(x + 4, y - 4); ctx.lineTo(x - 4, y + 4); ctx.lineWidth = 2; ctx.stroke();
+    }
     // arrêt provisoire à une adresse : point orange et l'adresse à côté
     for (const g of hl.tr.geo || []) {
       const [x, y] = geoS(g.lon, g.lat);
@@ -357,11 +362,6 @@ function paint() {
       ctx.beginPath(); ctx.arc(x, y, 8, 0, 7); ctx.fillStyle = C.surf; ctx.fill(); ctx.lineWidth = 3.5; ctx.strokeStyle = al; ctx.stroke();
       ctx.font = `600 11.5px ${C.font}`; ctx.lineWidth = 3.5; ctx.strokeStyle = C.surf; ctx.fillStyle = C.ink;
       ctx.strokeText(g.a, x + 14, y + 4); ctx.fillText(g.a, x + 14, y + 4);
-    }
-    for (const i of hl.tr.old) {
-      const [x, y] = geoS(net.P[i][2], net.P[i][1]);
-      ctx.beginPath(); ctx.arc(x, y, 8, 0, 7); ctx.fillStyle = C.surf; ctx.fill(); ctx.lineWidth = 2.2; ctx.strokeStyle = C.muted; ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(x - 4, y - 4); ctx.lineTo(x + 4, y + 4); ctx.moveTo(x + 4, y - 4); ctx.lineTo(x - 4, y + 4); ctx.lineWidth = 2; ctx.stroke();
     }
   }
   // ma position
