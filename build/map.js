@@ -34,16 +34,39 @@ const STRONG = new Set(["O1", "O2", "U1", "U2"]);
 const lineK = (ri) => net.R[ri].m === 1 ? 1.4 : STRONG.has(net.R[ri].s) ? 1 : 0.72;
 // express et C : pointillés clairs dans le trait
 const dotted = (ri) => /^E\d|^C$/.test(net.R[ri].s);
+// pôles en capsule : autour de Gare Centre et d'Opéra, le plan resserre les lignes vers le pôle (sur ~260 m),
+// les quais se regroupent et une capsule les réunit. Le tram garde son vrai tracé. Affichage seulement :
+// les calculs (itinéraires, marche) gardent les vraies positions.
+// encore en essai : seulement sur la page de test
+const CAPS_ON = /\/test\//.test(location.pathname);
+const POLES = (CAPS_ON ? ["Gare de Reims - Centre", "Opéra-Cathédrale"] : []).map((nm) => net.P.findIndex((p) => p[0] === nm)).filter((i) => i >= 0).map((i) => {
+  const qs = net.P[i][3].filter((q) => net.pats.some((p) => net.R[p.r].m !== 1 && p.stops.includes(q)));
+  const cx = qs.reduce((a, q) => a + PX(net.Q[q][2]), 0) / qs.length, cy = qs.reduce((a, q) => a + PY(net.Q[q][1]), 0) / qs.length;
+  return { P: i, qs, cx, cy, R: 260 / 111320 };
+});
+const WARP_A = 0.3;
+function warp(x, y) {
+  for (const o of POLES) {
+    const dx = x - o.cx, dy = y - o.cy, d = Math.hypot(dx, dy);
+    if (d >= o.R || d < 1e-12) continue;
+    const u = d / o.R, h = u + (WARP_A - 1) * u * (1 - u) * (1 - u), k = h / u;
+    return [o.cx + dx * k, o.cy + dy * k];
+  }
+  return [x, y];
+}
+const isTram = (ri) => net.R[ri].m === 1;
+const WP = net.P.map((p) => warp(PX(p[2]), PY(p[1])));
+const stopS = (i) => toS(WP[i][0], WP[i][1]);
 
 // géométrie des motifs : tracé projeté, distances cumulées, position de chaque arrêt sur le tracé
 const geoCache = new Map();
 function patGeo(pi) {
   if (geoCache.has(pi)) return geoCache.get(pi);
-  const p = net.pats[pi], pts = shapeOfPat[pi].map(([lo, la]) => [PX(lo), PY(la)]);
+  const p = net.pats[pi], tw = isTram(p.r), pts = shapeOfPat[pi].map(([lo, la]) => tw ? [PX(lo), PY(la)] : warp(PX(lo), PY(la)));
   const cum = [0]; for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
   const sOff = []; let from = 0;
   for (const q of p.stops) {
-    const x = PX(net.Q[q][2]), y = PY(net.Q[q][1]);
+    const [x, y] = tw ? [PX(net.Q[q][2]), PY(net.Q[q][1])] : warp(PX(net.Q[q][2]), PY(net.Q[q][1]));
     let best = Infinity, bd = cum[from] || 0, bseg = from;
     const lim = Math.min(pts.length - 1, from + 400);
     for (let i = from; i < lim; i++) {
@@ -65,6 +88,38 @@ function pointAt(g, d) {
   while (hi - lo > 1) { const m = (lo + hi) >> 1; if (cum[m] <= d) lo = m; else hi = m; }
   const L = cum[hi] - cum[lo] || 1e-12, t = Math.max(0, Math.min(1, (d - cum[lo]) / L));
   return [pts[lo][0] + t * (pts[hi][0] - pts[lo][0]), pts[lo][1] + t * (pts[hi][1] - pts[lo][1]), Math.atan2(pts[hi][1] - pts[lo][1], pts[hi][0] - pts[lo][0])];
+}
+
+// arrêts desservis dans un seul sens : sens de passage (angle à l'écran), calculé au premier besoin
+let oneWayStops = null;
+function getOneWay() {
+  if (oneWayStops) return oneWayStops;
+  const tot = net.R.map(() => 0); net.pats.forEach((p) => { tot[p.r] += p.nT; });
+  const seen = new Map(); // P -> Map(route -> {dirs:Set, best:[nT, pi, k]})
+  net.pats.forEach((p, pi) => {
+    if (p.nT < 0.04 * tot[p.r]) return;
+    p.stops.forEach((q, k) => {
+      const P = net.Q[q][0];
+      let m = seen.get(P); if (!m) seen.set(P, m = new Map());
+      let e = m.get(p.r); if (!e) m.set(p.r, e = { dirs: new Set(), best: null });
+      e.dirs.add(p.dir);
+      if (k > 0 && k < p.nS - 1 && (!e.best || p.nT > e.best[0])) e.best = [p.nT, pi, k];
+    });
+  });
+  oneWayStops = new Map();
+  seen.forEach((m, P) => {
+    if (termini.has(P)) return;
+    let ang = null, ok = true;
+    m.forEach((e) => {
+      if (!ok) return;
+      if (e.dirs.size > 1 || !e.best) { ok = false; return; }
+      const g = patGeo(e.best[1]), a = pointAt(g, g.sOff[e.best[2]])[2];
+      if (ang === null) ang = a;
+      else if (Math.abs(Math.atan2(Math.sin(a - ang), Math.cos(a - ang))) > 1) ok = false;
+    });
+    if (ok && ang !== null) oneWayStops.set(P, -ang);
+  });
+  return oneWayStops;
 }
 
 // ---------- véhicules : position estimée ----------
@@ -180,7 +235,7 @@ function highlight() {
 const LN = [];
 (net.D.LN || []).forEach(([r, c, sl, ow]) => {
   const XS = [], YS = []; let x = 0, y = 0;
-  for (let i = 0; i < c.length; i += 2) { x += c[i]; y += c[i + 1]; XS.push(PX(x / 1e5)); YS.push(PY(y / 1e5)); }
+  for (let i = 0; i < c.length; i += 2) { x += c[i]; y += c[i + 1]; const [wx, wy] = r < net.R.length && isTram(r) ? [PX(x / 1e5), PY(y / 1e5)] : warp(PX(x / 1e5), PY(y / 1e5)); XS.push(wx); YS.push(wy); }
   const n = XS.length; ow = ow || new Array(n).fill(0);
   // un morceau par changement double sens / sens unique (le point de jonction est partagé)
   let a = 0;
@@ -343,15 +398,41 @@ function paint() {
   }
   const hs = new Set(hl.stops);
   const showAll = z > 1.7;
+  // capsules des pôles (à la place du point), quand on est assez près
+  const capsOn = z > 0.75, capP = new Set();
+  if (capsOn) for (const o of POLES) {
+    if (focus && !net.pRoutes[o.P].some((r) => hl.routes.has(r))) continue;
+    const pts = o.qs.map((q) => { const [x, y] = warp(PX(net.Q[q][2]), PY(net.Q[q][1])); return toS(x, y); });
+    const mx = pts.reduce((a, p) => a + p[0], 0) / pts.length, my = pts.reduce((a, p) => a + p[1], 0) / pts.length;
+    if (mx < -80 || my < -80 || mx > W + 80 || my > H + 80) continue;
+    let sxx = 0, syy = 0, sxy = 0; pts.forEach(([x, y]) => { sxx += (x - mx) ** 2; syy += (y - my) ** 2; sxy += (x - mx) * (y - my); });
+    const th = 0.5 * Math.atan2(2 * sxy, sxx - syy), ux = Math.cos(th), uy = Math.sin(th);
+    let a0 = 0, a1 = 0, b0 = 0, b1 = 0;
+    pts.forEach(([x, y]) => { const a = (x - mx) * ux + (y - my) * uy, b = -(x - mx) * uy + (y - my) * ux; a0 = Math.min(a0, a); a1 = Math.max(a1, a); b0 = Math.min(b0, b); b1 = Math.max(b1, b); });
+    const pad = 7, hh = Math.max(7, (b1 - b0) / 2 + pad), ac = (a0 + a1) / 2, bc = (b0 + b1) / 2, hl2 = Math.max(hh, (a1 - a0) / 2 + pad);
+    ctx.save(); ctx.translate(mx + ux * ac - uy * bc, my + uy * ac + ux * bc); ctx.rotate(th);
+    roundRect(-hl2, -hh, hl2 * 2, hh * 2, hh);
+    ctx.fillStyle = C.surf; ctx.fill(); ctx.lineWidth = 2.6; ctx.strokeStyle = C.ink; ctx.stroke();
+    ctx.restore();
+    capP.add(o.P);
+  }
   net.P.forEach((p, i) => {
+    if (capP.has(i)) return;
     const on = hs.has(i), hub = hubs.has(i) && z > 0.75 && (!focus || net.pRoutes[i].some((r) => hl.routes.has(r)));
     const term = termini.has(i) && z > 0.9 && (!focus || net.pRoutes[i].some((r) => hl.routes.has(r)));
     if (!on && !showAll && !hub && !term) return;
-    const [x, y] = geoS(p[2], p[1]);
+    const [x, y] = stopS(i);
     if (x < -20 || y < -20 || x > W + 20 || y > H + 20) return;
     const r = term ? 5.6 : on ? 4 : hub ? 3.6 : 2.6;
     ctx.beginPath(); ctx.arc(x, y, r, 0, 7);
     ctx.fillStyle = C.surf; ctx.fill(); ctx.lineWidth = term ? 3 : on || hub ? 2 : 1.3; ctx.strokeStyle = on || hub || term ? C.ink : C.muted; ctx.stroke();
+    // arrêt desservi dans un seul sens : petite flèche à côté du point (quand on zoome)
+    const a1 = z > 1.6 && !term ? getOneWay().get(i) : undefined;
+    if (a1 !== undefined) {
+      const ux = Math.cos(a1), uy = Math.sin(a1), d = r + 5.5, s = 4.2, cx = x + ux * d, cy = y + uy * d;
+      ctx.beginPath(); ctx.moveTo(cx + ux * s, cy + uy * s); ctx.lineTo(cx - ux * s * 0.7 - uy * s * 0.85, cy - uy * s * 0.7 + ux * s * 0.85); ctx.lineTo(cx - ux * s * 0.7 + uy * s * 0.85, cy - uy * s * 0.7 - ux * s * 0.85); ctx.closePath();
+      ctx.fillStyle = on || hub ? C.ink : C.muted; ctx.fill();
+    }
   });
   // étiquettes
   ctx.textBaseline = "middle";
@@ -359,7 +440,7 @@ function paint() {
   const tl = topInset() + 54, br = H - sheetInsetBottom();
   const label = (i, strong) => {
     if (done.has(i)) return;
-    const p = net.P[i]; const [x, y] = geoS(p[2], p[1]);
+    const p = net.P[i]; const [x, y] = stopS(i);
     if (x < 0 || y < 0 || x > W || y > br) return;
     ctx.font = `${strong ? 700 : 600} ${strong ? 13.5 : z > 3 ? 13 : 12}px ${C.font}`;
     const w = ctx.measureText(p[0]).width;
@@ -382,7 +463,7 @@ function paint() {
   if (z > 1.0) [...hubs].forEach((i) => label(i, false));
   if (showAll && z > 2.4) net.P.forEach((p, i) => label(i, false));
   hl.ends.forEach(([i, kind]) => {
-    const p = net.P[i]; const [x, y] = geoS(p[2], p[1]);
+    const p = net.P[i]; const [x, y] = stopS(i);
     ctx.beginPath();
     if (kind === "to") roundRect(x - 7.5, y - 7.5, 15, 15, 3); else ctx.arc(x, y, 8, 0, 7);
     ctx.fillStyle = kind === "to" ? C.ink : C.surf; ctx.fill(); ctx.lineWidth = 3.5; ctx.strokeStyle = C.ink; ctx.stroke();
@@ -391,8 +472,8 @@ function paint() {
   if (hl.tr) {
     const al = css("--alert");
     ctx.save(); ctx.setLineDash([5, 5]); ctx.lineWidth = 2.2; ctx.strokeStyle = al; ctx.fillStyle = al;
-    const segs = [...hl.tr.pairs.map(([a, b]) => [geoS(net.P[a][2], net.P[a][1]), geoS(net.P[b][2], net.P[b][1])]),
-      ...(hl.tr.geo || []).filter((g) => g.from >= 0).map((g) => [geoS(net.P[g.from][2], net.P[g.from][1]), geoS(g.lon, g.lat)])];
+    const segs = [...hl.tr.pairs.map(([a, b]) => [stopS(a), stopS(b)]),
+      ...(hl.tr.geo || []).filter((g) => g.from >= 0).map((g) => [stopS(g.from), geoS(g.lon, g.lat)])];
     for (const [[x1, y1], [x2, y2]] of segs) {
       const d = Math.hypot(x2 - x1, y2 - y1); if (d < 24) continue;
       const ux = (x2 - x1) / d, uy = (y2 - y1) / d, ex = x2 - ux * 14, ey = y2 - uy * 14;
@@ -401,12 +482,12 @@ function paint() {
     }
     ctx.restore();
     for (const i of hl.tr.neu) {
-      const [x, y] = geoS(net.P[i][2], net.P[i][1]);
+      const [x, y] = stopS(i);
       ctx.beginPath(); ctx.arc(x, y, 14, 0, 7); ctx.fillStyle = al; ctx.globalAlpha = 0.18; ctx.fill(); ctx.globalAlpha = 1;
       ctx.beginPath(); ctx.arc(x, y, 8, 0, 7); ctx.fillStyle = C.surf; ctx.fill(); ctx.lineWidth = 3.5; ctx.strokeStyle = al; ctx.stroke();
     }
     for (const i of hl.tr.old) {
-      const [x, y] = geoS(net.P[i][2], net.P[i][1]);
+      const [x, y] = stopS(i);
       ctx.beginPath(); ctx.arc(x, y, 8, 0, 7); ctx.fillStyle = C.surf; ctx.fill(); ctx.lineWidth = 2.2; ctx.strokeStyle = C.muted; ctx.stroke();
       ctx.beginPath(); ctx.moveTo(x - 4, y - 4); ctx.lineTo(x + 4, y + 4); ctx.moveTo(x + 4, y - 4); ctx.lineTo(x - 4, y + 4); ctx.lineWidth = 2; ctx.stroke();
     }
@@ -519,7 +600,7 @@ function hitTest(sx, sy) {
   for (const v of lastVeh) { const d = (v.sx - sx) ** 2 + (v.sy - sy) ** 2; if (d < bd) { bd = d; best = { kind: "veh", v }; } }
   if (best) return best;
   bd = 15 * 15;
-  net.P.forEach((p, i) => { const [x, y] = geoS(p[2], p[1]); const d = (x - sx) ** 2 + (y - sy) ** 2; if (d < bd) { bd = d; best = { kind: "stop", i }; } });
+  net.P.forEach((p, i) => { const [x, y] = stopS(i); const d = (x - sx) ** 2 + (y - sy) ** 2; if (d < bd) { bd = d; best = { kind: "stop", i }; } });
   return best;
 }
 const ptrs = new Map(); let moved = false, pinch0 = null, downAt = null;
