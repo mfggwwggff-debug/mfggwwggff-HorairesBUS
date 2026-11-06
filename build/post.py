@@ -133,25 +133,60 @@ def rdp3(pts, eps):
     return [i for i, k in enumerate(keep) if k]
 
 
+def trim_to_stops(pts, a, b):
+    """Coupe le tracé au premier et au dernier arrêt (enlève les boucles de retournement)."""
+    if len(pts) < 3:
+        return pts
+    d2 = lambda p, q: (p[0] - q[0]) ** 2 + (p[1] - q[1]) ** 2
+    i0 = min(range(len(pts) // 2 + 1), key=lambda i: d2(pts[i], a))
+    i1 = min(range(i0 + 1, len(pts)), key=lambda i: d2(pts[i], b))
+    out = [a] + pts[i0 + 1:i1] + [b]
+    return out if len(out) >= 2 else pts
+
+
+RARE = 0.04   # trajets rares (scolaires, dépôt) : moins de 4 % des courses de la ligne, pas dessinés
+
+
 def parallel_lines(data, step=8.0, dedupe=20.0, near=14.0, slot_m=10.0):
     R, PAT, SH, Q = data["R"], data["PAT"], data["SH"], data["Q"]
     shapes = [decode_shape(f) for f in SH]
-    # polylignes par ligne, la plus fréquentée d'abord
+    # polylignes par ligne, la plus fréquentée d'abord ; coupées aux arrêts de départ et d'arrivée
     per_route = defaultdict(dict)
+    total = defaultdict(int)
     for p in PAT:
-        r, sh, stops, trs = p[0], p[3], p[4], p[5]
-        key = ("s", sh) if sh >= 0 else ("p", tuple(stops))
+        r, dr, sh, stops, trs = p[0], p[1], p[3], p[4], p[5]
+        total[r] += len(trs)
+        key = ("s", sh, dr) if sh >= 0 else ("p", tuple(stops))
         if key not in per_route[r]:
             ll = shapes[sh] if sh >= 0 else [(Q[q][2], Q[q][1]) for q in stops]
-            per_route[r][key] = [0, [to_m(lo, la) for lo, la in ll]]
+            pts = [to_m(lo, la) for lo, la in ll]
+            if sh >= 0:
+                pts = trim_to_stops(pts, to_m(Q[stops[0]][2], Q[stops[0]][1]), to_m(Q[stops[-1]][2], Q[stops[-1]][1]))
+            per_route[r][key] = [0, pts, dr]
         per_route[r][key][0] += len(trs)
+    for r in per_route:
+        for k in [k for k, v in per_route[r].items() if v[0] < RARE * total[r]]:
+            del per_route[r][k]
+    # sens unique : points d'une ligne que l'autre sens ne parcourt pas (à 25 m près)
+    dir_grid = {}
+    for r in per_route:
+        dirs = {v[2] for v in per_route[r].values()}
+        if len(dirs) < 2:
+            continue
+        for d in dirs:
+            g = Grid(25.0)
+            for v in per_route[r].values():
+                if v[2] == d:
+                    for x, y in resample(v[1], step):
+                        g.add(x, y, (x, y))
+            dir_grid[(r, d)] = g
 
     # 1) tronçons sans doublon (aller/retour, variantes) pour chaque ligne
-    frags = []  # (route, [pts])
+    frags = []  # (route, [pts], sens)
     for r in sorted(per_route):
         polys = sorted(per_route[r].values(), key=lambda v: (-v[0], -len(v[1])))
         g = Grid(dedupe)
-        for _, pl in polys:
+        for _, pl, dr in polys:
             s = resample(pl, step)
             if len(s) < 2:
                 continue
@@ -167,7 +202,7 @@ def parallel_lines(data, step=8.0, dedupe=20.0, near=14.0, slot_m=10.0):
                     j += 1
                 a, b = max(0, i - 1), min(len(s), j + 1)
                 if b - a >= 10:
-                    frags.append((r, s[a:b]))
+                    frags.append((r, s[a:b], dr))
                 i = j
             for x, y in s:
                 g.add(x, y, (x, y))
@@ -175,13 +210,13 @@ def parallel_lines(data, step=8.0, dedupe=20.0, near=14.0, slot_m=10.0):
     # 2) pour chaque point : quelles autres lignes empruntent la même rue (même axe)
     allg = Grid(near)
     fdirs = []
-    for fi, (r, pts) in enumerate(frags):
+    for fi, (r, pts, _) in enumerate(frags):
         ds = directions(pts)
         fdirs.append(ds)
         for i, (x, y) in enumerate(pts):
             allg.add(x, y, (r, x, y, ds[i]))
     out = []
-    for fi, (r, pts) in enumerate(frags):
+    for fi, (r, pts, dr) in enumerate(frags):
         ds = fdirs[fi]
         raw = []
         for i, (x, y) in enumerate(pts):
@@ -206,16 +241,25 @@ def parallel_lines(data, step=8.0, dedupe=20.0, near=14.0, slot_m=10.0):
         sm = med
         for _ in range(2):  # deux passes : transitions douces entre faisceaux
             sm = [sum(sm[max(0, i - 6): i + 7]) / len(sm[max(0, i - 6): i + 7]) for i in range(n)]
+        # sens unique : l'autre sens de la ligne ne passe pas à moins de 25 m (lissé pour ignorer les carrefours)
+        og = dir_grid.get((r, 1 - dr)) if (r, 1 - dr) in dir_grid else None
+        ow = [0] * n
+        if og is not None:
+            raw_ow = [0 if any((a - x) ** 2 + (b - y) ** 2 <= 25.0 ** 2 for a, b in og.near(x, y)) else 1 for x, y in pts]
+            ow = [sorted(raw_ow[max(0, i - 4): i + 5])[len(raw_ow[max(0, i - 4): i + 5]) // 2] for i in range(n)]
         p3 = [(x, y, s * slot_m) for (x, y), s in zip(pts, sm)]
-        idx = rdp3(p3, 4.5)  # tracé simplifié (le plan arrondit ensuite les angles)
-        coords, slots = [], []
+        idx = rdp3(p3, 3.0)  # tracé simplifié (le plan arrondit ensuite les angles sur un petit rayon)
+        cuts = {i for i in range(1, n) if ow[i] != ow[i - 1]} | {i - 1 for i in range(1, n) if ow[i] != ow[i - 1]}
+        idx = sorted(set(idx) | cuts)
+        coords, slots, ows = [], [], []
         px = py = 0
         for i in idx:
             lo, la = from_m(pts[i][0], pts[i][1])
             X, Y = round(lo * 1e5), round(la * 1e5)
             coords += [X - px, Y - py]; px, py = X, Y
             slots.append(round(sm[i] * 4))
-        out.append([r, coords, slots])
+            ows.append(ow[i])
+        out.append([r, coords, slots, ows] if any(ows) else [r, coords, slots])
     data["LN"] = out
     return len(frags), sum(len(o[2]) for o in out)
 

@@ -22,6 +22,18 @@ const shapeKey = (i) => net.pats[i].sh >= 0 ? "s" + net.pats[i].sh : "p" + i;
 net.pats.forEach((p, i) => routeShapes[p.r].add(shapeKey(i)));
 const keyToPts = new Map(); net.pats.forEach((p, i) => keyToPts.set(shapeKey(i), shapeOfPat[i]));
 const hubs = new Set(net.P.map((p, i) => i).filter((i) => net.pRoutes[i].length >= 3));
+// terminus : premier et dernier arrêt des parcours principaux (au moins 4 % des courses de la ligne)
+const termini = (() => {
+  const tot = net.R.map(() => 0); net.pats.forEach((p) => { tot[p.r] += p.nT; });
+  const t = new Set();
+  net.pats.forEach((p) => { if (p.nT >= 0.04 * tot[p.r]) { t.add(net.Q[p.stops[0]][0]); t.add(net.Q[p.stops[p.nS - 1]][0]); } });
+  return t;
+})();
+// épaisseur selon l'importance : tram, puis BHNS et lignes fortes U1/U2, puis les autres bus
+const STRONG = new Set(["O1", "O2", "U1", "U2"]);
+const lineK = (ri) => net.R[ri].m === 1 ? 1.4 : STRONG.has(net.R[ri].s) ? 1 : 0.72;
+// express et C : pointillés clairs dans le trait
+const dotted = (ri) => /^E\d|^C$/.test(net.R[ri].s);
 
 // géométrie des motifs : tracé projeté, distances cumulées, position de chaque arrêt sur le tracé
 const geoCache = new Map();
@@ -165,10 +177,19 @@ function highlight() {
 // ---------- tronçons communs dessinés en parallèle ----------
 // Données préparées par build/post.py : par ligne, des tronçons de tracé et, en chaque point, une place
 // dans le faisceau (slot). On décale chaque point de slot × écartement, perpendiculairement au tracé.
-const LN = (net.D.LN || []).map(([r, c, sl]) => {
-  const xs = [], ys = []; let x = 0, y = 0, x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
-  for (let i = 0; i < c.length; i += 2) { x += c[i]; y += c[i + 1]; const X = PX(x / 1e5), Y = PY(y / 1e5); xs.push(X); ys.push(Y); x0 = Math.min(x0, X); x1 = Math.max(x1, X); y0 = Math.min(y0, Y); y1 = Math.max(y1, Y); }
-  return { r, xs, ys, sl: sl.map((v) => v / 4), box: [x0, y0, x1, y1] };
+const LN = [];
+(net.D.LN || []).forEach(([r, c, sl, ow]) => {
+  const XS = [], YS = []; let x = 0, y = 0;
+  for (let i = 0; i < c.length; i += 2) { x += c[i]; y += c[i + 1]; XS.push(PX(x / 1e5)); YS.push(PY(y / 1e5)); }
+  const n = XS.length; ow = ow || new Array(n).fill(0);
+  // un morceau par changement double sens / sens unique (le point de jonction est partagé)
+  let a = 0;
+  for (let i = 1; i <= n; i++) {
+    if (i < n && ow[i] === ow[a]) continue;
+    const b = Math.min(i, n - 1), xs = XS.slice(a, b + 1), ys = YS.slice(a, b + 1);
+    if (xs.length >= 2) LN.push({ r, xs, ys, sl: sl.slice(a, b + 1).map((v) => v / 4), one: ow[a] === 1, box: [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)] });
+    a = i;
+  }
 });
 const lnByRoute = net.R.map(() => []); LN.forEach((f) => lnByRoute[f.r].push(f));
 function offsetPath(f, sp) {
@@ -186,11 +207,33 @@ function offsetPath(f, sp) {
     const k = f.sl[i] * sp / Math.max(0.55, mx * n2x + my * n2y);
     O[i] = [b[0] - mx * k, b[1] - my * k];
   }
-  // angles arrondis : courbes passant par le milieu des segments (rendu « plan de réseau »)
+  // angles arrondis sur un petit rayon (une douzaine de mètres) : le trait suit la rue sans couper les coins
   ctx.moveTo(O[0][0], O[0][1]);
-  if (n < 3) { if (n === 2) ctx.lineTo(O[1][0], O[1][1]); return; }
-  for (let i = 1; i < n - 1; i++) ctx.quadraticCurveTo(O[i][0], O[i][1], (O[i][0] + O[i + 1][0]) / 2, (O[i][1] + O[i + 1][1]) / 2);
+  if (n < 3) { if (n === 2) ctx.lineTo(O[1][0], O[1][1]); f.O = O; return; }
+  const R0 = Math.max(3, 12 * view.s / 111320);
+  for (let i = 1; i < n - 1; i++) {
+    const l1 = Math.hypot(O[i][0] - O[i - 1][0], O[i][1] - O[i - 1][1]), l2 = Math.hypot(O[i + 1][0] - O[i][0], O[i + 1][1] - O[i][1]);
+    const r = Math.min(R0, l1 / 2, l2 / 2);
+    if (r < 0.5) ctx.lineTo(O[i][0], O[i][1]); else ctx.arcTo(O[i][0], O[i][1], O[i + 1][0], O[i + 1][1], r);
+  }
   ctx.lineTo(O[n - 1][0], O[n - 1][1]);
+  f.O = O;
+}
+// petites flèches de sens sur un tronçon à sens unique (quand on zoome)
+function arrowsOn(O, color, w) {
+  let acc = 25;
+  ctx.fillStyle = color;
+  for (let i = 0; i < O.length - 1; i++) {
+    const [ax, ay] = O[i], [bx, by] = O[i + 1], L = Math.hypot(bx - ax, by - ay);
+    if (!L) continue;
+    const ux = (bx - ax) / L, uy = (by - ay) / L, s = Math.max(4, w * 1.6);
+    while (acc < L) {
+      const x = ax + ux * acc, y = ay + uy * acc;
+      ctx.beginPath(); ctx.moveTo(x + ux * s, y + uy * s); ctx.lineTo(x - ux * s * 0.6 - uy * s * 0.8, y - uy * s * 0.6 + ux * s * 0.8); ctx.lineTo(x - ux * s * 0.6 + uy * s * 0.8, y - uy * s * 0.6 - ux * s * 0.8); ctx.closePath(); ctx.fill();
+      acc += 70;
+    }
+    acc -= L;
+  }
 }
 
 // ---------- fond de carte (rues) ----------
@@ -272,12 +315,23 @@ function paint() {
     for (const ri of order) {
       const on = !focus || hl.routes.has(ri);
       const strong = on && focus && !journey;
-      const w = (net.R[ri].m === 1 ? lw * 1.15 : lw) * (strong ? 1.35 : 1) + 0.4;
+      const w = lw * lineK(ri) * (strong ? 1.35 : 1) + 0.4;
       ctx.globalAlpha = !focus ? 1 : journey ? 0.16 : on ? 1 : 0.14;
-      if (pass === 0) { if (ctx.globalAlpha < 0.5) continue; ctx.strokeStyle = caseC; ctx.lineWidth = w + 3.5; }
-      else { ctx.strokeStyle = net.R[ri].c; ctx.lineWidth = w; }
-      if (LN.length) { for (const f of lnByRoute[ri]) { if (visible(f.box)) { offsetPath(f, sp); ctx.stroke(); } } }
-      else for (const k of routeShapes[ri]) { path(keyToPts.get(k)); ctx.stroke(); }
+      if (pass === 0 && ctx.globalAlpha < 0.5) continue;
+      if (LN.length) {
+        for (const f of lnByRoute[ri]) {
+          if (!visible(f.box)) continue;
+          const fw = f.one ? Math.max(1.6, w * 0.6) : w;
+          offsetPath(f, sp);
+          if (pass === 0) { ctx.strokeStyle = caseC; ctx.lineWidth = fw + 3.5; ctx.stroke(); continue; }
+          ctx.strokeStyle = net.R[ri].c; ctx.lineWidth = fw; ctx.stroke();
+          if (dotted(ri) && fw >= 2.4) { ctx.save(); ctx.setLineDash([0.01, Math.max(4, fw * 1.7)]); ctx.strokeStyle = "rgba(255,255,255,.62)"; ctx.lineWidth = Math.max(1.3, fw * 0.45); ctx.stroke(); ctx.restore(); }
+          if (f.one && z > 1.6 && ctx.globalAlpha > 0.5) arrowsOn(f.O, net.R[ri].c, fw);
+        }
+      } else {
+        if (pass === 0) { ctx.strokeStyle = caseC; ctx.lineWidth = w + 3.5; } else { ctx.strokeStyle = net.R[ri].c; ctx.lineWidth = w; }
+        for (const k of routeShapes[ri]) { path(keyToPts.get(k)); ctx.stroke(); }
+      }
     }
   }
   ctx.globalAlpha = 1;
@@ -291,12 +345,13 @@ function paint() {
   const showAll = z > 1.7;
   net.P.forEach((p, i) => {
     const on = hs.has(i), hub = hubs.has(i) && z > 0.75 && (!focus || net.pRoutes[i].some((r) => hl.routes.has(r)));
-    if (!on && !showAll && !hub) return;
+    const term = termini.has(i) && z > 0.9 && (!focus || net.pRoutes[i].some((r) => hl.routes.has(r)));
+    if (!on && !showAll && !hub && !term) return;
     const [x, y] = geoS(p[2], p[1]);
     if (x < -20 || y < -20 || x > W + 20 || y > H + 20) return;
-    const r = on ? 4 : hub ? 3.6 : 2.6;
+    const r = term ? 5.6 : on ? 4 : hub ? 3.6 : 2.6;
     ctx.beginPath(); ctx.arc(x, y, r, 0, 7);
-    ctx.fillStyle = C.surf; ctx.fill(); ctx.lineWidth = on || hub ? 2 : 1.3; ctx.strokeStyle = on || hub ? C.ink : C.muted; ctx.stroke();
+    ctx.fillStyle = C.surf; ctx.fill(); ctx.lineWidth = term ? 3 : on || hub ? 2 : 1.3; ctx.strokeStyle = on || hub || term ? C.ink : C.muted; ctx.stroke();
   });
   // étiquettes
   ctx.textBaseline = "middle";
