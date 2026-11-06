@@ -379,6 +379,18 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
 #prof .pcat { font-weight: 700; font-size: 14px; margin: 14px 2px 6px; }
 #prof .pnote { color: var(--muted); font-size: 12.5px; margin: 8px 2px 0; line-height: 1.4; }
 .myl-h { display: flex; align-items: center; gap: 6px; }
+#inbus { position: fixed; left: 10px; right: 10px; top: calc(var(--sat, 0px) + 10px); z-index: 70; background: var(--surface); border-radius: 18px; box-shadow: 0 10px 34px rgba(0,0,0,.22); padding: 12px 12px 8px; transform: translateY(-140%); transition: transform .35s cubic-bezier(.2,.9,.3,1.2); }
+#inbus.on { transform: none; }
+#inbus .ibh { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+#inbus .ibh .ic { width: 36px; height: 36px; border-radius: 50%; background: #1a73e8; color: #fff; display: grid; place-items: center; flex: none; }
+#inbus .ibh .ic .mode { width: 20px; height: 20px; display: block; }
+#inbus .ibh b { font: 700 16px/1.2 var(--font-display); display: block; }
+#inbus .ibh small { color: var(--muted); font-size: 12.5px; }
+#inbus .ibx { margin-left: auto; border: 0; background: none; color: var(--muted); padding: 6px; }
+#inbus .ibr { display: flex; align-items: center; gap: 8px; padding: 8px 2px; border-top: 1px solid var(--rule); }
+#inbus .ibr .d { flex: 1; min-width: 0; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#inbus .ibr .d small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; }
+#inbus .ibr .btn { flex: none; }
 .mapctl { position: absolute; right: 12px; top: 12px; display: flex; flex-direction: column; gap: 8px; z-index: 4; }
 .mapctl button { width: 42px; height: 42px; border-radius: 12px; border: 1px solid var(--rule); background: color-mix(in srgb, var(--surface) 92%, transparent); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); font-size: 20px; line-height: 1; box-shadow: 0 2px 8px rgb(0 0 0 / .14); display: grid; place-items: center; }
 .mapctl button[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
@@ -683,6 +695,7 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
 <body>
 <div id="splash" aria-hidden="true"></div>
 <div id="prof" role="dialog" aria-modal="true" aria-label="Mon profil"></div>
+<div id="inbus" role="dialog" aria-live="polite"></div>
 <div id="app">
   <section class="mapwrap" aria-label="Plan du réseau">
     <canvas id="tiles" aria-hidden="true"></canvas>
@@ -871,6 +884,9 @@ const modeHead = (k, n) => `<span class="mhd">${modeIcon(k === "express" ? "bus"
 const modeBadges = (rs) => `<div class="mrows">${byMode(rs).map(([k, n, l]) => `<div class="mrow" title="${n}"><span class="mhd ico" aria-label="${n}">${modeIcon(k === "express" ? "bus" : k)}</span><span class="mbs">${l.map((r) => badge(r, "sm")).join("")}</span></div>`).join("")}</div>`;
 const MFOLD = new Set(store.get("modeFold", []));
 const modeFoldBtn = (k, n, rs) => `<button type="button" class="mgh mfold" data-mode="${k}" aria-expanded="${!MFOLD.has(k)}">${modeHead(k, n)}<span class="mmini">${[...new Set(rs)].map((r) => badge(r, "sm")).join("")}</span><svg class="mchev" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="m4 6 4 4 4-4"/></svg></button>`;
+// picto seul (sans le carré), recentré sur son dessin : pour les pictos posés dans un rond
+const MODE_BB = { tram: [8.9, 2.5, 30.1, 43.5], bhns: [9, 6.5, 30, 39.8], bus: [7.5, 8, 33, 36.5] };
+const modeGlyph = (m) => { const [x, y, w, h] = MODE_BB[m], s = Math.max(w, h) + 1; return `<svg class="mode" viewBox="${x + w / 2 - s / 2} ${y + h / 2 - s / 2} ${s} ${s}" fill="none" aria-hidden="true">${MODE_SVG[m]}</svg>`; };
 const modeOf = (ri) => net.R[ri].m === 1 ? "tram" : /^O\d/.test(net.R[ri].s) ? "bhns" : "bus";
 const alertSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.2 22 20.5H2z" fill="currentColor"/><path d="M12 9.5v5.2" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="17.6" r="1.25" fill="#fff"/></svg>`;
 const okSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>`;
@@ -1383,7 +1399,6 @@ function tripState(pi, k, dk) {
 const BOARD = { key: "", on: false, since: 0, offAt: 0, claim: 0 };
 // #09 : dernier calage « à bord » (gardé pendant la session) : en revenant dans l'appli, on se recale dès le premier point GPS
 let BOARD_LAST = (() => { try { return JSON.parse(sessionStorage.getItem("grm:board")) || {}; } catch (e) { return {}; } })();
-const B9 = (location.search.match(/[?&]b9=(\w+)/) || [])[1] || "haut"; // maquettes : bouton sous la destination (haut) ou en bas (bas)
 document.addEventListener("click", (e) => { if (!e.target.closest("[data-board]") || !S.follow) return; BOARD.claim = Date.now(); locate(null, true); renderFollow(); });
 let M_PER_U = 0;
 function userOnPat(pi, s) {
@@ -1449,6 +1464,19 @@ function boardAdjust(st, pi, k, dk) {
   return { ...st, gps: true, i: ci, pos, atStop, next, at, dp };
 }
 
+// ---------- #07 : « Tu es dans un bus ? » (proposition quand je roule sur une ligne sans suivi) ----------
+const INBUS = { shownKey: "", refused: new Set() };
+function showInBus(cands, dk) {
+  const el = $("#inbus");
+  if (!cands.length) { el.classList.remove("on"); return; }
+  const one = cands.length === 1, trams = cands.filter((c) => modeOf(net.pats[c.pi].r) === "tram").length;
+  const what = trams === cands.length ? (one ? "ce tram" : "un de ces trams") : trams ? "le tram ou le bus" : (one ? "ce bus" : "un de ces bus");
+  el.innerHTML = `<div class="ibh"><span class="ic">${modeGlyph(trams === cands.length ? "tram" : "bus")}</span><div><b>Tu es dans ${what} ?</b><small>${one ? "Suis-le pour savoir quand descendre" : "Plusieurs lignes passent ici, choisis la tienne"}</small></div><button type="button" class="ibx" aria-label="Non merci">${closeSvg}</button></div>`
+    + cands.map((c, j) => { const p = net.pats[c.pi]; const st = tripState(c.pi, c.k, dk); const nx = p.stops[Math.min(p.nS - 1, st.next)]; return `<div class="ibr"><span style="color:var(--muted);display:inline-flex">${modeIcon(modeOf(p.r) === "tram" ? "tram" : "bus")}</span>${badge(p.r)}<span class="d">→ ${esc(p.h)}<small>Prochain arrêt : ${esc(qName(nx))}</small></span><button type="button" class="btn small primary" data-ib="${j}">Suivre</button></div>`; }).join("");
+  el.querySelector(".ibx").onclick = () => { cands.forEach((c) => INBUS.refused.add(c.pi + ":" + c.k)); el.classList.remove("on"); };
+  el.querySelectorAll("[data-ib]").forEach((b) => b.onclick = () => { const c = cands[+b.dataset.ib]; el.classList.remove("on"); startFollow(c.pi, c.k, dk); });
+  requestAnimationFrame(() => el.classList.add("on"));
+}
 function startFollow(pi, k, dk, fromStop, destStop) {
   const p = net.pats[pi];
   let dest = null;
@@ -1527,11 +1555,8 @@ function connsAt(par, t, exclR, max = 6) {
   connCache.set(key, out); return out;
 }
 // #10 : correspondances avec leur direction (pastilles compactes, 6 au plus)
-// maquettes : ?cx=sens (les deux sens de chaque ligne, côte à côte) ou ?cx=departs (les 6 prochains départs, dans l'ordre)
-const CX_MODE = (location.search.match(/[?&]cx=(\w+)/) || [])[1] || "departs";
 function connsDir(par, t, exclR) {
   const cs = connsAt(par, t, exclR, 40);
-  if (CX_MODE === "sens") return cs.slice().sort((a, b) => a.r - b.r || a.list[0].t - b.list[0].t).slice(0, 6).map((G) => ({ r: G.r, h: G.h, x: G.list[0] }));
   return cs.flatMap((G) => G.list.map((x) => ({ r: G.r, h: G.h, x }))).sort((a, b) => a.x.t - b.x.t).slice(0, 6);
 }
 const connChipsDir = (cs) => cs.map((c) => `<span class="cx cxd">${badge(c.r, "sm", true)}<span class="cd">${esc(c.h)}</span><b>${waitLabel(c.x.t, true)}</b></span>`).join("");
@@ -1554,7 +1579,7 @@ function renderFollow() {
     MB.key = key; MB.lastNext = -1;
     // la ligne affichée commence un arrêt avant le bus (ou avant l'arrêt de montée s'il est plus tôt)
     MB.first = Math.max(0, Math.min(from ?? Infinity, Math.max(0, st.i), p.nS - 1) - 1);
-    el.innerHTML = `<div class="mbtop" id="mb-top"><div class="fhead"><button type="button" class="icon-btn" id="fo-back" aria-label="Retour">${backSvg}</button><button type="button" class="icon-btn" id="fo-close" aria-label="Quitter le plein écran">${closeSvg}</button>${badge(p.r, "lg")}<div class="fh-t"><h2>→ ${esc(p.h)}</h2><span class="fh-s" id="mb-status"></span><span class="b9row" id="mb-b9"></span></div><span class="pillmode">${S.guide ? "GUIDAGE" : "MON BUS"}</span></div>
+    el.innerHTML = `<div class="mbtop" id="mb-top"><div class="fhead"><button type="button" class="icon-btn" id="fo-back" aria-label="Retour">${backSvg}</button><button type="button" class="icon-btn" id="fo-close" aria-label="Quitter le plein écran">${closeSvg}</button>${badge(p.r, "lg")}<div class="fh-t"><h2>→ ${esc(p.h)}</h2><span class="fh-s" id="mb-status"></span><span class="b9row" id="mb-b9"></span></div><span class="pillmode">${S.guide ? "GUIDAGE" : modeOf(p.r) === "tram" ? "MON TRAM" : "MON BUS"}</span></div>
       <div id="gd-card"></div>
       <div id="mb-banner"></div>
       <div id="mb-hero"></div></div>
@@ -1581,7 +1606,7 @@ function renderFollow() {
   const delay = Math.round(st.at(Math.min(nS - 1, next)) - st.sched(Math.min(nS - 1, next)));
   const b9 = st.gps || st.state === "done" ? "" : BOARD.claim ? `<span class="b9 wait"><i class="b9spin"></i>Calage…</span>` : `<button type="button" class="b9" data-board>Je suis dedans</button>`;
   $("#mb-status").innerHTML = (st.gps ? `<i class="gpsdot"></i>À bord · position GPS${delay >= 1 ? " · retard " + delay + " min" : ""}` : `${dot(st.live)}${st.live ? `Temps réel · ${delay >= 1 ? "retard " + delay + " min" : delay <= -1 ? "avance " + -delay + " min" : "à l'heure"}` : "Horaire théorique (position estimée)"}`);
-  { const h9 = B9 === "haut" ? b9 : ""; const e9 = $("#mb-b9"); if (e9 && e9.dataset.html !== h9) { e9.innerHTML = h9; e9.dataset.html = h9; } };
+  { const h9 = b9; const e9 = $("#mb-b9"); if (e9 && e9.dataset.html !== h9) { e9.innerHTML = h9; e9.dataset.html = h9; } };
   // ligne : arrêts passés, arrêt suivant, bus
   // en attente au terminus ou à un arrêt : bus immobile sur l'arrêt, halo lent, étiquette ; en route : chevrons
   const waiting = st.state === "before" || st.atStop, waitAt = st.state === "before" ? 0 : st.i;
@@ -1671,7 +1696,7 @@ function renderFollow() {
   // barre du bas
   const bar = S.guide ? `<button type="button" class="btn small ghost" id="fo-stop">Arrêter le guidage</button>${S.followFree ? `<button type="button" class="btn small primary" id="fo-recenter">Recentrer</button>` : ""}`
     : `<span class="hint">${dest == null ? "Touchez un arrêt pour le choisir comme descente" : "Touchez un autre arrêt pour changer de descente"}</span>
-      ${B9 === "bas" && b9 ? b9.replace('class="b9', 'class="btn small b9') : ""}${dest != null ? `<button type="button" class="btn small alertbtn" id="fo-alert" aria-pressed="${S.follow.alert}">${bellSvg.replace('width="40" height="40"', 'width="16" height="16"')}${S.follow.alert ? "Alerte activée" : "Alerte coupée"}</button>` : ""}
+${dest != null ? `<button type="button" class="btn small alertbtn" id="fo-alert" aria-pressed="${S.follow.alert}">${bellSvg.replace('width="40" height="40"', 'width="16" height="16"')}${S.follow.alert ? "Alerte activée" : "Alerte coupée"}</button>` : ""}
       ${S.followFree ? `<button type="button" class="btn small primary" id="fo-recenter">Recentrer</button>` : ""}<button type="button" class="btn small ghost" id="fo-stop">Arrêter</button>`;
   if ($("#mb-bar").dataset.html !== bar) {
     $("#mb-bar").innerHTML = bar; $("#mb-bar").dataset.html = bar;
@@ -1698,7 +1723,7 @@ function mbCenter(st, instant) {
   clearTimeout(MB.progT); MB.progT = setTimeout(() => { MB.progScroll = false; }, 800);
 }
 // plein écran de Mon bus : en tirant le panneau tout en haut, le plan, l'en-tête et les onglets s'effacent
-if (/[?&]simu=/.test(location.search)) window.__t = { startFollow: (...a) => startFollow(...a), tripState: (...a) => tripState(...a), setSheet: (x) => setSheet(x), todayIdx: () => todayIdx(), net: () => net, MB, shape: (pi) => shapeOfPat[pi], BOARD, ME, onPat: userOnPat, popStop: (i) => { const p = net.P[i]; const [sx, sy] = toS(PX(p[2]), PY(p[1])); clickMap(sx, sy); return [sx, sy]; }, openPa: (i) => openPassages(i), pName: (i) => pName(i), go: (v) => go(v) };
+if (/[?&]simu=/.test(location.search)) window.__t = { startFollow: (...a) => startFollow(...a), tripState: (...a) => tripState(...a), setSheet: (x) => setSheet(x), todayIdx: () => todayIdx(), net: () => net, MB, shape: (pi) => shapeOfPat[pi], BOARD, ME, onPat: userOnPat, popStop: (i) => { const p = net.P[i]; const [sx, sy] = toS(PX(p[2]), PY(p[1])); clickMap(sx, sy); return [sx, sy]; }, openPa: (i) => openPassages(i), pName: (i) => pName(i), go: (v) => go(v) , showInBus: (c, dk) => showInBus(c, dk) };
 function updMbFull() { document.body.classList.toggle("mbfull", isMobile() && S.view === "suivi" && sheetState === "full"); }
 
 const renderFollowBg = () => renderFollow();
