@@ -148,6 +148,11 @@ function highlight() {
     if (dest != null && dest < p.nS - 1) H.legs.push({ pts: segmentD(pi, end, g.sOff[p.nS - 1]), c: net.R[p.r].c, faded: true });
     p.stops.forEach((q) => H.stops.push(net.Q[q][0]));
     if (dest != null) H.ends.push([net.Q[p.stops[dest]][0], "to"]);
+  } else if (S.view === "trafic" && TR.zoom) {
+    const Z = TR.zoom;
+    H.routes = Z.routes.length ? new Set(Z.routes) : null;
+    [...Z.old, ...Z.neu, ...(Z.zone || [])].forEach((i) => H.stops.push(i));
+    H.tr = Z;
   } else if (S.view === "trafic" && TR.filter) {
     H.routes = new Set(TR.filter);
   } else if (S.view === "accueil") {
@@ -327,6 +332,29 @@ function paint() {
     if (kind === "to") roundRect(x - 7.5, y - 7.5, 15, 15, 3); else ctx.arc(x, y, 8, 0, 7);
     ctx.fillStyle = kind === "to" ? C.ink : C.surf; ctx.fill(); ctx.lineWidth = 3.5; ctx.strokeStyle = C.ink; ctx.stroke();
   });
+  // info trafic : arrêt habituel barré, arrêt de report entouré, flèche en pointillé de l'un à l'autre
+  if (hl.tr) {
+    const al = css("--alert");
+    ctx.save(); ctx.setLineDash([5, 5]); ctx.lineWidth = 2.2; ctx.strokeStyle = al; ctx.fillStyle = al;
+    for (const [a, b] of hl.tr.pairs) {
+      const [x1, y1] = geoS(net.P[a][2], net.P[a][1]), [x2, y2] = geoS(net.P[b][2], net.P[b][1]);
+      const d = Math.hypot(x2 - x1, y2 - y1); if (d < 24) continue;
+      const ux = (x2 - x1) / d, uy = (y2 - y1) / d, ex = x2 - ux * 14, ey = y2 - uy * 14;
+      ctx.beginPath(); ctx.moveTo(x1 + ux * 11, y1 + uy * 11); ctx.lineTo(ex, ey); ctx.stroke();
+      ctx.setLineDash([]); ctx.beginPath(); ctx.moveTo(ex + ux * 2, ey + uy * 2); ctx.lineTo(ex - ux * 8 - uy * 5, ey - uy * 8 + ux * 5); ctx.lineTo(ex - ux * 8 + uy * 5, ey - uy * 8 - ux * 5); ctx.closePath(); ctx.fill(); ctx.setLineDash([5, 5]);
+    }
+    ctx.restore();
+    for (const i of hl.tr.neu) {
+      const [x, y] = geoS(net.P[i][2], net.P[i][1]);
+      ctx.beginPath(); ctx.arc(x, y, 14, 0, 7); ctx.fillStyle = al; ctx.globalAlpha = 0.18; ctx.fill(); ctx.globalAlpha = 1;
+      ctx.beginPath(); ctx.arc(x, y, 8, 0, 7); ctx.fillStyle = C.surf; ctx.fill(); ctx.lineWidth = 3.5; ctx.strokeStyle = al; ctx.stroke();
+    }
+    for (const i of hl.tr.old) {
+      const [x, y] = geoS(net.P[i][2], net.P[i][1]);
+      ctx.beginPath(); ctx.arc(x, y, 8, 0, 7); ctx.fillStyle = C.surf; ctx.fill(); ctx.lineWidth = 2.2; ctx.strokeStyle = C.muted; ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x - 4, y - 4); ctx.lineTo(x + 4, y + 4); ctx.moveTo(x + 4, y - 4); ctx.lineTo(x - 4, y + 4); ctx.lineWidth = 2; ctx.stroke();
+    }
+  }
   // ma position
   if (ME.pos) {
     const [x, y] = geoS(ME.pos[1], ME.pos[0]);

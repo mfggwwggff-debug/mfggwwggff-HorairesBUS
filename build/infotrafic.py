@@ -3,6 +3,9 @@
 Le site n'a pas de flux de données ouvert et bloque la lecture depuis une autre page : ce script
 tourne dans GitHub Actions (toutes les 15 minutes environ) et l'appli relit le fichier produit.
 
+Chaque info porte, si la page la donne, sa rubrique : "rt" (true = temps réel, false = par ligne).
+Sans rubrique reconnue, l'appli devine : une info sans dates est traitée comme du temps réel.
+
 Usage : python build/infotrafic.py [fichier_html_local] > info-trafic.json
 Sans argument, la page est téléchargée. Bibliothèque standard uniquement.
 """
@@ -69,8 +72,28 @@ def dates(h):
     return s, e
 
 
+def sections(page):
+    """Rubriques de la page (titres et blocs marqués « temps réel »), avec leur position."""
+    marks = []
+    for m in re.finditer(r"<h[1-4][^>]*>(.*?)</h[1-4]>", page, re.S | re.I):
+        marks.append((m.start(), plain(text(m.group(1)))))
+    for m in re.finditer(r'<[a-z]+[^>]*(?:id|class)="[^"]*(temps[-_ ]?reel|tempsreel|realtime|real-time|par[-_ ]?ligne)[^"]*"', page, re.I):
+        marks.append((m.start(), plain(m.group(1)).replace("-", " ").replace("_", " ")))
+    return sorted(marks)
+
+
+def rubrique(marks, pos):
+    """True : rubrique temps réel ; False : rubrique par ligne ; None : inconnu (l'appli devine)."""
+    prev = [t for p, t in marks if p < pos]
+    for t in reversed(prev):
+        if re.search(r"temps ?reel|en direct|realtime|real time|perturbations? en cours", t): return True, t
+        if re.search(r"par ?ligne|travaux|prevue|a venir", t): return False, t
+    return None, ""
+
+
 def parse(page):
     items = []
+    marks = sections(page)
     for m in re.finditer(r'<details[^>]*data-lines="([^"]*)"[^>]*>(.*?)</details>', page, re.S | re.I):
         lines, inner = m.group(1), m.group(2)
         sm = re.search(r"<summary[^>]*>(.*?)</summary>", inner, re.S | re.I)
@@ -113,7 +136,11 @@ def parse(page):
                 if t and t not in ls: ls.append(t)
         start, end = dates(period)
         iid = hashlib.sha1((title + "|" + period).encode()).hexdigest()[:10]
-        items.append({"id": iid, "t": title, "lines": ls, "p": period, "start": start, "end": end, "b": blocks})
+        item = {"id": iid, "t": title, "lines": ls, "p": period, "start": start, "end": end, "b": blocks}
+        rt, sec = rubrique(marks, m.start())
+        if rt is not None: item["rt"] = rt
+        if sec: item["sec"] = sec[:60]
+        items.append(item)
     return items
 
 
