@@ -208,7 +208,7 @@ function rebuild(net, tau, lab, k, q, day) {
 function planDepart(net, o, dst, day, t0, want = 4) {
   const out = new Map();
   let t = t0;
-  for (let it = 0; it < 12 && out.size < want; it++) {
+  for (let it = 0; it < 30 && (out.size < want || prune([...out.values()]).length < want); it++) {
     const res = raptor(net, o, dst, day, t);
     if (!res.length) break;
     res.forEach((j) => { if (!out.has(j.key) && j.legs.length) out.set(j.key, j); });

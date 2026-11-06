@@ -221,6 +221,7 @@ details.when .whenbody { padding: 4px 12px 12px; display: flex; flex-direction: 
 .od { display: grid; grid-template-columns: 1fr 44px; gap: 8px; align-items: center; }
 .od .stack { display: flex; flex-direction: column; gap: 8px; }
 .results { display: flex; flex-direction: column; gap: 10px; }
+.itmore { align-self: center; margin: 2px auto; }
 .jc { border: 1px solid var(--rule); border-radius: var(--r); background: var(--surface); overflow: hidden; }
 .jc.sel { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
 .jc > button.head { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; width: 100%; text-align: left; padding: 12px 14px; border: 0; background: none; }
@@ -963,6 +964,7 @@ const FEATS = [
     ["nuit", "Message de fin de service", "Quand le dernier bus est passé, un message vous l'indique une fois par nuit, puis un petit bandeau reste en haut jusqu'au matin."]]]];
 const MY = { ft: store.get("myFeats") || {}, lines: store.get("myLines") || [], names: store.get("stopNames") || {}, al: Object.assign({ trafic: true, last: true, arrive: true, arriveMin: 5 }, store.get("myAlerts") || {}) };
 const saveMy = () => { store.set("myFeats", MY.ft); store.set("myLines", MY.lines); store.set("stopNames", MY.names); store.set("myAlerts", MY.al); };
+const feat = (k) => MY.ft[k] !== false; // #11 : fonctionnalité active ? (toutes actives au départ)
 const isFavStop = (i) => i != null && fav.stops.includes(pName(i));
 const isFavTrip = (a, b) => a != null && b != null && fav.trips.some(([x, y]) => x === pName(a) && y === pName(b));
 function toggleFavStop(i) { const n = pName(i); fav.stops = isFavStop(i) ? fav.stops.filter((x) => x !== n) : [...fav.stops, n]; saveFav(); toast(isFavStop(i) ? `${n} ajouté à l'accueil` : `${n} retiré des favoris`); }
@@ -1205,11 +1207,41 @@ function runIt(noFit) {
   if (S.from === S.to) { res.innerHTML = `<div class="empty">Le départ et l'arrivée sont le même arrêt.</div>`; drawMap(); return; }
   if (!inRange(iso)) { res.innerHTML = ""; drawMap(); return; }
   const day = net.dayIndex(iso);
-  const js = S.mode === "dep" ? planDepart(net, S.from, S.to, day, t, 4) : planArrive(net, S.from, S.to, day, t, 3);
-  S.journeys = js; S.selJ = S.mode === "arr" ? js.length - 1 : 0;
+  // #12 : 6 trajets d'emblée (« Plus de choix de trajets » coupé : comme avant, 4 ou 5 en « Partir à », 3 en « Arriver avant »)
+  const more = feat("plus");
+  const js = S.mode === "dep" ? planDepart(net, S.from, S.to, day, t, more ? 6 : 4).slice(0, more ? 6 : 5) : planArrive(net, S.from, S.to, day, t, more ? 6 : 3);
+  S.journeys = js; S.selJ = S.mode === "arr" ? js.length - 1 : 0; S.itq = { day, isToday };
   if (!js.length) { res.innerHTML = `<div class="empty">Aucun trajet trouvé ${S.mode === "dep" ? "après " + hm(t) : "arrivant avant " + hm(t)} le ${fmtDateLong(iso)}. Essayez une autre heure : certaines lignes ne circulent qu'en semaine ou en journée.</div>`; drawMap(); return; }
+  renderIt(noFit);
+}
+// #12 : « Plus tôt » / « Départs suivants » (ou « Arrivées plus tôt » / « Arrivées plus tard ») ajoutent des trajets sans effacer les autres
+function itMore(dir) {
+  const js = S.journeys, q = S.itq; if (!js.length || !q) return;
+  const sel = js[S.selJ] ? js[S.selJ].key : null, have = new Set(js.map((j) => j.key));
+  let add = [];
+  if (dir < 0) {
+    const first = js[0];
+    for (let back = 60; back <= 240 && add.length < 4; back += 60) {
+      const c = S.mode === "dep" ? planDepart(net, S.from, S.to, q.day, Math.max(0, first.dep - back), 8).filter((j) => j.dep < first.dep)
+        : planArrive(net, S.from, S.to, q.day, first.arr - 1, 6).filter((j) => j.arr < first.arr);
+      add = c.filter((j) => !have.has(j.key)).slice(-4);
+      if (S.mode === "arr") break;
+    }
+  } else {
+    const last = js[js.length - 1];
+    add = planDepart(net, S.from, S.to, q.day, Math.floor(last.dep) + 1, 4).filter((j) => j.dep > last.dep && !have.has(j.key)).slice(0, 4);
+  }
+  if (!add.length) { toast(dir < 0 ? "Pas de trajet plus tôt" : "Pas d'autre trajet après", 1800); return; }
+  S.journeys = [...js, ...add].sort((a, b) => a.dep - b.dep || a.arr - b.arr);
+  S.selJ = sel ? S.journeys.findIndex((j) => j.key === sel) : -1;
+  renderIt(true);
+  if (dir < 0) $("#it-res").firstElementChild?.scrollIntoView({ block: "nearest" });
+}
+function renderIt(noFit) {
+  const res = $("#it-res"), js = S.journeys, isToday = S.itq ? S.itq.isToday : false;
   const fastest = Math.min(...js.map((j) => j.arr - j.dep)), fewest = Math.min(...js.map((j) => j.rides));
-  res.innerHTML = js.map((j, k) => {
+  const mb = (d) => feat("plus") ? `<button type="button" class="btn small ghost itmore" data-more="${d}">${d < 0 ? (S.mode === "dep" ? "Plus tôt" : "Arrivées plus tôt") : (S.mode === "dep" ? "Départs suivants" : "Arrivées plus tard")}</button>` : "";
+  res.innerHTML = mb(-1) + js.map((j, k) => {
     const tags = [];
     if (js.length > 1 && j.arr - j.dep === fastest) tags.push(`<span class="tag hot">Le plus rapide</span>`);
     if (j.rides === fewest && js.some((x) => x.rides > fewest)) tags.push(`<span class="tag">Moins de correspondances</span>`);
@@ -1229,7 +1261,8 @@ function runIt(noFit) {
       </button>
       <div class="tl">${isToday ? `<button type="button" class="btn primary guidebtn" data-guide="${k}">${bellSvg.replace('width="40" height="40"', 'width="18" height="18"')}Me guider jusqu'à l'arrivée</button>` : ""}${timeline(j, k)}</div>
     </article>`;
-  }).join("");
+  }).join("") + mb(1);
+  res.querySelectorAll("[data-more]").forEach((b) => b.onclick = () => itMore(+b.dataset.more));
   res.querySelectorAll(".jc > .head").forEach((b) => b.addEventListener("click", () => {
     const k = +b.parentNode.dataset.k; S.selJ = S.selJ === k ? -1 : k;
     res.querySelectorAll(".jc").forEach((c) => { const on = +c.dataset.k === S.selJ; c.classList.toggle("sel", on); $(".head", c).setAttribute("aria-expanded", on); });
