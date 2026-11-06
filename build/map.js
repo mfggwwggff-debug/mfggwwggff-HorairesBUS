@@ -437,8 +437,8 @@ function paint() {
   // arrêts : une barre blanche en travers des lignes qui s'arrêtent à chaque quai (rond pour une seule ligne),
   // gros point au terminus ; de près, un pointillé relie les quais d'un même arrêt
   const QI = getQuays();
-  const barW = Math.max(4.5, lw * 0.8);
-  const stroke2 = (outer, inner) => { ctx.strokeStyle = outC; ctx.lineWidth = outer; ctx.stroke(); ctx.strokeStyle = C.surf; ctx.lineWidth = inner; ctx.stroke(); };
+  const barW = Math.max(4.5, lw * 0.8), barC = isDark() ? "#e9ecef" : C.surf;
+  const stroke2 = (outer, inner) => { ctx.strokeStyle = outC; ctx.lineWidth = outer; ctx.stroke(); ctx.strokeStyle = barC; ctx.lineWidth = inner; ctx.stroke(); };
   const quayMark = (q, strongMark) => {
     const [qx, qy] = toS(...warp(PX(net.Q[q][2]), PY(net.Q[q][1])));
     if (qx < -30 || qy < -30 || qx > W + 30 || qy > H + 30) return null;
@@ -458,7 +458,7 @@ function paint() {
     if (hits.length <= 1) {
       const h = hits[0] || { x: qx, y: qy, w: lw };
       const rr = Math.max(2.8, Math.min(h.w / 2 + 1.2, barW * 0.75));
-      ctx.beginPath(); ctx.arc(h.x, h.y, rr, 0, 7); ctx.fillStyle = C.surf; ctx.fill(); ctx.lineWidth = strongMark ? 2 : 1.5; ctx.strokeStyle = outC; ctx.stroke();
+      ctx.beginPath(); ctx.arc(h.x, h.y, rr, 0, 7); ctx.fillStyle = barC; ctx.fill(); ctx.lineWidth = strongMark ? 2 : 1.5; ctx.strokeStyle = outC; ctx.stroke();
       return [h.x, h.y];
     }
     // barre : perpendiculaire à la direction moyenne des lignes (orientées dans le même sens)
