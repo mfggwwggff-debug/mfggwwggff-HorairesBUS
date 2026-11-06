@@ -491,7 +491,7 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
 .mbt-bus.wait { animation: waitring 2.4s ease-out infinite; }
 @keyframes waitring { 0% { box-shadow: 0 0 0 2px var(--ink), 0 0 0 2px color-mix(in srgb, var(--c) 55%, transparent), 0 6px 16px rgb(0 0 0 / .25); } 100% { box-shadow: 0 0 0 2px var(--ink), 0 0 0 16px transparent, 0 6px 16px rgb(0 0 0 / .25); } }
 /* bus en route : chevrons qui défilent jusqu'à l'arrêt suivant */
-.mbt-go { position: absolute; left: 67px; width: 12px; margin-left: -6px; border-radius: 6px; z-index: 0; background-color: var(--c); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='14' viewBox='0 0 12 14'%3E%3Cpath d='M3 4.5 6 7.5 9 4.5' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-size: 12px 14px; background-repeat: repeat-y; animation: flow .9s linear infinite; transition: top 1s linear, height 1s linear; -webkit-mask-image: linear-gradient(#000 70%, transparent); mask-image: linear-gradient(#000 70%, transparent); }
+.mbt-go { position: absolute; left: 67px; width: 12px; margin-left: -6px; border-radius: 6px; z-index: 0; background-color: var(--c); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='14' viewBox='0 0 12 14'%3E%3Cpath d='M3 4.5 6 7.5 9 4.5' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-size: 12px 14px; background-repeat: repeat-y; animation: flow .9s linear infinite; transition: top 1s linear, height 1s linear; -webkit-mask-image: linear-gradient(#000 80%, transparent); mask-image: linear-gradient(#000 80%, transparent); }
 .mbt-go.hide { display: none; }
 @keyframes flow { from { background-position: 0 0; } to { background-position: 0 14px; } }
 .tagx.wt { background: color-mix(in srgb, var(--c) 16%, var(--surface)); color: var(--ink); box-shadow: inset 0 0 0 1px var(--c); }
@@ -1807,7 +1807,8 @@ function takeover(o) {
   $(".tk-ok", el).onclick = () => el.classList.remove("on");
 }
 const bellSvg = `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10.3 20a2 2 0 0 0 3.4 0"/></svg>`;
-const busPicto = (c) => `<svg width="18" height="18" viewBox="0 0 48 48" fill="${c}" aria-hidden="true"><path fill-rule="evenodd" d="M14.5 8H33.5Q38 8 38 12.5V37.5Q38 40.5 35 40.5H13Q10 40.5 10 37.5V12.5Q10 8 14.5 8ZM14.5 15.5H33.5Q35.5 15.5 35.5 17.5V29Q35.5 31 33.5 31H14.5Q12.5 31 12.5 29V17.5Q12.5 15.5 14.5 15.5Z"/><path d="M12.5 40H17V44.5H12.5ZM31 40H35.5V44.5H31Z"/></svg>`;
+// icône du véhicule : selon le mode de la ligne si on la connaît (#16 : tram, BHNS, bus), sinon bus
+const busPicto = (c, ri) => ri != null && net.R[ri] ? `<svg width="20" height="20" viewBox="0 0 48 48" fill="none" style="color:${c}" aria-hidden="true">${MODE_SVG[modeOf(ri)]}</svg>` : `<svg width="18" height="18" viewBox="0 0 48 48" fill="${c}" aria-hidden="true"><path fill-rule="evenodd" d="M14.5 8H33.5Q38 8 38 12.5V37.5Q38 40.5 35 40.5H13Q10 40.5 10 37.5V12.5Q10 8 14.5 8ZM14.5 15.5H33.5Q35.5 15.5 35.5 17.5V29Q35.5 31 33.5 31H14.5Q12.5 31 12.5 29V17.5Q12.5 15.5 14.5 15.5Z"/><path d="M12.5 40H17V44.5H12.5ZM31 40H35.5V44.5H31Z"/></svg>`;
 
 // prochains départs des autres lignes à un arrêt, après l'heure t (une ligne + direction par groupe)
 const connCache = new Map();
@@ -1857,7 +1858,7 @@ function renderFollow() {
           <span class="t">${hm(i === 0 ? st.dp(0) : st.at(i))}</span><span class="nd"></span>
           <span class="nm"><span class="n1"><span class="nmt">${esc(qName(q))}</span>${from === i ? `<span class="tagx up">JE MONTE</span>` : ""}${dest === i ? `<span class="tagx">JE DESCENDS</span>` : ""}</span><span class="cxs" data-cx="${i}"></span></span></button>`; }).join("")}
         <div class="mbt-go hide" id="mb-go"></div>
-        <div class="mbt-bus" id="mb-bus" style="background:${R.c}">${busPicto(R.t)}</div>
+        <div class="mbt-bus" id="mb-bus" style="background:${R.c}">${busPicto(R.t, p.r)}</div>
       </div>
       <div class="mbbar" id="mb-bar"></div>`;
     $("#mb-track").style.height = (p.nS - MB.first) * ROWH + "px";
@@ -1880,9 +1881,9 @@ function renderFollow() {
   $("#mb-bus").classList.toggle("hide", st.state === "done");
   $("#mb-bus").classList.toggle("wait", waiting);
   $("#mb-bus").classList.toggle("gps", !!st.gps);
-  // les chevrons partent de sous le bus et vont un peu au-delà de l'arrêt suivant, en s'estompant
-  const goTop = busTop, goEnd = (Math.min(nS - 1, next + 0.6) - MB.first) * ROWH + ROWH / 2;
-  const goEl = $("#mb-go"), showGo = st.state === "running" && !st.atStop && goEnd - goTop >= 24; // pas « go » : c'est la fonction de navigation
+  // les chevrons partent de sous le bus et s'arrêtent à l'arrêt suivant (#15 : jamais au-delà)
+  const goTop = busTop, goEnd = (next - MB.first) * ROWH + ROWH / 2 - 8;
+  const goEl = $("#mb-go"), showGo = st.state === "running" && !st.atStop && goEnd - goTop >= 28; // pas « go » : c'est la fonction de navigation
   goEl.classList.toggle("hide", !showGo);
   if (showGo) { goEl.style.top = goTop + "px"; goEl.style.height = goEnd - goTop + "px"; }
   const wtxt = st.state === "before" ? "DÉPART " + hm(st.dp(0)) : st.atStop ? "À L'ARRÊT" : "";
@@ -1924,7 +1925,7 @@ function renderFollow() {
       <div class="r2"><span>${away == null ? "Départ du terminus à " + hm(st.dp(0)) : away <= 1 ? "Il arrive à votre arrêt" : "Il est à " + away + " arrêts"}</span><span>${dest != null ? "Descente : <b>" + esc(qName(p.stops[dest])) + "</b>" : "départ " + hm(st.dp(from))}</span></div></div>`;
   } else if (near) {
     const cs = connsAt(net.Q[p.stops[next]][0], st.at(next), p.r, 4);
-    hero = `<div class="mbh near" style="--c:${R.c};--ct:${R.t}"><div class="wv"><i></i><i></i><i></i><span>${busPicto(R.c)}</span></div><div class="tx"><span class="k">Arrivée imminente</span><b>${esc(qName(p.stops[next]))}</b><span>${st.at(next) - t < 0.5 ? "à l'approche" : "dans moins d'une minute"}${cs.length ? ` · ${cs.length} correspondance${cs.length > 1 ? "s" : ""}` : ""}</span></div></div>
+    hero = `<div class="mbh near" style="--c:${R.c};--ct:${R.t}"><div class="wv"><i></i><i></i><i></i><span>${busPicto(R.c, p.r)}</span></div><div class="tx"><span class="k">Arrivée imminente</span><b>${esc(qName(p.stops[next]))}</b><span>${st.at(next) - t < 0.5 ? "à l'approche" : "dans moins d'une minute"}${cs.length ? ` · ${cs.length} correspondance${cs.length > 1 ? "s" : ""}` : ""}</span></div></div>
       ${cs.length ? `<div class="crs">${connRows(cs)}</div>` : ""}`;
   } else {
     const k1 = st.state === "before" ? "Départ du terminus" : st.state === "done" ? "Course terminée" : st.atStop ? "À l'arrêt" : "Prochain arrêt";
@@ -2074,7 +2075,7 @@ function guideTick() {
       <span class="gl">${badge(p.r, "lg", false)}<b>→ ${esc(p.h)}</b></span>
       <span>à <b>${esc(qName(p.stops[g.bi]))}</b> · ${w < 0.5 ? "<b>à l'arrêt</b>" : w < 59.5 ? `départ dans <b>${Math.round(w)} min</b>` : `départ à <b>${hm(lt.dep)}</b>`} · ${dot(lt.live)} <small>${lt.live ? delayTxt(lt.dep, lt.sdep) : "horaire théorique"}</small></span>
       ${walkTot ? `<span class="gw">${walkSvg} ${s.walks.length === 1 && net.Q[s.walks[0].from][0] === net.Q[s.walks[0].to][0] ? "Changez de quai" : "Marchez jusqu'à " + esc(qName(p.stops[g.bi]))} · ${walkTot} min</span>` : ""}
-      ${away != null && away > 0 ? `<span class="gw">${busPicto("currentColor")} le ${modeOf(p.r) === "tram" ? "tram" : "bus"} est à ${away} arrêt${away > 1 ? "s" : ""}</span>` : ""}`;
+      ${away != null && away > 0 ? `<span class="gw">${busPicto("currentColor", p.r)} le ${modeOf(p.r) === "tram" ? "tram" : "bus"} est à ${away} arrêt${away > 1 ? "s" : ""}</span>` : ""}`;
     if (s.prev) ping(G.id + ":corr:" + s.li, `Correspondance : ${net.R[p.r].s} → ${p.h}`, `à ${qName(p.stops[g.bi])}, départ ${w < 59.5 ? "dans " + Math.max(0, Math.round(w)) + " min" : "à " + hm(lt.dep)}`, true);
     if (w <= 2.2 && w > 0) ping(G.id + ":soon:" + s.li, `Votre ${net.R[p.r].s} arrive`, `${qName(p.stops[g.bi])} · dans ${Math.max(1, Math.round(w))} min`);
   } else {
@@ -2113,7 +2114,20 @@ function followCam(force) {
 // ---------- Info trafic ----------
 // Relevée sur grandreims-mobilites.fr par une tâche GitHub (toutes les 15 min environ) dans info-trafic.json.
 const trActive = () => { const t = parisNow().iso; return TR.items.filter((x) => !x.end || x.end >= t); };
-const trStatus = (x) => x.start && x.start > parisNow().iso ? "soon" : "now";
+// info qui revient un jour de la semaine (« tous les dimanches jusqu'à 15h00 » : marchés) : perturbation ce jour-là seulement
+const TR_DAYS = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
+function trRecur(x) {
+  const t = trPlain([x.t, x.p].join(" "));
+  const m = t.match(/(?:tous les|chaque|les) (dimanche|lundi|mardi|mercredi|jeudi|vendredi|samedi)s?/);
+  if (!m) return null;
+  const h = t.match(/jusqu'?(?:e|a)? ?(\d{1,2}) ?h ?(\d{2})?/);
+  return { day: TR_DAYS.indexOf(m[1]), name: m[1], until: h ? +h[1] * 60 + (+h[2] || 0) : 24 * 60 };
+}
+const trRecurOn = (r) => { const n = parisNow(); const d = new Date(n.iso + "T12:00:00Z").getUTCDay(); return d === r.day && n.min < r.until; };
+// simple information (nouvel arrêt, arrêt desservi désormais) : ni perturbation ni pastille
+const TR_INFO = /nouvel(le)?s? arret|nouveaux arrets|sont (desormais )?desservis par|est (desormais )?desservi par|mise en service|ouverture de la ligne/;
+const trInfo = (x) => { const t = trText(x); return TR_INFO.test(t) && !TR_GENE.test(t); };
+const trStatus = (x) => { if (x.start && x.start > parisNow().iso) return "soon"; const r = trRecur(x); if (r && !trRecurOn(r)) return "recur"; return trInfo(x) ? "info" : "now"; };
 const trRoutes = (x) => x.lines.map((s) => net.R.findIndex((r) => r.s === s)).filter((i) => i >= 0);
 // --- tri des infos ---
 const trPlain = (s) => (s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -2261,7 +2275,7 @@ document.addEventListener("click", (e) => { const b = e.target.closest("[data-lp
 function openTrafic(o) { TR.filter = o.lines || null; TR.open = o.open || null; if (S.view !== "trafic") S.prevView = S.view; go("trafic"); }
 function trHomeHtml() {
   if (!TR.ok) return "";
-  const act = trActive(), now = act.filter((x) => trStatus(x) === "now"), soon = act.length - now.length;
+  const act = trActive(), now = act.filter((x) => trStatus(x) === "now"), soon = act.filter((x) => trStatus(x) === "soon").length;
   if (!now.length) return `<div class="trcard"><div class="trh"><span class="tric ok">${okSvg}</span><div class="nm"><b>Trafic normal</b><small>Aucune perturbation en cours sur le réseau${soon ? ` · ${soon} à venir` : ""}</small></div></div>${soon ? `<button type="button" class="trall" data-tr="">Voir l'info trafic ${chevR}</button>` : ""}</div>`;
   // en premier : les perturbations sur les lignes de mes arrêts et des arrêts proches
   const mine = new Set();
@@ -2286,7 +2300,7 @@ function trItem(x) {
   const rt = trRT(x) && st === "now";
   const zoomable = !!trTargets(x) || trRoutes(x).length === 1;
   const zb = zoomable ? `<button type="button" class="linkbtn trzoom" data-zoom="${esc(x.id)}">Voir sur le plan ${chevR}</button>` : "";
-  return `<details class="tritem${rt ? " trlive" : ""}" data-id="${esc(x.id)}"${TR.open === x.id ? " open" : ""}><summary><span class="tt2">${esc(x.t)}</span><svg class="chev" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 5 4 4 4-4"/></svg>${x.p ? `<span class="pp">${esc(x.p)}</span>` : ""}<span class="bs"><span class="tag ${rt ? "live" : st}">${rt ? "En direct" : st === "now" ? "En cours" : "À venir"}</span>${trRoutes(x).map((r) => badge(r, "sm")).join("")}</span></summary>${body || zb ? `<div class="body">${body}${zb}</div>` : ""}</details>`;
+  return `<details class="tritem${rt ? " trlive" : ""}" data-id="${esc(x.id)}"${TR.open === x.id ? " open" : ""}><summary><span class="tt2">${esc(x.t)}</span><svg class="chev" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 5 4 4 4-4"/></svg>${x.p ? `<span class="pp">${esc(x.p)}</span>` : ""}<span class="bs"><span class="tag ${rt ? "live" : st === "now" ? "now" : "soon"}">${rt ? "En direct" : st === "now" ? (trRecur(x) ? "Aujourd'hui" : "En cours") : st === "recur" ? "Chaque " + trRecur(x).name : st === "info" ? "Info" : "À venir"}</span>${trRoutes(x).map((r) => badge(r, "sm")).join("")}</span></summary>${body || zb ? `<div class="body">${body}${zb}</div>` : ""}</details>`;
 }
 function renderTrafic() {
   const head = $("#tr-head"), res = $("#tr-res");
@@ -2301,11 +2315,13 @@ function renderTrafic() {
     h += `<div class="trf" role="group" aria-label="Filtrer par ligne" style="margin-top:12px"><button type="button" data-f="" aria-pressed="${!f}">Toutes</button>${lines.map((r) => `<button type="button" data-f="${r}" aria-pressed="${!!f && f.length === 1 && f[0] === r}" aria-label="Ligne ${esc(net.R[r].s)}">${badge(r, "sm", true)}</button>`).join("")}</div>`;
     head.innerHTML = h;
     const list = (f ? act.filter((x) => trRoutes(x).some((r) => f.includes(r))) : act).slice().sort((a, b) => (trStatus(a) === "soon") - (trStatus(b) === "soon"));
-    const live = list.filter((x) => trRT(x) && trStatus(x) === "now"), byLine = list.filter((x) => !live.includes(x));
+    const isInfo = (x) => ["info", "recur"].includes(trStatus(x));
+    const live = list.filter((x) => trRT(x) && trStatus(x) === "now"), infos = list.filter((x) => !live.includes(x) && isInfo(x)), byLine = list.filter((x) => !live.includes(x) && !isInfo(x));
     res.innerHTML = `<div class="trsec"><span class="live" aria-hidden="true"></span><h3>Temps réel</h3><small>${live.length ? live.length + " en cours" : "rien à signaler"}</small></div>`
       + (live.length ? live.map(trItem).join("") : `<div class="empty" style="padding:6px 4px">Aucune perturbation en direct${f ? " sur cette ligne" : ""}.</div>`)
       + `<div class="trsec" style="margin-top:10px"><h3>Par ligne</h3><small>${byLine.length} perturbation${byLine.length > 1 ? "s" : ""}</small></div>`
-      + (byLine.length ? byLine.map(trItem).join("") : `<div class="empty" style="padding:6px 4px">Aucune perturbation annoncée${f ? " sur cette ligne" : ""}.</div>`);
+      + (byLine.length ? byLine.map(trItem).join("") : `<div class="empty" style="padding:6px 4px">Aucune perturbation annoncée${f ? " sur cette ligne" : ""}.</div>`)
+      + (infos.length ? `<div class="trsec" style="margin-top:10px"><h3>Infos</h3><small>nouveaux arrêts, marchés…</small></div>` + infos.map(trItem).join("") : "");
     const at = TR.at ? new Date(TR.at).toLocaleString("fr-FR", { timeZone: "Europe/Paris", weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }) : "";
     $("#tr-src").innerHTML = `Source : <a href="${esc(TR.src || "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html")}" target="_blank" rel="noopener">grandreims-mobilites.fr</a>, relevée automatiquement toutes les 15 minutes environ.${at ? ` Dernier changement : ${esc(at)}.` : ""}`;
     if (TR.open) { const el = res.querySelector(`[data-id="${CSS.escape(TR.open)}"]`); if (el) setTimeout(() => el.scrollIntoView({ block: "nearest" }), 50); }
