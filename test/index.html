@@ -377,6 +377,7 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
 #prof .tg[aria-pressed="true"] { background: #1f9d55; }
 #prof .tg[aria-pressed="true"]::after { left: 21px; }
 #prof .psel { border: 1px solid var(--rule); border-radius: 8px; padding: 3px 6px; background: var(--surface); color: inherit; font: inherit; font-size: 13px; }
+#prof .pcat { font-weight: 700; font-size: 14px; margin: 14px 2px 6px; }
 #prof .pnote { color: var(--muted); font-size: 12.5px; margin: 8px 2px 0; line-height: 1.4; }
 .myl-h { display: flex; align-items: center; gap: 6px; }
 .mapctl { position: absolute; right: 12px; top: 12px; display: flex; flex-direction: column; gap: 8px; z-index: 4; }
@@ -1292,8 +1293,31 @@ function toast(msg, ms = 3200) { const t = $("#toast"); t.textContent = msg; t.c
 // ---------- favoris ----------
 const fav = { stops: store.get("favStops") || [], trips: store.get("favTrips") || [] };
 const saveFav = () => { store.set("favStops", fav.stops); store.set("favTrips", fav.trips); };
-const MY = { lines: store.get("myLines") || [], names: store.get("stopNames") || {}, al: Object.assign({ trafic: true, last: true, arrive: true, arriveMin: 5 }, store.get("myAlerts") || {}) };
-const saveMy = () => { store.set("myLines", MY.lines); store.set("stopNames", MY.names); store.set("myAlerts", MY.al); };
+// #11 : fonctionnalités désactivables (toutes actives au départ)
+const FEATS = [
+  ["Mon bus", [
+    ["gps", "Bus calé sur ma position", "Quand je suis à bord, le bus suit mon GPS (point bleu)"],
+    ["dedans", "Bouton « Je suis dedans »", "Pour caler le bus sur ma position sans attendre"],
+    ["retour", "Recalage au retour dans l'appli", "Se recale tout de suite si j'étais à bord il y a peu"],
+    ["plein", "Plein écran en tirant le panneau", "Mon bus prend tout l'écran, sortie par la croix"],
+    ["centre", "Liste calée sur le bus", "Revient sur le bus 4 s après que je fais défiler"],
+    ["chevrons", "Chevrons qui défilent", "Animation sur la ligne quand le bus roule"],
+    ["cxdir", "Direction des correspondances", "« U3 › Maurencienne · 3 min » sous les arrêts"]]],
+  ["Détection", [
+    ["inbus", "« Tu es dans un bus ? »", "Propose de suivre le bus ou le tram où je suis monté"]]],
+  ["Arrêts et plan", [
+    ["parmode", "Lignes rangées par mode", "Tram, BHNS, bus et express séparés à chaque arrêt"],
+    ["pliage", "Retenir les blocs repliés", "Garde Tram, BHNS… repliés d'un arrêt à l'autre"]]],
+  ["Itinéraire", [
+    ["plus", "Plus de trajets", "6 trajets, « Plus tôt » et « Départs suivants »"]]],
+  ["Info trafic", [
+    ["bang", "« ! » animé sur l'onglet", "Quand une nouvelle info en temps réel arrive"],
+    ["perturbe", "Pop-up « Réseau fortement perturbé »", "Neige, grève, réseau suspendu…"],
+    ["mesl", "Mes lignes en premier", "Dans Info trafic et Lignes & plans"]]],
+  ["Fin de service", [
+    ["nuit", "Pop-up de fin de service", "Une fois par nuit, puis un bandeau discret"]]]];
+const MY = { ft: store.get("myFeats") || {}, lines: store.get("myLines") || [], names: store.get("stopNames") || {}, al: Object.assign({ trafic: true, last: true, arrive: true, arriveMin: 5 }, store.get("myAlerts") || {}) };
+const saveMy = () => { store.set("myFeats", MY.ft); store.set("myLines", MY.lines); store.set("stopNames", MY.names); store.set("myAlerts", MY.al); };
 const isFavStop = (i) => i != null && fav.stops.includes(pName(i));
 const isFavTrip = (a, b) => a != null && b != null && fav.trips.some(([x, y]) => x === pName(a) && y === pName(b));
 function toggleFavStop(i) { const n = pName(i); fav.stops = isFavStop(i) ? fav.stops.filter((x) => x !== n) : [...fav.stops, n]; saveFav(); toast(isFavStop(i) ? `${n} ajouté à l'accueil` : `${n} retiré des favoris`); }
@@ -2344,9 +2368,13 @@ function renderProfile() {
       <div class="prow"><span class="pn"><b>Dernier bus de mes trajets</b><small>Le soir, 30 min avant le dernier départ utile</small></span>${tg("last")}</div>
       <div class="prow"><span class="pn"><b>Mon bus arrive</b><small>Pour mes trajets, <select class="psel" data-almin>${[3, 5, 10, 15].map((m) => `<option${m === MY.al.arriveMin ? " selected" : ""}>${m}</option>`).join("")}</select> min avant le passage</small></span>${tg("arrive")}</div>
     </div>
-    <p class="pnote">Le service de notification lorsque l'application est fermée sera disponible ultérieurement.</p>`;
+    <p class="pnote">Le service de notification lorsque l'application est fermée sera disponible ultérieurement.</p>
+    <h3>Fonctionnalités</h3>
+    ${FEATS.map(([cat, list]) => `<div class="pcat">${cat}</div><div class="pcard">${list.map(([k, t, d]) => `<div class="prow"><span class="pn"><b>${t}</b><small>${d}</small></span><button type="button" class="tg" data-ft="${k}" aria-pressed="${MY.ft[k] !== false}" aria-label="Activer"></button></div>`).join("")}</div>`).join("")}
+    <p class="pnote">Tout est activé au départ. Une fonction coupée revient au fonctionnement simple d'avant.</p>`;
   $("#prof-x").onclick = () => el.classList.remove("on");
   el.querySelectorAll("[data-myl]").forEach((b) => b.onclick = () => { const i = +b.dataset.myl; MY.lines = MY.lines.includes(i) ? MY.lines.filter((x) => x !== i) : [...MY.lines, i]; saveMy(); b.setAttribute("aria-pressed", MY.lines.includes(i)); buildGrid(); if (S.view === "trafic") renderTrafic(); });
+  el.querySelectorAll("[data-ft]").forEach((b) => b.onclick = () => { const k = b.dataset.ft; MY.ft[k] = MY.ft[k] === false; saveMy(); b.setAttribute("aria-pressed", MY.ft[k] !== false); });
   el.querySelectorAll("[data-al]").forEach((b) => b.onclick = () => { MY.al[b.dataset.al] = !MY.al[b.dataset.al]; saveMy(); b.setAttribute("aria-pressed", !!MY.al[b.dataset.al]); });
   const sel = el.querySelector("[data-almin]"); if (sel) sel.onchange = () => { MY.al.arriveMin = +sel.value; saveMy(); };
 }
