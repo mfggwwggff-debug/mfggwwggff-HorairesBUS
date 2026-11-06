@@ -1295,27 +1295,27 @@ const fav = { stops: store.get("favStops") || [], trips: store.get("favTrips") |
 const saveFav = () => { store.set("favStops", fav.stops); store.set("favTrips", fav.trips); };
 // #11 : fonctionnalités désactivables (toutes actives au départ)
 const FEATS = [
-  ["Mon bus", [
-    ["gps", "Bus calé sur ma position", "Quand je suis à bord, le bus suit mon GPS (point bleu)"],
-    ["dedans", "Bouton « Je suis dedans »", "Pour caler le bus sur ma position sans attendre"],
-    ["retour", "Recalage au retour dans l'appli", "Se recale tout de suite si j'étais à bord il y a peu"],
-    ["plein", "Plein écran en tirant le panneau", "Mon bus prend tout l'écran, sortie par la croix"],
-    ["centre", "Liste calée sur le bus", "Revient sur le bus 4 s après que je fais défiler"],
-    ["chevrons", "Chevrons qui défilent", "Animation sur la ligne quand le bus roule"],
-    ["cxdir", "Direction des correspondances", "« U3 › Maurencienne · 3 min » sous les arrêts"]]],
-  ["Détection", [
-    ["inbus", "« Tu es dans un bus ? »", "Propose de suivre le bus ou le tram où je suis monté"]]],
-  ["Arrêts et plan", [
-    ["parmode", "Lignes rangées par mode", "Tram, BHNS, bus et express séparés à chaque arrêt"],
-    ["pliage", "Retenir les blocs repliés", "Garde Tram, BHNS… repliés d'un arrêt à l'autre"]]],
-  ["Itinéraire", [
-    ["plus", "Plus de trajets", "6 trajets, « Plus tôt » et « Départs suivants »"]]],
+  ["Pendant le trajet", [
+    ["gps", "Bus suivi en direct", "Quand vous êtes à bord, le bus avance sur l'écran avec vous, grâce au GPS de votre téléphone. Les heures d'arrivée sont plus précises."],
+    ["dedans", "Bouton « Je suis dedans »", "Un bouton pour dire à l'appli que vous êtes monté : le bus se cale sur vous en quelques secondes."],
+    ["retour", "Reprise instantanée", "Si vous quittez l'appli pendant le trajet, le bus se recale tout de suite sur vous à votre retour, même arrêté à un feu rouge."],
+    ["plein", "Mode plein écran", "Tirez le panneau vers le haut : votre trajet occupe tout l'écran. Touchez la croix pour revenir."],
+    ["centre", "Toujours centré sur le bus", "La liste des arrêts suit le bus. Si vous la faites défiler, elle revient sur lui au bout de 4 secondes."],
+    ["chevrons", "Animation du trajet", "Des flèches défilent devant le bus quand il roule : on voit d'un coup d'œil qu'il avance."],
+    ["cxdir", "Correspondances détaillées", "Chaque correspondance indique sa direction et son heure de passage, par exemple « U3 › Maurencienne · 3 min »."]]],
+  ["Détection automatique", [
+    ["inbus", "Détection du bus", "Vous montez sans rien faire ? L'appli reconnaît le bus ou le tram dans lequel vous êtes et vous propose de le suivre."]]],
+  ["Aux arrêts", [
+    ["parmode", "Lignes classées par transport", "À chaque arrêt, les lignes sont rangées par type : tram, BHNS, bus et express. Plus facile de s'y retrouver."],
+    ["pliage", "Mémoire de l'affichage", "Les catégories que vous repliez (le tram, par exemple) restent repliées d'un arrêt à l'autre."]]],
+  ["Itinéraires", [
+    ["plus", "Plus de choix de trajets", "6 trajets proposés d'emblée, avec « Plus tôt » et « Départs suivants » pour en voir d'autres."]]],
   ["Info trafic", [
-    ["bang", "« ! » animé sur l'onglet", "Quand une nouvelle info en temps réel arrive"],
-    ["perturbe", "Pop-up « Réseau fortement perturbé »", "Neige, grève, réseau suspendu…"],
-    ["mesl", "Mes lignes en premier", "Dans Info trafic et Lignes & plans"]]],
-  ["Fin de service", [
-    ["nuit", "Pop-up de fin de service", "Une fois par nuit, puis un bandeau discret"]]]];
+    ["bang", "Signal des nouvelles perturbations", "Un « ! » orange s'anime sur l'onglet Info trafic dès qu'une perturbation vient d'apparaître."],
+    ["perturbe", "Alerte réseau perturbé", "En cas de neige, de grève ou de réseau suspendu, un message vous prévient dès l'ouverture de l'appli."],
+    ["mesl", "Mes lignes d'abord", "Les lignes choisies dans « Mes lignes » apparaissent en premier dans Info trafic et dans Lignes & plans."]]],
+  ["Le soir", [
+    ["nuit", "Message de fin de service", "Quand le dernier bus est passé, un message vous l'indique une fois par nuit, puis un petit bandeau reste en haut jusqu'au matin."]]]];
 const MY = { ft: store.get("myFeats") || {}, lines: store.get("myLines") || [], names: store.get("stopNames") || {}, al: Object.assign({ trafic: true, last: true, arrive: true, arriveMin: 5 }, store.get("myAlerts") || {}) };
 const saveMy = () => { store.set("myFeats", MY.ft); store.set("myLines", MY.lines); store.set("stopNames", MY.names); store.set("myAlerts", MY.al); };
 const isFavStop = (i) => i != null && fav.stops.includes(pName(i));
@@ -2371,7 +2371,7 @@ function renderProfile() {
     <p class="pnote">Le service de notification lorsque l'application est fermée sera disponible ultérieurement.</p>
     <h3>Fonctionnalités</h3>
     ${FEATS.map(([cat, list]) => `<div class="pcat">${cat}</div><div class="pcard">${list.map(([k, t, d]) => `<div class="prow"><span class="pn"><b>${t}</b><small>${d}</small></span><button type="button" class="tg" data-ft="${k}" aria-pressed="${MY.ft[k] !== false}" aria-label="Activer"></button></div>`).join("")}</div>`).join("")}
-    <p class="pnote">Tout est activé au départ. Une fonction coupée revient au fonctionnement simple d'avant.</p>`;
+    <p class="pnote">Toutes les fonctionnalités sont activées au départ. Vous pouvez en couper une à tout moment : l'appli revient alors à un affichage plus simple.</p>`;
   $("#prof-x").onclick = () => el.classList.remove("on");
   el.querySelectorAll("[data-myl]").forEach((b) => b.onclick = () => { const i = +b.dataset.myl; MY.lines = MY.lines.includes(i) ? MY.lines.filter((x) => x !== i) : [...MY.lines, i]; saveMy(); b.setAttribute("aria-pressed", MY.lines.includes(i)); buildGrid(); if (S.view === "trafic") renderTrafic(); });
   el.querySelectorAll("[data-ft]").forEach((b) => b.onclick = () => { const k = b.dataset.ft; MY.ft[k] = MY.ft[k] === false; saveMy(); b.setAttribute("aria-pressed", MY.ft[k] !== false); });
