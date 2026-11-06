@@ -617,14 +617,14 @@ function paint() {
   const nice = [50, 100, 200, 250, 500, 1000, 2000, 5000, 10000, 20000].find((m) => m / mpp >= 56) || 20000;
   const len = nice / mpp;
   const mob = isMobile();
-  const bx = mob ? 14 : W - len - 16, by = mob ? topInset() + 26 : H - 20;
+  const bx = mob ? 66 : W - len - 16, by = mob ? topInset() + 26 : H - 20;
   ctx.strokeStyle = C.ink; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(bx, by - 5); ctx.lineTo(bx, by); ctx.lineTo(bx + len, by); ctx.lineTo(bx + len, by - 5); ctx.stroke();
   ctx.font = `600 11.5px ${C.font}`; ctx.fillStyle = C.ink; ctx.textAlign = "center";
   ctx.lineWidth = 3; ctx.strokeStyle = C.bg; const st = nice >= 1000 ? nice / 1000 + " km" : nice + " m";
   ctx.strokeText(st, bx + len / 2, by - 10); ctx.fillText(st, bx + len / 2, by - 10); ctx.textAlign = "start";
   if (TILES_OK) {
     ctx.font = `500 10px ${C.font}`; ctx.textAlign = mob ? "left" : "right"; ctx.lineWidth = 3; ctx.strokeStyle = C.bg; ctx.fillStyle = C.muted;
-    const at = "© les contributeurs d'OpenStreetMap", ax = mob ? 14 : W - 12, ay = mob ? topInset() + 44 : H - 6;
+    const at = "© les contributeurs d'OpenStreetMap", ax = mob ? 66 : W - 12, ay = mob ? topInset() + 44 : H - 6;
     ctx.strokeText(at, ax, ay); ctx.fillText(at, ax, ay); ctx.textAlign = "start";
   }
   placePop();
