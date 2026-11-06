@@ -212,6 +212,7 @@ SIMPLIFY = [
 ]
 
 GAP = 0.22  # liseré entre deux lignes, en largeur de ligne de base
+SIDE = -1   # sens des décalages attendu par le plan (map.js) : positif = à droite
 WGT = []
 
 # ---------- tronçons communs ----------
@@ -430,12 +431,16 @@ def trim_departure_loop(dep, stops_xy, arrivals, step=4.0, merge=25.0):
     # 2e arrêt desservi
     sx, sy = stops_xy[1]
     i_s1 = min(range(len(s)), key=lambda i: (s[i][0] - sx) ** 2 + (s[i][1] - sy) ** 2)
+    # point où le départ rejoint l'arrivée pour de bon (au moins 80 m ensemble) : un simple frôlement
+    # près du terminus (E5 à Saint-Symphorien, qui fait le tour par la place Royale) ne compte pas
+    on = [any((a - x) ** 2 + (b - y) ** 2 <= merge * merge for a, b in g.near(x, y)) for x, y in s]
+    keep = max(1, int(80 / step))
     acc, cut = 0.0, None
     for i in range(1, len(s)):
         acc += math.hypot(s[i][0] - s[i - 1][0], s[i][1] - s[i - 1][1])
         if i >= i_s1:
             cut = i_s1; break
-        if acc >= 40 and any((a - s[i][0]) ** 2 + (b - s[i][1]) ** 2 <= merge * merge for a, b in g.near(*s[i])):
+        if acc >= 40 and all(on[i:i + keep]) and len(on[i:i + keep]) == keep:
             cut = i; break
     if not cut:
         return dep
@@ -450,6 +455,189 @@ def trim_departure_loop(dep, stops_xy, arrivals, step=4.0, merge=25.0):
         if (q[0] - x) ** 2 + (q[1] - y) ** 2 <= (2 * merge) ** 2:
             return despike([q] + s[cut:])
     return s[cut:]
+
+
+# ---------- faisceaux : squelette commun et ordre des lignes ----------
+# Les lignes qui empruntent la même rue sont « aimantées » sur un même axe (squelette), puis rangées dans un
+# ordre fixe sur chaque tronçon, choisi pour éviter les croisements : à chaque bout du tronçon, la ligne qui
+# part (ou arrive) vers la gauche est placée à gauche. Les lignes restent ainsi en blocs, côte à côte.
+SNAP = 18.0   # distance max pour rejoindre l'axe d'une autre ligne (m)
+
+
+def _ang(d, v):
+    """angle de v par rapport à la direction d (positif = à gauche)"""
+    return math.atan2(d[0] * v[1] - d[1] * v[0], d[0] * v[0] + d[1] * v[1])
+
+
+def bundle(frags, rank, step=8.0, snap=SNAP):
+    nodes, ndir = [], []          # position et direction (non orientée) des nœuds du squelette
+    ng = Grid(snap)
+
+    def nearest(x, y, d, create):
+        best, bd = None, snap * snap
+        for i in ng.near(x, y):
+            a, b = nodes[i]
+            dd = (a - x) ** 2 + (b - y) ** 2
+            if dd > bd:
+                continue
+            c = abs(d[0] * ndir[i][0] + d[1] * ndir[i][1])
+            if c < (0.5 if dd < 64 else 0.8):
+                continue
+            best, bd = i, dd
+        if best is None and create:
+            best = len(nodes)
+            nodes.append((x, y)); ndir.append(d); ng.add(x, y, best)
+        return best
+
+    # 1) squelette : les tronçons les plus importants d'abord (tram, lignes fortes), les autres s'y raccrochent
+    order = sorted(range(len(frags)), key=lambda fi: (rank[frags[fi][0]], -len(frags[fi][1])))
+    for fi in order:
+        pts = frags[fi][1]
+        ds = directions(pts)
+        for (x, y), d in zip(pts, ds):
+            nearest(x, y, d, True)
+    # 2) chaque tronçon devient une suite de nœuds ; trous comblés par le plus court chemin dans le squelette
+    adj = defaultdict(set)
+    seqs = []
+    for fi in order:
+        pts = frags[fi][1]
+        ds = directions(pts)
+        seq = []
+        for (x, y), d in zip(pts, ds):
+            n = nearest(x, y, d, True)
+            if not seq or seq[-1] != n:
+                seq.append(n)
+        seqs.append((fi, seq))
+        for a, b in zip(seq, seq[1:]):
+            adj[a].add(b); adj[b].add(a)
+    dist = lambda a, b: math.hypot(nodes[a][0] - nodes[b][0], nodes[a][1] - nodes[b][1])
+
+    def fill(a, b):
+        # plus court chemin (en nœuds) de a à b, au plus 6 pas, s'il ne fait pas un détour
+        if b in adj[a]:
+            return [b]
+        prev, front = {a: None}, [a]
+        for _ in range(6):
+            nxt = []
+            for u in front:
+                for v in adj[u]:
+                    if v not in prev:
+                        prev[v] = u; nxt.append(v)
+            if b in prev:
+                path, u = [], b
+                while u != a:
+                    path.append(u); u = prev[u]
+                path.reverse()
+                L = sum(dist(p, q) for p, q in zip([a] + path, path))
+                return path if L <= 1.6 * dist(a, b) + 10 else [b]
+            front = nxt
+        return [b]
+
+    clean = {}
+    for fi, seq in seqs:
+        out = [seq[0]]
+        for b in seq[1:]:
+            out += fill(out[-1], b)
+        # pas d'aller-retour sur un même nœud (a, b, a)
+        k = 2
+        while k < len(out):
+            if out[k] == out[k - 2]:
+                del out[k - 1:k + 1]; k = max(2, k - 1)
+            else:
+                k += 1
+        clean[fi] = out
+    # 3) qui passe sur chaque arête du squelette
+    edge_lines = defaultdict(set)
+    for fi, seq in clean.items():
+        r = frags[fi][0]
+        for a, b in zip(seq, seq[1:]):
+            if a != b:
+                edge_lines[(min(a, b), max(a, b))].add(r)
+    # occurrences : pour chaque ligne et chaque arête, où elle se trouve dans quelle suite
+    occ = defaultdict(dict)
+    for fi, seq in clean.items():
+        r = frags[fi][0]
+        for k in range(len(seq) - 1):
+            e = (min(seq[k], seq[k + 1]), max(seq[k], seq[k + 1]))
+            occ[e].setdefault(r, (fi, k))
+
+    def side(e, a, b):
+        """b est-il à gauche (+1) ou à droite (-1) de a sur l'arête e, dans le sens e[0] → e[1] ? 0 : on ne sait pas"""
+        (fa, ka), (fb, kb) = occ[e][a], occ[e][b]
+        sa, sb = clean[fa], clean[fb]
+        # sens de parcours de chaque ligne par rapport à e[0] → e[1]
+        oa = 1 if sa[ka] == e[0] else -1
+        ob = 1 if sb[kb] == e[0] else -1
+        res = []
+        for fwd in (1, -1):  # vers l'avant (après e[1]) puis vers l'arrière (avant e[0])
+            ia = ka + (1 if oa == 1 else 0) if fwd == 1 else ka + (0 if oa == 1 else 1)
+            ib = kb + (1 if ob == 1 else 0) if fwd == 1 else kb + (0 if ob == 1 else 1)
+            sta, stb = oa * fwd, ob * fwd
+            prev = e[0] if fwd == 1 else e[1]
+            cur = sa[ia]
+            dec = 0
+            for _ in range(400):
+                na, nb = ia + sta, ib + stb
+                xa = sa[na] if 0 <= na < len(sa) else None
+                xb = sb[nb] if 0 <= nb < len(sb) else None
+                if xa is None or xb is None:
+                    break
+                if xa == xb:
+                    prev, cur, ia, ib = cur, xa, na, nb
+                    continue
+                d = (nodes[cur][0] - nodes[prev][0], nodes[cur][1] - nodes[prev][1])
+                va = (nodes[xa][0] - nodes[cur][0], nodes[xa][1] - nodes[cur][1])
+                vb = (nodes[xb][0] - nodes[cur][0], nodes[xb][1] - nodes[cur][1])
+                ga, gb = _ang(d, va), _ang(d, vb)
+                if abs(ga - gb) > 0.05:
+                    left_b = gb > ga
+                    # vers l'arrière, la gauche s'inverse par rapport au sens de marche
+                    dec = (1 if left_b else -1) * fwd
+                break
+            res.append(dec)
+        f, b_ = res
+        return f or b_
+
+    # 4) tronçons (suites d'arêtes avec les mêmes lignes) et ordre des lignes sur chacun
+    pos = {}  # (arête, ligne) -> décalage (en largeurs de ligne), dans le sens e[0] → e[1]
+    for e, ls in edge_lines.items():
+        ls = sorted(ls, key=lambda r: rank[r])
+        if len(ls) == 1:
+            pos[(e, ls[0])] = 0.0
+            continue
+        score = {r: 0 for r in ls}
+        for i, a in enumerate(ls):
+            for b in ls[i + 1:]:
+                s = side(e, a, b)
+                if s == 0:
+                    # pas d'indice (les deux lignes commencent et finissent ensemble) : ordre fixe par rang,
+                    # dans un repère lié à l'orientation de la rue (le même d'une arête à l'autre)
+                    dx, dy = nodes[e[1]][0] - nodes[e[0]][0], nodes[e[1]][1] - nodes[e[0]][1]
+                    s = -1 if dx * 0.94 + dy * 0.34 >= 0 else 1
+                # s > 0 : b à gauche de a
+                score[b] += s; score[a] -= s
+        ordered = sorted(ls, key=lambda r: (-score[r], rank[r]))  # de gauche à droite
+        ws = [WGT[r] for r in ordered]
+        tot = sum(ws) + GAP * (len(ws) - 1)
+        acc = 0.0
+        for r, w in zip(ordered, ws):
+            pos[(e, r)] = tot / 2 - (acc + w / 2)   # positif = à gauche
+            acc += w + GAP
+    # 5) décalage de chaque tronçon de ligne, nœud par nœud, dans son propre sens de marche
+    res = {}
+    for fi, seq in clean.items():
+        r = frags[fi][0]
+        offs = []
+        for k in range(len(seq) - 1):
+            a, b = seq[k], seq[k + 1]
+            e = (min(a, b), max(a, b))
+            v = pos.get((e, r), 0.0)
+            offs.append(v if a == e[0] else -v)
+        if not offs:
+            continue
+        node_off = [offs[0]] + [(offs[k - 1] + offs[k]) / 2 for k in range(1, len(offs))] + [offs[-1]]
+        res[fi] = ([nodes[n] for n in seq], node_off)
+    return res
 
 
 def parallel_lines(data, step=8.0, dedupe=45.0, near=14.0, slot_m=10.0, oneway=50.0):
@@ -644,43 +832,20 @@ def parallel_lines(data, step=8.0, dedupe=45.0, near=14.0, slot_m=10.0, oneway=5
         if changed:
             print("détours simplifiés :", changed, "points")
 
-    # 2) pour chaque point : quelles autres lignes empruntent la même rue (même axe)
-    allg = Grid(near)
-    fdirs = []
-    for fi, (r, pts, _) in enumerate(frags):
-        ds = directions(pts)
-        fdirs.append(ds)
-        for i, (x, y) in enumerate(pts):
-            allg.add(x, y, (r, x, y, ds[i]))
+    # 2) faisceaux : axe commun et ordre des lignes sur chaque tronçon (voir bundle)
+    rank = {r: (0 if R[r].get("m") == 1 else 1 if WGT[r] >= 1 else 2, r) for r in range(len(R))}
+    bund = bundle(frags, rank, step)
     out = []
-    for fi, (r, pts, dr) in enumerate(frags):
-        ds = fdirs[fi]
-        raw = []
-        for i, (x, y) in enumerate(pts):
-            dx, dy = ds[i]
-            seen = {}
-            for r2, a, b, (ex, ey) in allg.near(x, y):
-                if r2 == r or (a - x) ** 2 + (b - y) ** 2 > near * near:
-                    continue
-                c = dx * ex + dy * ey
-                if abs(c) < 0.8:
-                    continue
-                if r2 not in seen or abs(c) > abs(seen[r2]):
-                    seen[r2] = c
-            group = sorted([r] + list(seen))
-            n, k = len(group), group.index(r)
-            lead = group[0]
-            sign = 1 if lead == r else (1 if seen[lead] > 0 else -1)
-            # place pondérée par la largeur des lignes (tram plus large…) + liseré entre deux lignes
-            ws = [WGT[g] for g in group]
-            tot = sum(ws) + GAP * (n - 1)
-            raw.append(sign * (sum(ws[:k]) + GAP * k + ws[k] / 2 - tot / 2))
-        # lissage : médiane (supprime les faux contacts aux carrefours) puis moyenne glissante
-        n = len(raw)
-        med = [sorted(raw[max(0, i - 3): i + 4])[len(raw[max(0, i - 3): i + 4]) // 2] for i in range(n)]
-        sm = med
-        for _ in range(2):  # deux passes : transitions douces entre faisceaux
-            sm = [sum(sm[max(0, i - 6): i + 7]) / len(sm[max(0, i - 6): i + 7]) for i in range(n)]
+    for fi, (r, _pts, dr) in enumerate(frags):
+        if fi not in bund:
+            continue
+        pts, raw = bund[fi]
+        n = len(pts)
+        # transitions douces quand un faisceau se forme ou se défait (moyenne glissante sur ±24 m, deux passes)
+        sm = raw
+        for _ in range(2):
+            sm = [sum(sm[max(0, i - 3): i + 4]) / len(sm[max(0, i - 3): i + 4]) for i in range(n)]
+        sm = [SIDE * v for v in sm]
         # sens unique : l'autre sens de la ligne ne passe pas à moins de 50 m (lissé pour ignorer les carrefours)
         og = dir_grid.get((r, 1 - dr)) if (r, 1 - dr) in dir_grid else None
         ow = [0] * n
