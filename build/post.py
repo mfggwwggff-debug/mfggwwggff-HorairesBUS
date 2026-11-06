@@ -46,6 +46,40 @@ def text_colors(data):
             r["t"] = "#1D1D1B"
 
 
+# ---------- tram : tracé réel dans le centre ----------
+# Le GTFS ne donne pas de tracé pour le tram (arrêt à arrêt en ligne droite). Dans le centre, on suit les rues
+# relevées par l'utilisateur (6 nov.) : Gare → rue Thiers → cours Langlet → rue de Vesle (Opéra) → Vesle.
+TRAM_VIA = {
+    ("Gare de Reims", "Langlet"): [(49.258393, 4.027237), (49.258251, 4.028326), (49.258150, 4.029353)],
+    ("Langlet", "Opéra-Cathédrale"): [(49.254845, 4.032030)],
+    ("Opéra-Cathédrale", "Vesle"): [],
+}
+
+
+def tram_paths(data):
+    R, PAT, P, Q, SH = data["R"], data["PAT"], data["P"], data["Q"], data["SH"]
+    tram = {i for i, r in enumerate(R) if r.get("m") == 1}
+    name = lambda q: P[Q[q][0]][0]
+    for p in PAT:
+        if p[0] not in tram or p[3] >= 0:
+            continue
+        pts = []
+        for k, q in enumerate(p[4]):
+            pts.append((Q[q][1], Q[q][2]))
+            if k + 1 < len(p[4]):
+                a, b = name(q), name(p[4][k + 1])
+                via = next((v for (x, y), v in TRAM_VIA.items() if a.startswith(x) and b.startswith(y)), None)
+                if via is None:
+                    via = next((v[::-1] for (x, y), v in TRAM_VIA.items() if a.startswith(y) and b.startswith(x)), [])
+                pts += [w for w in via if abs(w[0] - Q[q][1]) + abs(w[1] - Q[q][2]) > 1e-6]
+        flat, x0, y0 = [], 0, 0
+        for la, lo in pts:
+            x, y = round(lo * 1e5), round(la * 1e5)
+            flat += [x - x0, y - y0]; x0, y0 = x, y
+        SH.append(flat)
+        p[3] = len(SH) - 1
+
+
 # ---------- tronçons communs ----------
 def decode_shape(flat):
     out, x, y = [], 0, 0
@@ -267,6 +301,7 @@ def parallel_lines(data, step=8.0, dedupe=20.0, near=14.0, slot_m=10.0):
 def finalize(data):
     split_tram(data)
     text_colors(data)
+    tram_paths(data)
     nf, npts = parallel_lines(data)
     print("tronçons du plan", nf, "points", npts)
     return data

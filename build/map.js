@@ -498,6 +498,7 @@ function animateTo(cx, cy, s) {
 }
 function centerOn(x, y, s, smooth) { const [cx, cy] = centerFor(x, y, s); if (smooth) animateTo(cx, cy, s); else { view.cx = cx; view.cy = cy; view.s = s; drawMap(); } }
 function fitBox(pts, pad = 50) {
+  if (/[?&]vue=/.test(location.search)) return;
   if (!pts.length || !W) return;
   let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
   pts.forEach(([lo, la]) => { const x = PX(lo), y = PY(la); x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); });
