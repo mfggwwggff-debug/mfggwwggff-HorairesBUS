@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-06T10:39:45Z",
+ "at": "2026-11-06T13:32:35Z",
  "items": [
   {
    "id": "20acd05e39",
@@ -389,6 +389,56 @@
    "id": "16eb3530f2",
    "t": "En raison de contraintes d'exploitation, certains départs ne sont pas assurés aujourd'hui :",
    "lines": [
+    "U5"
+   ],
+   "p": "",
+   "start": null,
+   "end": null,
+   "b": [
+    {
+     "r": [
+      [
+       "Vendredi 6 novembre 2026:",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Départs de Croix du sud non assurés: 15h01-17h02-19h-20h42",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Départs de Parc des expos non assurés: 16h03-18h04-19h55",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Conseil déplacement",
+       1
+      ],
+      [
+       ": nous vous invitons à anticiper votre trajet ou à privilégier les lignes à proximité ( https://grandreims-mobilites.fr/fr/3RW-Itineraire.html)",
+       0
+      ]
+     ]
+    }
+   ],
+   "rt": true,
+   "sec": "temps reel"
+  },
+  {
+   "id": "16eb3530f2",
+   "t": "En raison de contraintes d'exploitation, certains départs ne sont pas assurés aujourd'hui :",
+   "lines": [
     "U20"
    ],
    "p": "",
@@ -461,24 +511,26 @@
    "sec": "temps reel"
   },
   {
-   "id": "391d31b0d6",
-   "t": "Travaux rue des Sablières à Champigny",
+   "id": "32c957c36c",
+   "t": "Report de l'arrêt St Symphorien",
    "lines": [
-    "U8"
+    "E2",
+    "E3",
+    "E4"
    ],
-   "p": "A partir du lundi 19 octobre 2026 jusqu'au lundi 21 décembre 2026",
+   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 6 novembre 2026",
    "start": "2026-10-19",
-   "end": "2026-12-21",
+   "end": "2026-11-06",
    "b": [
     {
-     "l": "U8",
+     "l": "E2",
      "r": [
       [
        "L'arrêt ",
        0
       ],
       [
-       "SABLIERES",
+       "SAINT-SYMPHORIEN",
        1
       ],
       [
@@ -486,28 +538,33 @@
        0
       ],
       [
-       "LA COUTURELLE",
+       "ST ETIENNE SUR SUIPPE",
        1
       ],
       [
-       " est reporté à l'",
+       " est déplacé ",
        0
       ],
       [
-       "arrêt GARENNE",
+       "au niveau du 7 rue Eugène Desteuque",
        1
       ]
-     ]
+     ],
+     "geo": {
+      "lat": 49.255376,
+      "lon": 4.036537,
+      "a": "7 rue Eugène Desteuque"
+     }
     },
     {
-     "l": "U8",
+     "l": "E3",
      "r": [
       [
        "L'arrêt ",
        0
       ],
       [
-       "SABLIERES",
+       "SAINT-SYMPHORIEN",
        1
       ],
       [
@@ -515,28 +572,33 @@
        0
       ],
       [
-       "CHAMPEA",
+       "WARMERIVILLE",
        1
       ],
       [
-       " est reporté à l'",
+       " est déplacé ",
        0
       ],
       [
-       "arrêt GARENNE",
+       "au niveau du 7 rue Eugène Desteuque",
        1
       ]
-     ]
+     ],
+     "geo": {
+      "lat": 49.255376,
+      "lon": 4.036537,
+      "a": "7 rue Eugène Desteuque"
+     }
     },
     {
-     "l": "U8",
+     "l": "E4",
      "r": [
       [
        "L'arrêt ",
        0
       ],
       [
-       "CROIX BLANCHE",
+       "SAINT-SYMPHORIEN",
        1
       ],
       [
@@ -544,99 +606,23 @@
        0
       ],
       [
-       "LA COUTURELLE",
+       "BETHENIVILLE",
        1
       ],
       [
-       " est reporté à l'",
+       " est déplacé ",
        0
       ],
       [
-       "arrêt REDONT",
+       "au niveau du 7 rue Eugène Desteuque",
        1
       ]
-     ]
-    },
-    {
-     "l": "U8",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "CROIX BLANCHE",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "CHAMPEA",
-       1
-      ],
-      [
-       " est reporté à l'",
-       0
-      ],
-      [
-       "arrêt REDONT",
-       1
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne"
-  },
-  {
-   "id": "1539d33ccb",
-   "t": "Travaux de voirie à Treslon",
-   "lines": [
-    "E6"
-   ],
-   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 16 avril 2027",
-   "start": "2026-10-19",
-   "end": "2027-04-16",
-   "b": [
-    {
-     "l": "",
-     "r": [
-      [
-       "Forte perturbation sur les horaires de la ligne durant cette période",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "E6",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "TRESLON",
-       1
-      ],
-      [
-       " dans les deux sens est non desservi par la ligne, mais reste desservi par le",
-       0
-      ],
-      [
-       "Transport A la Demande",
-       1
-      ]
-     ]
+     ],
+     "geo": {
+      "lat": 49.255376,
+      "lon": 4.036537,
+      "a": "7 rue Eugène Desteuque"
+     }
     },
     {
      "r": [
@@ -819,6 +805,196 @@
    "sec": "par ligne"
   },
   {
+   "id": "1539d33ccb",
+   "t": "Travaux de voirie à Treslon",
+   "lines": [
+    "E6"
+   ],
+   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 16 avril 2027",
+   "start": "2026-10-19",
+   "end": "2027-04-16",
+   "b": [
+    {
+     "l": "",
+     "r": [
+      [
+       "Forte perturbation sur les horaires de la ligne durant cette période",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "E6",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "TRESLON",
+       1
+      ],
+      [
+       " dans les deux sens est non desservi par la ligne, mais reste desservi par le",
+       0
+      ],
+      [
+       "Transport A la Demande",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne"
+  },
+  {
+   "id": "391d31b0d6",
+   "t": "Travaux rue des Sablières à Champigny",
+   "lines": [
+    "U8"
+   ],
+   "p": "A partir du lundi 19 octobre 2026 jusqu'au lundi 21 décembre 2026",
+   "start": "2026-10-19",
+   "end": "2026-12-21",
+   "b": [
+    {
+     "l": "U8",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "SABLIERES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "LA COUTURELLE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt GARENNE",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U8",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "SABLIERES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "CHAMPEA",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt GARENNE",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U8",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "CROIX BLANCHE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "LA COUTURELLE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt REDONT",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U8",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "CROIX BLANCHE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "CHAMPEA",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt REDONT",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne"
+  },
+  {
    "id": "7f0499f1fe",
    "t": "Report de l'arrêt Folle Peine",
    "lines": [
@@ -886,132 +1062,6 @@
        1
       ]
      ]
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne"
-  },
-  {
-   "id": "32c957c36c",
-   "t": "Report de l'arrêt St Symphorien",
-   "lines": [
-    "E2",
-    "E3",
-    "E4"
-   ],
-   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 6 novembre 2026",
-   "start": "2026-10-19",
-   "end": "2026-11-06",
-   "b": [
-    {
-     "l": "E2",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "SAINT-SYMPHORIEN",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "ST ETIENNE SUR SUIPPE",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "au niveau du 7 rue Eugène Desteuque",
-       1
-      ]
-     ],
-     "geo": {
-      "lat": 49.255376,
-      "lon": 4.036537,
-      "a": "7 rue Eugène Desteuque"
-     }
-    },
-    {
-     "l": "E3",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "SAINT-SYMPHORIEN",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "WARMERIVILLE",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "au niveau du 7 rue Eugène Desteuque",
-       1
-      ]
-     ],
-     "geo": {
-      "lat": 49.255376,
-      "lon": 4.036537,
-      "a": "7 rue Eugène Desteuque"
-     }
-    },
-    {
-     "l": "E4",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "SAINT-SYMPHORIEN",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "BETHENIVILLE",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "au niveau du 7 rue Eugène Desteuque",
-       1
-      ]
-     ],
-     "geo": {
-      "lat": 49.255376,
-      "lon": 4.036537,
-      "a": "7 rue Eugène Desteuque"
-     }
     },
     {
      "r": [
