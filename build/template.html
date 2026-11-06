@@ -296,6 +296,12 @@ table.tt td.live.late { color: var(--late); }
 
 /* suivi d'un bus */
 .fhead { display: flex; gap: 10px; align-items: center; }
+.b9 { display: inline-flex; align-items: center; gap: 5px; margin-left: 8px; padding: 2px 9px; border: 1.5px solid #1a73e8; border-radius: 99px; background: none; color: #1a73e8; font: 600 12px/1.4 var(--font-body, inherit); white-space: nowrap; vertical-align: middle; cursor: pointer; }
+.b9.wait { border-style: dashed; cursor: default; }
+.b9row { display: block; } .b9row:not(:empty) { margin-top: 5px; } .b9row .b9 { margin-left: 0; }
+.b9spin { width: 9px; height: 9px; border: 2px solid #1a73e8; border-right-color: transparent; border-radius: 50%; animation: b9s 0.8s linear infinite; }
+@keyframes b9s { to { transform: rotate(360deg); } }
+.btn.small.b9 { margin-left: 0; border-radius: 10px; padding: 6px 10px; font-size: 13px; }
 .mbt-bus.gps::after { content: ""; position: absolute; right: -4px; top: -4px; width: 11px; height: 11px; border-radius: 50%; background: #1a73e8; border: 2px solid var(--surface); box-shadow: 0 0 0 1px rgb(0 0 0 / .15); }
 .gpsdot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #1a73e8; margin-right: 6px; vertical-align: 1px; }
 /* Mon bus : haut fixe (en-tête, alertes, carte « Prochain arrêt ») et plein écran */
@@ -1281,7 +1287,11 @@ function tripState(pi, k, dk) {
 // ---------- #06 : je suis dans le bus suivi → le bus est calé sur ma position ----------
 // Détection prudente (~1 min) : sur le tracé, dans le sens du bus, à vitesse de véhicule, près de sa position
 // estimée, au moins un arrêt passé ensemble. Sert seulement dans Mon bus (carte du haut, alertes, thermomètre).
-const BOARD = { key: "", on: false, since: 0, offAt: 0 };
+const BOARD = { key: "", on: false, since: 0, offAt: 0, claim: 0 };
+// #09 : dernier calage « à bord » (gardé pendant la session) : en revenant dans l'appli, on se recale dès le premier point GPS
+let BOARD_LAST = (() => { try { return JSON.parse(sessionStorage.getItem("grm:board")) || {}; } catch (e) { return {}; } })();
+const B9 = (location.search.match(/[?&]b9=(\w+)/) || [])[1] || "haut"; // maquettes : bouton sous la destination (haut) ou en bas (bas)
+document.addEventListener("click", (e) => { if (!e.target.closest("[data-board]") || !S.follow) return; BOARD.claim = Date.now(); locate(null, true); renderFollow(); });
 let M_PER_U = 0;
 function userOnPat(pi, s) {
   const g = patGeo(pi);
@@ -1297,7 +1307,7 @@ function userOnPat(pi, s) {
 }
 function boardAdjust(st, pi, k, dk) {
   const key = [pi, k, dk].join(":");
-  if (BOARD.key !== key) Object.assign(BOARD, { key, on: false, since: 0, offAt: 0 });
+  if (BOARD.key !== key) Object.assign(BOARD, { key, on: false, since: 0, offAt: 0, claim: BOARD.key ? 0 : BOARD.claim });
   if (st.state !== "running" || !ME.hist.length || typeof patGeo !== "function") { BOARD.on = false; return st; }
   const g = patGeo(pi), now = Date.now();
   if (!M_PER_U) userOnPat(pi, ME.hist[ME.hist.length - 1]);
@@ -1315,7 +1325,15 @@ function boardAdjust(st, pi, k, dk) {
     const back = w.some((h, j) => j && h.d < w[j - 1].d - 40);
     const passed = w.length && sm.some((v) => v > w[0].d + 5 && v < w[w.length - 1].d - 5);
     const near = Math.abs(last.d - posToD(st.pos)) < Math.max(450, 1.6 * (sm[Math.min(sm.length - 1, st.next)] - sm[Math.max(0, st.next - 1)]));
-    if (w.length >= 4 && span >= 45 && w.every(onRoute) && !back && prog >= 100 && prog / span >= 1.5 && (passed || prog >= 250) && near) { BOARD.on = true; BOARD.since = now; BOARD.offAt = 0; }
+    const gap = sm[Math.min(sm.length - 1, st.next)] - sm[Math.max(0, st.next - 1)];
+    const nearWide = Math.abs(last.d - posToD(st.pos)) < Math.max(600, 2 * gap);
+    // #09 : à bord il y a moins de 10 min (appli quittée puis reprise, feu rouge…) : recalage dès le premier point sur le tracé
+    const recent = BOARD_LAST.key === key && now - BOARD_LAST.at < 600000 && onRoute(last) && nearWide;
+    // #09 : « Je suis dedans » touché : calage dès que j'avance avec le bus (≥ 15 m sur le tracé, dans le bon sens)
+    if (BOARD.claim && now - BOARD.claim > 180000) BOARD.claim = 0;
+    const w2 = BOARD.claim ? pts.filter((h) => h.t >= BOARD.claim - 3000 && now - h.t < 30000 && onRoute(h)) : [];
+    const claimed = w2.length >= 2 && w2[w2.length - 1] === last && w2[w2.length - 1].d - w2[0].d >= 15 && nearWide;
+    if (recent || claimed || (w.length >= 4 && span >= 45 && w.every(onRoute) && !back && prog >= 100 && prog / span >= 1.5 && (passed || prog >= 250) && near)) { BOARD.on = true; BOARD.since = now; BOARD.offAt = 0; BOARD.claim = 0; }
   } else {
     if (!onRoute(last)) { BOARD.offAt = BOARD.offAt || now; if (now - BOARD.offAt > 25000) BOARD.on = false; } else BOARD.offAt = 0;
     // descendu et reparti à pied : quasi immobile ou lent depuis 60 s loin de tout arrêt du parcours
@@ -1323,6 +1341,7 @@ function boardAdjust(st, pi, k, dk) {
     if (w.length >= 4 && (w[w.length - 1].t - w[0].t) > 50000 && Math.abs(w[w.length - 1].d - w[0].d) < 25 && Math.min(...w.map((h) => h.off)) > 30) BOARD.on = false;
   }
   if (!BOARD.on) return st;
+  if (BOARD_LAST.key !== key || now - BOARD_LAST.at > 5000) { BOARD_LAST = { key, at: now }; try { sessionStorage.setItem("grm:board", JSON.stringify(BOARD_LAST)); } catch (e) {} }
   // le bus est là où je suis : position le long du parcours (en arrêts) et horaires suivants décalés d'autant
   const d = Math.max(sm[0], Math.min(sm[sm.length - 1], last.d));
   let i = 0; while (i < sm.length - 2 && sm[i + 1] <= d) i++;
@@ -1433,7 +1452,7 @@ function renderFollow() {
     MB.key = key; MB.lastNext = -1;
     // la ligne affichée commence un arrêt avant le bus (ou avant l'arrêt de montée s'il est plus tôt)
     MB.first = Math.max(0, Math.min(from ?? Infinity, Math.max(0, st.i), p.nS - 1) - 1);
-    el.innerHTML = `<div class="mbtop" id="mb-top"><div class="fhead"><button type="button" class="icon-btn" id="fo-back" aria-label="Retour">${backSvg}</button><button type="button" class="icon-btn" id="fo-close" aria-label="Quitter le plein écran">${closeSvg}</button>${badge(p.r, "lg")}<div class="fh-t"><h2>→ ${esc(p.h)}</h2><span class="fh-s" id="mb-status"></span></div><span class="pillmode">${S.guide ? "GUIDAGE" : "MON BUS"}</span></div>
+    el.innerHTML = `<div class="mbtop" id="mb-top"><div class="fhead"><button type="button" class="icon-btn" id="fo-back" aria-label="Retour">${backSvg}</button><button type="button" class="icon-btn" id="fo-close" aria-label="Quitter le plein écran">${closeSvg}</button>${badge(p.r, "lg")}<div class="fh-t"><h2>→ ${esc(p.h)}</h2><span class="fh-s" id="mb-status"></span><span class="b9row" id="mb-b9"></span></div><span class="pillmode">${S.guide ? "GUIDAGE" : "MON BUS"}</span></div>
       <div id="gd-card"></div>
       <div id="mb-banner"></div>
       <div id="mb-hero"></div></div>
@@ -1458,7 +1477,9 @@ function renderFollow() {
   const nS = p.nS, next = st.next, t = st.t;
   const near = st.state === "running" && !st.atStop && st.at(next) - t <= 1.1;
   const delay = Math.round(st.at(Math.min(nS - 1, next)) - st.sched(Math.min(nS - 1, next)));
-  $("#mb-status").innerHTML = st.gps ? `<i class="gpsdot"></i>À bord · position GPS${delay >= 1 ? " · retard " + delay + " min" : ""}` : `${dot(st.live)}${st.live ? `Temps réel · ${delay >= 1 ? "retard " + delay + " min" : delay <= -1 ? "avance " + -delay + " min" : "à l'heure"}` : "Horaire théorique (position estimée)"}`;
+  const b9 = st.gps || st.state === "done" ? "" : BOARD.claim ? `<span class="b9 wait"><i class="b9spin"></i>Calage…</span>` : `<button type="button" class="b9" data-board>Je suis dedans</button>`;
+  $("#mb-status").innerHTML = (st.gps ? `<i class="gpsdot"></i>À bord · position GPS${delay >= 1 ? " · retard " + delay + " min" : ""}` : `${dot(st.live)}${st.live ? `Temps réel · ${delay >= 1 ? "retard " + delay + " min" : delay <= -1 ? "avance " + -delay + " min" : "à l'heure"}` : "Horaire théorique (position estimée)"}`);
+  { const h9 = B9 === "haut" ? b9 : ""; const e9 = $("#mb-b9"); if (e9 && e9.dataset.html !== h9) { e9.innerHTML = h9; e9.dataset.html = h9; } };
   // ligne : arrêts passés, arrêt suivant, bus
   // en attente au terminus ou à un arrêt : bus immobile sur l'arrêt, halo lent, étiquette ; en route : chevrons
   const waiting = st.state === "before" || st.atStop, waitAt = st.state === "before" ? 0 : st.i;
@@ -1548,7 +1569,7 @@ function renderFollow() {
   // barre du bas
   const bar = S.guide ? `<button type="button" class="btn small ghost" id="fo-stop">Arrêter le guidage</button>${S.followFree ? `<button type="button" class="btn small primary" id="fo-recenter">Recentrer</button>` : ""}`
     : `<span class="hint">${dest == null ? "Touchez un arrêt pour le choisir comme descente" : "Touchez un autre arrêt pour changer de descente"}</span>
-      ${dest != null ? `<button type="button" class="btn small alertbtn" id="fo-alert" aria-pressed="${S.follow.alert}">${bellSvg.replace('width="40" height="40"', 'width="16" height="16"')}${S.follow.alert ? "Alerte activée" : "Alerte coupée"}</button>` : ""}
+      ${B9 === "bas" && b9 ? b9.replace('class="b9', 'class="btn small b9') : ""}${dest != null ? `<button type="button" class="btn small alertbtn" id="fo-alert" aria-pressed="${S.follow.alert}">${bellSvg.replace('width="40" height="40"', 'width="16" height="16"')}${S.follow.alert ? "Alerte activée" : "Alerte coupée"}</button>` : ""}
       ${S.followFree ? `<button type="button" class="btn small primary" id="fo-recenter">Recentrer</button>` : ""}<button type="button" class="btn small ghost" id="fo-stop">Arrêter</button>`;
   if ($("#mb-bar").dataset.html !== bar) {
     $("#mb-bar").innerHTML = bar; $("#mb-bar").dataset.html = bar;
