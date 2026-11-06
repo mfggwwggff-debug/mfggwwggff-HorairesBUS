@@ -99,7 +99,7 @@ h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; }
   .grab span { width: 40px; height: 5px; border-radius: 3px; background: var(--rule); }
   header.top { padding-top: 0 !important; touch-action: none; }
   .maplegend { display: none !important; }
-  .mapctl { top: calc(var(--sat) + 12px) !important; }
+  .mapctl, .profbtn { top: calc(var(--sat) + 12px) !important; }
   input, select { font-size: 16px !important; } /* évite le zoom automatique d'iOS */
 }
 
@@ -228,6 +228,7 @@ details.when .whenbody { padding: 4px 12px 12px; display: flex; flex-direction: 
 .od { display: grid; grid-template-columns: 1fr 44px; gap: 8px; align-items: center; }
 .od .stack { display: flex; flex-direction: column; gap: 8px; }
 .results { display: flex; flex-direction: column; gap: 10px; }
+.itmore { align-self: center; margin: 2px auto; }
 .jc { border: 1px solid var(--rule); border-radius: var(--r); background: var(--surface); overflow: hidden; }
 .jc.sel { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
 .jc > button.head { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; width: 100%; text-align: left; padding: 12px 14px; border: 0; background: none; }
@@ -303,6 +304,12 @@ table.tt td.live.late { color: var(--late); }
 
 /* suivi d'un bus */
 .fhead { display: flex; gap: 10px; align-items: center; }
+.b9 { display: inline-flex; align-items: center; gap: 5px; margin-left: 8px; padding: 2px 9px; border: 1.5px solid #1a73e8; border-radius: 99px; background: none; color: #1a73e8; font: 600 12px/1.4 var(--font-body, inherit); white-space: nowrap; vertical-align: middle; cursor: pointer; }
+.b9.wait { border-style: dashed; cursor: default; }
+.b9row { display: block; } .b9row:not(:empty) { margin-top: 5px; } .b9row .b9 { margin-left: 0; }
+.b9spin { width: 9px; height: 9px; border: 2px solid #1a73e8; border-right-color: transparent; border-radius: 50%; animation: b9s 0.8s linear infinite; }
+@keyframes b9s { to { transform: rotate(360deg); } }
+.btn.small.b9 { margin-left: 0; border-radius: 10px; padding: 6px 10px; font-size: 13px; }
 .mbt-bus.gps::after { content: ""; position: absolute; right: -4px; top: -4px; width: 11px; height: 11px; border-radius: 50%; background: #1a73e8; border: 2px solid var(--surface); box-shadow: 0 0 0 1px rgb(0 0 0 / .15); }
 .gpsdot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #1a73e8; margin-right: 6px; vertical-align: 1px; }
 /* Mon bus : haut fixe (en-tête, alertes, carte « Prochain arrêt ») et plein écran */
@@ -351,6 +358,49 @@ canvas#tiles { position: absolute; inset: 0; width: 100%; height: 100%; pointer-
 canvas#map { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: grab; }
 canvas#map.drag { cursor: grabbing; }
 canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.profbtn { position: absolute; left: 12px; top: 12px; z-index: 4; width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--surface); color: var(--ink); box-shadow: 0 2px 10px rgba(0,0,0,.18); display: grid; place-items: center; }
+#prof { position: fixed; inset: 0; z-index: 60; background: var(--bg); overflow-y: auto; display: none; padding: calc(var(--sat, 0px) + 14px) 16px 40px; }
+#prof.on { display: block; }
+#prof .ph { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+#prof .ph h2 { flex: 1; font: 700 24px/1.1 var(--font-display); margin: 0; }
+#prof .pav { width: 44px; height: 44px; border-radius: 50%; background: var(--accent-strong, #C4430F); color: #fff; display: grid; place-items: center; }
+#prof .psub { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
+#prof h3 { font: 700 13px/1 var(--font-display); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 20px 0 8px; display: flex; align-items: center; gap: 6px; }
+#prof .pcard { background: var(--surface); border: 1px solid var(--rule); border-radius: 14px; overflow: hidden; }
+#prof .prow { display: flex; align-items: center; gap: 10px; padding: 11px 12px; border-top: 1px solid var(--rule); min-height: 50px; }
+#prof .prow:first-child { border-top: 0; }
+#prof .prow .grip { color: var(--muted); cursor: grab; flex: none; touch-action: none; padding: 6px 2px; margin: -6px 0; }
+#prof .prow.drag { background: var(--card, #fff); box-shadow: 0 4px 14px rgba(0,0,0,.16); position: relative; z-index: 2; border-radius: 10px; }
+#prof .prow .pin { width: 100%; font: inherit; font-weight: 600; padding: 6px 8px; border: 1.5px solid var(--focus); border-radius: 8px; background: var(--bg, #fff); color: inherit; }
+#prof .prow .pn { flex: 1; min-width: 0; }
+#prof .prow .pn b { display: block; font-weight: 600; }
+#prof .prow .pn small { color: var(--muted); font-size: 12.5px; }
+#prof .prow .pact { border: 0; background: none; color: var(--muted); padding: 6px; }
+#prof .plines { padding: 10px 12px; display: flex; flex-direction: column; gap: 10px; }
+#prof .plg { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+#prof .plg .mode { margin-right: 4px; color: var(--muted); }
+#prof .plb { border: 2px solid transparent; border-radius: 9px; padding: 1px; background: none; opacity: .38; }
+#prof .plb[aria-pressed="true"] { opacity: 1; border-color: var(--ink); }
+#prof .tg { position: relative; width: 46px; height: 28px; border-radius: 99px; background: var(--rule); border: 0; flex: none; transition: background .2s; }
+#prof .tg::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: left .2s; }
+#prof .tg[aria-pressed="true"] { background: #1f9d55; }
+#prof .tg[aria-pressed="true"]::after { left: 21px; }
+#prof .psel { border: 1px solid var(--rule); border-radius: 8px; padding: 3px 6px; background: var(--surface); color: inherit; font: inherit; font-size: 13px; }
+#prof .pcat { font-weight: 700; font-size: 14px; margin: 14px 2px 6px; }
+#prof .pnote { color: var(--muted); font-size: 12.5px; margin: 8px 2px 0; line-height: 1.4; }
+.myl-h { display: flex; align-items: center; gap: 6px; }
+#inbus { position: fixed; left: 10px; right: 10px; top: calc(var(--sat, 0px) + 10px); z-index: 70; background: var(--surface); border-radius: 18px; box-shadow: 0 10px 34px rgba(0,0,0,.22); padding: 12px 12px 8px; transform: translateY(-140%); transition: transform .35s cubic-bezier(.2,.9,.3,1.2); }
+#inbus.on { transform: none; }
+#inbus .ibh { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+#inbus .ibh .ic { width: 36px; height: 36px; border-radius: 50%; background: #1a73e8; color: #fff; display: grid; place-items: center; flex: none; }
+#inbus .ibh .ic .mode { width: 20px; height: 20px; display: block; }
+#inbus .ibh b { font: 700 16px/1.2 var(--font-display); display: block; }
+#inbus .ibh small { color: var(--muted); font-size: 12.5px; }
+#inbus .ibx { margin-left: auto; border: 0; background: none; color: var(--muted); padding: 6px; }
+#inbus .ibr { display: flex; align-items: center; gap: 8px; padding: 8px 2px; border-top: 1px solid var(--rule); }
+#inbus .ibr .d { flex: 1; min-width: 0; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#inbus .ibr .d small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; }
+#inbus .ibr .btn { flex: none; }
 .mapctl { position: absolute; right: 12px; top: 12px; display: flex; flex-direction: column; gap: 8px; z-index: 4; }
 .mapctl button { width: 42px; height: 42px; border-radius: 12px; border: 1px solid var(--rule); background: color-mix(in srgb, var(--surface) 92%, transparent); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); font-size: 20px; line-height: 1; box-shadow: 0 2px 8px rgb(0 0 0 / .14); display: grid; place-items: center; }
 .mapctl button[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
@@ -378,6 +428,29 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
 
 /* pictos des modes */
 .mode { width: 20px; height: 20px; flex: none; color: currentColor; }
+.mrows { display: flex; flex-direction: column; gap: 7px; margin: 8px 0 4px; }
+.mrow { display: flex; align-items: flex-start; gap: 8px; }
+.mhd { display: inline-flex; align-items: center; gap: 6px; min-width: 84px; flex: none; font-size: 12.5px; font-weight: 600; color: var(--muted); line-height: 20px; }
+.mhd .mode { width: 18px; height: 18px; }
+.mbs { display: flex; flex-wrap: wrap; gap: 3px; }
+.mgh { display: flex; align-items: center; padding: 8px 14px 4px; border-top: 1px solid var(--rule); background: var(--sunk); }
+.mgh .mhd { min-width: 0; }
+.deps .mgh { padding: 8px 12px 6px; }
+.deps .mgh:first-child, .mini .mgh:first-child { border-top: 0; }
+.mgh + .dep, .mgh + button, .mgh + .endrow { border-top: 0; }
+.mhd.ico { min-width: 0; padding-right: 2px; }
+.mrow { align-items: center; }
+.mgrp { border-top: 1px solid var(--rule); }
+.mgrp:first-child { border-top: 0; }
+.mgrp .mbody .dep:first-child { border-top: 0; }
+.mfold { width: 100%; gap: 10px; border: 0; cursor: pointer; text-align: left; font: inherit; color: inherit; min-height: 44px; }
+.mfold .mhd { font-size: 14px; color: var(--ink); }
+.mfold .mhd .mode { width: 20px; height: 20px; }
+.mmini { flex: 1; display: flex; flex-wrap: wrap; gap: 3px; justify-content: flex-end; opacity: 0; transition: opacity .15s; }
+.mchev { flex: none; color: var(--muted); transition: transform .2s; }
+.mgrp.fold .mchev { transform: rotate(-90deg); }
+.mgrp.fold .mmini { opacity: 1; }
+.mgrp.fold .mbody { display: none; }
 .lbl.withico { display: flex; align-items: center; gap: 7px; }
 
 /* logo du réseau */
@@ -475,7 +548,12 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
 .mbr .n1 { display: flex; align-items: center; gap: 6px; min-width: 0; }
 .mbr .nmt { font-size: 15px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mbr .cxs { display: flex; gap: 6px; align-items: center; white-space: nowrap; overflow: hidden; min-height: 18px; }
-.cx { display: inline-flex; align-items: center; gap: 3px; } .cx b { font: 600 12.5px/1 var(--font-display); color: var(--muted); }
+.cx { display: inline-flex; align-items: center; gap: 3px; }
+.mbr .cxs:has(.cxd) { overflow-x: auto; scrollbar-width: none; -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent); mask-image: linear-gradient(90deg, #000 85%, transparent); padding-right: 18px; pointer-events: auto; }
+.mbr .cxs::-webkit-scrollbar { display: none; }
+.cxd { background: var(--sunk); border-radius: 7px; padding: 2px 6px 2px 2px; gap: 4px; flex: none; }
+.cxd .cd { font-size: 12px; color: var(--ink); max-width: 84px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cxd .cd::before { content: "› "; color: var(--muted); } .cx b { font: 600 12.5px/1 var(--font-display); color: var(--muted); }
 .mbr.passed { opacity: .45; } .mbr.passed .nd { border-color: var(--rule); }
 .mbr.next .nmt { font-weight: 700; font-size: 16.5px; } .mbr.next .nd { width: 18px; height: 18px; } .mbr.next .t { color: var(--ink); }
 .mbr.near .nd { animation: ring 1s ease-out infinite; }
@@ -626,10 +704,13 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
 </head>
 <body>
 <div id="splash" aria-hidden="true"></div>
+<div id="prof" role="dialog" aria-modal="true" aria-label="Mon profil"></div>
+<div id="inbus" role="dialog" aria-live="polite"></div>
 <div id="app">
   <section class="mapwrap" aria-label="Plan du réseau">
     <canvas id="tiles" aria-hidden="true"></canvas>
     <canvas id="map" aria-label="Plan interactif du réseau"></canvas>
+    <button type="button" class="profbtn" id="prof-btn" aria-label="Mon profil"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.6 4.2-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/></svg></button>
     <div class="mapctl">
       <div class="grp">
         <button type="button" id="z-in" aria-label="Zoomer">+</button>
@@ -983,7 +1064,7 @@ function rebuild(net, tau, lab, k, q, day) {
 function planDepart(net, o, dst, day, t0, want = 4) {
   const out = new Map();
   let t = t0;
-  for (let it = 0; it < 12 && out.size < want; it++) {
+  for (let it = 0; it < 30 && (out.size < want || prune([...out.values()]).length < want); it++) {
     const res = raptor(net, o, dst, day, t);
     if (!res.length) break;
     res.forEach((j) => { if (!out.has(j.key) && j.legs.length) out.set(j.key, j); });
@@ -1211,6 +1292,17 @@ const MODE_SVG = {
   bus: `<path d="M10 14.5H7.5V21M38 14.5H40.5V21" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path fill="currentColor" fill-rule="evenodd" d="M14.5 8H33.5Q38 8 38 12.5V37.5Q38 40.5 35 40.5H13Q10 40.5 10 37.5V12.5Q10 8 14.5 8ZM13.5 10.5H34.5Q35 10.5 35 11V12.5Q35 13 34.5 13H13.5Q13 13 13 12.5V11Q13 10.5 13.5 10.5ZM14.5 15.5H33.5Q35.5 15.5 35.5 17.5V29Q35.5 31 33.5 31H14.5Q12.5 31 12.5 29V17.5Q12.5 15.5 14.5 15.5ZM13.6 35H17.4Q18.2 35 18.2 35.8Q18.2 36.6 17.4 36.6H13.6Q12.8 36.6 12.8 35.8Q12.8 35 13.6 35ZM30.6 35H34.4Q35.2 35 35.2 35.8Q35.2 36.6 34.4 36.6H30.6Q29.8 36.6 29.8 35.8Q29.8 35 30.6 35Z"/><path fill="currentColor" d="M12.5 40H17V43Q17 44.5 15.5 44.5H14Q12.5 44.5 12.5 43Z M31 40H35.5V43Q35.5 44.5 34 44.5H32.5Q31 44.5 31 43Z"/>`,
 };
 const modeIcon = (m) => `<svg class="mode" viewBox="0 0 48 48" fill="none" aria-hidden="true"><rect x="2" y="2" width="44" height="44" rx="10" stroke="currentColor" stroke-width="3"/><g transform="translate(6.2 6.2) scale(.74)">${MODE_SVG[m === 1 ? "tram" : typeof m === "string" ? m : "bus"]}</g></svg>`;
+// #19 : lignes d'un arrêt rangées par mode (Tram, BHNS, Bus, Express ; C et scolaires avec les bus)
+const MODES = [["tram", "Tram"], ["bhns", "BHNS"], ["bus", "Bus"], ["express", "Express"]];
+const modeKey = (ri) => net.R[ri].m === 1 ? "tram" : /^O\d/.test(net.R[ri].s) ? "bhns" : /^E/.test(net.R[ri].s) ? "express" : "bus";
+const byMode = (items, rOf = (x) => x) => !feat("parmode") ? (items.length ? [[null, "", items]] : []) : MODES.map(([k, n]) => [k, n, items.filter((x) => modeKey(rOf(x)) === k)]).filter((g) => g[2].length);
+const modeHead = (k, n) => `<span class="mhd">${modeIcon(k === "express" ? "bus" : k)}<span>${n}</span></span>`;
+const modeBadges = (rs) => `<div class="mrows">${byMode(rs).map(([k, n, l]) => `<div class="mrow" title="${n}">${k ? `<span class="mhd ico" aria-label="${n}">${modeIcon(k === "express" ? "bus" : k)}</span>` : ""}<span class="mbs">${l.map((r) => badge(r, "sm")).join("")}</span></div>`).join("")}</div>`;
+const MFOLD = new Set(store.get("modeFold", []));
+const modeFoldBtn = (k, n, rs) => `<button type="button" class="mgh mfold" data-mode="${k}" aria-expanded="${!MFOLD.has(k)}">${modeHead(k, n)}<span class="mmini">${[...new Set(rs)].map((r) => badge(r, "sm")).join("")}</span><svg class="mchev" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="m4 6 4 4 4-4"/></svg></button>`;
+// picto seul (sans le carré), recentré sur son dessin : pour les pictos posés dans un rond
+const MODE_BB = { tram: [8.9, 2.5, 30.1, 43.5], bhns: [9, 6.5, 30, 39.8], bus: [7.5, 8, 33, 36.5] };
+const modeGlyph = (m) => { const [x, y, w, h] = MODE_BB[m], s = Math.max(w, h) + 1; return `<svg class="mode" viewBox="${x + w / 2 - s / 2} ${y + h / 2 - s / 2} ${s} ${s}" fill="none" aria-hidden="true">${MODE_SVG[m]}</svg>`; };
 const modeOf = (ri) => net.R[ri].m === 1 ? "tram" : /^O\d/.test(net.R[ri].s) ? "bhns" : "bus";
 const alertSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.2 22 20.5H2z" fill="currentColor"/><path d="M12 9.5v5.2" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="17.6" r="1.25" fill="#fff"/></svg>`;
 const okSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>`;
@@ -1262,6 +1354,35 @@ function toast(msg, ms = 3200) { const t = $("#toast"); t.textContent = msg; t.c
 // ---------- favoris ----------
 const fav = { stops: store.get("favStops") || [], trips: store.get("favTrips") || [] };
 const saveFav = () => { store.set("favStops", fav.stops); store.set("favTrips", fav.trips); };
+// #11 : fonctionnalités désactivables (toutes actives au départ)
+const FEATS = [
+  ["Pendant le trajet", [
+    ["gps", "Bus suivi en direct", "Quand vous êtes à bord, le bus avance sur l'écran avec vous, grâce au GPS de votre téléphone. Les heures d'arrivée sont plus précises."],
+    ["dedans", "Bouton « Je suis dedans »", "Un bouton pour dire à l'appli que vous êtes monté : le bus se cale sur vous en quelques secondes."],
+    ["retour", "Reprise instantanée", "Si vous quittez l'appli pendant le trajet, le bus se recale tout de suite sur vous à votre retour, même arrêté à un feu rouge."],
+    ["plein", "Mode plein écran", "Tirez le panneau vers le haut : votre trajet occupe tout l'écran. Touchez la croix pour revenir."],
+    ["centre", "Toujours centré sur le bus", "La liste des arrêts suit le bus. Si vous la faites défiler, elle revient sur lui au bout de 4 secondes."],
+    ["chevrons", "Animation du trajet", "Des flèches défilent devant le bus quand il roule : on voit d'un coup d'œil qu'il avance."],
+    ["cxdir", "Correspondances détaillées", "Chaque correspondance indique sa direction et son heure de passage, par exemple « U3 › Maurencienne · 3 min »."]]],
+  ["Détection automatique", [
+    ["inbus", "Détection du bus", "Vous montez sans rien faire ? L'appli reconnaît le bus ou le tram dans lequel vous êtes et vous propose de le suivre."]]],
+  ["Aux arrêts", [
+    ["parmode", "Lignes classées par transport", "À chaque arrêt, les lignes sont rangées par type : tram, BHNS, bus et express. Plus facile de s'y retrouver."],
+    ["pliage", "Mémoire de l'affichage", "Les catégories que vous repliez (le tram, par exemple) restent repliées d'un arrêt à l'autre."]]],
+  ["Itinéraires", [
+    ["plus", "Plus de choix de trajets", "6 trajets proposés d'emblée, avec « Plus tôt » et « Départs suivants » pour en voir d'autres."]]],
+  ["Info trafic", [
+    ["bang", "Signal des nouvelles perturbations", "Un « ! » orange s'anime sur l'onglet Info trafic dès qu'une perturbation vient d'apparaître."],
+    ["perturbe", "Alerte réseau perturbé", "En cas de neige, de grève ou de réseau suspendu, un message vous prévient dès l'ouverture de l'appli."],
+    ["mesl", "Mes lignes d'abord", "Les lignes choisies dans « Mes lignes » apparaissent en premier dans Info trafic et dans Lignes & plans."]]],
+  ["Le soir", [
+    ["nuit", "Message de fin de service", "Quand le dernier bus est passé, un message vous l'indique une fois par nuit, puis un petit bandeau reste en haut jusqu'au matin."]]]];
+const MY = { ft: store.get("myFeats") || {}, lines: store.get("myLines") || [], names: store.get("stopNames") || {}, al: Object.assign({ trafic: true, last: true, arrive: true, arriveMin: 5 }, store.get("myAlerts") || {}) };
+const saveMy = () => { store.set("myFeats", MY.ft); store.set("myLines", MY.lines); store.set("stopNames", MY.names); store.set("myAlerts", MY.al); };
+const feat = (k) => MY.ft[k] !== false; // #11 : fonctionnalité active ? (toutes actives au départ)
+const myFirst = (ri) => feat("mesl") && MY.lines.includes(ri); // « Mes lignes d'abord »
+const uName = (i) => MY.names[pName(i)] || pName(i); // nom donné par l'utilisateur (Mon profil), sinon le vrai nom
+const tripKey = (a, b) => a + "|" + b;
 const isFavStop = (i) => i != null && fav.stops.includes(pName(i));
 const isFavTrip = (a, b) => a != null && b != null && fav.trips.some(([x, y]) => x === pName(a) && y === pName(b));
 function toggleFavStop(i) { const n = pName(i); fav.stops = isFavStop(i) ? fav.stops.filter((x) => x !== n) : [...fav.stops, n]; saveFav(); toast(isFavStop(i) ? `${n} ajouté à l'accueil` : `${n} retiré des favoris`); }
@@ -1302,7 +1423,7 @@ const stopIdx = net.P.map((p, i) => ({ i, n: norm(p[0]) }));
 function picker(root, onPick) {
   const inp = $("input", root), box = $(".sugg", root);
   let items = [], sel = -1, value = null;
-  const row = (i, k, sub) => `<button type="button" role="option" data-k="${k}" aria-selected="${k === sel}"><span class="nm"><span>${esc(pName(i))}</span>${sub ? `<small>${sub}</small>` : ""}</span><span class="badges">${net.pRoutes[i].slice(0, 5).map((r) => badge(r, "sm")).join("")}${net.pRoutes[i].length > 5 ? "…" : ""}</span></button>`;
+  const row = (i, k, sub) => `<button type="button" role="option" data-k="${k}" aria-selected="${k === sel}"><span class="nm"><span>${esc(uName(i))}</span>${sub || MY.names[pName(i)] ? `<small>${[MY.names[pName(i)] ? esc(pName(i)) : "", sub || ""].filter(Boolean).join(" · ")}</small>` : ""}</span><span class="badges">${net.pRoutes[i].slice(0, 5).map((r) => badge(r, "sm")).join("")}${net.pRoutes[i].length > 5 ? "…" : ""}</span></button>`;
   const render = () => {
     const q = norm(inp.value);
     let html = "";
@@ -1316,7 +1437,10 @@ function picker(root, onPick) {
       if (!items.length) { box.classList.remove("on"); return; }
     } else {
       const words = q.split(" ");
-      items = stopIdx.filter((s) => words.every((w) => s.n.includes(w))).sort((a, b) => (a.n.startsWith(q) ? 0 : 1) - (b.n.startsWith(q) ? 0 : 1) || a.n.localeCompare(b.n)).slice(0, 30);
+      // mes arrêts renommés : trouvés aussi par leur nom à moi (« Maison », « Boulot »…)
+      const mine = fav.stops.filter((n) => MY.names[n] && words.every((w) => norm(MY.names[n]).includes(w))).map(findStop).filter((i) => i >= 0);
+      items = stopIdx.filter((s) => !mine.includes(s.i) && words.every((w) => s.n.includes(w))).sort((a, b) => (a.n.startsWith(q) ? 0 : 1) - (b.n.startsWith(q) ? 0 : 1) || a.n.localeCompare(b.n)).slice(0, 30);
+      items = [...mine.map((i) => ({ i })), ...items];
       html = items.length ? items.map((s, k) => row(s.i, k)).join("") : `<div class="empty">Aucun arrêt ne correspond.</div>`;
     }
     sel = items.length ? 0 : -1;
@@ -1324,7 +1448,7 @@ function picker(root, onPick) {
     box.querySelectorAll("button").forEach((b, k) => b.setAttribute("aria-selected", k === sel));
   };
   const choose = (k) => { if (k < 0 || !items[k]) return; set(items[k].i); inp.blur(); onPick(value); };
-  const set = (i) => { value = i; inp.value = i == null ? "" : pName(i); box.classList.remove("on"); };
+  const set = (i) => { value = i; inp.value = i == null ? "" : uName(i); box.classList.remove("on"); };
   inp.addEventListener("input", render);
   inp.addEventListener("focus", () => { inp.select(); if (isMobile()) setSheet("full"); render(); });
   inp.addEventListener("keydown", (e) => {
@@ -1335,7 +1459,7 @@ function picker(root, onPick) {
   });
   box.addEventListener("pointerdown", (e) => e.preventDefault());
   box.addEventListener("click", (e) => { const b = e.target.closest("button[data-k]"); if (b) choose(+b.dataset.k); });
-  inp.addEventListener("blur", () => { setTimeout(() => { box.classList.remove("on"); if (value != null) inp.value = pName(value); }, 150); });
+  inp.addEventListener("blur", () => { setTimeout(() => { box.classList.remove("on"); if (value != null) inp.value = uName(value); }, 150); });
   return { get: () => value, set };
 }
 const findStop = (name) => net.P.findIndex((p) => p[0] === name);
@@ -1418,9 +1542,9 @@ function stopCard(i, sub) {
   const gs = nextByLine(i);
   const star = isFavStop(i);
   return `<div class="card stopcard" data-stop="${i}">
-    <div class="sc-h"><div class="nm"><b>${esc(pName(i))}</b>${sub ? `<small>${sub}</small>` : ""}</div>
+    <div class="sc-h"><div class="nm"><b>${esc(uName(i))}</b>${sub || MY.names[pName(i)] ? `<small>${[MY.names[pName(i)] ? esc(pName(i)) : "", sub || ""].filter(Boolean).join(" · ")}</small>` : ""}</div>
       <button type="button" class="icon-btn star" data-favstop="${i}" aria-pressed="${star}" aria-label="${star ? "Retirer des favoris" : "Ajouter aux favoris"}">${starSvg}</button></div>
-    <div class="mini">${gs.length ? gs.map((G) => { if (!G.list) return endRowHtml(G); const a = G.list[0], b = G.list[1]; return `<button type="button" data-follow="${a.pat}:${a.k}:${a.off}">${badge(G.r)}<span class="dir">${esc(G.h)}</span><span class="tw"><span class="t1">${dot(a.live)}${waitLabel(a.t, true)}</span>${b ? `<span class="t2">${waitLabel(b.t, true)}</span>` : ""}</span></button>`; }).join("") : `<div class="none">Aucun départ dans les 2 prochaines heures.</div>`}
+    <div class="mini">${gs.length ? byMode(gs, (G) => G.r).map(([mk, mn, L]) => (mk ? `<div class="mgh">${modeHead(mk, mn)}</div>` : "") + L.map((G) => { if (!G.list) return endRowHtml(G); const a = G.list[0], b = G.list[1]; return `<button type="button" data-follow="${a.pat}:${a.k}:${a.off}">${badge(G.r)}<span class="dir">${esc(G.h)}</span><span class="tw"><span class="t1">${dot(a.live)}${waitLabel(a.t, true)}</span>${b ? `<span class="t2">${waitLabel(b.t, true)}</span>` : ""}</span></button>`; }).join("")).join("") : `<div class="none">Aucun départ dans les 2 prochaines heures.</div>`}
       <button type="button" data-openstop="${i}" style="grid-template-columns:1fr auto;color:var(--focus);font-weight:600;font-size:14px">Tous les passages ${chevR}</button></div>
   </div>`;
 }
@@ -1435,7 +1559,7 @@ function tripCardHtml(a, b, k) {
       next = `<span class="sub">${j.legs.filter((g) => g.type === "ride").map((g) => badge(net.pats[g.pat].r, "sm")).join(" ")} · arrivée ${hm(j.arr)}</span><span class="big"><span style="display:inline-flex;gap:6px;align-items:center">${dot(fr.live)}${waitLabel(fr.dep, true)}</span><small>${fr.live ? delayTxt(fr.dep, fr.sdep) : "départ du bus"}</small></span>`;
     } else next = `<span class="sub">Pas de trajet dans les prochaines heures</span>`;
   }
-  return `<button type="button" class="tripcard" data-trip="${k}"><span class="od">${esc(pName(a))}<span>→</span>${esc(pName(b))}</span>${next}</button>`;
+  return `<button type="button" class="tripcard" data-trip="${k}"><span class="od">${MY.names[tripKey(pName(a), pName(b))] ? esc(MY.names[tripKey(pName(a), pName(b))]) : `${esc(uName(a))}<span>→</span>${esc(uName(b))}`}</span>${next}</button>`;
 }
 function renderHome() {
   if (S.view !== "accueil") return;
@@ -1504,11 +1628,41 @@ function runIt(noFit) {
   if (S.from === S.to) { res.innerHTML = `<div class="empty">Le départ et l'arrivée sont le même arrêt.</div>`; drawMap(); return; }
   if (!inRange(iso)) { res.innerHTML = ""; drawMap(); return; }
   const day = net.dayIndex(iso);
-  const js = S.mode === "dep" ? planDepart(net, S.from, S.to, day, t, 4) : planArrive(net, S.from, S.to, day, t, 3);
-  S.journeys = js; S.selJ = S.mode === "arr" ? js.length - 1 : 0;
+  // #12 : 6 trajets d'emblée (« Plus de choix de trajets » coupé : comme avant, 4 ou 5 en « Partir à », 3 en « Arriver avant »)
+  const more = feat("plus");
+  const js = S.mode === "dep" ? planDepart(net, S.from, S.to, day, t, more ? 6 : 4).slice(0, more ? 6 : 5) : planArrive(net, S.from, S.to, day, t, more ? 6 : 3);
+  S.journeys = js; S.selJ = S.mode === "arr" ? js.length - 1 : 0; S.itq = { day, isToday };
   if (!js.length) { res.innerHTML = `<div class="empty">Aucun trajet trouvé ${S.mode === "dep" ? "après " + hm(t) : "arrivant avant " + hm(t)} le ${fmtDateLong(iso)}. Essayez une autre heure : certaines lignes ne circulent qu'en semaine ou en journée.</div>`; drawMap(); return; }
+  renderIt(noFit);
+}
+// #12 : « Plus tôt » / « Départs suivants » (ou « Arrivées plus tôt » / « Arrivées plus tard ») ajoutent des trajets sans effacer les autres
+function itMore(dir) {
+  const js = S.journeys, q = S.itq; if (!js.length || !q) return;
+  const sel = js[S.selJ] ? js[S.selJ].key : null, have = new Set(js.map((j) => j.key));
+  let add = [];
+  if (dir < 0) {
+    const first = js[0];
+    for (let back = 60; back <= 240 && add.length < 4; back += 60) {
+      const c = S.mode === "dep" ? planDepart(net, S.from, S.to, q.day, Math.max(0, first.dep - back), 8).filter((j) => j.dep < first.dep)
+        : planArrive(net, S.from, S.to, q.day, first.arr - 1, 6).filter((j) => j.arr < first.arr);
+      add = c.filter((j) => !have.has(j.key)).slice(-4);
+      if (S.mode === "arr") break;
+    }
+  } else {
+    const last = js[js.length - 1];
+    add = planDepart(net, S.from, S.to, q.day, Math.floor(last.dep) + 1, 4).filter((j) => j.dep > last.dep && !have.has(j.key)).slice(0, 4);
+  }
+  if (!add.length) { toast(dir < 0 ? "Pas de trajet plus tôt" : "Pas d'autre trajet après", 1800); return; }
+  S.journeys = [...js, ...add].sort((a, b) => a.dep - b.dep || a.arr - b.arr);
+  S.selJ = sel ? S.journeys.findIndex((j) => j.key === sel) : -1;
+  renderIt(true);
+  if (dir < 0) $("#it-res").firstElementChild?.scrollIntoView({ block: "nearest" });
+}
+function renderIt(noFit) {
+  const res = $("#it-res"), js = S.journeys, isToday = S.itq ? S.itq.isToday : false;
   const fastest = Math.min(...js.map((j) => j.arr - j.dep)), fewest = Math.min(...js.map((j) => j.rides));
-  res.innerHTML = js.map((j, k) => {
+  const mb = (d) => feat("plus") ? `<button type="button" class="btn small ghost itmore" data-more="${d}">${d < 0 ? (S.mode === "dep" ? "Plus tôt" : "Arrivées plus tôt") : (S.mode === "dep" ? "Départs suivants" : "Arrivées plus tard")}</button>` : "";
+  res.innerHTML = mb(-1) + js.map((j, k) => {
     const tags = [];
     if (js.length > 1 && j.arr - j.dep === fastest) tags.push(`<span class="tag hot">Le plus rapide</span>`);
     if (j.rides === fewest && js.some((x) => x.rides > fewest)) tags.push(`<span class="tag">Moins de correspondances</span>`);
@@ -1528,7 +1682,8 @@ function runIt(noFit) {
       </button>
       <div class="tl">${isToday ? `<button type="button" class="btn primary guidebtn" data-guide="${k}">${bellSvg.replace('width="40" height="40"', 'width="18" height="18"')}Me guider jusqu'à l'arrivée</button>` : ""}${timeline(j, k)}</div>
     </article>`;
-  }).join("");
+  }).join("") + mb(1);
+  res.querySelectorAll("[data-more]").forEach((b) => b.onclick = () => itMore(+b.dataset.more));
   res.querySelectorAll(".jc > .head").forEach((b) => b.addEventListener("click", () => {
     const k = +b.parentNode.dataset.k; S.selJ = S.selJ === k ? -1 : k;
     res.querySelectorAll(".jc").forEach((c) => { const on = +c.dataset.k === S.selJ; c.classList.toggle("sel", on); $(".head", c).setAttribute("aria-expanded", on); });
@@ -1602,17 +1757,19 @@ function runPa() {
   const gs = [...groups.values()].sort((a, b) => a.r - b.r || a.list[0].t - b.list[0].t);
   // aujourd'hui : lignes/sens dont le service est terminé (ou absent aujourd'hui) à cet arrêt
   const ended = isToday ? endedLines(S.paStop, gs, day, Math.max(t0, 0), 180) : [];
-  const endHtml = ended.map((G) => `
+  const endRow = (G) => `
     <div class="dep ended">${badge(G.r, "lg")}<div class="dir">→ ${esc(G.h)}<small>${esc(net.R[G.r].l)}</small></div>
       <div class="endt big"><b>${G.end}</b><small>${G.sub}</small></div>
-    </div>`).join("");
+    </div>`;
   if (!gs.length && !ended.length) { res.innerHTML = `<div class="empty">Aucun passage dans les 3 heures après ${hm(t0)} le ${fmtDateLong(iso)}.</div>`; drawMap(); return; }
   const nowF = nowMinF();
-  res.innerHTML = trNoteFor(net.pRoutes[S.paStop]).replace('class="trnote"', 'class="trnote" style="margin-bottom:10px"') + `<div class="legend-dots" style="margin:0 0 10px"><span>${dot(true)}temps réel</span><span>${dot(false)}horaire théorique</span><span>Touchez un horaire pour suivre le bus</span></div><div class="deps">` + gs.map((g) => `
+  if (!feat("pliage") && MFOLD.stop !== S.paStop) { MFOLD.clear(); MFOLD.stop = S.paStop; } // sans « Mémoire de l'affichage » : tout redéplié à chaque arrêt
+  res.innerHTML = trNoteFor(net.pRoutes[S.paStop]).replace('class="trnote"', 'class="trnote" style="margin-bottom:10px"') + `<div class="legend-dots" style="margin:0 0 10px"><span>${dot(true)}temps réel</span><span>${dot(false)}horaire théorique</span><span>Touchez un horaire pour suivre le bus</span></div><div class="deps">` + byMode([...gs, ...ended], (g) => g.r).map(([mk, mn, L]) => `<div class="mgrp${mk && MFOLD.has(mk) ? " fold" : ""}">${mk ? modeFoldBtn(mk, mn, L.map((g) => g.r)) : ""}<div class="mbody">` + L.map((g) => g.list ? `
     <div class="dep">${badge(g.r, "lg")}<div class="dir">→ ${esc(g.h)}<small>${esc(net.R[g.r].l)}</small></div>
       <div class="tt">${g.list.map((x, k) => { const w = x.t - nowF; return `<button type="button" class="chip${k === 0 && isToday && w <= 15 && w > -1 ? " soon" : ""}" data-follow="${x.pat}:${x.k}:${x.off}" title="${x.live ? "Temps réel, passage à " + hm(x.t) : "Horaire théorique, passage à " + hm(x.t)}"><span class="main">${dot(x.live)}${waitLabel(x.t, isToday)}</span>${x.live && Math.round(x.t) !== Math.round(x.st) ? `<small>${delayTxt(x.t, x.st)}</small>` : isToday && w >= 59.5 ? "" : isToday ? `<small>${hm(x.t)}</small>` : ""}</button>`; }).join("")}</div>
       <button type="button" class="linkbtn open" data-r="${g.r}" data-d="${g.dir}">Fiche horaire de la ligne ${esc(net.R[g.r].s)} ${chevR}</button>
-    </div>`).join("") + endHtml + `</div>`;
+    </div>` : endRow(g)).join("") + `</div></div>`).join("") + `</div>`;
+  res.querySelectorAll(".mfold").forEach((b) => b.addEventListener("click", () => { const k = b.dataset.mode, g = b.parentElement, f = !g.classList.contains("fold"); g.classList.toggle("fold", f); b.setAttribute("aria-expanded", !f); if (f) MFOLD.add(k); else MFOLD.delete(k); store.set("modeFold", feat("pliage") ? [...MFOLD] : []); }));
   res.querySelectorAll(".open").forEach((b) => b.addEventListener("click", () => { S.line = +b.dataset.r; S.dir = +b.dataset.d; $("#li-date").value = $("#pa-date").value; $("#li-time").value = $("#pa-time").value; go("lignes"); }));
   res.querySelectorAll("[data-follow]").forEach((b) => b.addEventListener("click", () => { const [pi, k, off] = b.dataset.follow.split(":").map(Number); startFollow(pi, k, day + (off ? -1 : 0), S.paStop); }));
   drawMap();
@@ -1621,8 +1778,8 @@ function runPa() {
 // ---------- Lignes ----------
 setupDT($("#li-date"), $("#li-time"), () => runLi());
 function buildGrid() {
-  const groups = [["Tram", (r) => r.m === 1, 1], ["BHNS", (r) => /^O\d/.test(r.s), "bhns"], ["Urbaines", (r) => /^U/.test(r.s), 3], ["Centre et spéciales", (r) => /^[CS]/.test(r.s), 3], ["Express", (r) => /^E/.test(r.s), 3]];
-  $("#li-grid").innerHTML = groups.map(([n, f, m]) => { const ids = net.R.map((r, i) => [r, i]).filter(([r]) => f(r)).map(([, i]) => i); return ids.length ? `<div class="lbl withico">${modeIcon(m)}${n}</div><div class="lgrid">${ids.map((i) => `<button type="button" data-r="${i}" aria-pressed="${i === S.line}" aria-label="Ligne ${esc(net.R[i].s)}">${badge(i, "lg")}</button>`).join("")}</div>` : ""; }).join("");
+  const groups = [["Mes lignes", (r) => myFirst(net.R.indexOf(r)), "star"], ["Tram", (r) => r.m === 1, 1], ["BHNS", (r) => /^O\d/.test(r.s), "bhns"], ["Urbaines", (r) => /^U/.test(r.s), 3], ["Centre et scolaires", (r) => /^[CS]/.test(r.s), 3], ["Express", (r) => /^E/.test(r.s), 3]];
+  $("#li-grid").innerHTML = groups.map(([n, f, m]) => { const ids = net.R.map((r, i) => [r, i]).filter(([r]) => f(r)).map(([, i]) => i); return ids.length ? `<div class="lbl withico">${m === "star" ? `<span class="mode" style="color:var(--accent-strong,#C4430F)">${starSvg}</span>` : modeIcon(m)}${n}</div><div class="lgrid">${ids.map((i) => `<button type="button" data-r="${i}" aria-pressed="${i === S.line}" aria-label="Ligne ${esc(net.R[i].s)}">${badge(i, "lg")}</button>`).join("")}</div>` : ""; }).join("");
 }
 buildGrid();
 $("#li-grid").addEventListener("click", (e) => { const b = e.target.closest("button[data-r]"); if (!b) return; S.line = +b.dataset.r; S.dir = 0; runLi(); fitLine(S.line); });
@@ -1694,7 +1851,10 @@ function tripState(pi, k, dk) {
 // ---------- #06 : je suis dans le bus suivi → le bus est calé sur ma position ----------
 // Détection prudente (~1 min) : sur le tracé, dans le sens du bus, à vitesse de véhicule, près de sa position
 // estimée, au moins un arrêt passé ensemble. Sert seulement dans Mon bus (carte du haut, alertes, thermomètre).
-const BOARD = { key: "", on: false, since: 0, offAt: 0 };
+const BOARD = { key: "", on: false, since: 0, offAt: 0, claim: 0 };
+// #09 : dernier calage « à bord » (gardé pendant la session) : en revenant dans l'appli, on se recale dès le premier point GPS
+let BOARD_LAST = (() => { try { return JSON.parse(sessionStorage.getItem("grm:board")) || {}; } catch (e) { return {}; } })();
+document.addEventListener("click", (e) => { if (!e.target.closest("[data-board]") || !S.follow) return; BOARD.claim = Date.now(); locate(null, true); renderFollow(); });
 let M_PER_U = 0;
 function userOnPat(pi, s) {
   const g = patGeo(pi);
@@ -1710,8 +1870,8 @@ function userOnPat(pi, s) {
 }
 function boardAdjust(st, pi, k, dk) {
   const key = [pi, k, dk].join(":");
-  if (BOARD.key !== key) Object.assign(BOARD, { key, on: false, since: 0, offAt: 0 });
-  if (st.state !== "running" || !ME.hist.length || typeof patGeo !== "function") { BOARD.on = false; return st; }
+  if (BOARD.key !== key) Object.assign(BOARD, { key, on: false, since: 0, offAt: 0, claim: BOARD.key ? 0 : BOARD.claim });
+  if (!feat("gps") || st.state !== "running" || !ME.hist.length || typeof patGeo !== "function") { BOARD.on = false; return st; }
   const g = patGeo(pi), now = Date.now();
   if (!M_PER_U) userOnPat(pi, ME.hist[ME.hist.length - 1]);
   const sm = g.sOff.map((v) => v * M_PER_U);
@@ -1728,7 +1888,15 @@ function boardAdjust(st, pi, k, dk) {
     const back = w.some((h, j) => j && h.d < w[j - 1].d - 40);
     const passed = w.length && sm.some((v) => v > w[0].d + 5 && v < w[w.length - 1].d - 5);
     const near = Math.abs(last.d - posToD(st.pos)) < Math.max(450, 1.6 * (sm[Math.min(sm.length - 1, st.next)] - sm[Math.max(0, st.next - 1)]));
-    if (w.length >= 4 && span >= 45 && w.every(onRoute) && !back && prog >= 100 && prog / span >= 1.5 && (passed || prog >= 250) && near) { BOARD.on = true; BOARD.since = now; BOARD.offAt = 0; }
+    const gap = sm[Math.min(sm.length - 1, st.next)] - sm[Math.max(0, st.next - 1)];
+    const nearWide = Math.abs(last.d - posToD(st.pos)) < Math.max(600, 2 * gap);
+    // #09 : à bord il y a moins de 10 min (appli quittée puis reprise, feu rouge…) : recalage dès le premier point sur le tracé
+    const recent = BOARD_LAST.key === key && (feat("retour") || (BOARD_LAST.ib && now - BOARD_LAST.at < 120000)) && now - BOARD_LAST.at < 600000 && onRoute(last) && nearWide;
+    // #09 : « Je suis dedans » touché : calage dès que j'avance avec le bus (≥ 15 m sur le tracé, dans le bon sens)
+    if (BOARD.claim && now - BOARD.claim > 180000) BOARD.claim = 0;
+    const w2 = BOARD.claim ? pts.filter((h) => h.t >= BOARD.claim - 3000 && now - h.t < 30000 && onRoute(h)) : [];
+    const claimed = w2.length >= 2 && w2[w2.length - 1] === last && w2[w2.length - 1].d - w2[0].d >= 15 && nearWide;
+    if (recent || claimed || (w.length >= 4 && span >= 45 && w.every(onRoute) && !back && prog >= 100 && prog / span >= 1.5 && (passed || prog >= 250) && near)) { BOARD.on = true; BOARD.since = now; BOARD.offAt = 0; BOARD.claim = 0; }
   } else {
     if (!onRoute(last)) { BOARD.offAt = BOARD.offAt || now; if (now - BOARD.offAt > 25000) BOARD.on = false; } else BOARD.offAt = 0;
     // descendu et reparti à pied : quasi immobile ou lent depuis 60 s loin de tout arrêt du parcours
@@ -1736,6 +1904,7 @@ function boardAdjust(st, pi, k, dk) {
     if (w.length >= 4 && (w[w.length - 1].t - w[0].t) > 50000 && Math.abs(w[w.length - 1].d - w[0].d) < 25 && Math.min(...w.map((h) => h.off)) > 30) BOARD.on = false;
   }
   if (!BOARD.on) return st;
+  if (BOARD_LAST.key !== key || now - BOARD_LAST.at > 5000) { BOARD_LAST = { key, at: now }; try { sessionStorage.setItem("grm:board", JSON.stringify(BOARD_LAST)); } catch (e) {} }
   // le bus est là où je suis : position le long du parcours (en arrêts) et horaires suivants décalés d'autant
   const d = Math.max(sm[0], Math.min(sm[sm.length - 1], last.d));
   let i = 0; while (i < sm.length - 2 && sm[i + 1] <= d) i++;
@@ -1750,6 +1919,57 @@ function boardAdjust(st, pi, k, dk) {
   return { ...st, gps: true, i: ci, pos, atStop, next, at, dp };
 }
 
+// ---------- #07 : « Tu es dans un bus ? » (proposition quand je roule sur une ligne sans suivi) ----------
+const INBUS = { shownKey: "", refused: new Set(), mute: 0 };
+function showInBus(cands, dk) {
+  const el = $("#inbus");
+  if (!cands.length) { el.classList.remove("on"); return; }
+  const one = cands.length === 1, trams = cands.filter((c) => modeOf(net.pats[c.pi].r) === "tram").length;
+  const what = trams === cands.length ? (one ? "ce tram" : "un de ces trams") : trams ? "le tram ou le bus" : (one ? "ce bus" : "un de ces bus");
+  el.innerHTML = `<div class="ibh"><span class="ic">${modeGlyph(trams === cands.length ? "tram" : "bus")}</span><div><b>Vous êtes dans ${what} ?</b><small>${one ? "Suivez-le pour savoir quand descendre" : "Plusieurs lignes passent ici, choisissez la vôtre"}</small></div><button type="button" class="ibx" aria-label="Non merci">${closeSvg}</button></div>`
+    + cands.map((c, j) => { const p = net.pats[c.pi]; const st = tripState(c.pi, c.k, c.dk ?? dk); const nx = p.stops[Math.min(p.nS - 1, st.next)]; return `<div class="ibr"><span style="color:var(--muted);display:inline-flex">${modeIcon(modeOf(p.r) === "tram" ? "tram" : "bus")}</span>${badge(p.r)}<span class="d">→ ${esc(p.h)}<small>Prochain arrêt : ${esc(qName(nx))}</small></span><button type="button" class="btn small primary" data-ib="${j}">Suivre</button></div>`; }).join("");
+  el.querySelector(".ibx").onclick = () => { cands.forEach((c) => INBUS.refused.add(c.pi + ":" + c.k)); INBUS.mute = Date.now() + 20 * 60000; INBUS.shownKey = ""; el.classList.remove("on"); };
+  el.querySelectorAll("[data-ib]").forEach((b) => b.onclick = () => {
+    const c = cands[+b.dataset.ib]; el.classList.remove("on"); INBUS.shownKey = "";
+    // on sait déjà que je suis dedans : calage immédiat sur ma position (#06 / #09)
+    BOARD_LAST = { key: [c.pi, c.k, c.dk ?? dk].join(":"), at: Date.now(), ib: 1 };
+    startFollow(c.pi, c.k, c.dk ?? dk);
+  });
+  requestAnimationFrame(() => el.classList.add("on"));
+}
+// #07 : détection, appli ouverte et sans suivi en cours, toutes les 5 s
+function detectInBus() {
+  const el = $("#inbus");
+  if (S.follow || !feat("inbus") || document.hidden || Date.now() < INBUS.mute) { if (S.follow && el.classList.contains("on")) { el.classList.remove("on"); INBUS.shownKey = ""; } return; }
+  const now = Date.now();
+  let w = ME.hist.filter((h) => now - h.t < 75000);
+  // on ne garde que la fin cohérente : un point qui « saute » (premier repérage imprécis) est écarté
+  for (let j = w.length - 1; j > 0; j--) if (distM(w[j - 1].lat, w[j - 1].lon, w[j].lat, w[j].lon) / Math.max(1, (w[j].t - w[j - 1].t) / 1000) > 35) { w = w.slice(j); break; }
+  const hide = () => { if (el.classList.contains("on")) el.classList.remove("on"); INBUS.shownKey = ""; };
+  if (w.length < 4 || now - w[w.length - 1].t > 20000) return hide();
+  const span = (w[w.length - 1].t - w[0].t) / 1000, a = w[0], z = w[w.length - 1];
+  const moved = distM(a.lat, a.lon, z.lat, z.lon);
+  if (span < 40 || moved < 150 || moved / span < 2) return hide(); // pas encore une allure de bus
+  if (!M_PER_U) userOnPat(0, z);
+  const ux = PX(z.lon), uy = PY(z.lat), dk0 = todayIdx();
+  const best = new Map();
+  for (const v of vehicles()) {
+    if (INBUS.refused.has(v.pi + ":" + v.k)) continue;
+    const dv = Math.hypot(v.x - ux, v.y - uy) * M_PER_U; if (dv > 900) continue;
+    const pts = w.map((h) => userOnPat(v.pi, h));
+    if (pts.some((q) => !q || q.off > 60)) continue;
+    if (pts.some((q, j) => j && q.d < pts[j - 1].d - 40) || pts[pts.length - 1].d - pts[0].d < 100) continue; // dans le sens du bus
+    const key = v.r + "|" + net.pats[v.pi].h;
+    if (!best.has(key) || dv < best.get(key).dv) best.set(key, { pi: v.pi, k: v.k, dk: v.dk, dv });
+  }
+  const cands = [...best.values()].sort((x, y) => x.dv - y.dv).slice(0, 4);
+  if (!cands.length) return hide();
+  const sk = cands.map((c) => c.pi + ":" + c.k).join(",");
+  if (sk !== INBUS.shownKey) { INBUS.shownKey = sk; showInBus(cands, dk0); }
+}
+setInterval(detectInBus, 5000);
+// position suivie dès l'ouverture si elle a déjà été autorisée (pour la détection du bus)
+setTimeout(() => { if (feat("inbus") && store.get("geo")) locate(null, true); }, 1500);
 function startFollow(pi, k, dk, fromStop, destStop) {
   const p = net.pats[pi];
   let dest = null;
@@ -1807,8 +2027,8 @@ function takeover(o) {
   $(".tk-ok", el).onclick = () => el.classList.remove("on");
 }
 const bellSvg = `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10.3 20a2 2 0 0 0 3.4 0"/></svg>`;
-// icône du véhicule : selon le mode de la ligne si on la connaît (#16 : tram, BHNS, bus), sinon bus
-const busPicto = (c, ri) => ri != null && net.R[ri] ? `<svg width="20" height="20" viewBox="0 0 48 48" fill="none" style="color:${c}" aria-hidden="true">${MODE_SVG[modeOf(ri)]}</svg>` : `<svg width="18" height="18" viewBox="0 0 48 48" fill="${c}" aria-hidden="true"><path fill-rule="evenodd" d="M14.5 8H33.5Q38 8 38 12.5V37.5Q38 40.5 35 40.5H13Q10 40.5 10 37.5V12.5Q10 8 14.5 8ZM14.5 15.5H33.5Q35.5 15.5 35.5 17.5V29Q35.5 31 33.5 31H14.5Q12.5 31 12.5 29V17.5Q12.5 15.5 14.5 15.5Z"/><path d="M12.5 40H17V44.5H12.5ZM31 40H35.5V44.5H31Z"/></svg>`;
+// icône du véhicule : selon le mode de la ligne si on la connaît (#16 : tram, BHNS, bus), sinon bus ; dessin recentré dans son rond
+const busPicto = (c, ri) => ri != null && net.R[ri] ? (() => { const k = modeOf(ri), [x, y, w, hh] = MODE_BB[k], q = 48; return `<svg width="20" height="20" viewBox="${x + w / 2 - q / 2} ${y + hh / 2 - q / 2} ${q} ${q}" fill="none" style="color:${c}" aria-hidden="true">${MODE_SVG[k]}</svg>`; })() : `<svg width="18" height="18" viewBox="0 2.25 48 48" fill="${c}" aria-hidden="true"><path fill-rule="evenodd" d="M14.5 8H33.5Q38 8 38 12.5V37.5Q38 40.5 35 40.5H13Q10 40.5 10 37.5V12.5Q10 8 14.5 8ZM14.5 15.5H33.5Q35.5 15.5 35.5 17.5V29Q35.5 31 33.5 31H14.5Q12.5 31 12.5 29V17.5Q12.5 15.5 14.5 15.5Z"/><path d="M12.5 40H17V44.5H12.5ZM31 40H35.5V44.5H31Z"/></svg>`;
 
 // prochains départs des autres lignes à un arrêt, après l'heure t (une ligne + direction par groupe)
 const connCache = new Map();
@@ -1828,6 +2048,12 @@ function connsAt(par, t, exclR, max = 6) {
   if (connCache.size > 200) connCache.clear();
   connCache.set(key, out); return out;
 }
+// #10 : correspondances avec leur direction (pastilles compactes, 6 au plus)
+function connsDir(par, t, exclR) {
+  const cs = connsAt(par, t, exclR, 40);
+  return cs.flatMap((G) => G.list.map((x) => ({ r: G.r, h: G.h, x }))).sort((a, b) => a.x.t - b.x.t).slice(0, 6);
+}
+const connChipsDir = (cs) => cs.map((c) => `<span class="cx cxd">${badge(c.r, "sm", true)}<span class="cd">${esc(c.h)}</span><b>${waitLabel(c.x.t, true)}</b></span>`).join("");
 const connChips = (cs) => cs.map((G) => `<span class="cx">${badge(G.r, "sm", true)}<b>${waitLabel(G.list[0].t, true)}</b></span>`).join("");
 const connRows = (cs) => cs.map((G) => `<div class="cr">${badge(G.r)}<span class="d">→ ${esc(G.h)}</span><span class="w">${dot(G.list[0].live)}<b>${waitLabel(G.list[0].t, true)}</b>${G.list[1] ? `<small>${waitLabel(G.list[1].t, true)}</small>` : ""}</span></div>`).join("");
 const connCards = (cs) => cs.slice(0, 3).map((G) => `<div class="tc">${badge(G.r)}<b>${waitLabel(G.list[0].t, true)}</b><small>→ ${esc(G.h)}</small></div>`).join("");
@@ -1847,7 +2073,7 @@ function renderFollow() {
     MB.key = key; MB.lastNext = -1;
     // la ligne affichée commence un arrêt avant le bus (ou avant l'arrêt de montée s'il est plus tôt)
     MB.first = Math.max(0, Math.min(from ?? Infinity, Math.max(0, st.i), p.nS - 1) - 1);
-    el.innerHTML = `<div class="mbtop" id="mb-top"><div class="fhead"><button type="button" class="icon-btn" id="fo-back" aria-label="Retour">${backSvg}</button><button type="button" class="icon-btn" id="fo-close" aria-label="Quitter le plein écran">${closeSvg}</button>${badge(p.r, "lg")}<div class="fh-t"><h2>→ ${esc(p.h)}</h2><span class="fh-s" id="mb-status"></span></div><span class="pillmode">${S.guide ? "GUIDAGE" : "MON BUS"}</span></div>
+    el.innerHTML = `<div class="mbtop" id="mb-top"><div class="fhead"><button type="button" class="icon-btn" id="fo-back" aria-label="Retour">${backSvg}</button><button type="button" class="icon-btn" id="fo-close" aria-label="Quitter le plein écran">${closeSvg}</button>${badge(p.r, "lg")}<div class="fh-t"><h2>→ ${esc(p.h)}</h2><span class="fh-s" id="mb-status"></span><span class="b9row" id="mb-b9"></span></div><span class="pillmode">${S.guide ? "GUIDAGE" : modeOf(p.r) === "tram" ? "MON TRAM" : "MON BUS"}</span></div>
       <div id="gd-card"></div>
       <div id="mb-banner"></div>
       <div id="mb-hero"></div></div>
@@ -1872,7 +2098,9 @@ function renderFollow() {
   const nS = p.nS, next = st.next, t = st.t;
   const near = st.state === "running" && !st.atStop && st.at(next) - t <= 1.1;
   const delay = Math.round(st.at(Math.min(nS - 1, next)) - st.sched(Math.min(nS - 1, next)));
-  $("#mb-status").innerHTML = st.gps ? `<i class="gpsdot"></i>À bord · position GPS${delay >= 1 ? " · retard " + delay + " min" : ""}` : `${dot(st.live)}${st.live ? `Temps réel · ${delay >= 1 ? "retard " + delay + " min" : delay <= -1 ? "avance " + -delay + " min" : "à l'heure"}` : "Horaire théorique (position estimée)"}`;
+  const b9 = st.gps || st.state === "done" || !feat("gps") || !feat("dedans") ? "" : BOARD.claim ? `<span class="b9 wait"><i class="b9spin"></i>Calage…</span>` : `<button type="button" class="b9" data-board>Je suis dedans</button>`;
+  $("#mb-status").innerHTML = (st.gps ? `<i class="gpsdot"></i>À bord · position GPS${delay >= 1 ? " · retard " + delay + " min" : ""}` : `${dot(st.live)}${st.live ? `Temps réel · ${delay >= 1 ? "retard " + delay + " min" : delay <= -1 ? "avance " + -delay + " min" : "à l'heure"}` : "Horaire théorique (position estimée)"}`);
+  { const h9 = b9; const e9 = $("#mb-b9"); if (e9 && e9.dataset.html !== h9) { e9.innerHTML = h9; e9.dataset.html = h9; } };
   // ligne : arrêts passés, arrêt suivant, bus
   // en attente au terminus ou à un arrêt : bus immobile sur l'arrêt, halo lent, étiquette ; en route : chevrons
   const waiting = st.state === "before" || st.atStop, waitAt = st.state === "before" ? 0 : st.i;
@@ -1883,7 +2111,7 @@ function renderFollow() {
   $("#mb-bus").classList.toggle("gps", !!st.gps);
   // les chevrons partent de sous le bus et s'arrêtent à l'arrêt suivant (#15 : jamais au-delà)
   const goTop = busTop, goEnd = (next - MB.first) * ROWH + ROWH / 2 - 8;
-  const goEl = $("#mb-go"), showGo = st.state === "running" && !st.atStop && goEnd - goTop >= 28; // pas « go » : c'est la fonction de navigation
+  const goEl = $("#mb-go"), showGo = feat("chevrons") && st.state === "running" && !st.atStop && goEnd - goTop >= 28; // pas « go » : c'est la fonction de navigation
   goEl.classList.toggle("hide", !showGo);
   if (showGo) { goEl.style.top = goTop + "px"; goEl.style.height = goEnd - goTop + "px"; }
   const wtxt = st.state === "before" ? "DÉPART " + hm(st.dp(0)) : st.atStop ? "À L'ARRÊT" : "";
@@ -1904,7 +2132,7 @@ function renderFollow() {
   // temps des correspondances : arrêt suivant et arrêt de descente
   $$("#mb-track [data-cx]").forEach((c) => {
     const i = +c.dataset.cx, show = (i === next && st.state !== "done") || i === dest;
-    const html = show ? connChips(connsAt(net.Q[p.stops[i]][0], st.at(i), p.r, 4)) || "" : c.dataset.base;
+    const html = show ? (feat("cxdir") ? connChipsDir(connsDir(net.Q[p.stops[i]][0], st.at(i), p.r)) : connChips(connsAt(net.Q[p.stops[i]][0], st.at(i), p.r, 4))) || "" : c.dataset.base;
     if (c.dataset.html !== html) { c.innerHTML = html; c.dataset.html = html; }
   });
   // défilement : le thermomètre reste calé sur le bus (dernier arrêt passé en haut, sous la carte fixe) ;
@@ -1958,11 +2186,17 @@ function renderFollow() {
       ping(key + ":prep", "Préparez-vous à descendre", "Plus que 2 arrêts avant " + dn);
     }
   }
+  // #11 « Mon bus arrive » : X min avant son passage à mon arrêt de montée (réglage dans Mon profil)
+  if (MY.al.arrive && from != null && !S.guide && st.state !== "done" && (st.state === "before" || st.pos < from - 0.05)) {
+    const w = st.at(from) - t;
+    if (w > MY.al.arriveMin + 0.5) S.follow.comeArmed = true; // pas d'alerte si le bus était déjà tout près au lancement du suivi
+    else if (S.follow.comeArmed && w > 0) ping(key + ":come", `Votre ${R.s} arrive`, `${qName(p.stops[from])} · dans ${Math.max(1, Math.round(w))} min`, true);
+  }
   if ($("#mb-banner").dataset.html !== banner) { $("#mb-banner").innerHTML = banner; $("#mb-banner").dataset.html = banner; }
   // barre du bas
   const bar = S.guide ? `<button type="button" class="btn small ghost" id="fo-stop">Arrêter le guidage</button>${S.followFree ? `<button type="button" class="btn small primary" id="fo-recenter">Recentrer</button>` : ""}`
     : `<span class="hint">${dest == null ? "Touchez un arrêt pour le choisir comme descente" : "Touchez un autre arrêt pour changer de descente"}</span>
-      ${dest != null ? `<button type="button" class="btn small alertbtn" id="fo-alert" aria-pressed="${S.follow.alert}">${bellSvg.replace('width="40" height="40"', 'width="16" height="16"')}${S.follow.alert ? "Alerte activée" : "Alerte coupée"}</button>` : ""}
+${dest != null ? `<button type="button" class="btn small alertbtn" id="fo-alert" aria-pressed="${S.follow.alert}">${bellSvg.replace('width="40" height="40"', 'width="16" height="16"')}${S.follow.alert ? "Alerte activée" : "Alerte coupée"}</button>` : ""}
       ${S.followFree ? `<button type="button" class="btn small primary" id="fo-recenter">Recentrer</button>` : ""}<button type="button" class="btn small ghost" id="fo-stop">Arrêter</button>`;
   if ($("#mb-bar").dataset.html !== bar) {
     $("#mb-bar").innerHTML = bar; $("#mb-bar").dataset.html = bar;
@@ -1975,7 +2209,7 @@ function renderFollow() {
 
 // thermomètre de Mon bus : recale la liste sur le bus (sous la carte du haut, qui reste visible)
 function mbCenter(st, instant) {
-  if (Date.now() - MB.userScrollAt < 4000) return;
+  if (Date.now() - MB.userScrollAt < 4000 || (!instant && !feat("centre"))) return;
   const sc = $("#scroll"), top = $("#mb-top");
   const i = st.state === "before" ? MB.first : Math.max(MB.first, Math.min(st.p.nS - 1, st.i));
   const row = $(`#mb-track .mbr[data-i="${i}"]`);
@@ -1989,8 +2223,8 @@ function mbCenter(st, instant) {
   clearTimeout(MB.progT); MB.progT = setTimeout(() => { MB.progScroll = false; }, 800);
 }
 // plein écran de Mon bus : en tirant le panneau tout en haut, le plan, l'en-tête et les onglets s'effacent
-if (/[?&]simu=/.test(location.search)) window.__t = { startFollow: (...a) => startFollow(...a), tripState: (...a) => tripState(...a), setSheet: (x) => setSheet(x), todayIdx: () => todayIdx(), net: () => net, MB, shape: (pi) => shapeOfPat[pi], BOARD, ME, onPat: userOnPat };
-function updMbFull() { document.body.classList.toggle("mbfull", isMobile() && S.view === "suivi" && sheetState === "full"); }
+if (/[?&]simu=/.test(location.search)) window.__t = { startFollow: (...a) => startFollow(...a), tripState: (...a) => tripState(...a), setSheet: (x) => setSheet(x), todayIdx: () => todayIdx(), net: () => net, MB, shape: (pi) => shapeOfPat[pi], BOARD, ME, onPat: userOnPat, popStop: (i) => { const p = net.P[i]; const [sx, sy] = toS(PX(p[2]), PY(p[1])); clickMap(sx, sy); return [sx, sy]; }, openPa: (i) => openPassages(i), pName: (i) => pName(i), go: (v) => go(v) , showInBus: (c, dk) => showInBus(c, dk) };
+function updMbFull() { document.body.classList.toggle("mbfull", feat("plein") && isMobile() && S.view === "suivi" && sheetState === "full"); }
 
 const renderFollowBg = () => renderFollow();
 
@@ -2157,14 +2391,49 @@ function trNetwork(x) {
 function trIndex() {
   TR.byRoute = new Map(); TR.alert = new Set();
   trActive().forEach((x) => { if (trStatus(x) !== "now") return; const g = trGene(x); trRoutes(x).forEach((ri) => { if (!TR.byRoute.has(ri)) TR.byRoute.set(ri, []); TR.byRoute.get(ri).push(x); if (g) TR.alert.add(ri); }); });
-  trBang(); trNetCheck();
+  trBang(); trNetCheck(); alertMyLines();
 }
+// #11 « Perturbation sur mes lignes » : prévenu une fois par info, appli ouverte
+function alertMyLines() {
+  if (!MY.al.trafic || !MY.lines.length || !TR.ok) return;
+  const first = store.get("alTr") == null, seen = new Set(store.get("alTr") || []);
+  const hits = trActive().filter((x) => trStatus(x) === "now" && !seen.has(x.id) && trRoutes(x).some((r) => MY.lines.includes(r)));
+  if (!hits.length) return;
+  store.set("alTr", [...seen, ...hits.map((x) => x.id)].slice(-200));
+  if (first) return; // première fois : les infos déjà en cours sont dans Info trafic, on ne prévient que des nouvelles
+  const L = [...new Set(hits.flatMap(trRoutes).filter((r) => MY.lines.includes(r)))].map((r) => net.R[r].s);
+  const ls = L.slice(0, 4).join(", ") + (L.length > 4 ? ` et ${L.length - 4} autre${L.length > 5 ? "s" : ""}` : "");
+  ping("tr:" + hits.map((x) => x.id).join(","), hits.length > 1 ? `${hits.length} perturbations sur vos lignes` : `Info trafic · ligne${L.length > 1 ? "s" : ""} ${ls}`, hits.length > 1 ? "Lignes " + ls : hits[0].t);
+}
+// #11 « Dernier bus de mes trajets » : le soir, 30 min avant le dernier départ utile (une fois par trajet et par soir)
+const LASTC = new Map();
+function alertLastBus() {
+  if (!MY.al.last || !fav.trips.length) return;
+  const n = parisNow(); if (n.minF < 19 * 60 || !inRange(n.iso)) return;
+  const day = net.dayIndex(n.iso), seen = store.get("alLast") || {};
+  fav.trips.forEach(([A, B]) => {
+    const a = findStop(A), b = findStop(B), k = tripKey(A, B); if (a < 0 || b < 0 || seen[k] === n.iso) return;
+    // dernier départ de la soirée : calculé une fois par soir et par trajet (on avance de départ en départ)
+    let c = LASTC.get(k);
+    if (!c || c.iso !== n.iso) {
+      let t = Math.floor(n.minF), x = planDepart(net, a, b, day, t, 1)[0];
+      for (let it = 0; x && it < 60; it++) { const nx = planDepart(net, a, b, day, x.dep + 1, 1)[0]; if (!nx || nx.dep - x.dep >= 240) break; x = nx; }
+      c = { iso: n.iso, j: x || null }; LASTC.set(k, c);
+    }
+    const j = c.j; if (!j || j.dep - n.minF > 31 || j.dep - n.minF < 25) return;
+    const w = j.dep - n.minF;
+    seen[k] = n.iso; store.set("alLast", seen);
+    const nm = MY.names[k] || `${MY.names[A] || A} → ${MY.names[B] || B}`;
+    ping("last:" + k, `Dernier départ à ${hm(j.dep)}`, `${nm} · dans ${Math.round(w)} min`, true);
+  });
+}
+setInterval(alertLastBus, 60000); setTimeout(alertLastBus, 4000);
 // --- « ! » sur l'onglet : nouvelle info temps réel pas encore vue ---
 const trLive = () => TR.ok ? trActive().filter((x) => trRT(x) && trStatus(x) === "now") : [];
 function trBang() {
   const seen = new Set(store.get("trSeen") || []);
   const fresh = trLive().some((x) => !seen.has(x.id));
-  const b = $("#tr-bang"); if (b) b.hidden = !fresh || S.view === "trafic";
+  const b = $("#tr-bang"); if (b) b.hidden = !feat("bang") || !fresh || S.view === "trafic";
   $("#tab-trafic")?.setAttribute("aria-label", fresh ? "Info trafic, nouvelle info en temps réel" : "Info trafic");
 }
 function trMarkSeen() { if (!TR.ok) return; store.set("trSeen", trLive().map((x) => x.id)); trBang(); }
@@ -2175,7 +2444,7 @@ function trNetCheck() {
   const bar = $("#netbar"); if (!bar) return;
   const x = TR.ok ? trActive().find(trNetwork) : null;
   TR.net = x || null;
-  if (!x) { bar.hidden = true; return; }
+  if (!x || !feat("perturbe")) { bar.hidden = true; return; }
   bar.innerHTML = `${megaSvg(20)}<span>Réseau fortement perturbé · ${esc(x.t)}</span>${chevR}`;
   bar.hidden = false;
   bar.onclick = () => openTrafic({ open: x.id });
@@ -2302,6 +2571,78 @@ function trItem(x) {
   const zb = zoomable ? `<button type="button" class="linkbtn trzoom" data-zoom="${esc(x.id)}">Voir sur le plan ${chevR}</button>` : "";
   return `<details class="tritem${rt ? " trlive" : ""}" data-id="${esc(x.id)}"${TR.open === x.id ? " open" : ""}><summary><span class="tt2">${esc(x.t)}</span><svg class="chev" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 5 4 4 4-4"/></svg>${x.p ? `<span class="pp">${esc(x.p)}</span>` : ""}<span class="bs"><span class="tag ${rt ? "live" : st === "now" ? "now" : "soon"}">${rt ? "En direct" : st === "now" ? (trRecur(x) ? "Aujourd'hui" : "En cours") : st === "recur" ? "Chaque " + trRecur(x).name : st === "info" ? "Info" : "À venir"}</span>${trRoutes(x).map((r) => badge(r, "sm")).join("")}</span></summary>${body || zb ? `<div class="body">${body}${zb}</div>` : ""}</details>`;
 }
+// ---------- #11 Mon profil ----------
+const grip = `<svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><circle cx="6.5" cy="4" r="1.4"/><circle cx="11.5" cy="4" r="1.4"/><circle cx="6.5" cy="9" r="1.4"/><circle cx="11.5" cy="9" r="1.4"/><circle cx="6.5" cy="14" r="1.4"/><circle cx="11.5" cy="14" r="1.4"/></svg>`;
+const penSvg = `<svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M13.5 3.5l3 3L7 16H4v-3z"/></svg>`;
+const xSvg = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>`;
+function renderProfile() {
+  const el = $("#prof");
+  const stops = fav.stops.map((n) => [n, findStop(n)]).filter(([, i]) => i >= 0);
+  const groups = [["tram", (r) => r.m === 1], ["bhns", (r) => /^O\d/.test(r.s)], ["bus", (r) => r.m !== 1 && !/^[OE]/.test(r.s)], ["bus", (r) => /^E/.test(r.s)]];
+  const tg = (k) => `<button type="button" class="tg" data-al="${k}" aria-pressed="${!!MY.al[k]}" aria-label="Activer"></button>`;
+  el.innerHTML = `<div class="ph"><span class="pav"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.6 4.2-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/></svg></span><h2>Mon profil</h2><button type="button" class="icon-btn" id="prof-x" aria-label="Fermer">${closeSvg}</button></div>
+    <p class="psub">Tout reste sur ce téléphone, sans compte.</p>
+    <h3><span style="width:15px;height:15px;display:inline-flex">${starSvg}</span>Mes arrêts</h3>
+    <div class="pcard" data-plist="stops">${stops.length ? stops.map(([n, i]) => `<div class="prow" data-pk="${esc(n)}"><span class="grip" aria-label="Déplacer">${grip}</span><span class="pn"><b>${esc(MY.names[n] || pName(i))}</b>${MY.names[n] ? `<small>${esc(pName(i))}</small>` : `<small>${net.pRoutes[i].slice(0, 6).map((r) => badge(r, "sm", true)).join(" ")}</small>`}</span><button type="button" class="pact" data-pa="ren" aria-label="Renommer">${penSvg}</button><button type="button" class="pact" data-pa="del" aria-label="Supprimer">${xSvg}</button></div>`).join("") : `<div class="prow"><span class="pn"><small>Touchez l'étoile d'un arrêt pour l'ajouter ici.</small></span></div>`}</div>
+    <h3>Mes trajets</h3>
+    <div class="pcard" data-plist="trips">${fav.trips.length ? fav.trips.map(([a, b]) => { const tn = MY.names[tripKey(a, b)]; return `<div class="prow" data-pk="${esc(tripKey(a, b))}"><span class="grip" aria-label="Déplacer">${grip}</span><span class="pn"><b>${esc(tn || (MY.names[a] || a) + " → " + (MY.names[b] || b))}</b>${tn ? `<small>${esc(a)} → ${esc(b)}</small>` : ""}</span><button type="button" class="pact" data-pa="ren" aria-label="Renommer">${penSvg}</button><button type="button" class="pact" data-pa="del" aria-label="Supprimer">${xSvg}</button></div>`; }).join("") : `<div class="prow"><span class="pn"><small>Enregistrez un trajet depuis l'onglet Itinéraire.</small></span></div>`}</div>
+    <h3>Mes lignes</h3>
+    <div class="pcard plines">${groups.map(([m, f]) => { const ids = net.R.map((r, i) => [r, i]).filter(([r]) => f(r)).map(([, i]) => i); return `<div class="plg">${modeIcon(m)}${ids.map((i) => `<button type="button" class="plb" data-myl="${i}" aria-pressed="${MY.lines.includes(i)}">${badge(i, "sm", true)}</button>`).join("")}</div>`; }).join("")}</div>
+    <p class="pnote">Elles passent en premier dans Info trafic et dans Lignes & plans.</p>
+    <h3>Mes alertes</h3>
+    <div class="pcard">
+      <div class="prow"><span class="pn"><b>Perturbation sur mes lignes</b><small>Dès qu'une info trafic touche une de mes lignes</small></span>${tg("trafic")}</div>
+      <div class="prow"><span class="pn"><b>Dernier bus de mes trajets</b><small>Le soir, 30 min avant le dernier départ utile</small></span>${tg("last")}</div>
+      <div class="prow"><span class="pn"><b>Mon bus arrive</b><small>Pour mes trajets, <select class="psel" data-almin>${[3, 5, 10, 15].map((m) => `<option${m === MY.al.arriveMin ? " selected" : ""}>${m}</option>`).join("")}</select> min avant le passage</small></span>${tg("arrive")}</div>
+    </div>
+    <p class="pnote">Le service de notification lorsque l'application est fermée sera disponible ultérieurement.</p>
+    <h3>Fonctionnalités</h3>
+    ${FEATS.map(([cat, list]) => `<div class="pcat">${cat}</div><div class="pcard">${list.map(([k, t, d]) => `<div class="prow"><span class="pn"><b>${t}</b><small>${d}</small></span><button type="button" class="tg" data-ft="${k}" aria-pressed="${MY.ft[k] !== false}" aria-label="Activer"></button></div>`).join("")}</div>`).join("")}
+    <p class="pnote">Toutes les fonctionnalités sont activées au départ. Vous pouvez en couper une à tout moment : l'appli revient alors à un affichage plus simple.</p>`;
+  $("#prof-x").onclick = () => el.classList.remove("on");
+  el.querySelectorAll("[data-myl]").forEach((b) => b.onclick = () => { const i = +b.dataset.myl; MY.lines = MY.lines.includes(i) ? MY.lines.filter((x) => x !== i) : [...MY.lines, i]; saveMy(); b.setAttribute("aria-pressed", MY.lines.includes(i)); buildGrid(); if (S.view === "trafic") renderTrafic(); });
+  el.querySelectorAll("[data-ft]").forEach((b) => b.onclick = () => { const k = b.dataset.ft; MY.ft[k] = MY.ft[k] === false; saveMy(); b.setAttribute("aria-pressed", MY.ft[k] !== false); featChanged(k); });
+  el.querySelectorAll("[data-al]").forEach((b) => b.onclick = () => { MY.al[b.dataset.al] = !MY.al[b.dataset.al]; saveMy(); b.setAttribute("aria-pressed", !!MY.al[b.dataset.al]); });
+  const sel = el.querySelector("[data-almin]"); if (sel) sel.onchange = () => { MY.al.arriveMin = +sel.value; saveMy(); };
+  // mes arrêts / mes trajets : renommer, supprimer, déplacer
+  const keyOf = (list, row) => row.dataset.pk;
+  const arr = (list) => list === "stops" ? fav.stops : fav.trips;
+  const idx = (list, k) => list === "stops" ? fav.stops.indexOf(k) : fav.trips.findIndex(([a, b]) => tripKey(a, b) === k);
+  const after = () => { saveFav(); saveMy(); renderProfile(); renderHome(); };
+  el.querySelectorAll("[data-plist] .prow[data-pk]").forEach((row) => {
+    const list = row.parentElement.dataset.plist, k = keyOf(list, row);
+    row.querySelector('[data-pa="del"]').onclick = () => { const i = idx(list, k); if (i < 0) return; const label = row.querySelector(".pn b").textContent; arr(list).splice(i, 1); delete MY.names[k]; after(); toast(`${label} retiré${list === "stops" ? " de vos arrêts" : " de vos trajets"}`); };
+    row.querySelector('[data-pa="ren"]').onclick = () => {
+      const b = row.querySelector(".pn b"), cur = MY.names[k] || "";
+      const ph = list === "stops" ? k : k.replace("|", " → ");
+      b.outerHTML = `<input class="pin" type="text" maxlength="40" value="${esc(cur)}" placeholder="${esc(ph)}" aria-label="Nouveau nom">`;
+      const inp = row.querySelector(".pin"); inp.focus(); inp.select();
+      let done = false;
+      const ok = () => { if (done) return; done = true; const v = inp.value.trim(); if (v && v !== ph) MY.names[k] = v; else delete MY.names[k]; after(); };
+      inp.onkeydown = (e) => { if (e.key === "Enter") { e.preventDefault(); ok(); } else if (e.key === "Escape") { done = true; renderProfile(); } };
+      inp.onblur = ok;
+    };
+    const g = row.querySelector(".grip");
+    g.onpointerdown = (e) => {
+      e.preventDefault(); const box = row.parentElement; row.classList.add("drag");
+      const mv = (ev) => { const rows = [...box.querySelectorAll(".prow[data-pk]")].filter((r) => r !== row); const tgt = rows.find((r) => { const q = r.getBoundingClientRect(); return ev.clientY < q.top + q.height / 2; }); if (tgt) box.insertBefore(row, tgt); else box.appendChild(row); };
+      const up = () => { window.removeEventListener("pointermove", mv); window.removeEventListener("pointerup", up); window.removeEventListener("pointercancel", up); row.classList.remove("drag");
+        const order = [...box.querySelectorAll(".prow[data-pk]")].map((r) => r.dataset.pk); const old = arr(list).slice();
+        const sorted = order.map((kk) => old[idx(list, kk)]).filter(Boolean);
+        if (list === "stops") fav.stops = sorted; else fav.trips = sorted; after(); };
+      window.addEventListener("pointermove", mv); window.addEventListener("pointerup", up); window.addEventListener("pointercancel", up); // sur la fenêtre : déplacer la ligne dans la page ferait perdre le doigt
+    };
+  });
+}
+// une fonctionnalité vient d'être activée ou coupée : l'affichage suit tout de suite
+function featChanged(k) {
+  if (k === "pliage" && !feat("pliage")) { MFOLD.clear(); store.set("modeFold", []); }
+  if (k === "gps" && !feat("gps")) BOARD.on = false;
+  if (k === "inbus" && !feat("inbus")) { $("#inbus").classList.remove("on"); INBUS.shownKey = ""; }
+  try { buildGrid(); trBang(); trNetCheck(); checkNight(); updMbFull(); renderHome(); if (S.view === "trafic") renderTrafic(); if (S.view === "suivi") renderFollow(); } catch (e) {}
+}
+function openProfile() { renderProfile(); $("#prof").classList.add("on"); }
+$("#prof-btn").onclick = openProfile;
 function renderTrafic() {
   const head = $("#tr-head"), res = $("#tr-res");
   let h = `<div class="vhead"><h2>Info trafic</h2></div>`;
@@ -2311,10 +2652,11 @@ function renderTrafic() {
     $("#tr-src").innerHTML = "";
   } else {
     const act = trActive(), f = TR.filter;
-    const lines = [...new Set(act.flatMap(trRoutes))].sort((a, b) => a - b);
+    const lines = [...new Set(act.flatMap(trRoutes))].sort((a, b) => myFirst(b) - myFirst(a) || a - b);
     h += `<div class="trf" role="group" aria-label="Filtrer par ligne" style="margin-top:12px"><button type="button" data-f="" aria-pressed="${!f}">Toutes</button>${lines.map((r) => `<button type="button" data-f="${r}" aria-pressed="${!!f && f.length === 1 && f[0] === r}" aria-label="Ligne ${esc(net.R[r].s)}">${badge(r, "sm", true)}</button>`).join("")}</div>`;
     head.innerHTML = h;
-    const list = (f ? act.filter((x) => trRoutes(x).some((r) => f.includes(r))) : act).slice().sort((a, b) => (trStatus(a) === "soon") - (trStatus(b) === "soon"));
+    const onMy = (x) => trRoutes(x).some(myFirst);
+    const list = (f ? act.filter((x) => trRoutes(x).some((r) => f.includes(r))) : act).slice().sort((a, b) => onMy(b) - onMy(a) || (trStatus(a) === "soon") - (trStatus(b) === "soon"));
     const isInfo = (x) => ["info", "recur"].includes(trStatus(x));
     const live = list.filter((x) => trRT(x) && trStatus(x) === "now"), infos = list.filter((x) => !live.includes(x) && isInfo(x)), byLine = list.filter((x) => !live.includes(x) && !isInfo(x));
     res.innerHTML = `<div class="trsec"><span class="live" aria-hidden="true"></span><h3>Temps réel</h3><small>${live.length ? live.length + " en cours" : "rien à signaler"}</small></div>`
@@ -3032,14 +3374,14 @@ function paint() {
   const nice = [50, 100, 200, 250, 500, 1000, 2000, 5000, 10000, 20000].find((m) => m / mpp >= 56) || 20000;
   const len = nice / mpp;
   const mob = isMobile();
-  const bx = mob ? 14 : W - len - 16, by = mob ? topInset() + 26 : H - 20;
+  const bx = mob ? 66 : W - len - 16, by = mob ? topInset() + 26 : H - 20;
   ctx.strokeStyle = C.ink; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(bx, by - 5); ctx.lineTo(bx, by); ctx.lineTo(bx + len, by); ctx.lineTo(bx + len, by - 5); ctx.stroke();
   ctx.font = `600 11.5px ${C.font}`; ctx.fillStyle = C.ink; ctx.textAlign = "center";
   ctx.lineWidth = 3; ctx.strokeStyle = C.bg; const st = nice >= 1000 ? nice / 1000 + " km" : nice + " m";
   ctx.strokeText(st, bx + len / 2, by - 10); ctx.fillText(st, bx + len / 2, by - 10); ctx.textAlign = "start";
   if (TILES_OK) {
     ctx.font = `500 10px ${C.font}`; ctx.textAlign = mob ? "left" : "right"; ctx.lineWidth = 3; ctx.strokeStyle = C.bg; ctx.fillStyle = C.muted;
-    const at = "© les contributeurs d'OpenStreetMap", ax = mob ? 14 : W - 12, ay = mob ? topInset() + 44 : H - 6;
+    const at = "© les contributeurs d'OpenStreetMap", ax = mob ? 66 : W - 12, ay = mob ? topInset() + 44 : H - 6;
     ctx.strokeText(at, ax, ay); ctx.fillText(at, ax, ay); ctx.textAlign = "start";
   }
   placePop();
@@ -3204,7 +3546,7 @@ function clickMap(sx, sy) {
   if (h.kind === "veh") { pop.dataset.html = ""; popAt = { veh: { pi: h.v.pi, k: h.v.k, dk: h.v.dk } }; fillVehPop(h.v); pop.classList.add("on"); placePop(); return; }
   const best = h.i, p = net.P[best];
   pop.dataset.html = "";
-  pop.innerHTML = `<button type="button" class="x" aria-label="Fermer">×</button><h3>${esc(pName(best))}</h3><div class="badges">${net.pRoutes[best].map((r) => badge(r, "sm")).join("")}</div>
+  pop.innerHTML = `<button type="button" class="x" aria-label="Fermer">×</button><h3>${esc(pName(best))}</h3>${modeBadges(net.pRoutes[best])}
     <div class="acts"><button type="button" class="btn small primary" data-a="pa">Passages</button><button type="button" class="btn small" data-a="from">Partir d'ici</button><button type="button" class="btn small" data-a="to">Y aller</button><button type="button" class="btn small star" data-a="fav" aria-pressed="${isFavStop(best)}" aria-label="Favori" style="width:36px;padding:0">${starSvg}</button></div>`;
   popAt = { x: PX(p[2]), y: PY(p[1]), stop: best };
   pop.classList.add("on"); placePop();
@@ -3274,7 +3616,7 @@ function nightPop() {
 function checkNight() {
   const n = parisNow(), bar = $("#nightbar");
   const nt = networkNight(net, net.dayIndex(n.iso), n.minF);
-  if (!nt) { bar.hidden = true; return; }
+  if (!nt || !feat("nuit")) { bar.hidden = true; return; }
   bar.innerHTML = `${moonSvg(16)}<span>Fin de service sur le réseau · à demain</span>`;
   bar.hidden = false;
   const key = net.isoOf(nt.sd);

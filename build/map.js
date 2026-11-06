@@ -617,14 +617,14 @@ function paint() {
   const nice = [50, 100, 200, 250, 500, 1000, 2000, 5000, 10000, 20000].find((m) => m / mpp >= 56) || 20000;
   const len = nice / mpp;
   const mob = isMobile();
-  const bx = mob ? 14 : W - len - 16, by = mob ? topInset() + 26 : H - 20;
+  const bx = mob ? 66 : W - len - 16, by = mob ? topInset() + 26 : H - 20;
   ctx.strokeStyle = C.ink; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(bx, by - 5); ctx.lineTo(bx, by); ctx.lineTo(bx + len, by); ctx.lineTo(bx + len, by - 5); ctx.stroke();
   ctx.font = `600 11.5px ${C.font}`; ctx.fillStyle = C.ink; ctx.textAlign = "center";
   ctx.lineWidth = 3; ctx.strokeStyle = C.bg; const st = nice >= 1000 ? nice / 1000 + " km" : nice + " m";
   ctx.strokeText(st, bx + len / 2, by - 10); ctx.fillText(st, bx + len / 2, by - 10); ctx.textAlign = "start";
   if (TILES_OK) {
     ctx.font = `500 10px ${C.font}`; ctx.textAlign = mob ? "left" : "right"; ctx.lineWidth = 3; ctx.strokeStyle = C.bg; ctx.fillStyle = C.muted;
-    const at = "© les contributeurs d'OpenStreetMap", ax = mob ? 14 : W - 12, ay = mob ? topInset() + 44 : H - 6;
+    const at = "© les contributeurs d'OpenStreetMap", ax = mob ? 66 : W - 12, ay = mob ? topInset() + 44 : H - 6;
     ctx.strokeText(at, ax, ay); ctx.fillText(at, ax, ay); ctx.textAlign = "start";
   }
   placePop();
@@ -789,7 +789,7 @@ function clickMap(sx, sy) {
   if (h.kind === "veh") { pop.dataset.html = ""; popAt = { veh: { pi: h.v.pi, k: h.v.k, dk: h.v.dk } }; fillVehPop(h.v); pop.classList.add("on"); placePop(); return; }
   const best = h.i, p = net.P[best];
   pop.dataset.html = "";
-  pop.innerHTML = `<button type="button" class="x" aria-label="Fermer">×</button><h3>${esc(pName(best))}</h3><div class="badges">${net.pRoutes[best].map((r) => badge(r, "sm")).join("")}</div>
+  pop.innerHTML = `<button type="button" class="x" aria-label="Fermer">×</button><h3>${esc(pName(best))}</h3>${modeBadges(net.pRoutes[best])}
     <div class="acts"><button type="button" class="btn small primary" data-a="pa">Passages</button><button type="button" class="btn small" data-a="from">Partir d'ici</button><button type="button" class="btn small" data-a="to">Y aller</button><button type="button" class="btn small star" data-a="fav" aria-pressed="${isFavStop(best)}" aria-label="Favori" style="width:36px;padding:0">${starSvg}</button></div>`;
   popAt = { x: PX(p[2]), y: PY(p[1]), stop: best };
   pop.classList.add("on"); placePop();
