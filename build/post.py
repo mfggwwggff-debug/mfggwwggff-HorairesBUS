@@ -204,6 +204,16 @@ def tram_paths(data):
         p[3] = len(SH) - 1
 
 
+# Petits détours sans arrêt à dessiner d'un seul trait (demande de l'utilisateur) : dans ces zones, un tronçon
+# à sens unique sans arrêt de la ligne à moins de 30 m n'est pas dessiné pour le sens retour, et l'aller y est
+# dessiné comme un trait normal (sans flèches). Les bus en circulation gardent leur vrai chemin.
+SIMPLIFY = [
+    (49.25789, 4.02763, 65),  # Gare Centre : tour du pâté de maisons des O1, O2, U1, U8… (6 nov.)
+]
+
+GAP = 0.22  # liseré entre deux lignes, en largeur de ligne de base
+WGT = []
+
 # ---------- tronçons communs ----------
 def decode_shape(flat):
     out, x, y = [], 0, 0
@@ -443,6 +453,9 @@ def trim_departure_loop(dep, stops_xy, arrivals, step=4.0, merge=25.0):
 
 
 def parallel_lines(data, step=8.0, dedupe=45.0, near=14.0, slot_m=10.0, oneway=50.0):
+    # largeur relative de chaque ligne dans un faisceau (mêmes rapports que lineK dans map.js)
+    global WGT
+    WGT = [1.4 if r.get("m") == 1 else 1.0 if r["s"] in ("O1", "O2", "U1", "U2") else 0.72 for r in data["R"]]
     R, PAT, SH, Q = data["R"], data["PAT"], data["SH"], data["Q"]
     shapes = [decode_shape(f) for f in SH]
     # polylignes par ligne, la plus fréquentée d'abord ; coupées aux arrêts de départ et d'arrivée
@@ -572,6 +585,65 @@ def parallel_lines(data, step=8.0, dedupe=45.0, near=14.0, slot_m=10.0, oneway=5
                     acc += math.hypot(x - s[k - 1][0], y - s[k - 1][1])
                 g.add(x, y, (x, y, acc < 50 or L - acc < 50))
 
+    # 1 bis) détours sans arrêt simplifiés (zones SIMPLIFY)
+    zones = [(*to_m(lo, la), rad) for la, lo, rad in SIMPLIFY]
+    inz = lambda x, y: any((x - zx) ** 2 + (y - zy) ** 2 <= zr * zr for zx, zy, zr in zones)
+    stop_g = {}
+    for p in PAT:
+        g = stop_g.setdefault((p[0], p[1]), Grid(30))
+        for q in p[4]:
+            x, y = to_m(Q[q][2], Q[q][1])
+            g.add(x, y, (x, y))
+    def stopless(r, d, x, y):
+        g = stop_g.get((r, d))
+        return not g or not any((a - x) ** 2 + (b - y) ** 2 <= 900 for a, b in g.near(x, y))
+    def far_other(r, d, x, y):
+        og = dir_grid.get((r, 1 - d))
+        return og is not None and not any((a - x) ** 2 + (b - y) ** 2 <= oneway ** 2 for a, b in og.near(x, y))
+    if zones:
+        # le détour (tronçon à sens unique, sans arrêt, dans la zone) n'est pas dessiné quand la ligne passe
+        # déjà à côté (l'autre sens) ; sinon il est remplacé par un raccourci en ligne droite
+        marks = [[inz(x, y) and stopless(r, dr, x, y) for x, y in pts] for r, pts, dr in frags]
+        kept_g = defaultdict(lambda: Grid(25))
+        for fi, (r, pts, dr) in enumerate(frags):
+            for k, (x, y) in enumerate(pts):
+                if not marks[fi][k]:
+                    kept_g[r].add(x, y, (x, y, fi, k))
+        def joined(r, fi, k, x, y):
+            # le point touche-t-il une autre partie de la ligne (autre tronçon, ou loin dans le même) ?
+            return any((a - x) ** 2 + (b - y) ** 2 <= 625 and (f2 != fi or abs(k2 - k) > 8) for a, b, f2, k2 in kept_g[r].near(x, y))
+        changed, out_f = 0, []
+        for fi, (r, pts, dr) in enumerate(frags):
+            bad = marks[fi]
+            if not any(bad):
+                out_f.append((r, pts, dr)); continue
+            res, i, n = [], 0, len(pts)
+            while i < n:
+                if not bad[i]:
+                    res.append(pts[i]); i += 1; continue
+                j = i
+                while j < n and bad[j]:
+                    j += 1
+                a_ok = i == 0 or joined(r, fi, i - 1, *pts[i - 1])
+                b_ok = j == n or joined(r, fi, j, *pts[j])
+                changed += j - i
+                if a_ok and b_ok and (i == 0 or j == n):
+                    # on coupe : la ligne continue par l'autre sens, déjà dessiné à côté
+                    if len(res) >= 2:
+                        out_f.append((r, res, dr))
+                    res = []
+                else:
+                    a = pts[i - 1] if i > 0 else pts[i]
+                    b = pts[j] if j < n else pts[j - 1]
+                    m = max(1, int(math.hypot(b[0] - a[0], b[1] - a[1]) // step))
+                    res += [(a[0] + (b[0] - a[0]) * t / m, a[1] + (b[1] - a[1]) * t / m) for t in range(1, m)]
+                i = j
+            if len(res) >= 2:
+                out_f.append((r, res, dr))
+        frags = out_f
+        if changed:
+            print("détours simplifiés :", changed, "points")
+
     # 2) pour chaque point : quelles autres lignes empruntent la même rue (même axe)
     allg = Grid(near)
     fdirs = []
@@ -599,7 +671,10 @@ def parallel_lines(data, step=8.0, dedupe=45.0, near=14.0, slot_m=10.0, oneway=5
             n, k = len(group), group.index(r)
             lead = group[0]
             sign = 1 if lead == r else (1 if seen[lead] > 0 else -1)
-            raw.append(sign * (k - (n - 1) / 2))
+            # place pondérée par la largeur des lignes (tram plus large…) + liseré entre deux lignes
+            ws = [WGT[g] for g in group]
+            tot = sum(ws) + GAP * (n - 1)
+            raw.append(sign * (sum(ws[:k]) + GAP * k + ws[k] / 2 - tot / 2))
         # lissage : médiane (supprime les faux contacts aux carrefours) puis moyenne glissante
         n = len(raw)
         med = [sorted(raw[max(0, i - 3): i + 4])[len(raw[max(0, i - 3): i + 4]) // 2] for i in range(n)]
@@ -610,7 +685,7 @@ def parallel_lines(data, step=8.0, dedupe=45.0, near=14.0, slot_m=10.0, oneway=5
         og = dir_grid.get((r, 1 - dr)) if (r, 1 - dr) in dir_grid else None
         ow = [0] * n
         if og is not None:
-            raw_ow = [0 if any((a - x) ** 2 + (b - y) ** 2 <= oneway ** 2 for a, b in og.near(x, y)) else 1 for x, y in pts]
+            raw_ow = [0 if any((a - x) ** 2 + (b - y) ** 2 <= oneway ** 2 for a, b in og.near(x, y)) or (zones and inz(x, y) and stopless(r, dr, x, y)) else 1 for x, y in pts]
             ow = [sorted(raw_ow[max(0, i - 4): i + 5])[len(raw_ow[max(0, i - 4): i + 5]) // 2] for i in range(n)]
         p3 = [(x, y, s * slot_m) for (x, y), s in zip(pts, sm)]
         idx = rdp3(p3, 3.0)  # tracé simplifié (le plan arrondit ensuite les angles sur un petit rayon)
@@ -622,7 +697,7 @@ def parallel_lines(data, step=8.0, dedupe=45.0, near=14.0, slot_m=10.0, oneway=5
             lo, la = from_m(pts[i][0], pts[i][1])
             X, Y = round(lo * 1e5), round(la * 1e5)
             coords += [X - px, Y - py]; px, py = X, Y
-            slots.append(round(sm[i] * 4))
+            slots.append(round(sm[i] * 10))
             ows.append(ow[i])
         out.append([r, coords, slots, ows] if any(ows) else [r, coords, slots])
     data["LN"] = out
