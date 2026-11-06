@@ -498,7 +498,12 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
 .mbr .n1 { display: flex; align-items: center; gap: 6px; min-width: 0; }
 .mbr .nmt { font-size: 15px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mbr .cxs { display: flex; gap: 6px; align-items: center; white-space: nowrap; overflow: hidden; min-height: 18px; }
-.cx { display: inline-flex; align-items: center; gap: 3px; } .cx b { font: 600 12.5px/1 var(--font-display); color: var(--muted); }
+.cx { display: inline-flex; align-items: center; gap: 3px; }
+.mbr .cxs:has(.cxd) { overflow-x: auto; scrollbar-width: none; -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent); mask-image: linear-gradient(90deg, #000 85%, transparent); padding-right: 18px; pointer-events: auto; }
+.mbr .cxs::-webkit-scrollbar { display: none; }
+.cxd { background: var(--sunk); border-radius: 7px; padding: 2px 6px 2px 2px; gap: 4px; flex: none; }
+.cxd .cd { font-size: 12px; color: var(--ink); max-width: 84px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cxd .cd::before { content: "› "; color: var(--muted); } .cx b { font: 600 12.5px/1 var(--font-display); color: var(--muted); }
 .mbr.passed { opacity: .45; } .mbr.passed .nd { border-color: var(--rule); }
 .mbr.next .nmt { font-weight: 700; font-size: 16.5px; } .mbr.next .nd { width: 18px; height: 18px; } .mbr.next .t { color: var(--ink); }
 .mbr.near .nd { animation: ring 1s ease-out infinite; }
@@ -1859,6 +1864,15 @@ function connsAt(par, t, exclR, max = 6) {
   if (connCache.size > 200) connCache.clear();
   connCache.set(key, out); return out;
 }
+// #10 : correspondances avec leur direction (pastilles compactes, 6 au plus)
+// maquettes : ?cx=sens (les deux sens de chaque ligne, côte à côte) ou ?cx=departs (les 6 prochains départs, dans l'ordre)
+const CX_MODE = (location.search.match(/[?&]cx=(\w+)/) || [])[1] || "departs";
+function connsDir(par, t, exclR) {
+  const cs = connsAt(par, t, exclR, 40);
+  if (CX_MODE === "sens") return cs.slice().sort((a, b) => a.r - b.r || a.list[0].t - b.list[0].t).slice(0, 6).map((G) => ({ r: G.r, h: G.h, x: G.list[0] }));
+  return cs.flatMap((G) => G.list.map((x) => ({ r: G.r, h: G.h, x }))).sort((a, b) => a.x.t - b.x.t).slice(0, 6);
+}
+const connChipsDir = (cs) => cs.map((c) => `<span class="cx cxd">${badge(c.r, "sm", true)}<span class="cd">${esc(c.h)}</span><b>${waitLabel(c.x.t, true)}</b></span>`).join("");
 const connChips = (cs) => cs.map((G) => `<span class="cx">${badge(G.r, "sm", true)}<b>${waitLabel(G.list[0].t, true)}</b></span>`).join("");
 const connRows = (cs) => cs.map((G) => `<div class="cr">${badge(G.r)}<span class="d">→ ${esc(G.h)}</span><span class="w">${dot(G.list[0].live)}<b>${waitLabel(G.list[0].t, true)}</b>${G.list[1] ? `<small>${waitLabel(G.list[1].t, true)}</small>` : ""}</span></div>`).join("");
 const connCards = (cs) => cs.slice(0, 3).map((G) => `<div class="tc">${badge(G.r)}<b>${waitLabel(G.list[0].t, true)}</b><small>→ ${esc(G.h)}</small></div>`).join("");
@@ -1935,7 +1949,7 @@ function renderFollow() {
   // temps des correspondances : arrêt suivant et arrêt de descente
   $$("#mb-track [data-cx]").forEach((c) => {
     const i = +c.dataset.cx, show = (i === next && st.state !== "done") || i === dest;
-    const html = show ? connChips(connsAt(net.Q[p.stops[i]][0], st.at(i), p.r, 4)) || "" : c.dataset.base;
+    const html = show ? connChipsDir(connsDir(net.Q[p.stops[i]][0], st.at(i), p.r)) || "" : c.dataset.base;
     if (c.dataset.html !== html) { c.innerHTML = html; c.dataset.html = html; }
   });
   // défilement : le thermomètre reste calé sur le bus (dernier arrêt passé en haut, sous la carte fixe) ;
