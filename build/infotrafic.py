@@ -94,6 +94,11 @@ def rubrique(marks, pos):
 def parse(page):
     items = []
     marks = sections(page)
+    # encadré « Info trafic en temps réel » : texte qui suit l'icône iconRt, jusqu'à la liste des infos par ligne
+    live = ""
+    for mi in re.finditer(r'class="[^"]*\biconRt\b', page):
+        end = page.find("<details", mi.end()); end = end if end > 0 else mi.end() + 20000
+        live += " " + plain(text(page[mi.end(): min(end, mi.end() + 20000)]))
     for m in re.finditer(r'<details[^>]*data-lines="([^"]*)"[^>]*>(.*?)</details>', page, re.S | re.I):
         lines, inner = m.group(1), m.group(2)
         sm = re.search(r"<summary[^>]*>(.*?)</summary>", inner, re.S | re.I)
@@ -137,9 +142,10 @@ def parse(page):
         start, end = dates(period)
         iid = hashlib.sha1((title + "|" + period).encode()).hexdigest()[:10]
         item = {"id": iid, "t": title, "lines": ls, "p": period, "start": start, "end": end, "b": blocks}
-        rt, sec = rubrique(marks, m.start())
-        if rt is not None: item["rt"] = rt
-        if sec: item["sec"] = sec[:60]
+        # temps réel : l'info figure dans l'encadré « Info trafic en temps réel » du site (icône iconRt)
+        rt = bool(live) and plain(title) in live or bool(re.search(r'class="[^"]*\biconRt\b', inner))
+        item["rt"] = rt
+        item["sec"] = "temps reel" if rt else "par ligne"
         items.append(item)
     return items
 
