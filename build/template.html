@@ -381,6 +381,19 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
 .deps .mgh { padding: 8px 12px 6px; }
 .deps .mgh:first-child, .mini .mgh:first-child { border-top: 0; }
 .mgh + .dep, .mgh + button, .mgh + .endrow { border-top: 0; }
+.mhd.ico { min-width: 0; padding-right: 2px; }
+.mrow { align-items: center; }
+.mgrp { border-top: 1px solid var(--rule); }
+.mgrp:first-child { border-top: 0; }
+.mgrp .mbody .dep:first-child { border-top: 0; }
+.mfold { width: 100%; gap: 10px; border: 0; cursor: pointer; text-align: left; font: inherit; color: inherit; min-height: 44px; }
+.mfold .mhd { font-size: 14px; color: var(--ink); }
+.mfold .mhd .mode { width: 20px; height: 20px; }
+.mmini { flex: 1; display: flex; flex-wrap: wrap; gap: 3px; justify-content: flex-end; opacity: 0; transition: opacity .15s; }
+.mchev { flex: none; color: var(--muted); transition: transform .2s; }
+.mgrp.fold .mchev { transform: rotate(-90deg); }
+.mgrp.fold .mmini { opacity: 1; }
+.mgrp.fold .mbody { display: none; }
 .lbl.withico { display: flex; align-items: center; gap: 7px; }
 
 /* logo du réseau */
@@ -813,7 +826,9 @@ const MODES = [["tram", "Tram"], ["bhns", "BHNS"], ["bus", "Bus"], ["express", "
 const modeKey = (ri) => net.R[ri].m === 1 ? "tram" : /^O\d/.test(net.R[ri].s) ? "bhns" : /^E/.test(net.R[ri].s) ? "express" : "bus";
 const byMode = (items, rOf = (x) => x) => MODES.map(([k, n]) => [k, n, items.filter((x) => modeKey(rOf(x)) === k)]).filter((g) => g[2].length);
 const modeHead = (k, n) => `<span class="mhd">${modeIcon(k === "express" ? "bus" : k)}<span>${n}</span></span>`;
-const modeBadges = (rs) => `<div class="mrows">${byMode(rs).map(([k, n, l]) => `<div class="mrow">${modeHead(k, n)}<span class="mbs">${l.map((r) => badge(r, "sm")).join("")}</span></div>`).join("")}</div>`;
+const modeBadges = (rs) => `<div class="mrows">${byMode(rs).map(([k, n, l]) => `<div class="mrow" title="${n}"><span class="mhd ico" aria-label="${n}">${modeIcon(k === "express" ? "bus" : k)}</span><span class="mbs">${l.map((r) => badge(r, "sm")).join("")}</span></div>`).join("")}</div>`;
+const MFOLD = new Set(store.get("modeFold", []));
+const modeFoldBtn = (k, n, rs) => `<button type="button" class="mgh mfold" data-mode="${k}" aria-expanded="${!MFOLD.has(k)}">${modeHead(k, n)}<span class="mmini">${[...new Set(rs)].map((r) => badge(r, "sm")).join("")}</span><svg class="mchev" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="m4 6 4 4 4-4"/></svg></button>`;
 const modeOf = (ri) => net.R[ri].m === 1 ? "tram" : /^O\d/.test(net.R[ri].s) ? "bhns" : "bus";
 const alertSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.2 22 20.5H2z" fill="currentColor"/><path d="M12 9.5v5.2" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="17.6" r="1.25" fill="#fff"/></svg>`;
 const okSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>`;
@@ -1211,11 +1226,12 @@ function runPa() {
     </div>`;
   if (!gs.length && !ended.length) { res.innerHTML = `<div class="empty">Aucun passage dans les 3 heures après ${hm(t0)} le ${fmtDateLong(iso)}.</div>`; drawMap(); return; }
   const nowF = nowMinF();
-  res.innerHTML = trNoteFor(net.pRoutes[S.paStop]).replace('class="trnote"', 'class="trnote" style="margin-bottom:10px"') + `<div class="legend-dots" style="margin:0 0 10px"><span>${dot(true)}temps réel</span><span>${dot(false)}horaire théorique</span><span>Touchez un horaire pour suivre le bus</span></div><div class="deps">` + byMode([...gs, ...ended], (g) => g.r).map(([mk, mn, L]) => `<div class="mgh">${modeHead(mk, mn)}</div>` + L.map((g) => g.list ? `
+  res.innerHTML = trNoteFor(net.pRoutes[S.paStop]).replace('class="trnote"', 'class="trnote" style="margin-bottom:10px"') + `<div class="legend-dots" style="margin:0 0 10px"><span>${dot(true)}temps réel</span><span>${dot(false)}horaire théorique</span><span>Touchez un horaire pour suivre le bus</span></div><div class="deps">` + byMode([...gs, ...ended], (g) => g.r).map(([mk, mn, L]) => `<div class="mgrp${MFOLD.has(mk) ? " fold" : ""}">${modeFoldBtn(mk, mn, L.map((g) => g.r))}<div class="mbody">` + L.map((g) => g.list ? `
     <div class="dep">${badge(g.r, "lg")}<div class="dir">→ ${esc(g.h)}<small>${esc(net.R[g.r].l)}</small></div>
       <div class="tt">${g.list.map((x, k) => { const w = x.t - nowF; return `<button type="button" class="chip${k === 0 && isToday && w <= 15 && w > -1 ? " soon" : ""}" data-follow="${x.pat}:${x.k}:${x.off}" title="${x.live ? "Temps réel, passage à " + hm(x.t) : "Horaire théorique, passage à " + hm(x.t)}"><span class="main">${dot(x.live)}${waitLabel(x.t, isToday)}</span>${x.live && Math.round(x.t) !== Math.round(x.st) ? `<small>${delayTxt(x.t, x.st)}</small>` : isToday && w >= 59.5 ? "" : isToday ? `<small>${hm(x.t)}</small>` : ""}</button>`; }).join("")}</div>
       <button type="button" class="linkbtn open" data-r="${g.r}" data-d="${g.dir}">Fiche horaire de la ligne ${esc(net.R[g.r].s)} ${chevR}</button>
-    </div>` : endRow(g)).join("")).join("") + `</div>`;
+    </div>` : endRow(g)).join("") + `</div></div>`).join("") + `</div>`;
+  res.querySelectorAll(".mfold").forEach((b) => b.addEventListener("click", () => { const k = b.dataset.mode, g = b.parentElement, f = !g.classList.contains("fold"); g.classList.toggle("fold", f); b.setAttribute("aria-expanded", !f); if (f) MFOLD.add(k); else MFOLD.delete(k); store.set("modeFold", [...MFOLD]); }));
   res.querySelectorAll(".open").forEach((b) => b.addEventListener("click", () => { S.line = +b.dataset.r; S.dir = +b.dataset.d; $("#li-date").value = $("#pa-date").value; $("#li-time").value = $("#pa-time").value; go("lignes"); }));
   res.querySelectorAll("[data-follow]").forEach((b) => b.addEventListener("click", () => { const [pi, k, off] = b.dataset.follow.split(":").map(Number); startFollow(pi, k, day + (off ? -1 : 0), S.paStop); }));
   drawMap();
