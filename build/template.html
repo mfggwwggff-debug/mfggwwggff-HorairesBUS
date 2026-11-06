@@ -92,7 +92,7 @@ h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; }
   .grab span { width: 40px; height: 5px; border-radius: 3px; background: var(--rule); }
   header.top { padding-top: 0 !important; touch-action: none; }
   .maplegend { display: none !important; }
-  .mapctl { top: calc(var(--sat) + 12px) !important; }
+  .mapctl, .profbtn { top: calc(var(--sat) + 12px) !important; }
   input, select { font-size: 16px !important; } /* évite le zoom automatique d'iOS */
 }
 
@@ -350,6 +350,35 @@ canvas#tiles { position: absolute; inset: 0; width: 100%; height: 100%; pointer-
 canvas#map { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: grab; }
 canvas#map.drag { cursor: grabbing; }
 canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.profbtn { position: absolute; left: 12px; top: 12px; z-index: 4; width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--surface); color: var(--ink); box-shadow: 0 2px 10px rgba(0,0,0,.18); display: grid; place-items: center; }
+#prof { position: fixed; inset: 0; z-index: 60; background: var(--bg); overflow-y: auto; display: none; padding: calc(var(--sat, 0px) + 14px) 16px 40px; }
+#prof.on { display: block; }
+#prof .ph { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+#prof .ph h2 { flex: 1; font: 700 24px/1.1 var(--font-display); margin: 0; }
+#prof .pav { width: 44px; height: 44px; border-radius: 50%; background: var(--accent-strong, #C4430F); color: #fff; display: grid; place-items: center; }
+#prof .psub { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
+#prof h3 { font: 700 13px/1 var(--font-display); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 20px 0 8px; display: flex; align-items: center; gap: 6px; }
+#prof .pcard { background: var(--surface); border: 1px solid var(--rule); border-radius: 14px; overflow: hidden; }
+#prof .prow { display: flex; align-items: center; gap: 10px; padding: 11px 12px; border-top: 1px solid var(--rule); min-height: 50px; }
+#prof .prow:first-child { border-top: 0; }
+#prof .prow .grip { color: var(--muted); cursor: grab; flex: none; }
+#prof .prow .pn { flex: 1; min-width: 0; }
+#prof .prow .pn b { display: block; font-weight: 600; }
+#prof .prow .pn small { color: var(--muted); font-size: 12.5px; }
+#prof .prow .pact { border: 0; background: none; color: var(--muted); padding: 6px; }
+#prof .plines { padding: 10px 12px; display: flex; flex-direction: column; gap: 10px; }
+#prof .plg { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+#prof .plg .mode { margin-right: 4px; color: var(--muted); }
+#prof .plb { border: 2px solid transparent; border-radius: 9px; padding: 1px; background: none; opacity: .38; }
+#prof .plb[aria-pressed="true"] { opacity: 1; border-color: var(--ink); }
+#prof .tg { position: relative; width: 46px; height: 28px; border-radius: 99px; background: var(--rule); border: 0; flex: none; transition: background .2s; }
+#prof .tg::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: left .2s; }
+#prof .tg[aria-pressed="true"] { background: #1f9d55; }
+#prof .tg[aria-pressed="true"]::after { left: 21px; }
+#prof .psel { border: 1px solid var(--rule); border-radius: 8px; padding: 3px 6px; background: var(--surface); color: inherit; font: inherit; font-size: 13px; }
+#prof .pcat { font-weight: 700; font-size: 14px; margin: 14px 2px 6px; }
+#prof .pnote { color: var(--muted); font-size: 12.5px; margin: 8px 2px 0; line-height: 1.4; }
+.myl-h { display: flex; align-items: center; gap: 6px; }
 .mapctl { position: absolute; right: 12px; top: 12px; display: flex; flex-direction: column; gap: 8px; z-index: 4; }
 .mapctl button { width: 42px; height: 42px; border-radius: 12px; border: 1px solid var(--rule); background: color-mix(in srgb, var(--surface) 92%, transparent); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); font-size: 20px; line-height: 1; box-shadow: 0 2px 8px rgb(0 0 0 / .14); display: grid; place-items: center; }
 .mapctl button[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
@@ -653,10 +682,12 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
 </head>
 <body>
 <div id="splash" aria-hidden="true"></div>
+<div id="prof" role="dialog" aria-modal="true" aria-label="Mon profil"></div>
 <div id="app">
   <section class="mapwrap" aria-label="Plan du réseau">
     <canvas id="tiles" aria-hidden="true"></canvas>
     <canvas id="map" aria-label="Plan interactif du réseau"></canvas>
+    <button type="button" class="profbtn" id="prof-btn" aria-label="Mon profil"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.6 4.2-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/></svg></button>
     <div class="mapctl">
       <div class="grp">
         <button type="button" id="z-in" aria-label="Zoomer">+</button>
@@ -891,6 +922,31 @@ function toast(msg, ms = 3200) { const t = $("#toast"); t.textContent = msg; t.c
 // ---------- favoris ----------
 const fav = { stops: store.get("favStops") || [], trips: store.get("favTrips") || [] };
 const saveFav = () => { store.set("favStops", fav.stops); store.set("favTrips", fav.trips); };
+// #11 : fonctionnalités désactivables (toutes actives au départ)
+const FEATS = [
+  ["Pendant le trajet", [
+    ["gps", "Bus suivi en direct", "Quand vous êtes à bord, le bus avance sur l'écran avec vous, grâce au GPS de votre téléphone. Les heures d'arrivée sont plus précises."],
+    ["dedans", "Bouton « Je suis dedans »", "Un bouton pour dire à l'appli que vous êtes monté : le bus se cale sur vous en quelques secondes."],
+    ["retour", "Reprise instantanée", "Si vous quittez l'appli pendant le trajet, le bus se recale tout de suite sur vous à votre retour, même arrêté à un feu rouge."],
+    ["plein", "Mode plein écran", "Tirez le panneau vers le haut : votre trajet occupe tout l'écran. Touchez la croix pour revenir."],
+    ["centre", "Toujours centré sur le bus", "La liste des arrêts suit le bus. Si vous la faites défiler, elle revient sur lui au bout de 4 secondes."],
+    ["chevrons", "Animation du trajet", "Des flèches défilent devant le bus quand il roule : on voit d'un coup d'œil qu'il avance."],
+    ["cxdir", "Correspondances détaillées", "Chaque correspondance indique sa direction et son heure de passage, par exemple « U3 › Maurencienne · 3 min »."]]],
+  ["Détection automatique", [
+    ["inbus", "Détection du bus", "Vous montez sans rien faire ? L'appli reconnaît le bus ou le tram dans lequel vous êtes et vous propose de le suivre."]]],
+  ["Aux arrêts", [
+    ["parmode", "Lignes classées par transport", "À chaque arrêt, les lignes sont rangées par type : tram, BHNS, bus et express. Plus facile de s'y retrouver."],
+    ["pliage", "Mémoire de l'affichage", "Les catégories que vous repliez (le tram, par exemple) restent repliées d'un arrêt à l'autre."]]],
+  ["Itinéraires", [
+    ["plus", "Plus de choix de trajets", "6 trajets proposés d'emblée, avec « Plus tôt » et « Départs suivants » pour en voir d'autres."]]],
+  ["Info trafic", [
+    ["bang", "Signal des nouvelles perturbations", "Un « ! » orange s'anime sur l'onglet Info trafic dès qu'une perturbation vient d'apparaître."],
+    ["perturbe", "Alerte réseau perturbé", "En cas de neige, de grève ou de réseau suspendu, un message vous prévient dès l'ouverture de l'appli."],
+    ["mesl", "Mes lignes d'abord", "Les lignes choisies dans « Mes lignes » apparaissent en premier dans Info trafic et dans Lignes & plans."]]],
+  ["Le soir", [
+    ["nuit", "Message de fin de service", "Quand le dernier bus est passé, un message vous l'indique une fois par nuit, puis un petit bandeau reste en haut jusqu'au matin."]]]];
+const MY = { ft: store.get("myFeats") || {}, lines: store.get("myLines") || [], names: store.get("stopNames") || {}, al: Object.assign({ trafic: true, last: true, arrive: true, arriveMin: 5 }, store.get("myAlerts") || {}) };
+const saveMy = () => { store.set("myFeats", MY.ft); store.set("myLines", MY.lines); store.set("stopNames", MY.names); store.set("myAlerts", MY.al); };
 const isFavStop = (i) => i != null && fav.stops.includes(pName(i));
 const isFavTrip = (a, b) => a != null && b != null && fav.trips.some(([x, y]) => x === pName(a) && y === pName(b));
 function toggleFavStop(i) { const n = pName(i); fav.stops = isFavStop(i) ? fav.stops.filter((x) => x !== n) : [...fav.stops, n]; saveFav(); toast(isFavStop(i) ? `${n} ajouté à l'accueil` : `${n} retiré des favoris`); }
@@ -1251,8 +1307,8 @@ function runPa() {
 // ---------- Lignes ----------
 setupDT($("#li-date"), $("#li-time"), () => runLi());
 function buildGrid() {
-  const groups = [["Tram", (r) => r.m === 1, 1], ["BHNS", (r) => /^O\d/.test(r.s), "bhns"], ["Urbaines", (r) => /^U/.test(r.s), 3], ["Centre et scolaires", (r) => /^[CS]/.test(r.s), 3], ["Express", (r) => /^E/.test(r.s), 3]];
-  $("#li-grid").innerHTML = groups.map(([n, f, m]) => { const ids = net.R.map((r, i) => [r, i]).filter(([r]) => f(r)).map(([, i]) => i); return ids.length ? `<div class="lbl withico">${modeIcon(m)}${n}</div><div class="lgrid">${ids.map((i) => `<button type="button" data-r="${i}" aria-pressed="${i === S.line}" aria-label="Ligne ${esc(net.R[i].s)}">${badge(i, "lg")}</button>`).join("")}</div>` : ""; }).join("");
+  const groups = [["Mes lignes", (r) => MY.lines.includes(net.R.indexOf(r)), "star"], ["Tram", (r) => r.m === 1, 1], ["BHNS", (r) => /^O\d/.test(r.s), "bhns"], ["Urbaines", (r) => /^U/.test(r.s), 3], ["Centre et scolaires", (r) => /^[CS]/.test(r.s), 3], ["Express", (r) => /^E/.test(r.s), 3]];
+  $("#li-grid").innerHTML = groups.map(([n, f, m]) => { const ids = net.R.map((r, i) => [r, i]).filter(([r]) => f(r)).map(([, i]) => i); return ids.length ? `<div class="lbl withico">${m === "star" ? `<span class="mode" style="color:var(--accent-strong,#C4430F)">${starSvg}</span>` : modeIcon(m)}${n}</div><div class="lgrid">${ids.map((i) => `<button type="button" data-r="${i}" aria-pressed="${i === S.line}" aria-label="Ligne ${esc(net.R[i].s)}">${badge(i, "lg")}</button>`).join("")}</div>` : ""; }).join("");
 }
 buildGrid();
 $("#li-grid").addEventListener("click", (e) => { const b = e.target.closest("button[data-r]"); if (!b) return; S.line = +b.dataset.r; S.dir = 0; runLi(); fitLine(S.line); });
@@ -1942,6 +1998,42 @@ function trItem(x) {
   const zb = zoomable ? `<button type="button" class="linkbtn trzoom" data-zoom="${esc(x.id)}">Voir sur le plan ${chevR}</button>` : "";
   return `<details class="tritem${rt ? " trlive" : ""}" data-id="${esc(x.id)}"${TR.open === x.id ? " open" : ""}><summary><span class="tt2">${esc(x.t)}</span><svg class="chev" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 5 4 4 4-4"/></svg>${x.p ? `<span class="pp">${esc(x.p)}</span>` : ""}<span class="bs"><span class="tag ${rt ? "live" : st}">${rt ? "En direct" : st === "now" ? "En cours" : "À venir"}</span>${trRoutes(x).map((r) => badge(r, "sm")).join("")}</span></summary>${body || zb ? `<div class="body">${body}${zb}</div>` : ""}</details>`;
 }
+// ---------- #11 Mon profil ----------
+const grip = `<svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><circle cx="6.5" cy="4" r="1.4"/><circle cx="11.5" cy="4" r="1.4"/><circle cx="6.5" cy="9" r="1.4"/><circle cx="11.5" cy="9" r="1.4"/><circle cx="6.5" cy="14" r="1.4"/><circle cx="11.5" cy="14" r="1.4"/></svg>`;
+const penSvg = `<svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M13.5 3.5l3 3L7 16H4v-3z"/></svg>`;
+const xSvg = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>`;
+function renderProfile() {
+  const el = $("#prof");
+  const stops = fav.stops.map((n) => [n, findStop(n)]).filter(([, i]) => i >= 0);
+  const groups = [["tram", (r) => r.m === 1], ["bhns", (r) => /^O\d/.test(r.s)], ["bus", (r) => r.m !== 1 && !/^[OE]/.test(r.s)], ["bus", (r) => /^E/.test(r.s)]];
+  const tg = (k) => `<button type="button" class="tg" data-al="${k}" aria-pressed="${!!MY.al[k]}" aria-label="Activer"></button>`;
+  el.innerHTML = `<div class="ph"><span class="pav"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.6 4.2-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/></svg></span><h2>Mon profil</h2><button type="button" class="icon-btn" id="prof-x" aria-label="Fermer">${closeSvg}</button></div>
+    <p class="psub">Tout reste sur ce téléphone, sans compte.</p>
+    <h3><span style="width:15px;height:15px;display:inline-flex">${starSvg}</span>Mes arrêts</h3>
+    <div class="pcard">${stops.length ? stops.map(([n, i]) => `<div class="prow"><span class="grip">${grip}</span><span class="pn"><b>${esc(MY.names[n] || pName(i))}</b>${MY.names[n] ? `<small>${esc(pName(i))}</small>` : `<small>${net.pRoutes[i].slice(0, 6).map((r) => badge(r, "sm", true)).join(" ")}</small>`}</span><button type="button" class="pact" aria-label="Renommer">${penSvg}</button><button type="button" class="pact" aria-label="Supprimer">${xSvg}</button></div>`).join("") : `<div class="prow"><span class="pn"><small>Touchez l'étoile d'un arrêt pour l'ajouter ici.</small></span></div>`}</div>
+    <h3>Mes trajets</h3>
+    <div class="pcard">${fav.trips.length ? fav.trips.map(([a, b]) => `<div class="prow"><span class="grip">${grip}</span><span class="pn"><b>${esc(MY.names[a] || a)} → ${esc(MY.names[b] || b)}</b></span><button type="button" class="pact" aria-label="Renommer">${penSvg}</button><button type="button" class="pact" aria-label="Supprimer">${xSvg}</button></div>`).join("") : `<div class="prow"><span class="pn"><small>Enregistrez un trajet depuis l'onglet Itinéraire.</small></span></div>`}</div>
+    <h3>Mes lignes</h3>
+    <div class="pcard plines">${groups.map(([m, f]) => { const ids = net.R.map((r, i) => [r, i]).filter(([r]) => f(r)).map(([, i]) => i); return `<div class="plg">${modeIcon(m)}${ids.map((i) => `<button type="button" class="plb" data-myl="${i}" aria-pressed="${MY.lines.includes(i)}">${badge(i, "sm", true)}</button>`).join("")}</div>`; }).join("")}</div>
+    <p class="pnote">Elles passent en premier dans Info trafic et dans Lignes & plans.</p>
+    <h3>Mes alertes</h3>
+    <div class="pcard">
+      <div class="prow"><span class="pn"><b>Perturbation sur mes lignes</b><small>Dès qu'une info trafic touche une de mes lignes</small></span>${tg("trafic")}</div>
+      <div class="prow"><span class="pn"><b>Dernier bus de mes trajets</b><small>Le soir, 30 min avant le dernier départ utile</small></span>${tg("last")}</div>
+      <div class="prow"><span class="pn"><b>Mon bus arrive</b><small>Pour mes trajets, <select class="psel" data-almin>${[3, 5, 10, 15].map((m) => `<option${m === MY.al.arriveMin ? " selected" : ""}>${m}</option>`).join("")}</select> min avant le passage</small></span>${tg("arrive")}</div>
+    </div>
+    <p class="pnote">Le service de notification lorsque l'application est fermée sera disponible ultérieurement.</p>
+    <h3>Fonctionnalités</h3>
+    ${FEATS.map(([cat, list]) => `<div class="pcat">${cat}</div><div class="pcard">${list.map(([k, t, d]) => `<div class="prow"><span class="pn"><b>${t}</b><small>${d}</small></span><button type="button" class="tg" data-ft="${k}" aria-pressed="${MY.ft[k] !== false}" aria-label="Activer"></button></div>`).join("")}</div>`).join("")}
+    <p class="pnote">Toutes les fonctionnalités sont activées au départ. Vous pouvez en couper une à tout moment : l'appli revient alors à un affichage plus simple.</p>`;
+  $("#prof-x").onclick = () => el.classList.remove("on");
+  el.querySelectorAll("[data-myl]").forEach((b) => b.onclick = () => { const i = +b.dataset.myl; MY.lines = MY.lines.includes(i) ? MY.lines.filter((x) => x !== i) : [...MY.lines, i]; saveMy(); b.setAttribute("aria-pressed", MY.lines.includes(i)); buildGrid(); if (S.view === "trafic") renderTrafic(); });
+  el.querySelectorAll("[data-ft]").forEach((b) => b.onclick = () => { const k = b.dataset.ft; MY.ft[k] = MY.ft[k] === false; saveMy(); b.setAttribute("aria-pressed", MY.ft[k] !== false); });
+  el.querySelectorAll("[data-al]").forEach((b) => b.onclick = () => { MY.al[b.dataset.al] = !MY.al[b.dataset.al]; saveMy(); b.setAttribute("aria-pressed", !!MY.al[b.dataset.al]); });
+  const sel = el.querySelector("[data-almin]"); if (sel) sel.onchange = () => { MY.al.arriveMin = +sel.value; saveMy(); };
+}
+function openProfile() { renderProfile(); $("#prof").classList.add("on"); }
+$("#prof-btn").onclick = openProfile;
 function renderTrafic() {
   const head = $("#tr-head"), res = $("#tr-res");
   let h = `<div class="vhead"><h2>Info trafic</h2></div>`;
@@ -1951,10 +2043,11 @@ function renderTrafic() {
     $("#tr-src").innerHTML = "";
   } else {
     const act = trActive(), f = TR.filter;
-    const lines = [...new Set(act.flatMap(trRoutes))].sort((a, b) => a - b);
+    const lines = [...new Set(act.flatMap(trRoutes))].sort((a, b) => MY.lines.includes(b) - MY.lines.includes(a) || a - b);
     h += `<div class="trf" role="group" aria-label="Filtrer par ligne" style="margin-top:12px"><button type="button" data-f="" aria-pressed="${!f}">Toutes</button>${lines.map((r) => `<button type="button" data-f="${r}" aria-pressed="${!!f && f.length === 1 && f[0] === r}" aria-label="Ligne ${esc(net.R[r].s)}">${badge(r, "sm", true)}</button>`).join("")}</div>`;
     head.innerHTML = h;
-    const list = (f ? act.filter((x) => trRoutes(x).some((r) => f.includes(r))) : act).slice().sort((a, b) => (trStatus(a) === "soon") - (trStatus(b) === "soon"));
+    const onMy = (x) => trRoutes(x).some((r) => MY.lines.includes(r));
+    const list = (f ? act.filter((x) => trRoutes(x).some((r) => f.includes(r))) : act).slice().sort((a, b) => onMy(b) - onMy(a) || (trStatus(a) === "soon") - (trStatus(b) === "soon"));
     const live = list.filter((x) => trRT(x) && trStatus(x) === "now"), byLine = list.filter((x) => !live.includes(x));
     res.innerHTML = `<div class="trsec"><span class="live" aria-hidden="true"></span><h3>Temps réel</h3><small>${live.length ? live.length + " en cours" : "rien à signaler"}</small></div>`
       + (live.length ? live.map(trItem).join("") : `<div class="empty" style="padding:6px 4px">Aucune perturbation en direct${f ? " sur cette ligne" : ""}.</div>`)
