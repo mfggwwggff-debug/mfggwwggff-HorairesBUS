@@ -503,6 +503,26 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
 .nightbar { flex: none; display: flex; align-items: center; gap: 8px; margin: 0 16px 8px; min-height: 32px; padding: 6px 12px; border-radius: 999px; background: var(--sunk); color: var(--muted); font-size: 13px; font-weight: 500; }
 .nightbar[hidden] { display: none; }
 .nightbar svg { flex: none; }
+/* mise à jour : présentation des nouveautés, une seule fois */
+#updpop { position: fixed; inset: 0; z-index: 97; background: rgb(14 19 23 / .55); display: none; grid-template-columns: minmax(0, 360px); place-content: center; padding: 20px; }
+#updpop.on { display: grid; }
+#updpop .up-in { width: 100%; min-width: 0; outline: none; background: var(--surface); color: var(--ink); border-radius: 24px; padding: 18px 0 18px; box-shadow: 0 20px 50px rgb(0 0 0 / .25); animation: nprise .35s ease-out both; display: flex; flex-direction: column; gap: 10px; }
+#updpop .up-top { display: flex; justify-content: space-between; align-items: center; padding: 0 20px; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--accent-strong); }
+#updpop .up-skip { border: 0; background: none; color: var(--muted); font: 600 14px/1 var(--font-display); padding: 6px 0; text-transform: none; letter-spacing: 0; }
+#updpop .up-track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+#updpop .up-track::-webkit-scrollbar { display: none; }
+#updpop .up-sl { flex: 0 0 100%; scroll-snap-align: center; padding: 6px 24px 4px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; box-sizing: border-box; }
+#updpop .up-ico { width: 68px; height: 68px; border-radius: 50%; background: color-mix(in srgb, var(--accent) 16%, var(--surface)); color: var(--accent-strong); display: grid; place-items: center; }
+#updpop .up-ico svg { width: 34px; height: 34px; }
+#updpop h2 { font-size: 21px; line-height: 1.2; margin: 2px 0 0; }
+#updpop .up-sl p { margin: 0; font-size: 15px; line-height: 1.45; }
+#updpop ul { margin: 0; padding: 0; list-style: none; text-align: left; display: flex; flex-direction: column; gap: 8px; font-size: 14.5px; line-height: 1.4; }
+#updpop li { display: flex; gap: 9px; }
+#updpop li::before { content: ""; flex: 0 0 7px; height: 7px; margin-top: 7px; border-radius: 50%; background: var(--accent); }
+#updpop .up-dots { display: flex; justify-content: center; gap: 7px; }
+#updpop .up-dots i { width: 7px; height: 7px; border-radius: 4px; background: var(--line, #ccc); transition: width .2s, background .2s; }
+#updpop .up-dots i.on { width: 20px; background: var(--accent-strong); }
+#updpop .up-go { margin: 4px 20px 0; height: 50px; border: 0; border-radius: 14px; background: var(--accent-strong); color: var(--accent-strong-ink); font: 700 16px/1 var(--font-display); }
 #nightpop { position: fixed; inset: 0; z-index: 95; background: rgb(14 19 23 / .55); display: none; place-items: center; padding: 24px; }
 #nightpop.on { display: grid; }
 #nightpop .np-in { width: min(340px, 100%); background: var(--surface); color: var(--ink); border-radius: 22px; padding: 28px 24px 20px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; box-shadow: 0 20px 50px rgb(0 0 0 / .25); animation: nprise .35s ease-out both; }
@@ -1911,7 +1931,49 @@ function checkNight() {
   bar.innerHTML = `${moonSvg(16)}<span>Fin de service sur le réseau · à demain</span>`;
   bar.hidden = false;
   const key = net.isoOf(nt.sd);
-  if (store.get("nightSeen") !== key) { store.set("nightSeen", key); nightPop(); }
+  if (store.get("nightSeen") !== key && !$("#updpop.on")) { store.set("nightSeen", key); nightPop(); }
+}
+
+// ---------- présentation de la mise à jour (une seule fois) ----------
+const UPD = "2026-11-06";
+const icoSvg = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const UPD_SLIDES = [
+  { ico: icoSvg('<path d="M10 3.5h4L18.5 20h-13z"/><path d="M8.5 9h7M7 14.5h10M3.5 20.5h17"/>'), t: "L'info trafic a son onglet",
+    b: "<p>Ce qui se passe en ce moment d'abord, puis les travaux et les arrêts déplacés, ligne par ligne.</p><p>Un « ! » s'allume sur l'onglet quand une nouvelle perturbation tombe. Touchez une info : le plan vous montre où ça se passe.</p>" },
+  { ico: moonSvg(34), t: "Plus de doute le soir",
+    b: "<p>Une fois le dernier bus passé, l'arrêt affiche « Service terminé » avec l'heure de reprise le lendemain.</p><p>Et quand tout le réseau est fortement perturbé (neige, grève…), vous êtes prévenu dès l'ouverture.</p>" },
+  { ico: icoSvg('<path d="M9 4 3.5 6v14L9 18l6 2 5.5-2V4L15 6z"/><path d="M9 4v14M15 6v14"/>'), t: "Un plan plus lisible",
+    b: "<p>Les lignes suivent les rues. Le tram, les BHNS et les lignes fortes ressortent, les express sont en pointillés.</p><p>Les sens uniques sont fléchés et les terminus bien visibles. Le plan est maintenant dans « Lignes &amp; plans ».</p>" },
+  { ico: icoSvg('<path d="M20 6 9 17l-5-5"/>'), t: "Et quelques corrections",
+    b: "<ul><li>Le tram passe enfin par le bon chemin entre la Gare, Langlet et Opéra.</li><li>Les lignes ne coupent plus à travers les pâtés de maisons.</li><li>Les infos en direct ne se mélangent plus avec les travaux prévus.</li><li>Les arrêts reportés à une adresse apparaissent sur le plan.</li></ul>" },
+];
+function updPop() {
+  let el = $("#updpop");
+  if (!el) { el = document.createElement("div"); el.id = "updpop"; document.body.appendChild(el); }
+  const n = UPD_SLIDES.length;
+  el.innerHTML = `<div class="up-in" tabindex="-1" role="dialog" aria-modal="true" aria-label="Nouveautés de la mise à jour">
+    <div class="up-top"><span>Mise à jour</span><button type="button" class="up-skip">Passer</button></div>
+    <div class="up-track">${UPD_SLIDES.map((x) => `<section class="up-sl"><span class="up-ico">${x.ico}</span><h2>${x.t}</h2>${x.b}</section>`).join("")}</div>
+    <div class="up-dots">${UPD_SLIDES.map((x, i) => `<i${i ? "" : ' class="on"'}></i>`).join("")}</div>
+    <button type="button" class="up-go">Suivant</button>
+  </div>`;
+  const tr = $(".up-track", el), go = $(".up-go", el), dots = [...el.querySelectorAll(".up-dots i")];
+  const cur = () => Math.round(tr.scrollLeft / (tr.clientWidth || 1));
+  const sync = () => { const k = cur(); dots.forEach((d, i) => d.classList.toggle("on", i === k)); go.textContent = k >= n - 1 ? "C'est parti !" : "Suivant"; };
+  tr.addEventListener("scroll", sync, { passive: true });
+  const close = () => { el.classList.remove("on"); document.removeEventListener("keydown", esc_); setTimeout(checkNight, 300); };
+  const esc_ = (e) => { if (e.key === "Escape") close(); };
+  go.onclick = () => { const k = cur(); if (k >= n - 1) close(); else tr.scrollTo({ left: (k + 1) * tr.clientWidth, behavior: reduceMotion ? "auto" : "smooth" }); };
+  $(".up-skip", el).onclick = close;
+  document.addEventListener("keydown", esc_);
+  el.classList.add("on");
+  setTimeout(() => { try { $(".up-in", el).focus(); } catch (e) {} }, 50);
+}
+function checkUpd() {
+  if (store.get("updSeen") === UPD) return;
+  const busy = () => $("#splash") || $("#nightpop.on");
+  const wait = () => { if (busy()) return setTimeout(wait, 500); store.set("updSeen", UPD); updPop(); };
+  setTimeout(wait, 400);
 }
 
 function rerender() {
@@ -2005,6 +2067,8 @@ const pa = store.get("pa") || fav.stops[0] || "Opéra-Cathédrale"; S.paStop = f
 S.line = net.R.findIndex((r) => r.m === 1);
 if (isMobile()) setSheet("half", true);
 resize(); fitHome(); route();
+// ?vue=lat,lon,échelle : cadre le plan à cet endroit (essais)
+{ const m = /[?&]vue=([\d.]+),([\d.]+),(\d+)/.exec(location.search); if (m) { view.cx = PX(+m[2]); view.cy = PY(+m[1]); view.s = +m[3]; window.__noFit = 1; drawMap(); } }
 if (store.get("geo")) locate(null, true); // déjà autorisé : on relance discrètement
 setInterval(rtLabel, 15000);
 setInterval(() => { if (!document.hidden && S.view === "suivi") renderFollow(); }, 1000);
@@ -2021,6 +2085,7 @@ checkNight();
 setInterval(() => { if (!document.hidden) checkNight(); }, 30000);
 if (SIMU) { const sb = document.createElement("div"); sb.className = "simu"; const n = parisNow(); sb.textContent = `Simulation · ${fmtDateShort(n.iso)} ${hm(n.min)}`; document.body.appendChild(sb); }
 runSplash();
+checkUpd();
 })();
 </script>
 </body>
