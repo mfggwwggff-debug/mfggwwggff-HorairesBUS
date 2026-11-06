@@ -472,9 +472,16 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
 .mbr.from .nd { background: var(--c); }
 .tagx { font: 700 10.5px/1 var(--font-body); letter-spacing: .03em; color: var(--surface); background: var(--ink); border-radius: 5px; padding: 3px 5px; flex: none; }
 .tagx.up { background: var(--c); color: var(--ct); }
-.mbt-bus { position: absolute; left: 67px; width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--surface); box-shadow: 0 0 0 2px var(--ink), 0 6px 16px rgb(0 0 0 / .25); display: grid; place-items: center; z-index: 2; transform: translate(-50%, -50%); transition: top 1s linear; animation: bob 1.4s ease-in-out infinite; }
+.mbt-bus { position: absolute; left: 67px; width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--surface); box-shadow: 0 0 0 2px var(--ink), 0 6px 16px rgb(0 0 0 / .25); display: grid; place-items: center; z-index: 2; transform: translate(-50%, -50%); transition: top 1s linear; }
 .mbt-bus.hide { display: none; }
-@keyframes bob { 0%, 100% { margin-top: 0; } 50% { margin-top: -3px; } }
+/* bus qui attend (terminus, arrêt) : immobile, halo lent */
+.mbt-bus.wait { animation: waitring 2.4s ease-out infinite; }
+@keyframes waitring { 0% { box-shadow: 0 0 0 2px var(--ink), 0 0 0 2px color-mix(in srgb, var(--c) 55%, transparent), 0 6px 16px rgb(0 0 0 / .25); } 100% { box-shadow: 0 0 0 2px var(--ink), 0 0 0 16px transparent, 0 6px 16px rgb(0 0 0 / .25); } }
+/* bus en route : chevrons qui défilent jusqu'à l'arrêt suivant */
+.mbt-go { position: absolute; left: 67px; width: 12px; margin-left: -6px; border-radius: 6px; z-index: 0; background-color: var(--c); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='14' viewBox='0 0 12 14'%3E%3Cpath d='M3 4.5 6 7.5 9 4.5' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-size: 12px 14px; background-repeat: repeat-y; animation: flow .9s linear infinite; transition: top 1s linear, height 1s linear; -webkit-mask-image: linear-gradient(#000 70%, transparent); mask-image: linear-gradient(#000 70%, transparent); }
+.mbt-go.hide { display: none; }
+@keyframes flow { from { background-position: 0 0; } to { background-position: 0 14px; } }
+.tagx.wt { background: color-mix(in srgb, var(--c) 16%, var(--surface)); color: var(--ink); box-shadow: inset 0 0 0 1px var(--c); }
 .mbbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; border-top: 1px solid var(--rule); padding-top: 12px; }
 .mbbar .hint { flex: 1 1 160px; font-size: 12.5px; color: var(--muted); }
 .alertbtn { gap: 6px; }
@@ -1773,6 +1780,7 @@ function renderFollow() {
         ${p.stops.slice(MB.first).map((q, j) => { const i = MB.first + j; return `<button type="button" class="mbr" data-i="${i}" style="top:${j * ROWH}px" aria-label="${dest === i ? "Ne plus marquer" : "Marquer comme arrêt de descente"} : ${esc(qName(q))}">
           <span class="t">${hm(i === 0 ? st.dp(0) : st.at(i))}</span><span class="nd"></span>
           <span class="nm"><span class="n1"><span class="nmt">${esc(qName(q))}</span>${from === i ? `<span class="tagx up">JE MONTE</span>` : ""}${dest === i ? `<span class="tagx">JE DESCENDS</span>` : ""}</span><span class="cxs" data-cx="${i}"></span></span></button>`; }).join("")}
+        <div class="mbt-go hide" id="mb-go"></div>
         <div class="mbt-bus" id="mb-bus" style="background:${R.c}">${busPicto(R.t)}</div>
       </div>
       <div class="mbbar" id="mb-bar"></div>`;
@@ -1788,9 +1796,25 @@ function renderFollow() {
   const delay = Math.round(st.at(Math.min(nS - 1, next)) - st.sched(Math.min(nS - 1, next)));
   $("#mb-status").innerHTML = `${dot(st.live)}${st.live ? `Temps réel · ${delay >= 1 ? "retard " + delay + " min" : delay <= -1 ? "avance " + -delay + " min" : "à l'heure"}` : "Horaire théorique (position estimée)"}`;
   // ligne : arrêts passés, arrêt suivant, bus
-  const busTop = (Math.max(-0.35, st.pos) - MB.first) * ROWH + ROWH / 2;
+  // en attente au terminus ou à un arrêt : bus immobile sur l'arrêt, halo lent, étiquette ; en route : chevrons
+  const waiting = st.state === "before" || st.atStop, waitAt = st.state === "before" ? 0 : st.i;
+  const busTop = ((st.state === "before" ? 0 : st.pos) - MB.first) * ROWH + ROWH / 2;
   $("#mb-bus").style.top = busTop + "px";
   $("#mb-bus").classList.toggle("hide", st.state === "done");
+  $("#mb-bus").classList.toggle("wait", waiting);
+  // les chevrons partent de sous le bus et vont un peu au-delà de l'arrêt suivant, en s'estompant
+  const goTop = busTop, goEnd = (Math.min(nS - 1, next + 0.6) - MB.first) * ROWH + ROWH / 2;
+  const go = $("#mb-go"), showGo = st.state === "running" && !st.atStop && goEnd - goTop >= 24;
+  go.classList.toggle("hide", !showGo);
+  if (showGo) { go.style.top = goTop + "px"; go.style.height = goEnd - goTop + "px"; }
+  const wtxt = st.state === "before" ? "DÉPART " + hm(st.dp(0)) : st.atStop ? "À L'ARRÊT" : "";
+  $$("#mb-track .mbr").forEach((r) => {
+    const i = +r.dataset.i, want = waiting && i === waitAt ? wtxt : "";
+    let tg = r.querySelector(".tagx.wt");
+    if (!want) { if (tg) tg.remove(); return; }
+    if (!tg) { tg = document.createElement("span"); tg.className = "tagx wt"; r.querySelector(".n1").appendChild(tg); }
+    if (tg.textContent !== want) tg.textContent = want;
+  });
   $("#mb-done").style.height = Math.max(0, busTop - ROWH / 2) + "px";
   $$("#mb-track .mbr").forEach((r) => {
     const i = +r.dataset.i;
