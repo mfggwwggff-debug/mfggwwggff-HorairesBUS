@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-06T00:20:46Z",
+ "at": "2026-11-06T00:22:43Z",
  "items": [
   {
    "id": "20acd05e39",
@@ -293,7 +293,7 @@
     }
    ],
    "rt": false,
-   "sec": "infos trafic par ligne"
+   "sec": "par ligne"
   },
   {
    "id": "bcf248c5c4",
@@ -383,7 +383,7 @@
     }
    ],
    "rt": false,
-   "sec": "infos trafic par ligne"
+   "sec": "par ligne"
   },
   {
    "id": "16eb3530f2",
@@ -432,8 +432,8 @@
      ]
     }
    ],
-   "rt": false,
-   "sec": "infos trafic par ligne"
+   "rt": true,
+   "sec": "temps reel"
   },
   {
    "id": "e1166714f6",
@@ -475,7 +475,7 @@
     }
    ],
    "rt": false,
-   "sec": "infos trafic par ligne"
+   "sec": "par ligne"
   },
   {
    "id": "f8feabe17f",
@@ -494,8 +494,8 @@
      ]
     }
    ],
-   "rt": false,
-   "sec": "infos trafic par ligne"
+   "rt": true,
+   "sec": "temps reel"
   },
   {
    "id": "391d31b0d6",
@@ -633,7 +633,7 @@
     }
    ],
    "rt": false,
-   "sec": "infos trafic par ligne"
+   "sec": "par ligne"
   },
   {
    "id": "1539d33ccb",
@@ -685,7 +685,7 @@
     }
    ],
    "rt": false,
-   "sec": "infos trafic par ligne"
+   "sec": "par ligne"
   },
   {
    "id": "2f036d5c93",
@@ -802,7 +802,7 @@
     }
    ],
    "rt": false,
-   "sec": "infos trafic par ligne"
+   "sec": "par ligne"
   },
   {
    "id": "25a156ef9e",
@@ -853,7 +853,7 @@
     }
    ],
    "rt": false,
-   "sec": "infos trafic par ligne"
+   "sec": "par ligne"
   },
   {
    "id": "7f0499f1fe",
@@ -934,7 +934,7 @@
     }
    ],
    "rt": false,
-   "sec": "infos trafic par ligne"
+   "sec": "par ligne"
   },
   {
    "id": "32c957c36c",
@@ -1060,7 +1060,7 @@
     }
    ],
    "rt": false,
-   "sec": "infos trafic par ligne"
+   "sec": "par ligne"
   },
   {
    "id": "b7890436b6",
@@ -1111,7 +1111,7 @@
     }
    ],
    "rt": false,
-   "sec": "infos trafic par ligne"
+   "sec": "par ligne"
   },
   {
    "id": "2ea8abe072",
@@ -1446,7 +1446,7 @@
     }
    ],
    "rt": false,
-   "sec": "infos trafic par ligne"
+   "sec": "par ligne"
   },
   {
    "id": "f9f6989857",
@@ -1723,7 +1723,7 @@
     }
    ],
    "rt": false,
-   "sec": "infos trafic par ligne"
+   "sec": "par ligne"
   },
   {
    "id": "f168938f84",
@@ -1813,7 +1813,7 @@
     }
    ],
    "rt": false,
-   "sec": "infos trafic par ligne"
+   "sec": "par ligne"
   },
   {
    "id": "f118b20ae9",
@@ -1894,7 +1894,7 @@
     }
    ],
    "rt": false,
-   "sec": "infos trafic par ligne"
+   "sec": "par ligne"
   },
   {
    "id": "34f3c220d0",
@@ -1945,7 +1945,7 @@
     }
    ],
    "rt": false,
-   "sec": "infos trafic par ligne"
+   "sec": "par ligne"
   },
   {
    "id": "ed1db1ef0e",
@@ -2028,7 +2028,7 @@
     }
    ],
    "rt": false,
-   "sec": "infos trafic par ligne"
+   "sec": "par ligne"
   },
   {
    "id": "10b804cffd",
@@ -2054,7 +2054,7 @@
     }
    ],
    "rt": false,
-   "sec": "infos trafic par ligne"
+   "sec": "par ligne"
   },
   {
    "id": "cb96a7d272",
@@ -2142,7 +2142,7 @@
     }
    ],
    "rt": false,
-   "sec": "infos trafic par ligne"
+   "sec": "par ligne"
   },
   {
    "id": "e29d74191b",
@@ -2251,7 +2251,7 @@
     }
    ],
    "rt": false,
-   "sec": "infos trafic par ligne"
+   "sec": "par ligne"
   },
   {
    "id": "92830cbe2a",
@@ -2305,7 +2305,7 @@
     }
    ],
    "rt": false,
-   "sec": "infos trafic par ligne"
+   "sec": "par ligne"
   },
   {
    "id": "b04f0f8730",
@@ -2424,7 +2424,7 @@
     }
    ],
    "rt": false,
-   "sec": "infos trafic par ligne"
+   "sec": "par ligne"
   },
   {
    "id": "0a42915a79",
@@ -2594,7 +2594,7 @@
     }
    ],
    "rt": false,
-   "sec": "infos trafic par ligne"
+   "sec": "par ligne"
   },
   {
    "id": "23d9c88ab7",
@@ -2833,45 +2833,7 @@
     }
    ],
    "rt": false,
-   "sec": "infos trafic par ligne"
+   "sec": "par ligne"
   }
- ],
- "rubriques": [
-  "info trafic du reseau",
-  "info trafic du reseau",
-  "infos trafic par ligne",
-  "le mercredi 11 novembre 2026 jusqu'a 14h00",
-  "a partir du mardi 10 novembre 2026 jusqu'au vendredi 20 novembre 2026",
-  "a partir du mardi 03 novembre 2026: les arrets esi sont desservis par la ligne u",
-  "a partir du lundi 19 octobre 2026 jusqu'au lundi 21 decembre 2026",
-  "a partir du lundi 19 octobre 2026 jusqu'au vendredi 16 avril 2027",
-  "a partir du lundi 19 octobre 2026 jusqu'au dimanche 21 fevrier 2027",
-  "a partir du lundi 19 octobre 2026 jusqu'au vendredi 18 decembre 2026",
-  "a partir du lundi 19 octobre 2026 jusqu'au vendredi 18 decembre 2026",
-  "a partir du lundi 19 octobre 2026 jusqu'au vendredi 6 novembre 2026",
-  "a partir du jeudi 15 octobre 2026 jusqu'au vendredi 30 novembre 2026",
-  "a partir du lundi 12 octobre 2026 jusqu'au 31 decembre 2026",
-  "a partir du jeudi 01 octobre 2026 jusqu'au jeudi 31 decembre 2026",
-  "a partir du lundi 28 septembre 2026 jusqu'au jeudi 31 decembre 2026",
-  "a partir du lundi 28 septembre 2026 jusqu'au jeudi 31 decembre 2026",
-  "a partir du jeudi 24 septembre 2026 jusqu'au 31 decembre 2026",
-  "a partir du mardi 08 septembre 2026 jusqu'au lundi 31 mai 2027",
-  "a partir du 30 octobre 2026: nouvelle desserte",
-  "a partir du lundi 15 juin 2026 jusqu'au samedi 26 juin 2027",
-  "tous les dimanches jusque 15h00.",
-  "a partir du lundi 13 avril 2026 jusqu'au 30 juin 2027",
-  "a partir du lundi 09 mars 2026 jusqu'au 30 juin 2028",
-  "tous les dimanches jusqu'a 15h00.",
-  "spectacle arena : seulement en cas de congestion de la circulation rue de la pet"
- ],
- "indices": [
-  "-les-plans-du-reseau.html\" >Télécharger les plans du réseauLignes ExpressSuivre mon véhicule en temps réelTransport À la Demande<a hr",
-  ">Lignes ExpressSuivre mon véhicule en temps réelTransport À la DemandeParkings Relais<li",
-  "href=\"/fr/g0R-Lignes-Express.html\" >Lignes ExpressSuivre mon véhicule en temps réelTransport À la DemandeParkings Relais<a href=\"/fr/8qp-Covoiturag",
-  "Horaires en temps réel Kif&go en dysfonctionnement Nous vous invito",
-  "\" alt=\"\" class=\"iconRt\"> Info trafic en temps réel <div class=\"detailIF d-flex flex-column position",
-  "Horaires en temps réel Kif&go en dysfonctionnement Mise à jour le 02/11/2026 à 13:20",
-  ">Lignes ExpressSuivre mon véhicule en temps réel<a href=\"/fr/a2z-Transport-C380-la-Dema",
-  "ex flex-row w-100 align-items-center justify-content-between\">Lignes ExpressSuivre mon véhicule en temps réelTransport À la Demande<li class=\"s"
  ]
 }
