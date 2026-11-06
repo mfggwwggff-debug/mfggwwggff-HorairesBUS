@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-06T00:22:43Z",
+ "at": "2026-11-06T05:23:26Z",
  "items": [
   {
    "id": "20acd05e39",
@@ -386,56 +386,6 @@
    "sec": "par ligne"
   },
   {
-   "id": "16eb3530f2",
-   "t": "En raison de contraintes d'exploitation, certains départs ne sont pas assurés aujourd'hui :",
-   "lines": [
-    "U20"
-   ],
-   "p": "",
-   "start": null,
-   "end": null,
-   "b": [
-    {
-     "r": [
-      [
-       "Mercredi 4 novembre et jeudi 5 novembre 2026:",
-       0
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Départs de Gare Clairmarais non assurés: 7h19-8h31-9h43-10h55-12h07-13h19-14h30-15h42-16h54-18h08-19h22",
-       0
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Départs de Fac des Sciences non assurés: 7h57-9h09-10h21-11h33-12h45-13h57-15h09-16h21-17h34-18h47-20h",
-       0
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Conseil déplacement",
-       1
-      ],
-      [
-       ": nous vous invitons à anticiper votre trajet ou à privilégier les lignes à proximité ( https://grandreims-mobilites.fr/fr/3RW-Itineraire.html)",
-       0
-      ]
-     ]
-    }
-   ],
-   "rt": true,
-   "sec": "temps reel"
-  },
-  {
    "id": "e1166714f6",
    "t": "Nouveaux arrêts ESI ligne U5",
    "lines": [
@@ -496,6 +446,87 @@
    ],
    "rt": true,
    "sec": "temps reel"
+  },
+  {
+   "id": "7f0499f1fe",
+   "t": "Report de l'arrêt Folle Peine",
+   "lines": [
+    "E5",
+    "O2"
+   ],
+   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 18 décembre 2026",
+   "start": "2026-10-19",
+   "end": "2026-12-18",
+   "b": [
+    {
+     "l": "E5",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "FOLLE PEINE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "CATHEDRALE",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "60 mètres avant l'arrêt, au niveau du 86 rue de Venise",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "O2",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "FOLLE PEINE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "GARE CENTRE",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "60 mètres avant l'arrêt, au niveau du 86 rue de Venise",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne"
   },
   {
    "id": "391d31b0d6",
@@ -636,44 +667,118 @@
    "sec": "par ligne"
   },
   {
-   "id": "1539d33ccb",
-   "t": "Travaux de voirie à Treslon",
+   "id": "32c957c36c",
+   "t": "Report de l'arrêt St Symphorien",
    "lines": [
-    "E6"
+    "E2",
+    "E3",
+    "E4"
    ],
-   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 16 avril 2027",
+   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 6 novembre 2026",
    "start": "2026-10-19",
-   "end": "2027-04-16",
+   "end": "2026-11-06",
    "b": [
     {
-     "l": "",
-     "r": [
-      [
-       "Forte perturbation sur les horaires de la ligne durant cette période",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "E6",
+     "l": "E2",
      "r": [
       [
        "L'arrêt ",
        0
       ],
       [
-       "TRESLON",
+       "SAINT-SYMPHORIEN",
        1
       ],
       [
-       " dans les deux sens est non desservi par la ligne, mais reste desservi par le",
+       " dans le sens ",
        0
       ],
       [
-       "Transport A la Demande",
+       "ST ETIENNE SUR SUIPPE",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "au niveau du 7 rue Eugène Desteuque",
        1
       ]
-     ]
+     ],
+     "geo": {
+      "lat": 49.255376,
+      "lon": 4.036537,
+      "a": "7 rue Eugène Desteuque"
+     }
+    },
+    {
+     "l": "E3",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "SAINT-SYMPHORIEN",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "WARMERIVILLE",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "au niveau du 7 rue Eugène Desteuque",
+       1
+      ]
+     ],
+     "geo": {
+      "lat": 49.255376,
+      "lon": 4.036537,
+      "a": "7 rue Eugène Desteuque"
+     }
+    },
+    {
+     "l": "E4",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "SAINT-SYMPHORIEN",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "BETHENIVILLE",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "au niveau du 7 rue Eugène Desteuque",
+       1
+      ]
+     ],
+     "geo": {
+      "lat": 49.255376,
+      "lon": 4.036537,
+      "a": "7 rue Eugène Desteuque"
+     }
     },
     {
      "r": [
@@ -856,199 +961,44 @@
    "sec": "par ligne"
   },
   {
-   "id": "7f0499f1fe",
-   "t": "Report de l'arrêt Folle Peine",
+   "id": "1539d33ccb",
+   "t": "Travaux de voirie à Treslon",
    "lines": [
-    "E5",
-    "O2"
+    "E6"
    ],
-   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 18 décembre 2026",
+   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 16 avril 2027",
    "start": "2026-10-19",
-   "end": "2026-12-18",
+   "end": "2027-04-16",
    "b": [
     {
-     "l": "E5",
+     "l": "",
      "r": [
       [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "FOLLE PEINE",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "CATHEDRALE",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "60 mètres avant l'arrêt, au niveau du 86 rue de Venise",
+       "Forte perturbation sur les horaires de la ligne durant cette période",
        1
       ]
      ]
     },
     {
-     "l": "O2",
+     "l": "E6",
      "r": [
       [
        "L'arrêt ",
        0
       ],
       [
-       "FOLLE PEINE",
+       "TRESLON",
        1
       ],
       [
-       " dans le sens ",
+       " dans les deux sens est non desservi par la ligne, mais reste desservi par le",
        0
       ],
       [
-       "GARE CENTRE",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "60 mètres avant l'arrêt, au niveau du 86 rue de Venise",
+       "Transport A la Demande",
        1
       ]
      ]
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne"
-  },
-  {
-   "id": "32c957c36c",
-   "t": "Report de l'arrêt St Symphorien",
-   "lines": [
-    "E2",
-    "E3",
-    "E4"
-   ],
-   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 6 novembre 2026",
-   "start": "2026-10-19",
-   "end": "2026-11-06",
-   "b": [
-    {
-     "l": "E2",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "SAINT-SYMPHORIEN",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "ST ETIENNE SUR SUIPPE",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "au niveau du 7 rue Eugène Desteuque",
-       1
-      ]
-     ],
-     "geo": {
-      "lat": 49.255376,
-      "lon": 4.036537,
-      "a": "7 rue Eugène Desteuque"
-     }
-    },
-    {
-     "l": "E3",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "SAINT-SYMPHORIEN",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "WARMERIVILLE",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "au niveau du 7 rue Eugène Desteuque",
-       1
-      ]
-     ],
-     "geo": {
-      "lat": 49.255376,
-      "lon": 4.036537,
-      "a": "7 rue Eugène Desteuque"
-     }
-    },
-    {
-     "l": "E4",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "SAINT-SYMPHORIEN",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "BETHENIVILLE",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "au niveau du 7 rue Eugène Desteuque",
-       1
-      ]
-     ],
-     "geo": {
-      "lat": 49.255376,
-      "lon": 4.036537,
-      "a": "7 rue Eugène Desteuque"
-     }
     },
     {
      "r": [
@@ -1726,6 +1676,87 @@
    "sec": "par ligne"
   },
   {
+   "id": "f118b20ae9",
+   "t": "Report de l'arrêt D'Orves vers C.C Cormontreuil",
+   "lines": [
+    "O2",
+    "U5"
+   ],
+   "p": "A partir du lundi 28 septembre 2026 jusqu'au jeudi 31 décembre 2026",
+   "start": "2026-09-28",
+   "end": "2026-12-31",
+   "b": [
+    {
+     "l": "O2",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "D'ORVES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "C.C. CORMONTREUIL",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "200 mètres avant, face au 61 Bld du Président Wilson (ancien arrêt de la ligne 2)",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U5",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "D'ORVES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "PARC DES EXPOSITIONS",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "200 mètres avant, face au 61 Bld du Président Wilson (ancien arrêt de la ligne 2)",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne"
+  },
+  {
    "id": "f168938f84",
    "t": "Report des arrêts Alexandre 1er",
    "lines": [
@@ -1802,87 +1833,6 @@
       "lon": 4.030819,
       "a": "18 boulevard Louis Barthou"
      }
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne"
-  },
-  {
-   "id": "f118b20ae9",
-   "t": "Report de l'arrêt D'Orves vers C.C Cormontreuil",
-   "lines": [
-    "O2",
-    "U5"
-   ],
-   "p": "A partir du lundi 28 septembre 2026 jusqu'au jeudi 31 décembre 2026",
-   "start": "2026-09-28",
-   "end": "2026-12-31",
-   "b": [
-    {
-     "l": "O2",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "D'ORVES",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "C.C. CORMONTREUIL",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "200 mètres avant, face au 61 Bld du Président Wilson (ancien arrêt de la ligne 2)",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "U5",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "D'ORVES",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "PARC DES EXPOSITIONS",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "200 mètres avant, face au 61 Bld du Président Wilson (ancien arrêt de la ligne 2)",
-       1
-      ]
-     ]
     },
     {
      "r": [
