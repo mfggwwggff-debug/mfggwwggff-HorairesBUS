@@ -1931,7 +1931,7 @@ function renderProfile() {
       <div class="prow"><span class="pn"><b>Dernier bus de mes trajets</b><small>Le soir, 30 min avant le dernier départ utile</small></span>${tg("last")}</div>
       <div class="prow"><span class="pn"><b>Mon bus arrive</b><small>Pour mes trajets, <select class="psel" data-almin>${[3, 5, 10, 15].map((m) => `<option${m === MY.al.arriveMin ? " selected" : ""}>${m}</option>`).join("")}</select> min avant le passage</small></span>${tg("arrive")}</div>
     </div>
-    <p class="pnote">Les alertes s'affichent quand l'appli est ouverte (ou pendant un suivi Mon bus). Pour les recevoir appli fermée, il faudra un petit service en ligne (idée #20).</p>`;
+    <p class="pnote">Le service de notification lorsque l'application est fermée sera disponible ultérieurement.</p>`;
   $("#prof-x").onclick = () => el.classList.remove("on");
   el.querySelectorAll("[data-myl]").forEach((b) => b.onclick = () => { const i = +b.dataset.myl; MY.lines = MY.lines.includes(i) ? MY.lines.filter((x) => x !== i) : [...MY.lines, i]; saveMy(); b.setAttribute("aria-pressed", MY.lines.includes(i)); buildGrid(); if (S.view === "trafic") renderTrafic(); });
   el.querySelectorAll("[data-al]").forEach((b) => b.onclick = () => { MY.al[b.dataset.al] = !MY.al[b.dataset.al]; saveMy(); b.setAttribute("aria-pressed", !!MY.al[b.dataset.al]); });
