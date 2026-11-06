@@ -9,7 +9,7 @@
 
 Usage seul : python build/post.py build/data.json   (réécrit le fichier)
 """
-import json, math, sys
+import json, math, os, sys
 from collections import defaultdict
 
 T1 = {"s": "T1", "l": "Neufchâtel ⇄ Hôpital Debré", "c": "#F80000", "t": "#FFFFFF"}
@@ -44,6 +44,126 @@ def text_colors(data):
     for r in data["R"]:
         if r["s"] in DARK_TEXT:
             r["t"] = "#1D1D1B"
+
+
+# ---------- tracés fournis par l'utilisateur (build/traces/<ligne>.kml, .gpx ou .geojson) ----------
+# Un fichier par ligne, nommé comme la ligne (T1.kml, U3.kml…). Il peut contenir un ou plusieurs tracés
+# (un par sens si l'aller et le retour diffèrent). Pour chaque parcours de la ligne, on prend le tracé
+# (dans un sens ou dans l'autre) qui passe le plus près de tous ses arrêts dans l'ordre, et on le coupe
+# au premier et au dernier arrêt. Il remplace alors le tracé du GTFS.
+TRACES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "traces")
+TRACE_MAX = 60  # m : un arrêt plus loin que ça du tracé → tracé non utilisé pour ce parcours
+
+
+def read_trace(path):
+    import re as _re
+    txt = open(path, encoding="utf-8").read()
+    lines = []
+    if path.endswith(".geojson") or path.endswith(".json"):
+        g = json.loads(txt)
+        feats = g.get("features", [g])
+        for f in feats:
+            geo = f.get("geometry", f)
+            if geo["type"] == "LineString":
+                lines.append([(c[0], c[1]) for c in geo["coordinates"]])
+            elif geo["type"] == "MultiLineString":
+                lines += [[(c[0], c[1]) for c in l] for l in geo["coordinates"]]
+    elif path.endswith(".gpx"):
+        for seg in _re.findall(r"<(?:trkseg|rte)>(.*?)</(?:trkseg|rte)>", txt, _re.S):
+            pts = _re.findall(r'<(?:trkpt|rtept)[^>]*lat="([-\d.]+)"[^>]*lon="([-\d.]+)"', seg)
+            pts += [(a, b) for b, a in _re.findall(r'<(?:trkpt|rtept)[^>]*lon="([-\d.]+)"[^>]*lat="([-\d.]+)"', seg)]
+            if pts:
+                lines.append([(float(lo), float(la)) for la, lo in pts])
+    else:
+        for c in _re.findall(r"<LineString>.*?<coordinates>(.*?)</coordinates>", txt, _re.S):
+            pts = [tuple(map(float, t.split(",")[:2])) for t in c.split()]
+            if len(pts) > 1:
+                lines.append(pts)
+    return lines
+
+
+def _proj(line, la0):
+    k = math.cos(math.radians(la0))
+    xy = [(lo * 111320 * k, la * 111320) for lo, la in line]
+    cum = [0.0]
+    for i in range(1, len(xy)):
+        cum.append(cum[-1] + math.dist(xy[i - 1], xy[i]))
+    return xy, cum
+
+
+def _locate(xy, cum, x, y):
+    best = (1e18, 0.0, 0, 0.0)
+    for i in range(len(xy) - 1):
+        (ax, ay), (bx, by) = xy[i], xy[i + 1]
+        dx, dy = bx - ax, by - ay
+        L2 = dx * dx + dy * dy
+        t = 0.0 if L2 == 0 else max(0.0, min(1.0, ((x - ax) * dx + (y - ay) * dy) / L2))
+        d = math.hypot(ax + t * dx - x, ay + t * dy - y)
+        if d < best[0]:
+            best = (d, cum[i] + t * (cum[i + 1] - cum[i]), i, t)
+    return best
+
+
+def user_traces(data):
+    if not os.path.isdir(TRACES):
+        return
+    R, PAT, Q, SH = data["R"], data["PAT"], data["Q"], data["SH"]
+    by_name = {}
+    for f in sorted(os.listdir(TRACES)):
+        stem, ext = os.path.splitext(f)
+        if ext.lower() in (".kml", ".gpx", ".geojson", ".json"):
+            by_name.setdefault(stem.strip().upper(), []).extend(read_trace(os.path.join(TRACES, f)))
+    used = 0
+    for p in PAT:
+        lines = by_name.get(R[p[0]]["s"].upper())
+        if not lines:
+            continue
+        stops = [(Q[q][2], Q[q][1]) for q in p[4]]
+        la0 = stops[0][1]
+        best = None
+        for line in lines:
+            for cand in (line, line[::-1]):
+                xy, cum = _proj(cand, la0)
+                k = math.cos(math.radians(la0))
+                locs = [_locate(xy, cum, lo * 111320 * k, la * 111320) for lo, la in stops]
+                # arrêts au bout hors du tracé (ex. course vers le dépôt) : reliés en ligne droite
+                i0, i1 = 0, len(locs) - 1
+                while i0 < i1 and locs[i0][0] > TRACE_MAX:
+                    i0 += 1
+                while i1 > i0 and locs[i1][0] > TRACE_MAX:
+                    i1 -= 1
+                if i1 - i0 < 1 or i0 + (len(locs) - 1 - i1) > 2 or max(l[0] for l in locs[i0:i1 + 1]) > TRACE_MAX:
+                    continue
+                if any(locs[i + 1][1] < locs[i][1] - 15 for i in range(i0, i1)):
+                    continue
+                score = sum(l[0] for l in locs[i0:i1 + 1]) + 1000 * (i0 + len(locs) - 1 - i1)
+                if best is None or score < best[0]:
+                    best = (score, cand, locs, i0, i1)
+        if best is None:
+            print("tracé", R[p[0]]["s"], "→", p[2], ": arrêts trop loin du tracé, gardé tel quel")
+            continue
+        _, cand, locs, i0, i1 = best
+        a, b = locs[i0], locs[i1]
+        pt = lambda l: (cand[l[2]][0] + l[3] * (cand[l[2] + 1][0] - cand[l[2]][0]), cand[l[2]][1] + l[3] * (cand[l[2] + 1][1] - cand[l[2]][1]))
+        pts = stops[:i0] + [pt(a)] + cand[a[2] + 1:b[2] + 1] + [pt(b)] + stops[i1 + 1:]
+        flat, x0, y0 = [], 0, 0
+        for lo, la in pts:
+            x, y = round(lo * 1e5), round(la * 1e5)
+            if flat and x == x0 and y == y0:
+                continue
+            flat += [x - x0, y - y0]; x0, y0 = x, y
+        SH.append(flat)
+        p[3] = len(SH) - 1
+        used += 1
+    # tracés devenus inutiles (relance du script) : on les retire
+    keep = sorted({p[3] for p in PAT if p[3] >= 0})
+    if len(keep) < len(SH):
+        remap = {o: n for n, o in enumerate(keep)}
+        data["SH"] = [SH[o] for o in keep]
+        for p in PAT:
+            if p[3] >= 0:
+                p[3] = remap[p[3]]
+    print("tracés fournis :", ", ".join(sorted(by_name)), "·", used, "parcours")
 
 
 # ---------- tram : tracé réel dans le centre ----------
@@ -301,6 +421,7 @@ def parallel_lines(data, step=8.0, dedupe=20.0, near=14.0, slot_m=10.0):
 def finalize(data):
     split_tram(data)
     text_colors(data)
+    user_traces(data)
     tram_paths(data)
     nf, npts = parallel_lines(data)
     print("tronçons du plan", nf, "points", npts)
