@@ -1911,18 +1911,56 @@ function boardAdjust(st, pi, k, dk) {
 }
 
 // ---------- #07 : « Tu es dans un bus ? » (proposition quand je roule sur une ligne sans suivi) ----------
-const INBUS = { shownKey: "", refused: new Set() };
+const INBUS = { shownKey: "", refused: new Set(), mute: 0 };
 function showInBus(cands, dk) {
   const el = $("#inbus");
   if (!cands.length) { el.classList.remove("on"); return; }
   const one = cands.length === 1, trams = cands.filter((c) => modeOf(net.pats[c.pi].r) === "tram").length;
   const what = trams === cands.length ? (one ? "ce tram" : "un de ces trams") : trams ? "le tram ou le bus" : (one ? "ce bus" : "un de ces bus");
-  el.innerHTML = `<div class="ibh"><span class="ic">${modeGlyph(trams === cands.length ? "tram" : "bus")}</span><div><b>Tu es dans ${what} ?</b><small>${one ? "Suis-le pour savoir quand descendre" : "Plusieurs lignes passent ici, choisis la tienne"}</small></div><button type="button" class="ibx" aria-label="Non merci">${closeSvg}</button></div>`
-    + cands.map((c, j) => { const p = net.pats[c.pi]; const st = tripState(c.pi, c.k, dk); const nx = p.stops[Math.min(p.nS - 1, st.next)]; return `<div class="ibr"><span style="color:var(--muted);display:inline-flex">${modeIcon(modeOf(p.r) === "tram" ? "tram" : "bus")}</span>${badge(p.r)}<span class="d">→ ${esc(p.h)}<small>Prochain arrêt : ${esc(qName(nx))}</small></span><button type="button" class="btn small primary" data-ib="${j}">Suivre</button></div>`; }).join("");
-  el.querySelector(".ibx").onclick = () => { cands.forEach((c) => INBUS.refused.add(c.pi + ":" + c.k)); el.classList.remove("on"); };
-  el.querySelectorAll("[data-ib]").forEach((b) => b.onclick = () => { const c = cands[+b.dataset.ib]; el.classList.remove("on"); startFollow(c.pi, c.k, dk); });
+  el.innerHTML = `<div class="ibh"><span class="ic">${modeGlyph(trams === cands.length ? "tram" : "bus")}</span><div><b>Vous êtes dans ${what} ?</b><small>${one ? "Suivez-le pour savoir quand descendre" : "Plusieurs lignes passent ici, choisissez la vôtre"}</small></div><button type="button" class="ibx" aria-label="Non merci">${closeSvg}</button></div>`
+    + cands.map((c, j) => { const p = net.pats[c.pi]; const st = tripState(c.pi, c.k, c.dk ?? dk); const nx = p.stops[Math.min(p.nS - 1, st.next)]; return `<div class="ibr"><span style="color:var(--muted);display:inline-flex">${modeIcon(modeOf(p.r) === "tram" ? "tram" : "bus")}</span>${badge(p.r)}<span class="d">→ ${esc(p.h)}<small>Prochain arrêt : ${esc(qName(nx))}</small></span><button type="button" class="btn small primary" data-ib="${j}">Suivre</button></div>`; }).join("");
+  el.querySelector(".ibx").onclick = () => { cands.forEach((c) => INBUS.refused.add(c.pi + ":" + c.k)); INBUS.mute = Date.now() + 20 * 60000; INBUS.shownKey = ""; el.classList.remove("on"); };
+  el.querySelectorAll("[data-ib]").forEach((b) => b.onclick = () => {
+    const c = cands[+b.dataset.ib]; el.classList.remove("on"); INBUS.shownKey = "";
+    // on sait déjà que je suis dedans : calage immédiat sur ma position (#06 / #09)
+    BOARD_LAST = { key: [c.pi, c.k, c.dk ?? dk].join(":"), at: Date.now() };
+    startFollow(c.pi, c.k, c.dk ?? dk);
+  });
   requestAnimationFrame(() => el.classList.add("on"));
 }
+// #07 : détection, appli ouverte et sans suivi en cours, toutes les 5 s
+function detectInBus() {
+  const el = $("#inbus");
+  if (S.follow || !feat("inbus") || document.hidden || Date.now() < INBUS.mute) { if (S.follow && el.classList.contains("on")) { el.classList.remove("on"); INBUS.shownKey = ""; } return; }
+  const now = Date.now();
+  let w = ME.hist.filter((h) => now - h.t < 75000);
+  // on ne garde que la fin cohérente : un point qui « saute » (premier repérage imprécis) est écarté
+  for (let j = w.length - 1; j > 0; j--) if (distM(w[j - 1].lat, w[j - 1].lon, w[j].lat, w[j].lon) / Math.max(1, (w[j].t - w[j - 1].t) / 1000) > 35) { w = w.slice(j); break; }
+  const hide = () => { if (el.classList.contains("on")) el.classList.remove("on"); INBUS.shownKey = ""; };
+  if (w.length < 4 || now - w[w.length - 1].t > 20000) return hide();
+  const span = (w[w.length - 1].t - w[0].t) / 1000, a = w[0], z = w[w.length - 1];
+  const moved = distM(a.lat, a.lon, z.lat, z.lon);
+  if (span < 40 || moved < 150 || moved / span < 2) return hide(); // pas encore une allure de bus
+  if (!M_PER_U) userOnPat(0, z);
+  const ux = PX(z.lon), uy = PY(z.lat), dk0 = todayIdx();
+  const best = new Map();
+  for (const v of vehicles()) {
+    if (INBUS.refused.has(v.pi + ":" + v.k)) continue;
+    const dv = Math.hypot(v.x - ux, v.y - uy) * M_PER_U; if (dv > 900) continue;
+    const pts = w.map((h) => userOnPat(v.pi, h));
+    if (pts.some((q) => !q || q.off > 60)) continue;
+    if (pts.some((q, j) => j && q.d < pts[j - 1].d - 40) || pts[pts.length - 1].d - pts[0].d < 100) continue; // dans le sens du bus
+    const key = v.r + "|" + net.pats[v.pi].h;
+    if (!best.has(key) || dv < best.get(key).dv) best.set(key, { pi: v.pi, k: v.k, dk: v.dk, dv });
+  }
+  const cands = [...best.values()].sort((x, y) => x.dv - y.dv).slice(0, 4);
+  if (!cands.length) return hide();
+  const sk = cands.map((c) => c.pi + ":" + c.k).join(",");
+  if (sk !== INBUS.shownKey) { INBUS.shownKey = sk; showInBus(cands, dk0); }
+}
+setInterval(detectInBus, 5000);
+// position suivie dès l'ouverture si elle a déjà été autorisée (pour la détection du bus)
+setTimeout(() => { if (feat("inbus") && store.get("geo")) locate(null, true); }, 1500);
 function startFollow(pi, k, dk, fromStop, destStop) {
   const p = net.pats[pi];
   let dest = null;
