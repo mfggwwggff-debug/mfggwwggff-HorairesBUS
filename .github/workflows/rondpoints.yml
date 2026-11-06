@@ -1,0 +1,43 @@
+name: Rond-points (OSM)
+
+# Relève les rond-points d'OpenStreetMap (build/rondpoints.json), utilisés par build/post.py
+# pour faire traverser les rond-points tout droit sur le plan. Une fois par mois suffit.
+on:
+  schedule:
+    - cron: "17 3 3 * *"   # le 3 de chaque mois, 3h17 UTC
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - build/rondpoints.py
+      - .github/workflows/rondpoints.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: rondpoints
+  cancel-in-progress: false
+
+jobs:
+  rondpoints:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Relever les rond-points
+        run: python3 build/rondpoints.py
+
+      - name: Publier si quelque chose a changé
+        run: |
+          git add build/rondpoints.json
+          if git diff --cached --quiet; then
+            echo "Rond-points inchangés."
+            exit 0
+          fi
+          git config user.name "rondpoints-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Rond-points (OSM) : mise à jour"
+          for i in 1 2 3; do git pull --rebase -q && git push -q && exit 0; sleep 5; done
+          exit 1
