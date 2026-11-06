@@ -1354,9 +1354,10 @@ const INBUS = { shownKey: "", refused: new Set() };
 function showInBus(cands, dk) {
   const el = $("#inbus");
   if (!cands.length) { el.classList.remove("on"); return; }
-  const one = cands.length === 1;
-  el.innerHTML = `<div class="ibh"><span class="ic">${busPicto("#fff")}</span><div><b>${one ? "Tu es dans ce bus ?" : "Tu es dans un de ces bus ?"}</b><small>${one ? "Suis-le pour savoir quand descendre" : "Plusieurs lignes passent ici, choisis la tienne"}</small></div><button type="button" class="ibx" aria-label="Non merci">${closeSvg}</button></div>`
-    + cands.map((c, j) => { const p = net.pats[c.pi]; const st = tripState(c.pi, c.k, dk); const nx = p.stops[Math.min(p.nS - 1, st.next)]; return `<div class="ibr">${badge(p.r)}<span class="d">→ ${esc(p.h)}<small>Prochain arrêt : ${esc(qName(nx))}</small></span><button type="button" class="btn small primary" data-ib="${j}">Suivre</button></div>`; }).join("");
+  const one = cands.length === 1, trams = cands.filter((c) => modeOf(net.pats[c.pi].r) === "tram").length;
+  const what = trams === cands.length ? (one ? "ce tram" : "un de ces trams") : trams ? "le tram ou le bus" : (one ? "ce bus" : "un de ces bus");
+  el.innerHTML = `<div class="ibh"><span class="ic"><span class="mode" style="width:22px;height:22px;color:#fff">${modeIcon(trams === cands.length ? "tram" : "bus")}</span></span><div><b>Tu es dans ${what} ?</b><small>${one ? "Suis-le pour savoir quand descendre" : "Plusieurs lignes passent ici, choisis la tienne"}</small></div><button type="button" class="ibx" aria-label="Non merci">${closeSvg}</button></div>`
+    + cands.map((c, j) => { const p = net.pats[c.pi]; const st = tripState(c.pi, c.k, dk); const nx = p.stops[Math.min(p.nS - 1, st.next)]; return `<div class="ibr"><span style="color:var(--muted);display:inline-flex">${modeIcon(modeOf(p.r) === "tram" ? "tram" : "bus")}</span>${badge(p.r)}<span class="d">→ ${esc(p.h)}<small>Prochain arrêt : ${esc(qName(nx))}</small></span><button type="button" class="btn small primary" data-ib="${j}">Suivre</button></div>`; }).join("");
   el.querySelector(".ibx").onclick = () => { cands.forEach((c) => INBUS.refused.add(c.pi + ":" + c.k)); el.classList.remove("on"); };
   el.querySelectorAll("[data-ib]").forEach((b) => b.onclick = () => { const c = cands[+b.dataset.ib]; el.classList.remove("on"); startFollow(c.pi, c.k, dk); });
   requestAnimationFrame(() => el.classList.add("on"));
@@ -1457,7 +1458,7 @@ function renderFollow() {
     MB.key = key; MB.lastNext = -1;
     // la ligne affichée commence un arrêt avant le bus (ou avant l'arrêt de montée s'il est plus tôt)
     MB.first = Math.max(0, Math.min(from ?? Infinity, Math.max(0, st.i), p.nS - 1) - 1);
-    el.innerHTML = `<div class="mbtop" id="mb-top"><div class="fhead"><button type="button" class="icon-btn" id="fo-back" aria-label="Retour">${backSvg}</button><button type="button" class="icon-btn" id="fo-close" aria-label="Quitter le plein écran">${closeSvg}</button>${badge(p.r, "lg")}<div class="fh-t"><h2>→ ${esc(p.h)}</h2><span class="fh-s" id="mb-status"></span></div><span class="pillmode">${S.guide ? "GUIDAGE" : "MON BUS"}</span></div>
+    el.innerHTML = `<div class="mbtop" id="mb-top"><div class="fhead"><button type="button" class="icon-btn" id="fo-back" aria-label="Retour">${backSvg}</button><button type="button" class="icon-btn" id="fo-close" aria-label="Quitter le plein écran">${closeSvg}</button>${badge(p.r, "lg")}<div class="fh-t"><h2>→ ${esc(p.h)}</h2><span class="fh-s" id="mb-status"></span></div><span class="pillmode">${S.guide ? "GUIDAGE" : modeOf(p.r) === "tram" ? "MON TRAM" : "MON BUS"}</span></div>
       <div id="gd-card"></div>
       <div id="mb-banner"></div>
       <div id="mb-hero"></div></div>
