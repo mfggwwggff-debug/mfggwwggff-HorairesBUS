@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-06T15:23:03Z",
+ "at": "2026-11-06T23:21:23Z",
  "items": [
   {
    "id": "20acd05e39",
@@ -461,6 +461,58 @@
    "sec": "temps reel"
   },
   {
+   "id": "1539d33ccb",
+   "t": "Travaux de voirie à Treslon",
+   "lines": [
+    "E6"
+   ],
+   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 16 avril 2027",
+   "start": "2026-10-19",
+   "end": "2027-04-16",
+   "b": [
+    {
+     "l": "",
+     "r": [
+      [
+       "Forte perturbation sur les horaires de la ligne durant cette période",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "E6",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "TRESLON",
+       1
+      ],
+      [
+       " dans les deux sens est non desservi par la ligne, mais reste desservi par le",
+       0
+      ],
+      [
+       "Transport A la Demande",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne"
+  },
+  {
    "id": "391d31b0d6",
    "t": "Travaux rue des Sablières à Champigny",
    "lines": [
@@ -585,175 +637,6 @@
        1
       ]
      ]
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne"
-  },
-  {
-   "id": "1539d33ccb",
-   "t": "Travaux de voirie à Treslon",
-   "lines": [
-    "E6"
-   ],
-   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 16 avril 2027",
-   "start": "2026-10-19",
-   "end": "2027-04-16",
-   "b": [
-    {
-     "l": "",
-     "r": [
-      [
-       "Forte perturbation sur les horaires de la ligne durant cette période",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "E6",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "TRESLON",
-       1
-      ],
-      [
-       " dans les deux sens est non desservi par la ligne, mais reste desservi par le",
-       0
-      ],
-      [
-       "Transport A la Demande",
-       1
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne"
-  },
-  {
-   "id": "2f036d5c93",
-   "t": "Travaux rue Pierre Maître et rue de Courcelles",
-   "lines": [
-    "U7"
-   ],
-   "p": "A partir du lundi 19 octobre 2026 jusqu'au dimanche 21 février 2027",
-   "start": "2026-10-19",
-   "end": "2027-02-21",
-   "b": [
-    {
-     "l": "U7",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "VERRERIES",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "HOPITAL DEBRE",
-       1
-      ],
-      [
-       " est reporté à l'",
-       0
-      ],
-      [
-       "arrêt VERRERIES de la ligne U7 vers BOUTREAUX",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "U7",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "PONT ST BRICE",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "HOPITAL DEBRE",
-       1
-      ],
-      [
-       " est reporté à l'",
-       0
-      ],
-      [
-       "arrêt VERRERIES de la ligne U7 vers BOUTREAUX",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "U7",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "PONT ST BRICE",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "BOUTREAUX",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "au 14 rue Pierre Maitre",
-       1
-      ]
-     ],
-     "geo": {
-      "lat": 49.262776,
-      "lon": 4.005758,
-      "a": "14 rue Pierre Maitre"
-     }
-    },
-    {
-     "img": "https://prod.deviations.info/carte/grandreims/public/img/86603.jpg"
     },
     {
      "r": [
@@ -900,26 +783,24 @@
    "sec": "par ligne"
   },
   {
-   "id": "32c957c36c",
-   "t": "Report de l'arrêt St Symphorien",
+   "id": "2f036d5c93",
+   "t": "Travaux rue Pierre Maître et rue de Courcelles",
    "lines": [
-    "E2",
-    "E3",
-    "E4"
+    "U7"
    ],
-   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 6 novembre 2026",
+   "p": "A partir du lundi 19 octobre 2026 jusqu'au dimanche 21 février 2027",
    "start": "2026-10-19",
-   "end": "2026-11-06",
+   "end": "2027-02-21",
    "b": [
     {
-     "l": "E2",
+     "l": "U7",
      "r": [
       [
        "L'arrêt ",
        0
       ],
       [
-       "SAINT-SYMPHORIEN",
+       "VERRERIES",
        1
       ],
       [
@@ -927,7 +808,65 @@
        0
       ],
       [
-       "ST ETIENNE SUR SUIPPE",
+       "HOPITAL DEBRE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt VERRERIES de la ligne U7 vers BOUTREAUX",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U7",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "PONT ST BRICE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "HOPITAL DEBRE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt VERRERIES de la ligne U7 vers BOUTREAUX",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U7",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "PONT ST BRICE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "BOUTREAUX",
        1
       ],
       [
@@ -935,83 +874,18 @@
        0
       ],
       [
-       "au niveau du 7 rue Eugène Desteuque",
+       "au 14 rue Pierre Maitre",
        1
       ]
      ],
      "geo": {
-      "lat": 49.255376,
-      "lon": 4.036537,
-      "a": "7 rue Eugène Desteuque"
+      "lat": 49.262776,
+      "lon": 4.005758,
+      "a": "14 rue Pierre Maitre"
      }
     },
     {
-     "l": "E3",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "SAINT-SYMPHORIEN",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "WARMERIVILLE",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "au niveau du 7 rue Eugène Desteuque",
-       1
-      ]
-     ],
-     "geo": {
-      "lat": 49.255376,
-      "lon": 4.036537,
-      "a": "7 rue Eugène Desteuque"
-     }
-    },
-    {
-     "l": "E4",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "SAINT-SYMPHORIEN",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "BETHENIVILLE",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "au niveau du 7 rue Eugène Desteuque",
-       1
-      ]
-     ],
-     "geo": {
-      "lat": 49.255376,
-      "lon": 4.036537,
-      "a": "7 rue Eugène Desteuque"
-     }
+     "img": "https://prod.deviations.info/carte/grandreims/public/img/86603.jpg"
     },
     {
      "r": [
@@ -1689,6 +1563,87 @@
    "sec": "par ligne"
   },
   {
+   "id": "f118b20ae9",
+   "t": "Report de l'arrêt D'Orves vers C.C Cormontreuil",
+   "lines": [
+    "O2",
+    "U5"
+   ],
+   "p": "A partir du lundi 28 septembre 2026 jusqu'au jeudi 31 décembre 2026",
+   "start": "2026-09-28",
+   "end": "2026-12-31",
+   "b": [
+    {
+     "l": "O2",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "D'ORVES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "C.C. CORMONTREUIL",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "200 mètres avant, face au 61 Bld du Président Wilson (ancien arrêt de la ligne 2)",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U5",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "D'ORVES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "PARC DES EXPOSITIONS",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "200 mètres avant, face au 61 Bld du Président Wilson (ancien arrêt de la ligne 2)",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne"
+  },
+  {
    "id": "f168938f84",
    "t": "Report des arrêts Alexandre 1er",
    "lines": [
@@ -1765,87 +1720,6 @@
       "lon": 4.030819,
       "a": "18 boulevard Louis Barthou"
      }
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne"
-  },
-  {
-   "id": "f118b20ae9",
-   "t": "Report de l'arrêt D'Orves vers C.C Cormontreuil",
-   "lines": [
-    "O2",
-    "U5"
-   ],
-   "p": "A partir du lundi 28 septembre 2026 jusqu'au jeudi 31 décembre 2026",
-   "start": "2026-09-28",
-   "end": "2026-12-31",
-   "b": [
-    {
-     "l": "O2",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "D'ORVES",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "C.C. CORMONTREUIL",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "200 mètres avant, face au 61 Bld du Président Wilson (ancien arrêt de la ligne 2)",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "U5",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "D'ORVES",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "PARC DES EXPOSITIONS",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "200 mètres avant, face au 61 Bld du Président Wilson (ancien arrêt de la ligne 2)",
-       1
-      ]
-     ]
     },
     {
      "r": [
