@@ -296,6 +296,17 @@ table.tt td.live.late { color: var(--late); }
 
 /* suivi d'un bus */
 .fhead { display: flex; gap: 10px; align-items: center; }
+/* Mon bus : haut fixe (en-tête, alertes, carte « Prochain arrêt ») et plein écran */
+.mbtop { position: sticky; top: 0; z-index: 5; background: var(--surface); margin: -6px -16px 0; padding: 6px 16px 8px; display: flex; flex-direction: column; gap: 12px; }
+#fo-close { display: none; }
+@media (max-width: 899px) {
+  body.mbfull .sheet { top: 0 !important; bottom: 0; z-index: 30; border-radius: 0; padding-top: var(--sat); transition: none; }
+  body.mbfull #grab, body.mbfull #sheethead, body.mbfull #nightbar, body.mbfull #netbar { display: none !important; }
+  body.mbfull #fo-back { display: none; }
+  body.mbfull #fo-close { display: grid; }
+  body.mbfull .mbtop { padding-top: 10px; }
+}
+
 .fhead h2 { font-size: 21px; font-weight: 700; flex: 1; min-width: 0; }
 .fstat { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .fbox { border: 1px solid var(--rule); border-radius: 12px; padding: 10px 12px; background: var(--sunk); display: flex; flex-direction: column; gap: 4px; min-width: 0; }
@@ -789,6 +800,7 @@ const modeOf = (ri) => net.R[ri].m === 1 ? "tram" : /^O\d/.test(net.R[ri].s) ? "
 const alertSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.2 22 20.5H2z" fill="currentColor"/><path d="M12 9.5v5.2" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="17.6" r="1.25" fill="#fff"/></svg>`;
 const okSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>`;
 const backSvg = `<svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="m10 3-5 5 5 5"/></svg>`;
+const closeSvg = `<svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m4 4 8 8M12 4l-8 8"/></svg>`;
 const fmtDateLong = (iso) => new Date(iso + "T12:00:00").toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" });
 const fmtDateShort = (iso) => new Date(iso + "T12:00:00").toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" });
 const isMobile = () => matchMedia("(max-width: 899px)").matches;
@@ -927,6 +939,7 @@ function setSheet(state, silent) {
   if (!isMobile()) return;
   sheetState = state;
   sheet.style.top = sheetTops()[state] + "px";
+  if (typeof updMbFull === "function") updMbFull();
   if (!silent) setTimeout(drawMap, 340);
 }
 function sheetInsetBottom() { if (!isMobile()) return 0; const H = $("#app").clientHeight; const top = sheet.classList.contains("dragging") ? sheet.getBoundingClientRect().top - $("#app").getBoundingClientRect().top : sheetTops()[sheetState]; return Math.max(0, H - top); }
@@ -1357,10 +1370,10 @@ function renderFollow() {
     MB.key = key; MB.lastNext = -1;
     // la ligne affichée commence un arrêt avant le bus (ou avant l'arrêt de montée s'il est plus tôt)
     MB.first = Math.max(0, Math.min(from ?? Infinity, Math.max(0, st.i), p.nS - 1) - 1);
-    el.innerHTML = `<div class="fhead"><button type="button" class="icon-btn" id="fo-back" aria-label="Retour">${backSvg}</button>${badge(p.r, "lg")}<div class="fh-t"><h2>→ ${esc(p.h)}</h2><span class="fh-s" id="mb-status"></span></div><span class="pillmode">${S.guide ? "GUIDAGE" : "MON BUS"}</span></div>
+    el.innerHTML = `<div class="mbtop" id="mb-top"><div class="fhead"><button type="button" class="icon-btn" id="fo-back" aria-label="Retour">${backSvg}</button><button type="button" class="icon-btn" id="fo-close" aria-label="Quitter le plein écran">${closeSvg}</button>${badge(p.r, "lg")}<div class="fh-t"><h2>→ ${esc(p.h)}</h2><span class="fh-s" id="mb-status"></span></div><span class="pillmode">${S.guide ? "GUIDAGE" : "MON BUS"}</span></div>
       <div id="gd-card"></div>
       <div id="mb-banner"></div>
-      <div id="mb-hero"></div>
+      <div id="mb-hero"></div></div>
       <div class="mbt" id="mb-track" style="--c:${R.c};--ct:${R.t}">
         <div class="mbt-rail" style="top:${ROWH / 2}px;height:${(p.nS - 1 - MB.first) * ROWH}px"></div>
         <div class="mbt-done" id="mb-done" style="top:${ROWH / 2}px"></div>
@@ -1372,6 +1385,7 @@ function renderFollow() {
       </div>
       <div class="mbbar" id="mb-bar"></div>`;
     $("#mb-track").style.height = (p.nS - MB.first) * ROWH + "px";
+    $("#fo-close").onclick = () => setSheet("half");
     $("#fo-back").onclick = () => go(S.guide ? "itineraire" : S.prevView && !["suivi"].includes(S.prevView) ? S.prevView : "accueil");
     el.querySelectorAll(".mbr").forEach((b) => b.onclick = () => { if (S.guide) return; const i = +b.dataset.i; if (S.follow.from != null && i <= S.follow.from) { toast("Choisissez un arrêt après votre arrêt de montée", 2500); return; } S.follow.dest = S.follow.dest === i ? null : i; if (S.follow.dest != null) askNotify(); renderFollow(); drawMap(); });
     // badges des correspondances (statiques), les temps sont ajoutés pour l'arrêt suivant et la descente
@@ -1415,11 +1429,9 @@ function renderFollow() {
     const html = show ? connChips(connsAt(net.Q[p.stops[i]][0], st.at(i), p.r, 4)) || "" : c.dataset.base;
     if (c.dataset.html !== html) { c.innerHTML = html; c.dataset.html = html; }
   });
-  // défilement : garde l'arrêt suivant en vue (sauf si l'utilisateur fait défiler lui-même)
-  if (MB.lastNext !== next && Date.now() - MB.userScrollAt > 8000) {
-    const row = $(`#mb-track .mbr[data-i="${Math.max(MB.first, next - 1)}"]`);
-    if (row) { MB.progScroll = true; row.scrollIntoView({ block: "start", behavior: MB.lastNext < 0 ? "auto" : "smooth" }); setTimeout(() => { MB.progScroll = false; }, 700); }
-  }
+  // défilement : le thermomètre reste calé sur le bus (dernier arrêt passé en haut, sous la carte fixe) ;
+  // si on fait défiler à la main, il y revient tout seul 4 s après
+  mbCenter(st, MB.lastNext < 0);
   MB.lastNext = next;
   // carte du haut
   const target = dest ?? nS - 1;
@@ -1482,6 +1494,25 @@ function renderFollow() {
   }
   if (S.guide) guideTick();
 }
+
+// thermomètre de Mon bus : recale la liste sur le bus (sous la carte du haut, qui reste visible)
+function mbCenter(st, instant) {
+  if (Date.now() - MB.userScrollAt < 4000) return;
+  const sc = $("#scroll"), top = $("#mb-top");
+  const i = st.state === "before" ? MB.first : Math.max(MB.first, Math.min(st.p.nS - 1, st.i));
+  const row = $(`#mb-track .mbr[data-i="${i}"]`);
+  if (!sc || !top || !row) return;
+  const want = row.getBoundingClientRect().top - (top.getBoundingClientRect().bottom + 6);
+  const max = sc.scrollHeight - sc.clientHeight - sc.scrollTop;
+  const d = Math.max(-sc.scrollTop, Math.min(max, want));
+  if (Math.abs(d) < 4) return;
+  MB.progScroll = true;
+  sc.scrollBy({ top: d, behavior: instant || reduceMotion ? "auto" : "smooth" });
+  clearTimeout(MB.progT); MB.progT = setTimeout(() => { MB.progScroll = false; }, 800);
+}
+// plein écran de Mon bus : en tirant le panneau tout en haut, le plan, l'en-tête et les onglets s'effacent
+if (/[?&]simu=/.test(location.search)) window.__t = { startFollow: (...a) => startFollow(...a), tripState: (...a) => tripState(...a), setSheet: (x) => setSheet(x), todayIdx: () => todayIdx(), net: () => net, MB };
+function updMbFull() { document.body.classList.toggle("mbfull", isMobile() && S.view === "suivi" && sheetState === "full"); }
 
 const renderFollowBg = () => renderFollow();
 
@@ -1885,6 +1916,7 @@ function route() {
   else if (S.view === "trafic") { renderTrafic(); if (TR.filter && TR.filter.length === 1) fitLine(TR.filter[0]); else fitHome(); }
   else { renderFollow(); if (isMobile() && sheetState === "full") setSheet("half", true); followCam(true); }
   if (isMobile() && sheetState === "peek") setSheet("half", true);
+  updMbFull();
   drawMap();
 }
 
