@@ -314,6 +314,7 @@ table.tt td.live.late { color: var(--late); }
 .gpsdot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #1a73e8; margin-right: 6px; vertical-align: 1px; }
 /* Mon bus : haut fixe (en-tête, alertes, carte « Prochain arrêt ») et plein écran */
 .mbtop { position: sticky; top: 0; z-index: 5; background: var(--surface); margin: -6px -16px 0; padding: 6px 16px 8px; display: flex; flex-direction: column; gap: 12px; }
+@media (max-width: 760px) { .mbtop { touch-action: none; } }
 #fo-close { display: none; }
 @media (max-width: 899px) {
   body.mbfull .sheet { top: 0 !important; bottom: 0; z-index: 30; border-radius: 0; padding-top: var(--sat); transition: none; }
@@ -1483,20 +1484,24 @@ function setSheet(state, silent) {
   if (!silent) setTimeout(drawMap, 340);
 }
 function sheetInsetBottom() { if (!isMobile()) return 0; const H = $("#app").clientHeight; const top = sheet.classList.contains("dragging") ? sheet.getBoundingClientRect().top - $("#app").getBoundingClientRect().top : sheetTops()[sheetState]; return Math.max(0, H - top); }
+let sheetDragBind = () => {};
 (function sheetDrag() {
-  let y0 = 0, top0 = 0, t0 = 0, dragging = false, moved = false;
-  const start = (e) => { if (!isMobile()) return; if (e.target.closest("button, input, a")) return; dragging = true; moved = false; y0 = e.clientY; top0 = sheet.getBoundingClientRect().top - $("#app").getBoundingClientRect().top; t0 = performance.now(); sheet.classList.add("dragging"); e.currentTarget.setPointerCapture(e.pointerId); };
+  let y0 = 0, top0 = 0, t0 = 0, dragging = false, moved = false, tapOk = true;
+  const start = (e) => { if (!isMobile()) return; if (e.target.closest("button, input, a, [data-board]")) return; dragging = true; moved = false; tapOk = !e.currentTarget.dataset.notap; y0 = e.clientY; top0 = sheet.getBoundingClientRect().top - $("#app").getBoundingClientRect().top; t0 = performance.now(); sheet.classList.add("dragging"); e.currentTarget.setPointerCapture(e.pointerId); };
   const move = (e) => { if (!dragging) return; const dy = e.clientY - y0; if (Math.abs(dy) > 4) moved = true; const T = sheetTops(); sheet.style.top = Math.max(T.full - 20, Math.min(T.peek + 40, top0 + dy)) + "px"; };
   const end = (e) => {
     if (!dragging) return; dragging = false; sheet.classList.remove("dragging");
     const T = sheetTops(); const cur = sheet.getBoundingClientRect().top - $("#app").getBoundingClientRect().top; const v = (e.clientY - y0) / Math.max(1, performance.now() - t0);
-    if (!moved) { setSheet(sheetState === "peek" ? "half" : sheetState === "half" ? "full" : "half"); return; }
+    if (!moved) { if (tapOk) setSheet(sheetState === "peek" ? "half" : sheetState === "half" ? "full" : "half"); return; }
     let target;
     if (v > 0.6) target = cur < T.half ? "half" : "peek"; else if (v < -0.6) target = cur > T.half ? "half" : "full";
     else target = ["full", "half", "peek"].sort((a, b) => Math.abs(T[a] - cur) - Math.abs(T[b] - cur))[0];
     setSheet(target);
   };
-  for (const el of [$("#grab"), $("#sheethead")]) { el.addEventListener("pointerdown", start); el.addEventListener("pointermove", move); el.addEventListener("pointerup", end); el.addEventListener("pointercancel", end); }
+  const bind = (el, tap = true) => { if (!el || el.dataset.drag) return; el.dataset.drag = 1; if (!tap) el.dataset.notap = 1; el.addEventListener("pointerdown", start); el.addEventListener("pointermove", move); el.addEventListener("pointerup", end); el.addEventListener("pointercancel", end); };
+  for (const el of [$("#grab"), $("#sheethead")]) bind(el);
+  // en-tête de Mon bus (ligne, statut, carte du haut) : glisser déplace le volet au lieu de faire défiler la liste
+  sheetDragBind = (el) => bind(el, false);
   $("#grab").addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSheet(sheetState === "full" ? "half" : "full"); } });
   window.addEventListener("resize", () => { if (isMobile()) setSheet(sheetState, true); else sheet.style.top = ""; });
 })();
@@ -1871,6 +1876,11 @@ function userOnPat(pi, s) {
 function boardAdjust(st, pi, k, dk) {
   const key = [pi, k, dk].join(":");
   if (BOARD.key !== key) Object.assign(BOARD, { key, on: false, since: 0, offAt: 0, claim: BOARD.key ? 0 : BOARD.claim });
+  // « Je suis dedans » : le calage attend que le bus roule ; au-delà de 3 min de roulage sans calage, retour en silence
+  if (BOARD.claim) {
+    if (st.state === "before") BOARD.claim = Date.now();          // au terminus : on attend le départ
+    else if (st.state !== "running" || Date.now() - BOARD.claim > 180000) BOARD.claim = 0;
+  }
   if (!feat("gps") || st.state !== "running" || !ME.hist.length || typeof patGeo !== "function") { BOARD.on = false; return st; }
   const g = patGeo(pi), now = Date.now();
   if (!M_PER_U) userOnPat(pi, ME.hist[ME.hist.length - 1]);
@@ -1979,7 +1989,7 @@ function startFollow(pi, k, dk, fromStop, destStop) {
   S.guide = null;
   S.follow = { pi, k, dk, dest, from, alert: true };
   S.followFree = false;
-  BOARD.key = ""; locate(null, true); // #06 : ma position sert à caler le bus si je suis dedans
+  BOARD.key = ""; BOARD.claim = 0; locate(null, true); // #06 : ma position sert à caler le bus si je suis dedans ; nouveau suivi = plus de « Calage… » en attente
   if (S.view !== "suivi") S.prevView = S.view;
   store.set("follow", { tid: null, pi, k, dk, dest, at: Date.now() });
   go("suivi");
@@ -2089,6 +2099,7 @@ function renderFollow() {
       <div class="mbbar" id="mb-bar"></div>`;
     $("#mb-track").style.height = (p.nS - MB.first) * ROWH + "px";
     $("#fo-close").onclick = () => setSheet("half");
+    sheetDragBind($("#mb-top"));
     $("#fo-back").onclick = () => go(S.guide ? "itineraire" : S.prevView && !["suivi"].includes(S.prevView) ? S.prevView : "accueil");
     el.querySelectorAll(".mbr").forEach((b) => b.onclick = () => { if (S.guide) return; const i = +b.dataset.i; if (S.follow.from != null && i <= S.follow.from) { toast("Choisissez un arrêt après votre arrêt de montée", 2500); return; } S.follow.dest = S.follow.dest === i ? null : i; if (S.follow.dest != null) askNotify(); renderFollow(); drawMap(); });
     // badges des correspondances (statiques), les temps sont ajoutés pour l'arrêt suivant et la descente
@@ -2098,7 +2109,8 @@ function renderFollow() {
   const nS = p.nS, next = st.next, t = st.t;
   const near = st.state === "running" && !st.atStop && st.at(next) - t <= 1.1;
   const delay = Math.round(st.at(Math.min(nS - 1, next)) - st.sched(Math.min(nS - 1, next)));
-  const b9 = st.gps || st.state === "done" || !feat("gps") || !feat("dedans") ? "" : BOARD.claim ? `<span class="b9 wait"><i class="b9spin"></i>Calage…</span>` : `<button type="button" class="b9" data-board>Je suis dedans</button>`;
+  // pas de bouton quand le départ du terminus est encore loin (plus de 10 min)
+  const b9 = st.gps || st.state === "done" || (st.state === "before" && st.dp(0) - st.t > 10) || !feat("gps") || !feat("dedans") ? "" : BOARD.claim ? `<span class="b9 wait"><i class="b9spin"></i>Calage…</span>` : `<button type="button" class="b9" data-board>Je suis dedans</button>`;
   $("#mb-status").innerHTML = (st.gps ? `<i class="gpsdot"></i>À bord · position GPS${delay >= 1 ? " · retard " + delay + " min" : ""}` : `${dot(st.live)}${st.live ? `Temps réel · ${delay >= 1 ? "retard " + delay + " min" : delay <= -1 ? "avance " + -delay + " min" : "à l'heure"}` : "Horaire théorique (position estimée)"}`);
   { const h9 = b9; const e9 = $("#mb-b9"); if (e9 && e9.dataset.html !== h9) { e9.innerHTML = h9; e9.dataset.html = h9; } };
   // ligne : arrêts passés, arrêt suivant, bus
