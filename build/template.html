@@ -1391,9 +1391,9 @@ function renderFollow() {
   $("#mb-bus").classList.toggle("wait", waiting);
   // les chevrons partent de sous le bus et vont un peu au-delà de l'arrêt suivant, en s'estompant
   const goTop = busTop, goEnd = (Math.min(nS - 1, next + 0.6) - MB.first) * ROWH + ROWH / 2;
-  const go = $("#mb-go"), showGo = st.state === "running" && !st.atStop && goEnd - goTop >= 24;
-  go.classList.toggle("hide", !showGo);
-  if (showGo) { go.style.top = goTop + "px"; go.style.height = goEnd - goTop + "px"; }
+  const goEl = $("#mb-go"), showGo = st.state === "running" && !st.atStop && goEnd - goTop >= 24; // pas « go » : c'est la fonction de navigation
+  goEl.classList.toggle("hide", !showGo);
+  if (showGo) { goEl.style.top = goTop + "px"; goEl.style.height = goEnd - goTop + "px"; }
   const wtxt = st.state === "before" ? "DÉPART " + hm(st.dp(0)) : st.atStop ? "À L'ARRÊT" : "";
   $$("#mb-track .mbr").forEach((r) => {
     const i = +r.dataset.i, want = waiting && i === waitAt ? wtxt : "";
