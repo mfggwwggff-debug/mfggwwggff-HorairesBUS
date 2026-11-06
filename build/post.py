@@ -5,11 +5,15 @@
 3. calcule le dessin « en parallèle » des tronçons communs : pour chaque ligne, des tronçons de tracé
    (sans doublon aller/retour) et, en chaque point, une place dans le faisceau (« slot »). Le plan décale
    chaque ligne de slot × écartement, perpendiculairement à son tracé, pour que les lignes qui partagent
-   une rue soient côte à côte au lieu de se superposer.
+   une rue soient côte à côte au lieu de se superposer. Pour un plan lisible :
+   - les rond-points (build/rondpoints.json, OpenStreetMap) sont traversés tout droit, par leur centre ;
+   - au terminus, la ligne s'arrête à l'arrêt : la boucle de retournement du départ n'est pas dessinée ;
+   - un aller-retour dans une impasse (« piston ») et les deux sens à moins de 45 m font un seul trait ;
+   - les courses directes sans arrêt intermédiaire (U25 Clovis ⇄ ZI Pompelle) ne sont pas dessinées.
 
 Usage seul : python build/post.py build/data.json   (réécrit le fichier)
 """
-import json, math, sys
+import json, math, os, sys
 from collections import defaultdict
 
 T1 = {"s": "T1", "l": "Neufchâtel ⇄ Hôpital Debré", "c": "#F80000", "t": "#FFFFFF"}
@@ -181,34 +185,193 @@ def trim_to_stops(pts, a, b):
 RARE = 0.04   # trajets rares (scolaires, dépôt) : moins de 4 % des courses de la ligne, pas dessinés
 
 
-def parallel_lines(data, step=8.0, dedupe=20.0, near=14.0, slot_m=10.0):
+# ---------- rond-points : traversée tout droit ----------
+# build/rondpoints.json (relevé OpenStreetMap, tâche « Rond-points (OSM) ») : [[lat, lon, rayon_m], ...].
+# Dans un rond-point, chaque ligne suit sa propre portion d'anneau et le dessin devient illisible.
+# Comme sur le plan officiel, on fait passer chaque ligne par le centre : entrée → centre → sortie.
+# Places giratoires qu'OpenStreetMap ne marque pas comme rond-points (repérées sur le plan) : [lat, lon, rayon_m]
+EXTRA_RB = [
+    [49.241152, 4.044684, 34.0],  # Cimetière du Sud (place Aristide Briand / avenue de Champagne)
+]
+
+
+def load_roundabouts():
+    f = os.path.join(os.path.dirname(os.path.abspath(__file__)), "rondpoints.json")
+    try:
+        raw = json.load(open(f, encoding="utf-8"))
+    except (OSError, ValueError):
+        raw = []
+    return [(*to_m(lo, la), r) for la, lo, r in raw + EXTRA_RB]
+
+
+def _wrap(a):
+    while a > math.pi: a -= 2 * math.pi
+    while a < -math.pi: a += 2 * math.pi
+    return a
+
+
+def through_roundabouts(pts, rbg, margin=7.0):
+    if not rbg or len(pts) < 2:
+        return pts
+    s = resample(pts, 3.0)
+    near = {}
+    for x, y in s:
+        for rb in rbg.near(x, y):
+            near[rb] = 1
+    if not near:
+        return pts
+    for cx, cy, r in near:
+        R2 = (r + margin) ** 2
+        inside = [(x - cx) ** 2 + (y - cy) ** 2 <= R2 for x, y in s]
+        # une courte sortie de l'anneau (bretelle, anneau mal centré) compte comme dedans : un seul passage
+        k = 0
+        while k < len(inside):
+            if inside[k]:
+                k += 1; continue
+            m = k
+            while m < len(inside) and not inside[m]:
+                m += 1
+            if 0 < k and m < len(inside) and (m - k) * 3.0 <= 45:
+                for t in range(k, m):
+                    inside[t] = True
+            k = m
+        out, i, n = [], 0, len(s)
+        while i < n:
+            if not inside[i]:
+                out.append(s[i]); i += 1; continue
+            j = i
+            while j < n and inside[j]:
+                j += 1
+            run = s[i:j]
+            # angle balayé autour du centre : une rue qui frôle l'anneau n'est pas déviée
+            sweep = abs(sum(_wrap(math.atan2(b[1] - cy, b[0] - cx) - math.atan2(a[1] - cy, a[0] - cx)) for a, b in zip(run, run[1:])))
+            if sweep < math.radians(35) and i > 0 and j < n:
+                out += run
+            else:
+                if i == 0:
+                    out.append(run[0])
+                out.append((cx, cy))
+                if j == n:
+                    out.append(run[-1])
+            i = j
+        s = out
+    return s
+
+
+def despike(pts, cos_max=-0.5):
+    """Retire les demi-tours brusques (pointe d'un aller-retour, raccord mal orienté) : le plan arrondit
+    les angles, et un demi-tour y dessinerait une longue pointe."""
+    pts = list(pts)
+    changed = True
+    while changed and len(pts) > 2:
+        changed = False
+        for k in range(1, len(pts) - 1):
+            ax, ay = pts[k][0] - pts[k - 1][0], pts[k][1] - pts[k - 1][1]
+            bx, by = pts[k + 1][0] - pts[k][0], pts[k + 1][1] - pts[k][1]
+            la, lb = math.hypot(ax, ay), math.hypot(bx, by)
+            if la < 1e-6 or lb < 1e-6 or (ax * bx + ay * by) / (la * lb) < cos_max:
+                del pts[k]
+                changed = True
+                break
+    return pts
+
+
+# ---------- terminus : pas de boucle de retournement ----------
+def path_len(pts):
+    return sum(math.hypot(b[0] - a[0], b[1] - a[1]) for a, b in zip(pts, pts[1:]))
+
+
+def trim_departure_loop(dep, stops_xy, arrivals, step=4.0, merge=25.0):
+    """Départ d'un terminus : la ligne s'arrête au terminus (tracé d'arrivée) ; le début du tracé de départ,
+    qui fait le tour pour repartir, n'est dessiné qu'à partir du point où il rejoint le tracé d'arrivée
+    (ou de son 2e arrêt s'il le dessert avant). Rien n'est coupé si ce n'est pas une boucle courte."""
+    s = resample(dep, step)
+    if len(s) < 4 or not arrivals:
+        return dep
+    g = Grid(merge)
+    for a in arrivals:
+        ra = resample(a, step)
+        L, acc = path_len(ra), 0.0
+        for k, (x, y) in enumerate(ra):
+            if k:
+                acc += math.hypot(x - ra[k - 1][0], y - ra[k - 1][1])
+            if L - acc > 40:  # sans les 40 derniers mètres (l'arrivée au terminus elle-même)
+                g.add(x, y, (x, y))
+    # 2e arrêt desservi
+    sx, sy = stops_xy[1]
+    i_s1 = min(range(len(s)), key=lambda i: (s[i][0] - sx) ** 2 + (s[i][1] - sy) ** 2)
+    acc, cut = 0.0, None
+    for i in range(1, len(s)):
+        acc += math.hypot(s[i][0] - s[i - 1][0], s[i][1] - s[i - 1][1])
+        if i >= i_s1:
+            cut = i_s1; break
+        if acc >= 40 and any((a - s[i][0]) ** 2 + (b - s[i][1]) ** 2 <= merge * merge for a, b in g.near(*s[i])):
+            cut = i; break
+    if not cut:
+        return dep
+    straight = math.hypot(s[cut][0] - s[0][0], s[cut][1] - s[0][1])
+    if straight > 300 or acc < 1.4 * max(straight, 1.0):
+        return dep
+    # raccord au tracé d'arrivée (point le plus proche), pour que le départ parte bien de la ligne
+    x, y = s[cut]
+    cand = [(a, b) for a, b in g.near(x, y)]
+    if cand:
+        q = min(cand, key=lambda c: (c[0] - x) ** 2 + (c[1] - y) ** 2)
+        if (q[0] - x) ** 2 + (q[1] - y) ** 2 <= (2 * merge) ** 2:
+            return despike([q] + s[cut:])
+    return s[cut:]
+
+
+def parallel_lines(data, step=8.0, dedupe=45.0, near=14.0, slot_m=10.0, oneway=50.0):
     R, PAT, SH, Q = data["R"], data["PAT"], data["SH"], data["Q"]
     shapes = [decode_shape(f) for f in SH]
     # polylignes par ligne, la plus fréquentée d'abord ; coupées aux arrêts de départ et d'arrivée
     per_route = defaultdict(dict)
     total = defaultdict(int)
+    longest = defaultdict(int)
+    for p in PAT:
+        longest[p[0]] = max(longest[p[0]], len(p[4]))
+    rbs = load_roundabouts()
+    rbg = Grid(60.0)
+    for rb in rbs:
+        rbg.add(rb[0], rb[1], rb)
+    xy = lambda q: to_m(Q[q][2], Q[q][1])
     for p in PAT:
         r, dr, sh, stops, trs = p[0], p[1], p[3], p[4], p[5]
         total[r] += len(trs)
+        # courses directes sans arrêt intermédiaire (U25 Clovis ⇄ ZI Pompelle) : autre itinéraire, pas dessiné
+        if len(stops) <= 2 < longest[r]:
+            continue
         key = ("s", sh, dr) if sh >= 0 else ("p", tuple(stops))
         if key not in per_route[r]:
             ll = shapes[sh] if sh >= 0 else [(Q[q][2], Q[q][1]) for q in stops]
             pts = [to_m(lo, la) for lo, la in ll]
             if sh >= 0:
-                pts = trim_to_stops(pts, to_m(Q[stops[0]][2], Q[stops[0]][1]), to_m(Q[stops[-1]][2], Q[stops[-1]][1]))
-            per_route[r][key] = [0, pts, dr]
+                pts = trim_to_stops(pts, xy(stops[0]), xy(stops[-1]))
+            if r < len(R) and R[r].get("m") != 1:
+                pts = through_roundabouts(pts, rbg)
+            per_route[r][key] = [0, pts, dr, [xy(q) for q in stops], stops[0], stops[-1]]
         per_route[r][key][0] += len(trs)
     for r in per_route:
         for k in [k for k, v in per_route[r].items() if v[0] < RARE * total[r]]:
             del per_route[r][k]
-    # sens unique : points d'une ligne que l'autre sens ne parcourt pas (à 25 m près)
+    # terminus : le départ ne montre pas la boucle de retournement
+    stop_of = lambda q: Q[q][0]
+    for r in per_route:
+        vals = list(per_route[r].values())
+        for v in vals:
+            arr = [w[1] for w in vals if w is not v and stop_of(w[5]) == stop_of(v[4])]
+            if arr and len(v[3]) >= 2:
+                v[1] = trim_departure_loop(v[1], v[3], arr)
+    # sens unique : points d'une ligne que l'autre sens ne parcourt pas (à 50 m près : au-delà de l'écart
+    # où les deux sens sont fusionnés en un seul trait)
     dir_grid = {}
     for r in per_route:
         dirs = {v[2] for v in per_route[r].values()}
         if len(dirs) < 2:
             continue
         for d in dirs:
-            g = Grid(25.0)
+            g = Grid(oneway)
             for v in per_route[r].values():
                 if v[2] == d:
                     for x, y in resample(v[1], step):
@@ -220,13 +383,37 @@ def parallel_lines(data, step=8.0, dedupe=20.0, near=14.0, slot_m=10.0):
     for r in sorted(per_route):
         polys = sorted(per_route[r].values(), key=lambda v: (-v[0], -len(v[1])))
         g = Grid(dedupe)
-        for _, pl, dr in polys:
+        for _, pl, dr, *_ in polys:
             s = resample(pl, step)
             if len(s) < 2:
                 continue
             cov = []
             for x, y in s:
-                cov.append(any((x - a) ** 2 + (y - b) ** 2 <= dedupe * dedupe for a, b in g.near(x, y)))
+                # les 50 premiers et derniers mètres d'un autre tracé ne couvrent pas : au terminus, l'arrivée
+                # et le départ se touchent à l'arrêt sans suivre la même rue
+                cov.append(any(not e and (x - a) ** 2 + (y - b) ** 2 <= dedupe * dedupe for a, b, e in g.near(x, y)))
+            # aller-retour dans la même course (cul-de-sac, « piston ») : le retour, en sens inverse
+            # sur la même rue, n'est pas redessiné : un seul trait jusqu'au bout
+            ds, sg, lag = directions(s), Grid(dedupe), 2
+            for i, (x, y) in enumerate(s):
+                if i >= lag:
+                    k = i - lag
+                    sg.add(s[k][0], s[k][1], (s[k][0], s[k][1], ds[k]))
+                if not cov[i]:
+                    cov[i] = any((x - a) ** 2 + (y - b) ** 2 <= dedupe * dedupe and ds[i][0] * e[0] + ds[i][1] * e[1] < -0.7
+                                 for a, b, e in sg.near(x, y))
+            # un contact bref (croisement de rues) ne coupe pas le trait
+            i = 0
+            while i < len(cov):
+                if not cov[i]:
+                    i += 1; continue
+                j = i
+                while j < len(cov) and cov[j]:
+                    j += 1
+                if j - i < 3 and i > 0 and j < len(cov):
+                    for t in range(i, j):
+                        cov[t] = False
+                i = j
             i = 0
             while i < len(s):
                 if cov[i]:
@@ -234,12 +421,36 @@ def parallel_lines(data, step=8.0, dedupe=20.0, near=14.0, slot_m=10.0):
                 j = i
                 while j < len(s) and not cov[j]:
                     j += 1
-                a, b = max(0, i - 1), min(len(s), j + 1)
-                if b - a >= 10:
-                    frags.append((r, s[a:b], dr))
+                if j - i >= 8 or ((i == 0 or j == len(s)) and j - i >= 2):  # bout de ligne : gardé même court
+                    # le morceau se raccroche au trait déjà dessiné (point le plus proche), sans trou ni crochet
+                    frag = s[i:j]
+                    for end, at in ((0, i - 1), (1, j)):
+                        if 0 <= at < len(s):
+                            x, y = s[at]
+                            # le trait qui a couvert ce point : autre tracé, ou retour de la même course
+                            cand = [(a, b) for a, b, e in g.near(x, y) if not e] + \
+                                   [(a, b) for a, b, e in sg.near(x, y) if ds[at][0] * e[0] + ds[at][1] * e[1] < -0.7]
+                            # seulement un point « derrière » le morceau (au départ) ou « devant » (à la fin)
+                            # sinon le trait ferait demi-tour sur lui-même
+                            px, py = frag[0] if end == 0 else frag[-1]
+                            dx, dy = ds[i] if end == 0 else ds[j - 1]
+                            # (à 60° près de la direction du trait : le raccord se fait en biais, pas en barreau d'échelle)
+                            cand = [c for c in cand if ((px - c[0]) * dx + (py - c[1]) * dy if end == 0 else (c[0] - px) * dx + (c[1] - py) * dy)
+                                    >= 0.5 * math.hypot(c[0] - px, c[1] - py)]
+                            if cand:
+                                q = min(cand, key=lambda c: (c[0] - x) ** 2 + (c[1] - y) ** 2)
+                                frag = [q] + frag if end == 0 else frag + [q]
+                            else:
+                                frag = [s[at]] + frag if end == 0 else frag + [s[at]]
+                    frag = despike(frag)
+                    if len(frag) >= 2:
+                        frags.append((r, frag, dr))
                 i = j
-            for x, y in s:
-                g.add(x, y, (x, y))
+            L, acc = path_len(s), 0.0
+            for k, (x, y) in enumerate(s):
+                if k:
+                    acc += math.hypot(x - s[k - 1][0], y - s[k - 1][1])
+                g.add(x, y, (x, y, acc < 50 or L - acc < 50))
 
     # 2) pour chaque point : quelles autres lignes empruntent la même rue (même axe)
     allg = Grid(near)
@@ -275,11 +486,11 @@ def parallel_lines(data, step=8.0, dedupe=20.0, near=14.0, slot_m=10.0):
         sm = med
         for _ in range(2):  # deux passes : transitions douces entre faisceaux
             sm = [sum(sm[max(0, i - 6): i + 7]) / len(sm[max(0, i - 6): i + 7]) for i in range(n)]
-        # sens unique : l'autre sens de la ligne ne passe pas à moins de 25 m (lissé pour ignorer les carrefours)
+        # sens unique : l'autre sens de la ligne ne passe pas à moins de 50 m (lissé pour ignorer les carrefours)
         og = dir_grid.get((r, 1 - dr)) if (r, 1 - dr) in dir_grid else None
         ow = [0] * n
         if og is not None:
-            raw_ow = [0 if any((a - x) ** 2 + (b - y) ** 2 <= 25.0 ** 2 for a, b in og.near(x, y)) else 1 for x, y in pts]
+            raw_ow = [0 if any((a - x) ** 2 + (b - y) ** 2 <= oneway ** 2 for a, b in og.near(x, y)) else 1 for x, y in pts]
             ow = [sorted(raw_ow[max(0, i - 4): i + 5])[len(raw_ow[max(0, i - 4): i + 5]) // 2] for i in range(n)]
         p3 = [(x, y, s * slot_m) for (x, y), s in zip(pts, sm)]
         idx = rdp3(p3, 3.0)  # tracé simplifié (le plan arrondit ensuite les angles sur un petit rayon)
