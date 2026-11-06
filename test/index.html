@@ -479,6 +479,33 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
 .mbbar .hint { flex: 1 1 160px; font-size: 12.5px; color: var(--muted); }
 .alertbtn { gap: 6px; }
 .alertbtn[aria-pressed="true"] { background: color-mix(in srgb, var(--accent) 12%, var(--surface)); color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, var(--rule)); }
+/* onglet Info trafic : « ! » animé quand une nouvelle info temps réel arrive */
+.tabbar .ico { position: relative; display: block; width: 22px; height: 22px; }
+.bang { position: absolute; left: -8px; bottom: -6px; width: 16px; height: 16px; border-radius: 50%; background: var(--alert); color: #fff; border: 2px solid var(--surface); font: 700 11px/16px var(--font-body); text-align: center; animation: wig 2.4s ease-in-out infinite; transform-origin: 50% 100%; }
+.bang[hidden] { display: none; }
+@keyframes wig { 0%, 55%, 100% { transform: rotate(0) scale(1); } 8% { transform: rotate(-20deg) scale(1.25); } 16% { transform: rotate(18deg) scale(1.25); } 24% { transform: rotate(-14deg) scale(1.1); } 32% { transform: rotate(10deg) scale(1.05); } 40% { transform: rotate(-5deg); } 48% { transform: rotate(0); } }
+.lpseg { display: flex; margin-bottom: 14px; }
+.lpseg button { flex: 1; }
+/* écran Info trafic */
+.trsec { display: flex; align-items: center; gap: 8px; margin: 6px 2px 0; }
+.trsec h3 { font: 600 12px/1.2 var(--font-display); text-transform: uppercase; letter-spacing: .08em; color: var(--ink); }
+.trsec small { color: var(--muted); font-size: 12.5px; }
+.trsec .live { width: 9px; height: 9px; border-radius: 50%; background: var(--alert); box-shadow: 0 0 0 4px color-mix(in srgb, var(--alert) 18%, transparent); }
+.tritem.trlive { border-color: color-mix(in srgb, var(--alert) 45%, var(--rule)); }
+.tag.live { background: var(--accent-strong); color: var(--accent-strong-ink); }
+.trzoom { align-self: flex-start; margin-top: 8px; }
+/* réseau fortement perturbé : bandeau orange + pop-up une fois par info */
+.netbar { flex: none; display: flex; align-items: center; gap: 10px; margin: 0 16px 8px; min-height: 40px; padding: 8px 12px; border: 0; border-radius: 12px; background: var(--accent-strong); color: var(--accent-strong-ink); font: 600 13.5px/1.25 var(--font-body); text-align: left; }
+.netbar[hidden] { display: none; }
+.netbar span { flex: 1; min-width: 0; }
+.mega { animation: shout 2.4s ease-in-out infinite; transform-origin: 30% 60%; }
+@keyframes shout { 0%, 60%, 100% { transform: rotate(0); } 10% { transform: rotate(-10deg) scale(1.06); } 20% { transform: rotate(8deg) scale(1.06); } 30% { transform: rotate(-6deg); } 40% { transform: rotate(4deg); } 50% { transform: rotate(0); } }
+.wv1 { animation: wave 1.2s ease-in-out infinite; } .wv2 { animation: wave 1.2s ease-in-out .3s infinite; }
+@keyframes wave { 0%, 100% { opacity: .15; } 50% { opacity: 1; } }
+#nightpop .np-ico.net { background: var(--accent); color: #fff; width: 72px; height: 72px; }
+#nightpop .np-alt { width: 100%; height: 44px; border: 0; border-radius: 14px; background: var(--sunk); color: var(--ink); font: 600 15px/1 var(--font-display); }
+.jcwarn { grid-column: 1 / -1; display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; color: var(--late); }
+.jcwarn.ok { color: var(--ok); }
 /* fin de service du réseau : bandeau discret + pop-up une fois par nuit */
 .nightbar { flex: none; display: flex; align-items: center; gap: 8px; margin: 0 16px 8px; min-height: 32px; padding: 6px 12px; border-radius: 999px; background: var(--sunk); color: var(--muted); font-size: 13px; font-weight: 500; }
 .nightbar[hidden] { display: none; }
@@ -587,8 +614,8 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
     <a href="#accueil" data-v="accueil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M4 10.5 12 4l8 6.5V20h-5.5v-5.5h-5V20H4z"/></svg>Accueil</a>
     <a href="#itineraire" data-v="itineraire"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="6" cy="5.5" r="2.5"/><rect x="15.5" y="16" width="5" height="5" rx="1"/><path d="M6 8v4.5a3 3 0 0 0 3 3h6.5"/></svg>Itinéraire</a>
     <a href="#passages" data-v="passages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2"/></svg>Passages</a>
-    <a href="#lignes" data-v="lignes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>Lignes</a>
-    <a href="#plans" data-v="plans"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M3 6.5 9 4l6 2.5L21 4v13.5L15 20l-6-2.5L3 20z"/><path d="M9 4v13.5M15 6.5V20"/></svg>Plans</a>
+    <a href="#trafic" data-v="trafic" id="tab-trafic"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3.5h4L18.5 20h-13z"/><path d="M8.5 9h7M7 14.5h10M3.5 20.5h17"/></svg><span class="bang" id="tr-bang" hidden>!</span></span>Info trafic</a>
+    <a href="#lignes" data-v="lignes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>Lignes &amp; plans</a>
   </nav>
 
   <aside class="sheet" id="sheet">
@@ -599,6 +626,7 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
       <button type="button" class="rt" id="rt" title="État du temps réel"><i></i><span>Temps réel…</span></button>
     </header>
     <div class="nightbar" id="nightbar" role="status" hidden></div>
+    <button type="button" class="netbar" id="netbar" hidden></button>
     <div class="scroll" id="scroll">
 
       <!-- Accueil -->
@@ -665,6 +693,7 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
 
       <!-- Lignes -->
       <section class="view" id="v-lignes" aria-label="Lignes">
+        <div class="seg lpseg" role="group" aria-label="Affichage"><button type="button" data-lp="lignes" aria-pressed="true">Lignes</button><button type="button" data-lp="plans" aria-pressed="false">Plans du réseau</button></div>
         <div id="li-grid" class="lgroup"></div>
         <div id="li-head"></div>
         <details class="when" id="li-when">
@@ -682,7 +711,7 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
 
       <!-- Plans du réseau -->
       <section class="view" id="v-plans" aria-label="Plans du réseau">
-        <div class="sec-h"><h2>Plans du réseau</h2></div>
+        <div class="seg lpseg" role="group" aria-label="Affichage"><button type="button" data-lp="lignes" aria-pressed="false">Lignes</button><button type="button" data-lp="plans" aria-pressed="true">Plans du réseau</button></div>
         <div id="pl-res" class="plgrid"></div>
         <footer class="src" id="pl-src"></footer>
       </section>
@@ -1128,9 +1157,9 @@ const store = { get(k) { try { return JSON.parse(localStorage.getItem("grm:" + k
 // pastilles de ligne : logos officiels, déclarés une seule fois dans une feuille de style
 const logoCls = (s) => "ln-" + s.replace(/[^A-Za-z0-9]/g, "");
 (function () { const st = document.createElement("style"); st.textContent = Object.entries(LINE_LOGOS).map(([k, [src, ar]]) => `.${logoCls(k)}{background-image:url(${src});--ar:${ar.toFixed(3)}}`).join("\n"); document.head.appendChild(st); })();
-const TR = { ok: false, items: [], at: null, src: "", byRoute: new Map(), filter: null, open: null };
+const TR = { ok: false, items: [], at: null, src: "", byRoute: new Map(), alert: new Set(), filter: null, open: null, zoom: null };
 const badge = (ri, size, noAlert) => {
-  const r = net.R[ri], al = !noAlert && TR.byRoute.has(ri) ? " al" : "";
+  const r = net.R[ri], al = !noAlert && TR.alert.has(ri) ? " al" : "";
   const t = esc(r.s + " · " + r.l + (al ? " · info trafic en cours" : ""));
   return LINE_LOGOS[r.s] ? `<span class="bdi ${logoCls(r.s)}${size ? " " + size : ""}${al}" role="img" aria-label="Ligne ${esc(r.s)}" title="${t}"></span>`
     : `<span class="bd${r.m === 1 ? " tram" : ""}${size ? " " + size : ""}${al}" style="background:${r.c};color:${r.t}" title="${t}">${esc(r.s)}</span>`;
@@ -1367,7 +1396,7 @@ function tripCardHtml(a, b, k) {
 }
 function renderHome() {
   if (S.view !== "accueil") return;
-  const trh = trHomeHtml(); $("#trhome").innerHTML = trh; $("#trhome").style.display = trh ? "" : "none";
+  $("#trhome").style.display = "none"; // l'info trafic a son onglet
   // autour de moi
   let h = `<div class="sec-h"><h2>Autour de moi</h2>${ME.pos ? `<span class="lbl">± ${Math.round(ME.acc)} m</span>` : ""}</div>`;
   if (!ME.pos) {
@@ -1412,6 +1441,12 @@ const syncMode = () => { $("#it-dep").setAttribute("aria-pressed", S.mode === "d
 $("#it-dep").addEventListener("click", () => { S.mode = "dep"; syncMode(); itFollowNow = false; runIt(); });
 $("#it-arr").addEventListener("click", () => { S.mode = "arr"; syncMode(); itFollowNow = false; runIt(); });
 
+// réseau fortement perturbé : mention sous chaque trajet
+function jcWarn(j) {
+  const rides = j.legs.filter((g) => g.type === "ride"); if (!rides.length) return "";
+  if (rides.some((g) => net.R[net.pats[g.pat].r].m !== 1)) return `<div class="jcwarn">${alertSvg.replace('width="18" height="18"', 'width="15" height="15"')}Course peut-être non assurée (réseau perturbé)</div>`;
+  return /\btram/.test(trText(TR.net)) ? "" : `<div class="jcwarn ok">${okSvg.replace('width="18" height="18"', 'width="15" height="15"')}Tram non concerné par l'alerte</div>`;
+}
 function runIt(noFit) {
   syncItStar();
   if (itFollowNow) { const n = parisNow(); if (inRange(n.iso)) { $("#it-date").value = n.iso; $("#it-time").value = toVal(n.min); } }
@@ -1445,6 +1480,7 @@ function runIt(noFit) {
         <div class="chain">${chain}</div>
         <div class="meta">${nCh === 0 ? "Direct" : nCh + " correspondance" + (nCh > 1 ? "s" : "")}</div>
         ${next}
+        ${isToday && TR.net ? jcWarn(j) : ""}
         ${tags.length ? `<div class="chain" style="grid-column:1/-1">${tags.join("")}</div>` : ""}
       </button>
       <div class="tl">${isToday ? `<button type="button" class="btn primary guidebtn" data-guide="${k}">${bellSvg.replace('width="40" height="40"', 'width="18" height="18"')}Me guider jusqu'à l'arrivée</button>` : ""}${timeline(j, k)}</div>
@@ -1940,9 +1976,115 @@ function followCam(force) {
 const trActive = () => { const t = parisNow().iso; return TR.items.filter((x) => !x.end || x.end >= t); };
 const trStatus = (x) => x.start && x.start > parisNow().iso ? "soon" : "now";
 const trRoutes = (x) => x.lines.map((s) => net.R.findIndex((r) => r.s === s)).filter((i) => i >= 0);
+// --- tri des infos ---
+const trPlain = (s) => (s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+const trText = (x) => trPlain([x.t, x.p, ...(x.b || []).map((b) => (b.r || []).map((r) => r[0]).join(""))].join(" "));
+// temps réel : rubrique du site si le relevé la donne, sinon une info sans dates (« aujourd'hui », panne…)
+const trRT = (x) => x.rt != null ? !!x.rt : !x.start && !x.end && !/a partir|jusqu|\bdu \d|\bau \d/.test(trPlain(x.p));
+// gêne le trajet (pastille « ! ») : déviation, arrêt non desservi, bus non assuré… mais pas un simple arrêt déplacé
+const TR_GENE = /devi|non desservi|ne (sera|seront|sont|est) (pas|plus) desservi|pas desservi|non assure|pas assure|suspendu|interrompu|supprime|forte perturbation|perturbation sur les horaires|ne circule|ne roule|retard|fige|arret(e|ee)s? de circul/;
+const TR_DEPLACE = /report|deplace|nouvel(le)?s? arret|transfer/;
+const trGene = (x) => { const t = trText(x); return TR_GENE.test(t) || !TR_DEPLACE.test(t); };
+// tout le réseau : info temps réel sans ligne précise (ou presque toutes) + mot-clé ; ni panne technique ni tram seul
+const TR_NET = /neige|verglas|intemperie|tempete|inondation|manifestation|greve|mouvement social|reseau (est )?(interrompu|suspendu|bloque|arrete|paralyse)|ensemble du reseau|tout le reseau|toutes les lignes|circulation des bus/;
+function trNetwork(x) {
+  if (!trRT(x) || trStatus(x) !== "now") return false;
+  const rs = trRoutes(x), t = trText(x);
+  if (rs.length && rs.length < Math.max(12, net.R.length * 0.6)) return false;
+  if (rs.length && rs.every((r) => net.R[r].m === 1)) return false; // tram seul
+  if (/\btram/.test(t) && !/bus|reseau|lignes/.test(t)) return false;
+  return TR_NET.test(t);
+}
 function trIndex() {
-  TR.byRoute = new Map();
-  trActive().forEach((x) => { if (trStatus(x) !== "now") return; trRoutes(x).forEach((ri) => { if (!TR.byRoute.has(ri)) TR.byRoute.set(ri, []); TR.byRoute.get(ri).push(x); }); });
+  TR.byRoute = new Map(); TR.alert = new Set();
+  trActive().forEach((x) => { if (trStatus(x) !== "now") return; const g = trGene(x); trRoutes(x).forEach((ri) => { if (!TR.byRoute.has(ri)) TR.byRoute.set(ri, []); TR.byRoute.get(ri).push(x); if (g) TR.alert.add(ri); }); });
+  trBang(); trNetCheck();
+}
+// --- « ! » sur l'onglet : nouvelle info temps réel pas encore vue ---
+const trLive = () => TR.ok ? trActive().filter((x) => trRT(x) && trStatus(x) === "now") : [];
+function trBang() {
+  const seen = new Set(store.get("trSeen") || []);
+  const fresh = trLive().some((x) => !seen.has(x.id));
+  const b = $("#tr-bang"); if (b) b.hidden = !fresh || S.view === "trafic";
+  $("#tab-trafic")?.setAttribute("aria-label", fresh ? "Info trafic, nouvelle info en temps réel" : "Info trafic");
+}
+function trMarkSeen() { if (!TR.ok) return; store.set("trSeen", trLive().map((x) => x.id)); trBang(); }
+// --- réseau fortement perturbé ---
+const megaSvg = (n, waves) => `<svg width="${n}" height="${n}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${n > 24 ? 1.9 : 2}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><g class="mega"><path d="M3.5 10v4h3l7 4.5v-13l-7 4.5z"/><path d="M6.5 14l1.2 4.5h2.3l-1-4"/></g><path class="${waves ? "wv1" : ""}" d="M16.5 9.5a3.5 3.5 0 0 1 0 5"/><path class="${waves ? "wv2" : ""}" d="M18.8 7.2a7 7 0 0 1 0 9.6"/></svg>`;
+const trShort = (x) => { const t = (x.b || []).map((b) => (b.r || []).map((r) => r[0]).join("")).find((t) => t && t.length > 20) || ""; const ti = x.t.replace(/[\s:]+$/, ""); return (t ? ti + (/[.!?]$/.test(ti) ? " " : ". ") + t : ti).slice(0, 220); };
+function trNetCheck() {
+  const bar = $("#netbar"); if (!bar) return;
+  const x = TR.ok ? trActive().find(trNetwork) : null;
+  TR.net = x || null;
+  if (!x) { bar.hidden = true; return; }
+  bar.innerHTML = `${megaSvg(20)}<span>Réseau fortement perturbé · ${esc(x.t)}</span>${chevR}`;
+  bar.hidden = false;
+  bar.onclick = () => openTrafic({ open: x.id });
+  const seen = store.get("netSeen") || [];
+  if (!seen.includes(x.id)) { store.set("netSeen", [...seen, x.id].slice(-30)); netPop(x); }
+}
+function netPop(x) {
+  let el = $("#nightpop");
+  if (!el) { el = document.createElement("div"); el.id = "nightpop"; document.body.appendChild(el); }
+  el.innerHTML = `<div class="np-in" role="alertdialog" aria-modal="true" aria-labelledby="np-t" aria-describedby="np-d">
+    <span class="np-ico net">${megaSvg(40, true)}</span>
+    <h2 id="np-t">Réseau fortement perturbé</h2>
+    <p id="np-d">${esc(trShort(x))}</p>
+    <p class="np-s">grandreims-mobilites.fr</p>
+    <button type="button" class="np-ok">Voir l'info trafic</button>
+    <button type="button" class="np-alt">Fermer</button>
+  </div>`;
+  const close = () => { el.classList.remove("on"); document.removeEventListener("keydown", k); };
+  const k = (e) => { if (e.key === "Escape") close(); };
+  $(".np-ok", el).onclick = () => { close(); openTrafic({ open: x.id }); };
+  $(".np-alt", el).onclick = close;
+  el.onclick = (e) => { if (e.target === el) close(); };
+  document.addEventListener("keydown", k);
+  el.classList.add("on");
+  setTimeout(() => { try { $(".np-ok", el).focus(); } catch (e) {} }, 50);
+}
+// --- zoom sur le plan : arrêts reportés, déviations, ou commune ---
+const stopKey = (s) => norm(s).replace(/\bsainte?\b/g, "st").replace(/\bgare de reims centre\b/, "gare centre").replace(/\s+/g, " ").trim();
+let _stopKeys = null;
+function findStopFuzzy(name) {
+  if (!_stopKeys) _stopKeys = net.P.map((p, i) => [stopKey(p[0]), i]);
+  const k = stopKey(name.replace(/^arr[eê]ts?\s+/i, "").replace(/\s+de (la|a) ligne.*$/i, "").replace(/\s+\(.*$/, ""));
+  if (!k) return -1;
+  const ex = _stopKeys.find(([n]) => n === k); if (ex) return ex[1];
+  const part = _stopKeys.filter(([n]) => n.startsWith(k + " ") || n.endsWith(" " + k) || k.startsWith(n + " ")).sort((a, b) => a[0].length - b[0].length);
+  return part.length ? part[0][1] : -1;
+}
+function trTargets(x) {
+  const old = [], neu = [], pairs = [];
+  for (const b of x.b || []) {
+    const r = b.r || []; let from = -1;
+    for (let i = 0; i < r.length; i++) {
+      if (!r[i][1]) continue;
+      const before = trPlain(r[i - 1] ? r[i - 1][0] : "");
+      const name = r[i][0];
+      if (/arrets?\s*$/.test(before) && from < 0) { const k = findStopFuzzy(name); if (k >= 0) { from = k; if (!old.includes(k)) old.push(k); } }
+      else if (/(report|deplace|transfer)\w*\s+(a|au|a l'|vers)?\s*l?'?$/.test(before) || /^arr[eê]t /i.test(name)) {
+        const k = findStopFuzzy(name); if (k >= 0 && k !== from) { if (!neu.includes(k)) neu.push(k); if (from >= 0) pairs.push([from, k]); }
+      }
+    }
+  }
+  if (old.length || neu.length) return { old, neu, pairs, pts: [...old, ...neu].map((i) => [net.P[i][2], net.P[i][1]]) };
+  // pas d'arrêt nommé : la commune citée dans le titre (« … à Treslon »)
+  const words = (x.t.match(/[A-ZÉÈÀÂÎÔÛ][\wéèêàâîôûç'-]{3,}/g) || []).filter((w) => !/^(Travaux|Report|Reports|Nouveaux|Nouvel|Arr[eê]t|Ligne|Lignes|Horaires|Avenue|Boulevard|Rue|Place|Pont|Route|Chemin)$/i.test(w));
+  for (const w of words) {
+    const k = stopKey(w); const hits = net.P.map((p, i) => [stopKey(p[0]), i]).filter(([n]) => (" " + n + " ").includes(" " + k + " ")).map(([, i]) => i);
+    if (hits.length && hits.length < 25) return { old: [], neu: [], pairs: [], zone: hits, pts: hits.map((i) => [net.P[i][2], net.P[i][1]]) };
+  }
+  return null;
+}
+function trZoom(x) {
+  const T = trTargets(x);
+  TR.zoom = { id: x.id, routes: trRoutes(x), ...(T || { old: [], neu: [], pairs: [], pts: [] }) };
+  if (T && T.pts.length) {
+    if (isMobile() && sheetState === "full") setSheet("half", true);
+    if (T.pts.length === 1) centerOn(PX(T.pts[0][0]), PY(T.pts[0][1]), Math.max(view.s, 30000), true); else fitBox(T.pts, 70);
+  } else if (TR.zoom.routes.length === 1) fitLine(TR.zoom.routes[0]);
+  drawMap();
 }
 async function loadTrafic() {
   try {
@@ -1965,6 +2107,7 @@ document.addEventListener("click", (e) => {
   const items = [...new Set(lines.flatMap((r) => TR.byRoute.get(r) || []))];
   openTrafic({ lines: lines.length === 1 ? lines : null, open: items.length === 1 ? items[0].id : null });
 });
+document.addEventListener("click", (e) => { const b = e.target.closest("[data-lp]"); if (b) go(b.dataset.lp); });
 function openTrafic(o) { TR.filter = o.lines || null; TR.open = o.open || null; if (S.view !== "trafic") S.prevView = S.view; go("trafic"); }
 function trHomeHtml() {
   if (!TR.ok) return "";
@@ -1990,11 +2133,14 @@ function trItem(x) {
     const ri = b.l ? net.R.findIndex((r) => r.s === b.l) : -1;
     return `<div class="rw">${ri >= 0 ? badge(ri, "sm", true) : ""}<span>${runsHtml(b.r || [])}</span></div>`;
   }).join("");
-  return `<details class="tritem" data-id="${esc(x.id)}"${TR.open === x.id ? " open" : ""}><summary><span class="tt2">${esc(x.t)}</span><svg class="chev" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 5 4 4 4-4"/></svg>${x.p ? `<span class="pp">${esc(x.p)}</span>` : ""}<span class="bs"><span class="tag ${st}">${st === "now" ? "En cours" : "À venir"}</span>${trRoutes(x).map((r) => badge(r, "sm", true)).join("")}</span></summary>${body ? `<div class="body">${body}</div>` : ""}</details>`;
+  const rt = trRT(x) && st === "now";
+  const zoomable = !!trTargets(x) || trRoutes(x).length === 1;
+  const zb = zoomable ? `<button type="button" class="linkbtn trzoom" data-zoom="${esc(x.id)}">Voir sur le plan ${chevR}</button>` : "";
+  return `<details class="tritem${rt ? " trlive" : ""}" data-id="${esc(x.id)}"${TR.open === x.id ? " open" : ""}><summary><span class="tt2">${esc(x.t)}</span><svg class="chev" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 5 4 4 4-4"/></svg>${x.p ? `<span class="pp">${esc(x.p)}</span>` : ""}<span class="bs"><span class="tag ${rt ? "live" : st}">${rt ? "En direct" : st === "now" ? "En cours" : "À venir"}</span>${trRoutes(x).map((r) => badge(r, "sm")).join("")}</span></summary>${body || zb ? `<div class="body">${body}${zb}</div>` : ""}</details>`;
 }
 function renderTrafic() {
   const head = $("#tr-head"), res = $("#tr-res");
-  let h = `<div class="vhead"><button type="button" class="icon-btn" id="tr-back" aria-label="Retour">${backSvg}</button><h2>Info trafic</h2></div>`;
+  let h = `<div class="vhead"><h2>Info trafic</h2></div>`;
   if (!TR.ok) {
     head.innerHTML = h;
     res.innerHTML = `<div class="empty">${/claude/.test(location.hostname) ? "L'info trafic ne peut pas être chargée dans cette page hébergée sur claude.ai. Elle fonctionne sur la version GitHub." : "Info trafic indisponible pour le moment."}</div>`;
@@ -2005,14 +2151,21 @@ function renderTrafic() {
     h += `<div class="trf" role="group" aria-label="Filtrer par ligne" style="margin-top:12px"><button type="button" data-f="" aria-pressed="${!f}">Toutes</button>${lines.map((r) => `<button type="button" data-f="${r}" aria-pressed="${!!f && f.length === 1 && f[0] === r}" aria-label="Ligne ${esc(net.R[r].s)}">${badge(r, "sm", true)}</button>`).join("")}</div>`;
     head.innerHTML = h;
     const list = (f ? act.filter((x) => trRoutes(x).some((r) => f.includes(r))) : act).slice().sort((a, b) => (trStatus(a) === "soon") - (trStatus(b) === "soon"));
-    res.innerHTML = list.length ? list.map(trItem).join("") : `<div class="empty">Aucune perturbation annoncée${f ? " sur cette ligne" : ""}.</div>`;
+    const live = list.filter((x) => trRT(x) && trStatus(x) === "now"), byLine = list.filter((x) => !live.includes(x));
+    res.innerHTML = `<div class="trsec"><span class="live" aria-hidden="true"></span><h3>Temps réel</h3><small>${live.length ? live.length + " en cours" : "rien à signaler"}</small></div>`
+      + (live.length ? live.map(trItem).join("") : `<div class="empty" style="padding:6px 4px">Aucune perturbation en direct${f ? " sur cette ligne" : ""}.</div>`)
+      + `<div class="trsec" style="margin-top:10px"><h3>Par ligne</h3><small>${byLine.length} perturbation${byLine.length > 1 ? "s" : ""}</small></div>`
+      + (byLine.length ? byLine.map(trItem).join("") : `<div class="empty" style="padding:6px 4px">Aucune perturbation annoncée${f ? " sur cette ligne" : ""}.</div>`);
     const at = TR.at ? new Date(TR.at).toLocaleString("fr-FR", { timeZone: "Europe/Paris", weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }) : "";
     $("#tr-src").innerHTML = `Source : <a href="${esc(TR.src || "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html")}" target="_blank" rel="noopener">grandreims-mobilites.fr</a>, relevée automatiquement toutes les 15 minutes environ.${at ? ` Dernier changement : ${esc(at)}.` : ""}`;
     if (TR.open) { const el = res.querySelector(`[data-id="${CSS.escape(TR.open)}"]`); if (el) setTimeout(() => el.scrollIntoView({ block: "nearest" }), 50); }
   }
-  $("#tr-back").onclick = () => go(S.prevView && !["trafic", "suivi"].includes(S.prevView) ? S.prevView : "accueil");
   head.querySelectorAll("[data-f]").forEach((b) => b.onclick = () => { TR.filter = b.dataset.f === "" ? null : [+b.dataset.f]; TR.open = null; renderTrafic(); if (TR.filter) fitLine(TR.filter[0]); else fitHome(); drawMap(); });
-  res.querySelectorAll("details").forEach((d) => d.addEventListener("toggle", () => { if (d.open) TR.open = d.dataset.id; else if (TR.open === d.dataset.id) TR.open = null; }));
+  res.querySelectorAll("details").forEach((d) => d.addEventListener("toggle", () => {
+    if (d.open) { TR.open = d.dataset.id; const x = TR.items.find((y) => y.id === d.dataset.id); if (x && (trTargets(x) || trRoutes(x).length === 1)) trZoom(x); }
+    else if (TR.open === d.dataset.id) { TR.open = null; if (TR.zoom && TR.zoom.id === d.dataset.id) { TR.zoom = null; drawMap(); } }
+  }));
+  res.querySelectorAll("[data-zoom]").forEach((b) => b.addEventListener("click", () => { const x = TR.items.find((y) => y.id === b.dataset.zoom); if (x) trZoom(x); }));
   drawMap();
 }
 
@@ -2076,7 +2229,9 @@ function route() {
   S.view = ["accueil", "itineraire", "passages", "lignes", "suivi", "trafic", "plans"].includes(v) ? v : "accueil";
   if (S.view === "suivi" && !S.follow && !S.guide) { S.view = "accueil"; }
   $$(".view").forEach((s) => s.classList.toggle("on", s.id === "v-" + S.view));
-  const tabV = S.view === "trafic" ? "accueil" : S.view;
+  const tabV = S.view === "plans" ? "lignes" : S.view;
+  if (S.view === "trafic") trMarkSeen();
+  if (S.view !== "trafic") TR.zoom = null;
   $$(".tabbar a").forEach((a) => { if (a.dataset.v === tabV) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
   $("#scroll").scrollTop = 0;
   hidePop();
@@ -2241,6 +2396,11 @@ function highlight() {
     if (dest != null && dest < p.nS - 1) H.legs.push({ pts: segmentD(pi, end, g.sOff[p.nS - 1]), c: net.R[p.r].c, faded: true });
     p.stops.forEach((q) => H.stops.push(net.Q[q][0]));
     if (dest != null) H.ends.push([net.Q[p.stops[dest]][0], "to"]);
+  } else if (S.view === "trafic" && TR.zoom) {
+    const Z = TR.zoom;
+    H.routes = Z.routes.length ? new Set(Z.routes) : null;
+    [...Z.old, ...Z.neu, ...(Z.zone || [])].forEach((i) => H.stops.push(i));
+    H.tr = Z;
   } else if (S.view === "trafic" && TR.filter) {
     H.routes = new Set(TR.filter);
   } else if (S.view === "accueil") {
@@ -2420,6 +2580,29 @@ function paint() {
     if (kind === "to") roundRect(x - 7.5, y - 7.5, 15, 15, 3); else ctx.arc(x, y, 8, 0, 7);
     ctx.fillStyle = kind === "to" ? C.ink : C.surf; ctx.fill(); ctx.lineWidth = 3.5; ctx.strokeStyle = C.ink; ctx.stroke();
   });
+  // info trafic : arrêt habituel barré, arrêt de report entouré, flèche en pointillé de l'un à l'autre
+  if (hl.tr) {
+    const al = css("--alert");
+    ctx.save(); ctx.setLineDash([5, 5]); ctx.lineWidth = 2.2; ctx.strokeStyle = al; ctx.fillStyle = al;
+    for (const [a, b] of hl.tr.pairs) {
+      const [x1, y1] = geoS(net.P[a][2], net.P[a][1]), [x2, y2] = geoS(net.P[b][2], net.P[b][1]);
+      const d = Math.hypot(x2 - x1, y2 - y1); if (d < 24) continue;
+      const ux = (x2 - x1) / d, uy = (y2 - y1) / d, ex = x2 - ux * 14, ey = y2 - uy * 14;
+      ctx.beginPath(); ctx.moveTo(x1 + ux * 11, y1 + uy * 11); ctx.lineTo(ex, ey); ctx.stroke();
+      ctx.setLineDash([]); ctx.beginPath(); ctx.moveTo(ex + ux * 2, ey + uy * 2); ctx.lineTo(ex - ux * 8 - uy * 5, ey - uy * 8 + ux * 5); ctx.lineTo(ex - ux * 8 + uy * 5, ey - uy * 8 - ux * 5); ctx.closePath(); ctx.fill(); ctx.setLineDash([5, 5]);
+    }
+    ctx.restore();
+    for (const i of hl.tr.neu) {
+      const [x, y] = geoS(net.P[i][2], net.P[i][1]);
+      ctx.beginPath(); ctx.arc(x, y, 14, 0, 7); ctx.fillStyle = al; ctx.globalAlpha = 0.18; ctx.fill(); ctx.globalAlpha = 1;
+      ctx.beginPath(); ctx.arc(x, y, 8, 0, 7); ctx.fillStyle = C.surf; ctx.fill(); ctx.lineWidth = 3.5; ctx.strokeStyle = al; ctx.stroke();
+    }
+    for (const i of hl.tr.old) {
+      const [x, y] = geoS(net.P[i][2], net.P[i][1]);
+      ctx.beginPath(); ctx.arc(x, y, 8, 0, 7); ctx.fillStyle = C.surf; ctx.fill(); ctx.lineWidth = 2.2; ctx.strokeStyle = C.muted; ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x - 4, y - 4); ctx.lineTo(x + 4, y + 4); ctx.moveTo(x + 4, y - 4); ctx.lineTo(x - 4, y + 4); ctx.lineWidth = 2; ctx.stroke();
+    }
+  }
   // ma position
   if (ME.pos) {
     const [x, y] = geoS(ME.pos[1], ME.pos[0]);
