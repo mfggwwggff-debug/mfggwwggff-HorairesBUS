@@ -204,6 +204,9 @@ def tram_paths(data):
         p[3] = len(SH) - 1
 
 
+GAP = 0.22  # liseré entre deux lignes, en largeur de ligne de base
+WGT = []
+
 # ---------- tronçons communs ----------
 def decode_shape(flat):
     out, x, y = [], 0, 0
@@ -443,6 +446,9 @@ def trim_departure_loop(dep, stops_xy, arrivals, step=4.0, merge=25.0):
 
 
 def parallel_lines(data, step=8.0, dedupe=45.0, near=14.0, slot_m=10.0, oneway=50.0):
+    # largeur relative de chaque ligne dans un faisceau (mêmes rapports que lineK dans map.js)
+    global WGT
+    WGT = [1.4 if r.get("m") == 1 else 1.0 if r["s"] in ("O1", "O2", "U1", "U2") else 0.72 for r in data["R"]]
     R, PAT, SH, Q = data["R"], data["PAT"], data["SH"], data["Q"]
     shapes = [decode_shape(f) for f in SH]
     # polylignes par ligne, la plus fréquentée d'abord ; coupées aux arrêts de départ et d'arrivée
@@ -599,7 +605,10 @@ def parallel_lines(data, step=8.0, dedupe=45.0, near=14.0, slot_m=10.0, oneway=5
             n, k = len(group), group.index(r)
             lead = group[0]
             sign = 1 if lead == r else (1 if seen[lead] > 0 else -1)
-            raw.append(sign * (k - (n - 1) / 2))
+            # place pondérée par la largeur des lignes (tram plus large…) + liseré entre deux lignes
+            ws = [WGT[g] for g in group]
+            tot = sum(ws) + GAP * (n - 1)
+            raw.append(sign * (sum(ws[:k]) + GAP * k + ws[k] / 2 - tot / 2))
         # lissage : médiane (supprime les faux contacts aux carrefours) puis moyenne glissante
         n = len(raw)
         med = [sorted(raw[max(0, i - 3): i + 4])[len(raw[max(0, i - 3): i + 4]) // 2] for i in range(n)]
@@ -622,7 +631,7 @@ def parallel_lines(data, step=8.0, dedupe=45.0, near=14.0, slot_m=10.0, oneway=5
             lo, la = from_m(pts[i][0], pts[i][1])
             X, Y = round(lo * 1e5), round(la * 1e5)
             coords += [X - px, Y - py]; px, py = X, Y
-            slots.append(round(sm[i] * 4))
+            slots.append(round(sm[i] * 10))
             ows.append(ow[i])
         out.append([r, coords, slots, ows] if any(ows) else [r, coords, slots])
     data["LN"] = out

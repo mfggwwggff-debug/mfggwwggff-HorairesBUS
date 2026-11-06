@@ -39,7 +39,7 @@ const dotted = (ri) => /^E\d|^C$/.test(net.R[ri].s);
 // les calculs (itinéraires, marche) gardent les vraies positions.
 // encore en essai : seulement sur la page de test
 const CAPS_ON = /\/test\//.test(location.pathname);
-const POLES = (CAPS_ON ? ["Gare de Reims - Centre", "Opéra-Cathédrale"] : []).map((nm) => net.P.findIndex((p) => p[0] === nm)).filter((i) => i >= 0).map((i) => {
+const POLES = ([]).map((nm) => net.P.findIndex((p) => p[0] === nm)).filter((i) => i >= 0).map((i) => {
   const qs = net.P[i][3].filter((q) => net.pats.some((p) => net.R[p.r].m !== 1 && p.stops.includes(q)));
   const cx = qs.reduce((a, q) => a + PX(net.Q[q][2]), 0) / qs.length, cy = qs.reduce((a, q) => a + PY(net.Q[q][1]), 0) / qs.length;
   return { P: i, qs, cx, cy, R: 260 / 111320 };
@@ -120,6 +120,34 @@ function getOneWay() {
     if (ok && ang !== null) oneWayStops.set(P, -ang);
   });
   return oneWayStops;
+}
+
+// quais : lignes qui s'y arrêtent (parcours fréquents) et quais de terminus, calculés au premier besoin
+let quayInfo = null;
+function getQuays() {
+  if (quayInfo) return quayInfo;
+  const tot = net.R.map(() => 0); net.pats.forEach((p) => { tot[p.r] += p.nT; });
+  const routes = new Map(), mid = new Set(), end = new Set(), byP = net.P.map(() => []);
+  net.pats.forEach((p) => {
+    if (p.nT < 0.04 * tot[p.r]) return;
+    p.stops.forEach((q, k) => {
+      let s = routes.get(q); if (!s) { routes.set(q, s = new Set()); byP[net.Q[q][0]].push(q); }
+      s.add(p.r);
+      (k === 0 || k === p.nS - 1 ? end : mid).add(q);
+    });
+  });
+  const term = new Set([...end].filter((q) => !mid.has(q)));
+  return (quayInfo = { routes, term, byP });
+}
+function nearOn(O, x, y) {
+  let best = null;
+  for (let i = 0; i < O.length - 1; i++) {
+    const [ax, ay] = O[i], [bx, by] = O[i + 1], dx = bx - ax, dy = by - ay, L2 = dx * dx + dy * dy;
+    const t = L2 ? Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / L2)) : 0;
+    const px = ax + t * dx, py = ay + t * dy, d = Math.hypot(px - x, py - y);
+    if (!best || d < best.d) { const L = Math.sqrt(L2) || 1; best = { d, x: px, y: py, tx: dx / L, ty: dy / L }; }
+  }
+  return best;
 }
 
 // ---------- véhicules : position estimée ----------
@@ -242,7 +270,7 @@ const LN = [];
   for (let i = 1; i <= n; i++) {
     if (i < n && ow[i] === ow[a]) continue;
     const b = Math.min(i, n - 1), xs = XS.slice(a, b + 1), ys = YS.slice(a, b + 1);
-    if (xs.length >= 2) LN.push({ r, xs, ys, sl: sl.slice(a, b + 1).map((v) => v / 4), one: ow[a] === 1, box: [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)] });
+    if (xs.length >= 2) LN.push({ r, xs, ys, sl: sl.slice(a, b + 1).map((v) => v / 10), one: ow[a] === 1, box: [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)] });
     a = i;
   }
 });
@@ -357,7 +385,11 @@ function paint() {
   const caseC = css("--map-case");
   const hl = highlight();
   const z = view.s / 9000;
-  const lw = Math.max(2, Math.min(6, 2.6 * Math.pow(z, 0.5)));
+  // largeur des lignes : suit le zoom comme une largeur au sol (~9 m pour une ligne de base), bornée à l'écran
+  const pxm = view.s / 111320;
+  const lw = Math.max(1.8, Math.min(14, 9 * pxm));
+  const GAPW = 0.22 * lw, OUTW = lw > 3 ? 1.2 : 0.7; // liseré blanc entre les lignes, contour foncé du faisceau
+  const outC = isDark() ? "rgba(0,0,0,.85)" : "rgba(22,30,38,.72)", sepC = isDark() ? "#2a2f35" : "#ffffff";
   ctx.lineJoin = "round"; ctx.lineCap = "round";
   const focus = hl.routes && hl.routes.size > 0;
   const journey = hl.legs.length > 0;
@@ -366,11 +398,12 @@ function paint() {
   const sp = lw;
   const [vx0, vy1] = fromS(-40, -40), [vx1, vy0] = fromS(W + 40, H + 40);
   const visible = (b) => !(b[2] < vx0 || b[0] > vx1 || b[3] < vy0 || b[1] > vy1);
+  const frameFr = net.R.map(() => []);
   for (const pass of [0, 1]) {
     for (const ri of order) {
       const on = !focus || hl.routes.has(ri);
       const strong = on && focus && !journey;
-      const w = lw * lineK(ri) * (strong ? 1.35 : 1) + 0.4;
+      const w = lw * lineK(ri) * (strong ? 1.15 : 1);
       ctx.globalAlpha = !focus ? 1 : journey ? 0.16 : on ? 1 : 0.14;
       if (pass === 0 && ctx.globalAlpha < 0.5) continue;
       if (LN.length) {
@@ -378,7 +411,9 @@ function paint() {
           if (!visible(f.box)) continue;
           const fw = f.one ? Math.max(1.6, w * 0.6) : w;
           offsetPath(f, sp);
-          if (pass === 0) { ctx.strokeStyle = caseC; ctx.lineWidth = fw + 3.5; ctx.stroke(); continue; }
+          if (pass === 0) { ctx.strokeStyle = ctx.globalAlpha < 0.5 ? caseC : outC; ctx.lineWidth = fw + GAPW + 2 * OUTW; ctx.stroke(); continue; }
+          frameFr[ri].push({ O: f.O, w: fw });
+          ctx.strokeStyle = sepC; ctx.lineWidth = fw + GAPW; ctx.stroke();
           ctx.strokeStyle = net.R[ri].c; ctx.lineWidth = fw; ctx.stroke();
           if (dotted(ri) && fw >= 2.4) { ctx.save(); ctx.setLineDash([0.01, Math.max(4, fw * 1.7)]); ctx.strokeStyle = "rgba(255,255,255,.62)"; ctx.lineWidth = Math.max(1.3, fw * 0.45); ctx.stroke(); ctx.restore(); }
           if (f.one && z > 1.6 && ctx.globalAlpha > 0.5) arrowsOn(f.O, net.R[ri].c, fw);
@@ -398,39 +433,74 @@ function paint() {
   }
   const hs = new Set(hl.stops);
   const showAll = z > 1.7;
-  // capsules des pôles (à la place du point), quand on est assez près
-  const capsOn = z > 0.75, capP = new Set();
-  if (capsOn) for (const o of POLES) {
-    if (focus && !net.pRoutes[o.P].some((r) => hl.routes.has(r))) continue;
-    const pts = o.qs.map((q) => { const [x, y] = warp(PX(net.Q[q][2]), PY(net.Q[q][1])); return toS(x, y); });
-    const mx = pts.reduce((a, p) => a + p[0], 0) / pts.length, my = pts.reduce((a, p) => a + p[1], 0) / pts.length;
-    if (mx < -80 || my < -80 || mx > W + 80 || my > H + 80) continue;
-    let sxx = 0, syy = 0, sxy = 0; pts.forEach(([x, y]) => { sxx += (x - mx) ** 2; syy += (y - my) ** 2; sxy += (x - mx) * (y - my); });
-    const th = 0.5 * Math.atan2(2 * sxy, sxx - syy), ux = Math.cos(th), uy = Math.sin(th);
-    let a0 = 0, a1 = 0, b0 = 0, b1 = 0;
-    pts.forEach(([x, y]) => { const a = (x - mx) * ux + (y - my) * uy, b = -(x - mx) * uy + (y - my) * ux; a0 = Math.min(a0, a); a1 = Math.max(a1, a); b0 = Math.min(b0, b); b1 = Math.max(b1, b); });
-    const pad = 7, hh = Math.max(7, (b1 - b0) / 2 + pad), ac = (a0 + a1) / 2, bc = (b0 + b1) / 2, hl2 = Math.max(hh, (a1 - a0) / 2 + pad);
-    ctx.save(); ctx.translate(mx + ux * ac - uy * bc, my + uy * ac + ux * bc); ctx.rotate(th);
-    roundRect(-hl2, -hh, hl2 * 2, hh * 2, hh);
-    ctx.fillStyle = C.surf; ctx.fill(); ctx.lineWidth = 2.6; ctx.strokeStyle = C.ink; ctx.stroke();
-    ctx.restore();
-    capP.add(o.P);
-  }
+  const capP = new Set();
+  // arrêts : une barre blanche en travers des lignes qui s'arrêtent à chaque quai (rond pour une seule ligne),
+  // gros point au terminus ; de près, un pointillé relie les quais d'un même arrêt
+  const QI = getQuays();
+  const barW = Math.max(4.5, lw * 0.8);
+  const stroke2 = (outer, inner) => { ctx.strokeStyle = outC; ctx.lineWidth = outer; ctx.stroke(); ctx.strokeStyle = C.surf; ctx.lineWidth = inner; ctx.stroke(); };
+  const quayMark = (q, strongMark) => {
+    const [qx, qy] = toS(...warp(PX(net.Q[q][2]), PY(net.Q[q][1])));
+    if (qx < -30 || qy < -30 || qx > W + 30 || qy > H + 30) return null;
+    const hits = [];
+    for (const r of QI.routes.get(q) || []) {
+      if (focus && !hl.routes.has(r)) continue;
+      let b = null;
+      for (const f of frameFr[r]) { const h = f.O && nearOn(f.O, qx, qy); if (h && (!b || h.d < b.d)) b = { ...h, w: f.w }; }
+      if (b && b.d < 30 + lw * 3) hits.push(b);
+    }
+    if (QI.term.has(q)) {
+      const c = hits.length ? hits.reduce((a, h) => [a[0] + h.x / hits.length, a[1] + h.y / hits.length], [0, 0]) : [qx, qy];
+      const rr = Math.max(5.6, lw * 0.9);
+      ctx.beginPath(); ctx.arc(c[0], c[1], rr, 0, 7); ctx.fillStyle = C.surf; ctx.fill(); ctx.lineWidth = 3; ctx.strokeStyle = C.ink; ctx.stroke();
+      return c;
+    }
+    if (hits.length <= 1) {
+      const h = hits[0] || { x: qx, y: qy, w: lw };
+      const rr = Math.max(2.8, Math.min(h.w / 2 + 1.2, barW * 0.75));
+      ctx.beginPath(); ctx.arc(h.x, h.y, rr, 0, 7); ctx.fillStyle = C.surf; ctx.fill(); ctx.lineWidth = strongMark ? 2 : 1.5; ctx.strokeStyle = outC; ctx.stroke();
+      return [h.x, h.y];
+    }
+    // barre : perpendiculaire à la direction moyenne des lignes (orientées dans le même sens)
+    let tx = 0, ty = 0; const t0 = hits[0];
+    hits.forEach((h) => { const sg = h.tx * t0.tx + h.ty * t0.ty < 0 ? -1 : 1; tx += h.tx * sg; ty += h.ty * sg; });
+    const tl = Math.hypot(tx, ty) || 1; tx /= tl; ty /= tl;
+    const nx = -ty, ny = tx;
+    const cx = hits.reduce((a, h) => a + h.x, 0) / hits.length, cy = hits.reduce((a, h) => a + h.y, 0) / hits.length;
+    let a0 = Infinity, a1 = -Infinity;
+    hits.forEach((h) => { const a = (h.x - cx) * nx + (h.y - cy) * ny; a0 = Math.min(a0, a - h.w / 2); a1 = Math.max(a1, a + h.w / 2); });
+    a0 -= GAPW + 1; a1 += GAPW + 1;
+    ctx.beginPath(); ctx.moveTo(cx + nx * a0, cy + ny * a0); ctx.lineTo(cx + nx * a1, cy + ny * a1);
+    ctx.lineCap = "round"; stroke2(barW + 2.6, barW);
+    return [cx, cy];
+  };
   net.P.forEach((p, i) => {
     if (capP.has(i)) return;
     const on = hs.has(i), hub = hubs.has(i) && z > 0.75 && (!focus || net.pRoutes[i].some((r) => hl.routes.has(r)));
     const term = termini.has(i) && z > 0.9 && (!focus || net.pRoutes[i].some((r) => hl.routes.has(r)));
     if (!on && !showAll && !hub && !term) return;
     const [x, y] = stopS(i);
-    if (x < -20 || y < -20 || x > W + 20 || y > H + 20) return;
-    const r = term ? 5.6 : on ? 4 : hub ? 3.6 : 2.6;
-    ctx.beginPath(); ctx.arc(x, y, r, 0, 7);
-    ctx.fillStyle = C.surf; ctx.fill(); ctx.lineWidth = term ? 3 : on || hub ? 2 : 1.3; ctx.strokeStyle = on || hub || term ? C.ink : C.muted; ctx.stroke();
-    // arrêt desservi dans un seul sens : petite flèche à côté du point (quand on zoome)
-    const a1 = z > 1.6 && !term ? getOneWay().get(i) : undefined;
+    if (x < -60 || y < -60 || x > W + 60 || y > H + 60) return;
+    const qs = QI.byP[i];
+    if (!qs.length) {
+      ctx.beginPath(); ctx.arc(x, y, 2.6, 0, 7); ctx.fillStyle = C.surf; ctx.fill(); ctx.lineWidth = 1.3; ctx.strokeStyle = C.muted; ctx.stroke();
+      return;
+    }
+    // pointillé entre les quais d'un même arrêt (de près), dessiné sous les barres
+    if (qs.length > 1 && z > 4) {
+      const pts = qs.map((q) => toS(...warp(PX(net.Q[q][2]), PY(net.Q[q][1]))));
+      const left = pts.slice(1), chain = [pts[0]];
+      while (left.length) { const c = chain[chain.length - 1]; let k = 0; left.forEach((p2, j) => { if (Math.hypot(p2[0] - c[0], p2[1] - c[1]) < Math.hypot(left[k][0] - c[0], left[k][1] - c[1])) k = j; }); chain.push(left.splice(k, 1)[0]); }
+      ctx.save(); ctx.setLineDash([2, 4]); ctx.lineCap = "round"; ctx.strokeStyle = C.muted; ctx.lineWidth = 2;
+      ctx.beginPath(); chain.forEach((p2, k) => (k ? ctx.lineTo(p2[0], p2[1]) : ctx.moveTo(p2[0], p2[1]))); ctx.stroke(); ctx.restore();
+    }
+    let first = null;
+    qs.forEach((q) => { const m = quayMark(q, on || hub); if (m && !first) first = m; });
+    // arrêt desservi dans un seul sens : petite flèche à côté (quand on zoome)
+    const a1 = z > 1.6 && !term && first ? getOneWay().get(i) : undefined;
     if (a1 !== undefined) {
-      const ux = Math.cos(a1), uy = Math.sin(a1), d = r + 5.5, s = 4.2, cx = x + ux * d, cy = y + uy * d;
-      ctx.beginPath(); ctx.moveTo(cx + ux * s, cy + uy * s); ctx.lineTo(cx - ux * s * 0.7 - uy * s * 0.85, cy - uy * s * 0.7 + ux * s * 0.85); ctx.lineTo(cx - ux * s * 0.7 + uy * s * 0.85, cy - uy * s * 0.7 - ux * s * 0.85); ctx.closePath();
+      const ux = Math.cos(a1), uy = Math.sin(a1), d = barW + 4, s2 = 4.2, cx = first[0] + ux * d, cy = first[1] + uy * d;
+      ctx.beginPath(); ctx.moveTo(cx + ux * s2, cy + uy * s2); ctx.lineTo(cx - ux * s2 * 0.7 - uy * s2 * 0.85, cy - uy * s2 * 0.7 + ux * s2 * 0.85); ctx.lineTo(cx - ux * s2 * 0.7 + uy * s2 * 0.85, cy - uy * s2 * 0.7 - ux * s2 * 0.85); ctx.closePath();
       ctx.fillStyle = on || hub ? C.ink : C.muted; ctx.fill();
     }
   });
