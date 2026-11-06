@@ -93,6 +93,11 @@ h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; }
   header.top { padding-top: 0 !important; touch-action: none; }
   .maplegend { display: none !important; }
   .mapctl, .profbtn { top: calc(var(--sat) + 12px) !important; }
+  /* #26 : appli lancée depuis l'écran d'accueil de l'iPhone : depuis iOS 26.1, la barre d'état (heure, batterie) a un fond
+     opaque qui recouvrait le haut du plan. Le plan commence donc sous elle, et ce fond prend la couleur des panneaux. */
+  html.standalone, html.standalone body { background: var(--surface); }
+  html.standalone .mapwrap { top: var(--sat); }
+  html.standalone .mapctl, html.standalone .profbtn { top: 12px !important; }
   input, select { font-size: 16px !important; } /* évite le zoom automatique d'iOS */
 }
 
@@ -968,7 +973,7 @@ const saveFav = () => { store.set("favStops", fav.stops); store.set("favTrips", 
 const FEATS = [
   ["Pendant le trajet", [
     ["gps", "Bus suivi en direct", "Quand vous êtes à bord, le bus avance sur l'écran avec vous, grâce au GPS de votre téléphone. Les heures d'arrivée sont plus précises."],
-    ["dedans", "Bouton « Je suis dedans »", "Un bouton pour dire à l'appli que vous êtes monté : le bus se cale sur vous en quelques secondes."],
+    ["dedans", "Bouton « Je suis à bord »", "Un bouton pour dire à l'appli que vous êtes monté : le bus se cale sur vous en quelques secondes."],
     ["retour", "Reprise instantanée", "Si vous quittez l'appli pendant le trajet, le bus se recale tout de suite sur vous à votre retour, même arrêté à un feu rouge."],
     ["plein", "Mode plein écran", "Tirez le panneau vers le haut : votre trajet occupe tout l'écran. Touchez la croix pour revenir."],
     ["centre", "Toujours centré sur le bus", "La liste des arrêts suit le bus. Si vous la faites défiler, elle revient sur lui au bout de 4 secondes."],
@@ -1485,7 +1490,7 @@ function userOnPat(pi, s) {
 function boardAdjust(st, pi, k, dk) {
   const key = [pi, k, dk].join(":");
   if (BOARD.key !== key) Object.assign(BOARD, { key, on: false, since: 0, offAt: 0, claim: BOARD.key ? 0 : BOARD.claim });
-  // « Je suis dedans » : le calage attend que le bus roule ; au-delà de 3 min de roulage sans calage, retour en silence
+  // « Je suis à bord » : le calage attend que le bus roule ; au-delà de 3 min de roulage sans calage, retour en silence
   if (BOARD.claim) {
     if (st.state === "before") BOARD.claim = Date.now();          // au terminus : on attend le départ
     else if (st.state !== "running" || Date.now() - BOARD.claim > 180000) BOARD.claim = 0;
@@ -1511,7 +1516,7 @@ function boardAdjust(st, pi, k, dk) {
     const nearWide = Math.abs(last.d - posToD(st.pos)) < Math.max(600, 2 * gap);
     // #09 : à bord il y a moins de 10 min (appli quittée puis reprise, feu rouge…) : recalage dès le premier point sur le tracé
     const recent = BOARD_LAST.key === key && (feat("retour") || (BOARD_LAST.ib && now - BOARD_LAST.at < 120000)) && now - BOARD_LAST.at < 600000 && onRoute(last) && nearWide;
-    // #09 : « Je suis dedans » touché : calage dès que j'avance avec le bus (≥ 15 m sur le tracé, dans le bon sens)
+    // #09 : « Je suis à bord » touché : calage dès que j'avance avec le bus (≥ 15 m sur le tracé, dans le bon sens)
     if (BOARD.claim && now - BOARD.claim > 180000) BOARD.claim = 0;
     const w2 = BOARD.claim ? pts.filter((h) => h.t >= BOARD.claim - 3000 && now - h.t < 30000 && onRoute(h)) : [];
     const claimed = w2.length >= 2 && w2[w2.length - 1] === last && w2[w2.length - 1].d - w2[0].d >= 15 && nearWide;
@@ -1719,7 +1724,7 @@ function renderFollow() {
   const near = st.state === "running" && !st.atStop && st.at(next) - t <= 1.1;
   const delay = Math.round(st.at(Math.min(nS - 1, next)) - st.sched(Math.min(nS - 1, next)));
   // pas de bouton quand le départ du terminus est encore loin (plus de 10 min)
-  const b9 = st.gps || st.state === "done" || (st.state === "before" && st.dp(0) - st.t > 10) || !feat("gps") || !feat("dedans") ? "" : BOARD.claim ? `<span class="b9 wait"><i class="b9spin"></i>Calage…</span>` : `<button type="button" class="b9" data-board>Je suis dedans</button>`;
+  const b9 = st.gps || st.state === "done" || (st.state === "before" && st.dp(0) - st.t > 10) || !feat("gps") || !feat("dedans") ? "" : BOARD.claim ? `<span class="b9 wait"><i class="b9spin"></i>Calage…</span>` : `<button type="button" class="b9" data-board>Je suis à bord</button>`;
   $("#mb-status").innerHTML = (st.gps ? `<i class="gpsdot"></i>À bord · position GPS${delay >= 1 ? " · retard " + delay + " min" : ""}` : `${dot(st.live)}${st.live ? `Temps réel · ${delay >= 1 ? "retard " + delay + " min" : delay <= -1 ? "avance " + -delay + " min" : "à l'heure"}` : "Horaire théorique (position estimée)"}`);
   { const h9 = b9; const e9 = $("#mb-b9"); if (e9 && e9.dataset.html !== h9) { e9.innerHTML = h9; e9.dataset.html = h9; } };
   // ligne : arrêts passés, arrêt suivant, bus
@@ -2297,7 +2302,7 @@ function installPop(os) {
 const GUIDE = [
   ["passages", "Trouver un horaire", "passages.jpg", "<p>Dans <b>Passages</b>, choisissez un arrêt : les prochains départs de chaque ligne s'affichent, rangés par transport (tram, BHNS, bus, express). Touchez un titre pour replier un transport.</p><p>Un <b>point vert</b> veut dire temps réel, un <b>point gris</b> horaire prévu. Touchez un horaire pour suivre ce bus. L'étoile ajoute l'arrêt à votre accueil.</p>"],
   ["itineraire", "Faire un itinéraire", "itineraire.jpg", "<p>Dans <b>Itinéraire</b>, indiquez d'où vous partez et où vous allez, puis « Partir à » ou « Arriver avant ». 6 trajets s'affichent ; « Plus tôt » et « Départs suivants » en ajoutent.</p><p>Ouvrez un trajet pour voir les étapes, puis « Me guider » : l'appli vous accompagne jusqu'à l'arrivée, correspondances comprises.</p>"],
-  ["monbus", "Suivre son bus", "monbus.jpg", "<p>Touchez un horaire ou un bus sur le plan : <b>Mon bus</b> montre où il est et à quelle heure il passera à chaque arrêt. Tirez le panneau vers le haut pour le plein écran.</p><p>Une fois monté, touchez <b>Je suis dedans</b> : le bus se cale sur votre position. Touchez votre arrêt de descente pour être prévenu juste avant. Si vous montez sans rien faire, l'appli vous propose elle-même de suivre votre bus.</p>"],
+  ["monbus", "Suivre son bus", "monbus.jpg", "<p>Touchez un horaire ou un bus sur le plan : <b>Mon bus</b> montre où il est et à quelle heure il passera à chaque arrêt. Tirez le panneau vers le haut pour le plein écran.</p><p>Une fois monté, touchez <b>Je suis à bord</b> : le bus se cale sur votre position. Touchez votre arrêt de descente pour être prévenu juste avant. Si vous montez sans rien faire, l'appli vous propose elle-même de suivre votre bus.</p>"],
   ["trafic", "L'info trafic", "trafic.jpg", "<p>L'onglet <b>Info trafic</b> montre d'abord ce qui se passe en ce moment, puis les travaux et arrêts déplacés, ligne par ligne. Un « ! » s'allume sur l'onglet quand une nouvelle info tombe.</p><p>Touchez une info : le plan montre les arrêts concernés et ceux de remplacement.</p>"],
   ["profil", "Votre profil", "profil.jpg", "<p>Le rond en haut à gauche du plan ouvre <b>Mon profil</b> : rangez, renommez ou supprimez vos arrêts et trajets, choisissez vos lignes (elles passent en premier) et vos alertes.</p><p>En bas, chaque fonctionnalité peut être coupée si vous préférez un affichage plus simple.</p>"],
 ];
@@ -2536,11 +2541,11 @@ const UPD_LOG = [
     { ico: personSvg(34), t: "Votre profil",
       b: "<p>Touchez le rond en haut à gauche du plan. Rangez et renommez vos arrêts et trajets (« Maison », « Boulot »), choisissez vos lignes et vos alertes.</p><p>Chaque fonctionnalité peut aussi être coupée, et le mode d'emploi est là.</p>" },
     { ico: icoSvg('<rect x="6" y="3.5" width="12" height="15" rx="2.5"/><path d="M6 12h12M8.5 21l1-2.5M15.5 21l-1-2.5"/><circle cx="9" cy="15.3" r=".6" fill="currentColor"/><circle cx="15" cy="15.3" r=".6" fill="currentColor"/>'), t: "L'appli reconnaît votre bus",
-      b: "<p>Vous montez sans rien faire ? L'appli vous propose de suivre le bus ou le tram dans lequel vous êtes.</p><p>Dans Mon bus, « Je suis dedans » cale le bus sur vous en quelques secondes, et il se recale tout seul si vous quittez l'appli.</p>" },
+      b: "<p>Vous montez sans rien faire ? L'appli vous propose de suivre le bus ou le tram dans lequel vous êtes.</p><p>Dans Mon bus, « Je suis à bord » cale le bus sur vous en quelques secondes, et il se recale tout seul si vous quittez l'appli.</p>" },
     { ico: icoSvg('<path d="M4 6h16M4 12h10M4 18h13"/><circle cx="19" cy="12" r="1.6"/>'), t: "Des arrêts et des trajets plus clairs",
       b: "<p>À chaque arrêt, les lignes sont rangées par transport : tram, BHNS, bus, express. Les correspondances indiquent leur direction.</p><p>Itinéraire : 6 trajets d'emblée, avec « Plus tôt » et « Départs suivants ».</p>" },
     { ico: icoSvg('<path d="M20 6 9 17l-5-5"/>'), t: "Et quelques corrections",
-      b: "<ul><li>Mon bus montre l'icône du tram, du BHNS ou du bus, et toute la course depuis le départ.</li><li>Les flèches de Mon bus s'arrêtent à l'arrêt suivant.</li><li>Les marchés du dimanche et les nouveaux arrêts passent dans « Infos », sans « ! ».</li><li>Sur le plan, les lignes d'une même rue restent côte à côte sans se croiser.</li></ul>" }] },
+      b: "<ul><li>Mon bus montre l'icône du tram, du BHNS ou du bus, et toute la course depuis le départ.</li><li>Les flèches de Mon bus s'arrêtent à l'arrêt suivant.</li><li>Les marchés du dimanche et les nouveaux arrêts passent dans « Infos », sans « ! ».</li><li>Sur le plan, les lignes d'une même rue restent côte à côte sans se croiser.</li><li>Sur iPhone, le haut de l'écran est mieux calé sous l'heure et la batterie.</li></ul>" }] },
   { v: "2026-11-06", t: "Info trafic, fin de service et nouveau plan", slides: UPD_0611 },
 ];
 const UPD = UPD_LOG[0].v;

@@ -13,7 +13,7 @@ const toS = (x, y) => [(x - view.cx) * view.s + W / 2, H / 2 - (y - view.cy) * v
 const fromS = (sx, sy) => [(sx - W / 2) / view.s + view.cx, view.cy - (sy - H / 2) / view.s];
 const geoS = (lon, lat) => toS(PX(lon), PY(lat));
 const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
-const topInset = () => isMobile() ? (parseFloat(css("--sat")) || 0) + 8 : 0;
+const topInset = () => isMobile() ? (document.documentElement.classList.contains("standalone") ? 0 : (parseFloat(css("--sat")) || 0)) + 8 : 0; // #26 : appli iPhone, le plan commence déjà sous la barre d'état
 
 // tracés : un par motif distinct
 const shapeOfPat = net.pats.map((p) => p.sh >= 0 ? net.shapes[p.sh] : p.stops.map((q) => [net.Q[q][2], net.Q[q][1]]));
