@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-06T00:22:43Z",
+ "at": "2026-11-06T08:34:25Z",
  "items": [
   {
    "id": "20acd05e39",
@@ -386,52 +386,16 @@
    "sec": "par ligne"
   },
   {
-   "id": "16eb3530f2",
-   "t": "En raison de contraintes d'exploitation, certains départs ne sont pas assurés aujourd'hui :",
+   "id": "21bb6d2633",
+   "t": "Suite à un camion bloquant, votre bus est dévié secteur Sainte Anne",
    "lines": [
-    "U20"
+    "U4",
+    "U5"
    ],
    "p": "",
    "start": null,
    "end": null,
-   "b": [
-    {
-     "r": [
-      [
-       "Mercredi 4 novembre et jeudi 5 novembre 2026:",
-       0
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Départs de Gare Clairmarais non assurés: 7h19-8h31-9h43-10h55-12h07-13h19-14h30-15h42-16h54-18h08-19h22",
-       0
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Départs de Fac des Sciences non assurés: 7h57-9h09-10h21-11h33-12h45-13h57-15h09-16h21-17h34-18h47-20h",
-       0
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Conseil déplacement",
-       1
-      ],
-      [
-       ": nous vous invitons à anticiper votre trajet ou à privilégier les lignes à proximité ( https://grandreims-mobilites.fr/fr/3RW-Itineraire.html)",
-       0
-      ]
-     ]
-    }
-   ],
+   "b": [],
    "rt": true,
    "sec": "temps reel"
   },

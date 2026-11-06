@@ -18,7 +18,8 @@ Outil web pour le réseau Grand Reims Mobilités, pensé pour le téléphone : a
 | `build/rt.js` | Lecture du flux temps réel. |
 | `build/map.js` | Plan interactif et position estimée des bus. |
 | `build/prep.py` | Convertit le GTFS en données compactes. |
-| `build/post.py` | Tram T1/T2, couleurs de texte des pastilles, dessin en parallèle des tronçons communs. |
+| `build/post.py` | Tram T1/T2, couleurs de texte des pastilles, dessin du plan : tronçons communs en parallèle, rond-points traversés tout droit, pas de boucle de retournement aux terminus, un seul trait pour les allers-retours. |
+| `build/rondpoints.py` | Relève les rond-points d'OpenStreetMap (`build/rondpoints.json`), chaque mois par la tâche *Rond-points (OSM)*. |
 | `build/assets.js` | Logo Grand Reims Mobilités (vectoriel) et logos des lignes. |
 | `build/infotrafic.py` | Relève l'info trafic du site du réseau. |
 | `build/plans.py` | Télécharge les plans PDF du réseau et les convertit en images (`plans/`). |
