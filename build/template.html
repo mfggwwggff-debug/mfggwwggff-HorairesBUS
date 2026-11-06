@@ -348,6 +348,7 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
 #inbus.on { transform: none; }
 #inbus .ibh { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
 #inbus .ibh .ic { width: 36px; height: 36px; border-radius: 50%; background: #1a73e8; color: #fff; display: grid; place-items: center; flex: none; }
+#inbus .ibh .ic .mode { width: 20px; height: 20px; display: block; }
 #inbus .ibh b { font: 700 16px/1.2 var(--font-display); display: block; }
 #inbus .ibh small { color: var(--muted); font-size: 12.5px; }
 #inbus .ibx { margin-left: auto; border: 0; background: none; color: var(--muted); padding: 6px; }
@@ -810,6 +811,9 @@ const MODE_SVG = {
   bus: `<path d="M10 14.5H7.5V21M38 14.5H40.5V21" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path fill="currentColor" fill-rule="evenodd" d="M14.5 8H33.5Q38 8 38 12.5V37.5Q38 40.5 35 40.5H13Q10 40.5 10 37.5V12.5Q10 8 14.5 8ZM13.5 10.5H34.5Q35 10.5 35 11V12.5Q35 13 34.5 13H13.5Q13 13 13 12.5V11Q13 10.5 13.5 10.5ZM14.5 15.5H33.5Q35.5 15.5 35.5 17.5V29Q35.5 31 33.5 31H14.5Q12.5 31 12.5 29V17.5Q12.5 15.5 14.5 15.5ZM13.6 35H17.4Q18.2 35 18.2 35.8Q18.2 36.6 17.4 36.6H13.6Q12.8 36.6 12.8 35.8Q12.8 35 13.6 35ZM30.6 35H34.4Q35.2 35 35.2 35.8Q35.2 36.6 34.4 36.6H30.6Q29.8 36.6 29.8 35.8Q29.8 35 30.6 35Z"/><path fill="currentColor" d="M12.5 40H17V43Q17 44.5 15.5 44.5H14Q12.5 44.5 12.5 43Z M31 40H35.5V43Q35.5 44.5 34 44.5H32.5Q31 44.5 31 43Z"/>`,
 };
 const modeIcon = (m) => `<svg class="mode" viewBox="0 0 48 48" fill="none" aria-hidden="true"><rect x="2" y="2" width="44" height="44" rx="10" stroke="currentColor" stroke-width="3"/><g transform="translate(6.2 6.2) scale(.74)">${MODE_SVG[m === 1 ? "tram" : typeof m === "string" ? m : "bus"]}</g></svg>`;
+// picto seul (sans le carré), recentré sur son dessin : pour les pictos posés dans un rond
+const MODE_BB = { tram: [8.9, 2.5, 30.1, 43.5], bhns: [9, 6.5, 30, 39.8], bus: [7.5, 8, 33, 36.5] };
+const modeGlyph = (m) => { const [x, y, w, h] = MODE_BB[m], s = Math.max(w, h) + 1; return `<svg class="mode" viewBox="${x + w / 2 - s / 2} ${y + h / 2 - s / 2} ${s} ${s}" fill="none" aria-hidden="true">${MODE_SVG[m]}</svg>`; };
 const modeOf = (ri) => net.R[ri].m === 1 ? "tram" : /^O\d/.test(net.R[ri].s) ? "bhns" : "bus";
 const alertSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.2 22 20.5H2z" fill="currentColor"/><path d="M12 9.5v5.2" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="17.6" r="1.25" fill="#fff"/></svg>`;
 const okSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>`;
@@ -1356,7 +1360,7 @@ function showInBus(cands, dk) {
   if (!cands.length) { el.classList.remove("on"); return; }
   const one = cands.length === 1, trams = cands.filter((c) => modeOf(net.pats[c.pi].r) === "tram").length;
   const what = trams === cands.length ? (one ? "ce tram" : "un de ces trams") : trams ? "le tram ou le bus" : (one ? "ce bus" : "un de ces bus");
-  el.innerHTML = `<div class="ibh"><span class="ic"><span class="mode" style="width:22px;height:22px;color:#fff">${modeIcon(trams === cands.length ? "tram" : "bus")}</span></span><div><b>Tu es dans ${what} ?</b><small>${one ? "Suis-le pour savoir quand descendre" : "Plusieurs lignes passent ici, choisis la tienne"}</small></div><button type="button" class="ibx" aria-label="Non merci">${closeSvg}</button></div>`
+  el.innerHTML = `<div class="ibh"><span class="ic">${modeGlyph(trams === cands.length ? "tram" : "bus")}</span><div><b>Tu es dans ${what} ?</b><small>${one ? "Suis-le pour savoir quand descendre" : "Plusieurs lignes passent ici, choisis la tienne"}</small></div><button type="button" class="ibx" aria-label="Non merci">${closeSvg}</button></div>`
     + cands.map((c, j) => { const p = net.pats[c.pi]; const st = tripState(c.pi, c.k, dk); const nx = p.stops[Math.min(p.nS - 1, st.next)]; return `<div class="ibr"><span style="color:var(--muted);display:inline-flex">${modeIcon(modeOf(p.r) === "tram" ? "tram" : "bus")}</span>${badge(p.r)}<span class="d">→ ${esc(p.h)}<small>Prochain arrêt : ${esc(qName(nx))}</small></span><button type="button" class="btn small primary" data-ib="${j}">Suivre</button></div>`; }).join("");
   el.querySelector(".ibx").onclick = () => { cands.forEach((c) => INBUS.refused.add(c.pi + ":" + c.k)); el.classList.remove("on"); };
   el.querySelectorAll("[data-ib]").forEach((b) => b.onclick = () => { const c = cands[+b.dataset.ib]; el.classList.remove("on"); startFollow(c.pi, c.k, dk); });
