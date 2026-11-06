@@ -220,6 +220,9 @@ def main():
     if not items and "tetinfotraf" not in page:
         sys.exit("structure de la page inattendue : rien écrit")
     out = {"src": URL, "at": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "items": items}
+    # diagnostic : rubriques vues sur la page et passages qui parlent de « temps réel » hors des infos relevées
+    out["rubriques"] = [t[:80] for _, t in sections(page)][:30]
+    out["indices"] = [text(page[max(0, m.start() - 300): m.start() + 300])[:400] for m in re.finditer(r"temps[ -]r[ée]el", page, re.I)][:8]
     json.dump(out, sys.stdout, ensure_ascii=False, indent=1)
     sys.stdout.write("\n")
 
