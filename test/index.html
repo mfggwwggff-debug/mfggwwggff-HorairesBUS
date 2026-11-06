@@ -1445,7 +1445,7 @@ $("#it-arr").addEventListener("click", () => { S.mode = "arr"; syncMode(); itFol
 function jcWarn(j) {
   const rides = j.legs.filter((g) => g.type === "ride"); if (!rides.length) return "";
   if (rides.some((g) => net.R[net.pats[g.pat].r].m !== 1)) return `<div class="jcwarn">${alertSvg.replace('width="18" height="18"', 'width="15" height="15"')}Course peut-être non assurée (réseau perturbé)</div>`;
-  return /\btram/.test(trText(TR.net)) ? "" : `<div class="jcwarn ok">${okSvg.replace('width="18" height="18"', 'width="15" height="15"')}Tram non concerné par l'alerte</div>`;
+  return `<div class="jcwarn">${alertSvg.replace('width="18" height="18"', 'width="15" height="15"')}Perturbations possibles (réseau perturbé)</div>`;
 }
 function runIt(noFit) {
   syncItStar();
@@ -1980,7 +1980,13 @@ const trRoutes = (x) => x.lines.map((s) => net.R.findIndex((r) => r.s === s)).fi
 const trPlain = (s) => (s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 const trText = (x) => trPlain([x.t, x.p, ...(x.b || []).map((b) => (b.r || []).map((r) => r[0]).join(""))].join(" "));
 // temps réel : rubrique du site si le relevé la donne, sinon une info sans dates (« aujourd'hui », panne…)
-const trRT = (x) => x.rt != null ? !!x.rt : !x.start && !x.end && !/a partir|jusqu|\bdu \d|\bau \d/.test(trPlain(x.p));
+const TR_NOW = /aujourd'?hui|en ce moment|actuellement|ce jour|ce matin|ce soir|jusqu'?a nouvel ordre|dysfonctionnement|panne|interrompu|suspendu|non assure|pas assure|ne circule|fige|incident|accident/;
+const trRT = (x) => {
+  if (x.rt != null) return !!x.rt;
+  if (x.start || x.end || /a partir|jusqu|\bdu \d|\bau \d/.test(trPlain(x.p))) return false;
+  const t = trText(x);
+  return !/seulement en cas|en cas de|lors des|les jours de/.test(t) && TR_NOW.test(t);
+};
 // gêne le trajet (pastille « ! ») : déviation, arrêt non desservi, bus non assuré… mais pas un simple arrêt déplacé
 const TR_GENE = /devi|non desservi|ne (sera|seront|sont|est) (pas|plus) desservi|pas desservi|non assure|pas assure|suspendu|interrompu|supprime|forte perturbation|perturbation sur les horaires|ne circule|ne roule|retard|fige|arret(e|ee)s? de circul/;
 const TR_DEPLACE = /report|deplace|nouvel(le)?s? arret|transfer/;
@@ -2055,9 +2061,14 @@ function findStopFuzzy(name) {
   return part.length ? part[0][1] : -1;
 }
 function trTargets(x) {
-  const old = [], neu = [], pairs = [];
+  const old = [], neu = [], pairs = [], geo = [];
   for (const b of x.b || []) {
     const r = b.r || []; let from = -1;
+    if (b.geo) { // arrêt reporté à une adresse (position trouvée par le relevé)
+      for (let i = 1; i < r.length; i++) if (r[i][1] && /arrets?\s*$/.test(trPlain(r[i - 1][0]))) { const k = findStopFuzzy(r[i][0]); if (k >= 0) { from = k; if (!old.includes(k)) old.push(k); } break; }
+      if (!geo.some((g) => g.a === b.geo.a)) geo.push({ ...b.geo, from });
+      continue;
+    }
     for (let i = 0; i < r.length; i++) {
       if (!r[i][1]) continue;
       const before = trPlain(r[i - 1] ? r[i - 1][0] : "");
@@ -2068,7 +2079,7 @@ function trTargets(x) {
       }
     }
   }
-  if (old.length || neu.length) return { old, neu, pairs, pts: [...old, ...neu].map((i) => [net.P[i][2], net.P[i][1]]) };
+  if (old.length || neu.length || geo.length) return { old, neu, pairs, geo, pts: [...[...old, ...neu].map((i) => [net.P[i][2], net.P[i][1]]), ...geo.map((g) => [g.lon, g.lat])] };
   // pas d'arrêt nommé : la commune citée dans le titre (« … à Treslon »)
   const words = (x.t.match(/[A-ZÉÈÀÂÎÔÛ][\wéèêàâîôûç'-]{3,}/g) || []).filter((w) => !/^(Travaux|Report|Reports|Nouveaux|Nouvel|Arr[eê]t|Ligne|Lignes|Horaires|Avenue|Boulevard|Rue|Place|Pont|Route|Chemin)$/i.test(w));
   for (const w of words) {
@@ -2079,7 +2090,7 @@ function trTargets(x) {
 }
 function trZoom(x) {
   const T = trTargets(x);
-  TR.zoom = { id: x.id, routes: trRoutes(x), ...(T || { old: [], neu: [], pairs: [], pts: [] }) };
+  TR.zoom = { id: x.id, routes: trRoutes(x), geo: [], ...(T || { old: [], neu: [], pairs: [], pts: [] }) };
   if (T && T.pts.length) {
     if (isMobile() && sheetState === "full") setSheet("half", true);
     if (T.pts.length === 1) centerOn(PX(T.pts[0][0]), PY(T.pts[0][1]), Math.max(view.s, 30000), true); else fitBox(T.pts, 70);
@@ -2584,8 +2595,9 @@ function paint() {
   if (hl.tr) {
     const al = css("--alert");
     ctx.save(); ctx.setLineDash([5, 5]); ctx.lineWidth = 2.2; ctx.strokeStyle = al; ctx.fillStyle = al;
-    for (const [a, b] of hl.tr.pairs) {
-      const [x1, y1] = geoS(net.P[a][2], net.P[a][1]), [x2, y2] = geoS(net.P[b][2], net.P[b][1]);
+    const segs = [...hl.tr.pairs.map(([a, b]) => [geoS(net.P[a][2], net.P[a][1]), geoS(net.P[b][2], net.P[b][1])]),
+      ...(hl.tr.geo || []).filter((g) => g.from >= 0).map((g) => [geoS(net.P[g.from][2], net.P[g.from][1]), geoS(g.lon, g.lat)])];
+    for (const [[x1, y1], [x2, y2]] of segs) {
       const d = Math.hypot(x2 - x1, y2 - y1); if (d < 24) continue;
       const ux = (x2 - x1) / d, uy = (y2 - y1) / d, ex = x2 - ux * 14, ey = y2 - uy * 14;
       ctx.beginPath(); ctx.moveTo(x1 + ux * 11, y1 + uy * 11); ctx.lineTo(ex, ey); ctx.stroke();
@@ -2596,6 +2608,14 @@ function paint() {
       const [x, y] = geoS(net.P[i][2], net.P[i][1]);
       ctx.beginPath(); ctx.arc(x, y, 14, 0, 7); ctx.fillStyle = al; ctx.globalAlpha = 0.18; ctx.fill(); ctx.globalAlpha = 1;
       ctx.beginPath(); ctx.arc(x, y, 8, 0, 7); ctx.fillStyle = C.surf; ctx.fill(); ctx.lineWidth = 3.5; ctx.strokeStyle = al; ctx.stroke();
+    }
+    // arrêt provisoire à une adresse : point orange et l'adresse à côté
+    for (const g of hl.tr.geo || []) {
+      const [x, y] = geoS(g.lon, g.lat);
+      ctx.beginPath(); ctx.arc(x, y, 14, 0, 7); ctx.fillStyle = al; ctx.globalAlpha = 0.18; ctx.fill(); ctx.globalAlpha = 1;
+      ctx.beginPath(); ctx.arc(x, y, 8, 0, 7); ctx.fillStyle = C.surf; ctx.fill(); ctx.lineWidth = 3.5; ctx.strokeStyle = al; ctx.stroke();
+      ctx.font = `600 11.5px ${C.font}`; ctx.lineWidth = 3.5; ctx.strokeStyle = C.surf; ctx.fillStyle = C.ink;
+      ctx.strokeText(g.a, x + 14, y + 4); ctx.fillText(g.a, x + 14, y + 4);
     }
     for (const i of hl.tr.old) {
       const [x, y] = geoS(net.P[i][2], net.P[i][1]);

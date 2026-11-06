@@ -3,10 +3,13 @@
 Le site n'a pas de flux de données ouvert et bloque la lecture depuis une autre page : ce script
 tourne dans GitHub Actions (toutes les 15 minutes environ) et l'appli relit le fichier produit.
 
+Chaque info porte, si la page la donne, sa rubrique : "rt" (true = temps réel, false = par ligne).
+Sans rubrique reconnue, l'appli devine : une info sans dates est traitée comme du temps réel.
+
 Usage : python build/infotrafic.py [fichier_html_local] > info-trafic.json
 Sans argument, la page est téléchargée. Bibliothèque standard uniquement.
 """
-import sys, re, json, html, hashlib, datetime as dt, urllib.request
+import sys, os, re, json, html, hashlib, datetime as dt, urllib.request, urllib.parse
 
 URL = "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html"
 BASE = "https://www.grandreims-mobilites.fr"
@@ -69,8 +72,28 @@ def dates(h):
     return s, e
 
 
+def sections(page):
+    """Rubriques de la page (titres et blocs marqués « temps réel »), avec leur position."""
+    marks = []
+    for m in re.finditer(r"<h[1-4][^>]*>(.*?)</h[1-4]>", page, re.S | re.I):
+        marks.append((m.start(), plain(text(m.group(1)))))
+    for m in re.finditer(r'<[a-z]+[^>]*(?:id|class)="[^"]*(temps[-_ ]?reel|tempsreel|realtime|real-time|par[-_ ]?ligne)[^"]*"', page, re.I):
+        marks.append((m.start(), plain(m.group(1)).replace("-", " ").replace("_", " ")))
+    return sorted(marks)
+
+
+def rubrique(marks, pos):
+    """True : rubrique temps réel ; False : rubrique par ligne ; None : inconnu (l'appli devine)."""
+    prev = [t for p, t in marks if p < pos]
+    for t in reversed(prev):
+        if re.search(r"temps ?reel|en direct|realtime|real time|perturbations? en cours", t): return True, t
+        if re.search(r"par ?ligne|travaux|prevue|a venir", t): return False, t
+    return None, ""
+
+
 def parse(page):
     items = []
+    marks = sections(page)
     for m in re.finditer(r'<details[^>]*data-lines="([^"]*)"[^>]*>(.*?)</details>', page, re.S | re.I):
         lines, inner = m.group(1), m.group(2)
         sm = re.search(r"<summary[^>]*>(.*?)</summary>", inner, re.S | re.I)
@@ -113,13 +136,87 @@ def parse(page):
                 if t and t not in ls: ls.append(t)
         start, end = dates(period)
         iid = hashlib.sha1((title + "|" + period).encode()).hexdigest()[:10]
-        items.append({"id": iid, "t": title, "lines": ls, "p": period, "start": start, "end": end, "b": blocks})
+        item = {"id": iid, "t": title, "lines": ls, "p": period, "start": start, "end": end, "b": blocks}
+        rt, sec = rubrique(marks, m.start())
+        if rt is not None: item["rt"] = rt
+        if sec: item["sec"] = sec[:60]
+        items.append(item)
     return items
+
+
+# ---------- arrêt reporté à une adresse : position sur le plan ----------
+# « L'arrêt RETHEL … est déplacé au 179 rue de Neufchâtel » : on cherche l'adresse avec la Base Adresse
+# Nationale (api-adresse.data.gouv.fr), près de l'arrêt habituel. Résultats gardés d'un relevé à l'autre.
+HERE = os.path.dirname(os.path.abspath(__file__))
+ADDR = re.compile(r"(?:d[ée]plac[ée]e?s?|report[ée]e?s?)\s+(?:\(.*?\)\s+)?(?:face\s+)?(?:au niveau\s+)?(?:du|au|à hauteur du)\s+"
+                  r"(\d+\s*(?:bis|ter)?\s+(?:rue|avenue|av\.?|boulevard|bld|bd|place|chemin|route|all[ée]e|impasse|quai|cours|rond-point)\b[^,.;()]*)", re.I)
+
+
+def norm_stop(s):
+    s = plain(s)
+    s = re.sub(r"\bsainte?\b", "st", s)
+    return re.sub(r"[^a-z0-9]+", " ", s).strip()
+
+
+def stops_index():
+    try:
+        d = json.load(open(os.path.join(HERE, "data.json"), encoding="utf-8"))
+        return {norm_stop(p[0]): (p[1], p[2]) for p in d["P"]}
+    except Exception:
+        return {}
+
+
+def geocode(addr, near):
+    q = {"q": addr, "limit": 1}
+    if near: q.update(lat=near[0], lon=near[1])
+    req = urllib.request.Request("https://api-adresse.data.gouv.fr/search/?" + urllib.parse.urlencode(q), headers={"User-Agent": "horaires-grand-reims"})
+    with urllib.request.urlopen(req, timeout=10) as r:
+        f = json.load(r)["features"]
+    if not f or f[0]["properties"].get("score", 0) < 0.45: return None
+    lon, lat = f[0]["geometry"]["coordinates"]
+    if near and ((lat - near[0]) * 111) ** 2 + ((lon - near[1]) * 73) ** 2 > 2.0 ** 2:
+        return None   # à plus de 2 km de l'arrêt : sans doute une autre rue du même nom
+    return [round(lat, 6), round(lon, 6)]
+
+
+def add_geo(items, cache):
+    idx = None
+    for it in items:
+        for b in it["b"]:
+            r = b.get("r") or []
+            txt = "".join(x[0] for x in r)
+            m = ADDR.search(txt)
+            if not m: continue
+            addr = re.sub(r"\b(bld|bd)\b\.?", "boulevard", m.group(1), flags=re.I).strip()
+            stop = next((r[i][0] for i in range(1, len(r)) if r[i][1] and re.search(r"arr[êe]ts?\s*$", r[i - 1][0], re.I)), "")
+            key = addr + "|" + stop
+            if key not in cache:
+                if idx is None: idx = stops_index()
+                near = idx.get(norm_stop(stop))
+                try: cache[key] = geocode(addr + " Reims" if not near else addr, near)
+                except Exception: cache[key] = None
+            if cache.get(key): b["geo"] = {"lat": cache[key][0], "lon": cache[key][1], "a": addr}
+
+
+def old_cache():
+    """Adresses déjà trouvées lors du relevé précédent (info-trafic.json à la racine)."""
+    c = {}
+    try:
+        for it in json.load(open(os.path.join(HERE, "..", "info-trafic.json"), encoding="utf-8")).get("items", []):
+            for b in it.get("b", []):
+                if b.get("geo"):
+                    r = b.get("r") or []
+                    stop = next((r[i][0] for i in range(1, len(r)) if r[i][1] and re.search(r"arr[êe]ts?\s*$", r[i - 1][0], re.I)), "")
+                    c[b["geo"]["a"] + "|" + stop] = [b["geo"]["lat"], b["geo"]["lon"]]
+    except Exception:
+        pass
+    return c
 
 
 def main():
     page = open(sys.argv[1], encoding="utf-8").read() if len(sys.argv) > 1 else fetch()
     items = parse(page)
+    if "--sans-adresses" not in sys.argv: add_geo(items, old_cache())
     if not items and "tetinfotraf" not in page:
         sys.exit("structure de la page inattendue : rien écrit")
     out = {"src": URL, "at": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "items": items}
