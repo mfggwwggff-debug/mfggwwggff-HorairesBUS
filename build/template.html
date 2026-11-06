@@ -371,6 +371,16 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
 
 /* pictos des modes */
 .mode { width: 20px; height: 20px; flex: none; color: currentColor; }
+.mrows { display: flex; flex-direction: column; gap: 7px; margin: 8px 0 4px; }
+.mrow { display: flex; align-items: flex-start; gap: 8px; }
+.mhd { display: inline-flex; align-items: center; gap: 6px; min-width: 84px; flex: none; font-size: 12.5px; font-weight: 600; color: var(--muted); line-height: 20px; }
+.mhd .mode { width: 18px; height: 18px; }
+.mbs { display: flex; flex-wrap: wrap; gap: 3px; }
+.mgh { display: flex; align-items: center; padding: 8px 14px 4px; border-top: 1px solid var(--rule); background: var(--sunk); }
+.mgh .mhd { min-width: 0; }
+.deps .mgh { padding: 8px 12px 6px; }
+.deps .mgh:first-child, .mini .mgh:first-child { border-top: 0; }
+.mgh + .dep, .mgh + button, .mgh + .endrow { border-top: 0; }
 .lbl.withico { display: flex; align-items: center; gap: 7px; }
 
 /* logo du réseau */
@@ -798,6 +808,12 @@ const MODE_SVG = {
   bus: `<path d="M10 14.5H7.5V21M38 14.5H40.5V21" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path fill="currentColor" fill-rule="evenodd" d="M14.5 8H33.5Q38 8 38 12.5V37.5Q38 40.5 35 40.5H13Q10 40.5 10 37.5V12.5Q10 8 14.5 8ZM13.5 10.5H34.5Q35 10.5 35 11V12.5Q35 13 34.5 13H13.5Q13 13 13 12.5V11Q13 10.5 13.5 10.5ZM14.5 15.5H33.5Q35.5 15.5 35.5 17.5V29Q35.5 31 33.5 31H14.5Q12.5 31 12.5 29V17.5Q12.5 15.5 14.5 15.5ZM13.6 35H17.4Q18.2 35 18.2 35.8Q18.2 36.6 17.4 36.6H13.6Q12.8 36.6 12.8 35.8Q12.8 35 13.6 35ZM30.6 35H34.4Q35.2 35 35.2 35.8Q35.2 36.6 34.4 36.6H30.6Q29.8 36.6 29.8 35.8Q29.8 35 30.6 35Z"/><path fill="currentColor" d="M12.5 40H17V43Q17 44.5 15.5 44.5H14Q12.5 44.5 12.5 43Z M31 40H35.5V43Q35.5 44.5 34 44.5H32.5Q31 44.5 31 43Z"/>`,
 };
 const modeIcon = (m) => `<svg class="mode" viewBox="0 0 48 48" fill="none" aria-hidden="true"><rect x="2" y="2" width="44" height="44" rx="10" stroke="currentColor" stroke-width="3"/><g transform="translate(6.2 6.2) scale(.74)">${MODE_SVG[m === 1 ? "tram" : typeof m === "string" ? m : "bus"]}</g></svg>`;
+// #19 : lignes d'un arrêt rangées par mode (Tram, BHNS, Bus, Express ; C et scolaires avec les bus)
+const MODES = [["tram", "Tram"], ["bhns", "BHNS"], ["bus", "Bus"], ["express", "Express"]];
+const modeKey = (ri) => net.R[ri].m === 1 ? "tram" : /^O\d/.test(net.R[ri].s) ? "bhns" : /^E/.test(net.R[ri].s) ? "express" : "bus";
+const byMode = (items, rOf = (x) => x) => MODES.map(([k, n]) => [k, n, items.filter((x) => modeKey(rOf(x)) === k)]).filter((g) => g[2].length);
+const modeHead = (k, n) => `<span class="mhd">${modeIcon(k === "express" ? "bus" : k)}<span>${n}</span></span>`;
+const modeBadges = (rs) => `<div class="mrows">${byMode(rs).map(([k, n, l]) => `<div class="mrow">${modeHead(k, n)}<span class="mbs">${l.map((r) => badge(r, "sm")).join("")}</span></div>`).join("")}</div>`;
 const modeOf = (ri) => net.R[ri].m === 1 ? "tram" : /^O\d/.test(net.R[ri].s) ? "bhns" : "bus";
 const alertSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.2 22 20.5H2z" fill="currentColor"/><path d="M12 9.5v5.2" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="17.6" r="1.25" fill="#fff"/></svg>`;
 const okSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>`;
@@ -1007,7 +1023,7 @@ function stopCard(i, sub) {
   return `<div class="card stopcard" data-stop="${i}">
     <div class="sc-h"><div class="nm"><b>${esc(pName(i))}</b>${sub ? `<small>${sub}</small>` : ""}</div>
       <button type="button" class="icon-btn star" data-favstop="${i}" aria-pressed="${star}" aria-label="${star ? "Retirer des favoris" : "Ajouter aux favoris"}">${starSvg}</button></div>
-    <div class="mini">${gs.length ? gs.map((G) => { if (!G.list) return endRowHtml(G); const a = G.list[0], b = G.list[1]; return `<button type="button" data-follow="${a.pat}:${a.k}:${a.off}">${badge(G.r)}<span class="dir">${esc(G.h)}</span><span class="tw"><span class="t1">${dot(a.live)}${waitLabel(a.t, true)}</span>${b ? `<span class="t2">${waitLabel(b.t, true)}</span>` : ""}</span></button>`; }).join("") : `<div class="none">Aucun départ dans les 2 prochaines heures.</div>`}
+    <div class="mini">${gs.length ? byMode(gs, (G) => G.r).map(([mk, mn, L]) => `<div class="mgh">${modeHead(mk, mn)}</div>` + L.map((G) => { if (!G.list) return endRowHtml(G); const a = G.list[0], b = G.list[1]; return `<button type="button" data-follow="${a.pat}:${a.k}:${a.off}">${badge(G.r)}<span class="dir">${esc(G.h)}</span><span class="tw"><span class="t1">${dot(a.live)}${waitLabel(a.t, true)}</span>${b ? `<span class="t2">${waitLabel(b.t, true)}</span>` : ""}</span></button>`; }).join("")).join("") : `<div class="none">Aucun départ dans les 2 prochaines heures.</div>`}
       <button type="button" data-openstop="${i}" style="grid-template-columns:1fr auto;color:var(--focus);font-weight:600;font-size:14px">Tous les passages ${chevR}</button></div>
   </div>`;
 }
@@ -1189,17 +1205,17 @@ function runPa() {
   const gs = [...groups.values()].sort((a, b) => a.r - b.r || a.list[0].t - b.list[0].t);
   // aujourd'hui : lignes/sens dont le service est terminé (ou absent aujourd'hui) à cet arrêt
   const ended = isToday ? endedLines(S.paStop, gs, day, Math.max(t0, 0), 180) : [];
-  const endHtml = ended.map((G) => `
+  const endRow = (G) => `
     <div class="dep ended">${badge(G.r, "lg")}<div class="dir">→ ${esc(G.h)}<small>${esc(net.R[G.r].l)}</small></div>
       <div class="endt big"><b>${G.end}</b><small>${G.sub}</small></div>
-    </div>`).join("");
+    </div>`;
   if (!gs.length && !ended.length) { res.innerHTML = `<div class="empty">Aucun passage dans les 3 heures après ${hm(t0)} le ${fmtDateLong(iso)}.</div>`; drawMap(); return; }
   const nowF = nowMinF();
-  res.innerHTML = trNoteFor(net.pRoutes[S.paStop]).replace('class="trnote"', 'class="trnote" style="margin-bottom:10px"') + `<div class="legend-dots" style="margin:0 0 10px"><span>${dot(true)}temps réel</span><span>${dot(false)}horaire théorique</span><span>Touchez un horaire pour suivre le bus</span></div><div class="deps">` + gs.map((g) => `
+  res.innerHTML = trNoteFor(net.pRoutes[S.paStop]).replace('class="trnote"', 'class="trnote" style="margin-bottom:10px"') + `<div class="legend-dots" style="margin:0 0 10px"><span>${dot(true)}temps réel</span><span>${dot(false)}horaire théorique</span><span>Touchez un horaire pour suivre le bus</span></div><div class="deps">` + byMode([...gs, ...ended], (g) => g.r).map(([mk, mn, L]) => `<div class="mgh">${modeHead(mk, mn)}</div>` + L.map((g) => g.list ? `
     <div class="dep">${badge(g.r, "lg")}<div class="dir">→ ${esc(g.h)}<small>${esc(net.R[g.r].l)}</small></div>
       <div class="tt">${g.list.map((x, k) => { const w = x.t - nowF; return `<button type="button" class="chip${k === 0 && isToday && w <= 15 && w > -1 ? " soon" : ""}" data-follow="${x.pat}:${x.k}:${x.off}" title="${x.live ? "Temps réel, passage à " + hm(x.t) : "Horaire théorique, passage à " + hm(x.t)}"><span class="main">${dot(x.live)}${waitLabel(x.t, isToday)}</span>${x.live && Math.round(x.t) !== Math.round(x.st) ? `<small>${delayTxt(x.t, x.st)}</small>` : isToday && w >= 59.5 ? "" : isToday ? `<small>${hm(x.t)}</small>` : ""}</button>`; }).join("")}</div>
       <button type="button" class="linkbtn open" data-r="${g.r}" data-d="${g.dir}">Fiche horaire de la ligne ${esc(net.R[g.r].s)} ${chevR}</button>
-    </div>`).join("") + endHtml + `</div>`;
+    </div>` : endRow(g)).join("")).join("") + `</div>`;
   res.querySelectorAll(".open").forEach((b) => b.addEventListener("click", () => { S.line = +b.dataset.r; S.dir = +b.dataset.d; $("#li-date").value = $("#pa-date").value; $("#li-time").value = $("#pa-time").value; go("lignes"); }));
   res.querySelectorAll("[data-follow]").forEach((b) => b.addEventListener("click", () => { const [pi, k, off] = b.dataset.follow.split(":").map(Number); startFollow(pi, k, day + (off ? -1 : 0), S.paStop); }));
   drawMap();
@@ -1208,7 +1224,7 @@ function runPa() {
 // ---------- Lignes ----------
 setupDT($("#li-date"), $("#li-time"), () => runLi());
 function buildGrid() {
-  const groups = [["Tram", (r) => r.m === 1, 1], ["BHNS", (r) => /^O\d/.test(r.s), "bhns"], ["Urbaines", (r) => /^U/.test(r.s), 3], ["Centre et spéciales", (r) => /^[CS]/.test(r.s), 3], ["Express", (r) => /^E/.test(r.s), 3]];
+  const groups = [["Tram", (r) => r.m === 1, 1], ["BHNS", (r) => /^O\d/.test(r.s), "bhns"], ["Urbaines", (r) => /^U/.test(r.s), 3], ["Centre et scolaires", (r) => /^[CS]/.test(r.s), 3], ["Express", (r) => /^E/.test(r.s), 3]];
   $("#li-grid").innerHTML = groups.map(([n, f, m]) => { const ids = net.R.map((r, i) => [r, i]).filter(([r]) => f(r)).map(([, i]) => i); return ids.length ? `<div class="lbl withico">${modeIcon(m)}${n}</div><div class="lgrid">${ids.map((i) => `<button type="button" data-r="${i}" aria-pressed="${i === S.line}" aria-label="Ligne ${esc(net.R[i].s)}">${badge(i, "lg")}</button>`).join("")}</div>` : ""; }).join("");
 }
 buildGrid();
@@ -1575,7 +1591,7 @@ function mbCenter(st, instant) {
   clearTimeout(MB.progT); MB.progT = setTimeout(() => { MB.progScroll = false; }, 800);
 }
 // plein écran de Mon bus : en tirant le panneau tout en haut, le plan, l'en-tête et les onglets s'effacent
-if (/[?&]simu=/.test(location.search)) window.__t = { startFollow: (...a) => startFollow(...a), tripState: (...a) => tripState(...a), setSheet: (x) => setSheet(x), todayIdx: () => todayIdx(), net: () => net, MB, shape: (pi) => shapeOfPat[pi], BOARD, ME, onPat: userOnPat };
+if (/[?&]simu=/.test(location.search)) window.__t = { startFollow: (...a) => startFollow(...a), tripState: (...a) => tripState(...a), setSheet: (x) => setSheet(x), todayIdx: () => todayIdx(), net: () => net, MB, shape: (pi) => shapeOfPat[pi], BOARD, ME, onPat: userOnPat, popStop: (i) => { const p = net.P[i]; const [sx, sy] = toS(PX(p[2]), PY(p[1])); clickMap(sx, sy); return [sx, sy]; }, openPa: (i) => openPassages(i), pName: (i) => pName(i), go: (v) => go(v) };
 function updMbFull() { document.body.classList.toggle("mbfull", isMobile() && S.view === "suivi" && sheetState === "full"); }
 
 const renderFollowBg = () => renderFollow();

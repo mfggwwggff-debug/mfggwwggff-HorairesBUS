@@ -789,7 +789,7 @@ function clickMap(sx, sy) {
   if (h.kind === "veh") { pop.dataset.html = ""; popAt = { veh: { pi: h.v.pi, k: h.v.k, dk: h.v.dk } }; fillVehPop(h.v); pop.classList.add("on"); placePop(); return; }
   const best = h.i, p = net.P[best];
   pop.dataset.html = "";
-  pop.innerHTML = `<button type="button" class="x" aria-label="Fermer">×</button><h3>${esc(pName(best))}</h3><div class="badges">${net.pRoutes[best].map((r) => badge(r, "sm")).join("")}</div>
+  pop.innerHTML = `<button type="button" class="x" aria-label="Fermer">×</button><h3>${esc(pName(best))}</h3>${modeBadges(net.pRoutes[best])}
     <div class="acts"><button type="button" class="btn small primary" data-a="pa">Passages</button><button type="button" class="btn small" data-a="from">Partir d'ici</button><button type="button" class="btn small" data-a="to">Y aller</button><button type="button" class="btn small star" data-a="fav" aria-pressed="${isFavStop(best)}" aria-label="Favori" style="width:36px;padding:0">${starSvg}</button></div>`;
   popAt = { x: PX(p[2]), y: PY(p[1]), stop: best };
   pop.classList.add("on"); placePop();
