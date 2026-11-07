@@ -50,7 +50,7 @@ HEAD = {
     "cc chamfleury": "C.C. Champfleury", "gare centre": "Gare Centre", "hopital debre": "Hôpital Debré",
     "fac des sciences": "Fac des Sciences", "gare tgv": "Gare Champ. TGV", "saint brice mairie": "St Brice Mairie",
     "st brice mairie": "St Brice Mairie", "parc des expos": "Parc Expositions",
-    # À confirmer : le tableau dit « Croix Blanche », les horaires disent « Croix du Sud ».
+    # Le tableau dit « Croix Blanche » : c'est bien Croix du Sud (confirmé le 7 nov.).
     "croix blanche": "Croix du Sud",
 }
 SERV = {"parking relais": ("pr", "Parking Relais"), "parking velos": ("velo", "Parking vélos"),
