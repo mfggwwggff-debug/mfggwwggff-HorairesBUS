@@ -1,11 +1,16 @@
 name: Mise à jour des horaires
 
-# Télécharge chaque semaine le GTFS publié par Grand Reims Mobilités
-# et reconstruit index.html si les horaires ont changé.
+# Télécharge le GTFS publié par Grand Reims Mobilités et reconstruit index.html si les horaires ont changé.
+# Plusieurs fois par jour : en cas de perturbation, le réseau publie des courses modifiées pour la journée,
+# et le temps réel ne parle que de ces nouvelles courses (sinon : plus de temps réel dans l'appli).
 on:
   schedule:
-    - cron: "17 4 * * 1,4"   # lundi et jeudi, 4h17 UTC
-  workflow_dispatch:          # lancement manuel depuis l'onglet Actions
+    - cron: "17 3,9,15 * * *"   # tous les jours, 4h17, 10h17 et 16h17 (heure de Paris, hiver)
+  workflow_dispatch:            # lancement manuel depuis l'onglet Actions
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/mise-a-jour-horaires.yml
 
 permissions:
   contents: write
