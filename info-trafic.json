@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-07T14:22:10Z",
+ "at": "2026-11-07T14:59:53Z",
  "items": [
   {
    "id": "20acd05e39",
@@ -386,13 +386,10 @@
    "sec": "par ligne"
   },
   {
-   "id": "2be84c4b72",
-   "t": "Manifestation en cours le secteur place des droits de l'homme n'est plus desservi",
+   "id": "5a1ccb3eba",
+   "t": "Ce bus ne circule pas du Cc Cernay à Ferry",
    "lines": [
-    "U1",
-    "U2",
-    "U5",
-    "U6"
+    "U3"
    ],
    "p": "",
    "start": null,
