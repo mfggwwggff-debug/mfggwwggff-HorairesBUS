@@ -1425,7 +1425,7 @@ function setupDT(dateEl, timeEl, cb, onManual) {
 setupDT($("#it-date"), $("#it-time"), () => runIt(), () => { itFollowNow = false; });
 $("#it-now").addEventListener("click", () => { itFollowNow = true; S.mode = "dep"; syncMode(); $("#it-when").open = false; runIt(); });
 $("#it-swap").addEventListener("click", () => { [S.from, S.to] = [S.to, S.from]; fromP.set(S.from); toP.set(S.to); runIt(); });
-$("#it-star").addEventListener("click", () => { if (S.from == null || S.to == null) { toast("Choisissez d'abord un départ et une arrivée."); return; } toggleFavTrip(S.from, S.to); syncItStar(); });
+$("#it-star").addEventListener("click", () => { if (S.from == null || S.to == null) { toast("Choisissez d'abord un départ et une arrivée."); return; } if (isPlace(S.from) || isPlace(S.to)) { toast("Seuls les trajets d'arrêt à arrêt peuvent être enregistrés pour l'instant.", 2600); return; } toggleFavTrip(S.from, S.to); syncItStar(); });
 const syncItStar = () => setStar($("#it-star"), isFavTrip(S.from, S.to));
 const syncMode = () => { $("#it-dep").setAttribute("aria-pressed", S.mode === "dep"); $("#it-arr").setAttribute("aria-pressed", S.mode === "arr"); };
 $("#it-dep").addEventListener("click", () => { S.mode = "dep"; syncMode(); itFollowNow = false; runIt(); });
@@ -1505,7 +1505,7 @@ function renderIt(noFit) {
         ${isToday && TR.net ? jcWarn(j) : ""}
         ${tags.length ? `<div class="chain" style="grid-column:1/-1">${tags.join("")}</div>` : ""}
       </button>
-      <div class="tl">${isToday && !isPlace(S.to) ? `<button type="button" class="btn primary guidebtn" data-guide="${k}">${bellSvg.replace('width="40" height="40"', 'width="18" height="18"')}Me guider jusqu'à l'arrivée</button>` : ""}${timeline(j, k)}</div>
+      <div class="tl">${isToday ? `<button type="button" class="btn primary guidebtn" data-guide="${k}">${bellSvg.replace('width="40" height="40"', 'width="18" height="18"')}Me guider jusqu'à l'arrivée</button>` : ""}${timeline(j, k)}</div>
     </article>`;
   }).join("") + mb(1);
   res.querySelectorAll("[data-more]").forEach((b) => b.onclick = () => itMore(+b.dataset.more));
@@ -2320,7 +2320,7 @@ function guideState() {
 function guideNextInfo() {
   const s = guideState(); if (s.done) return null;
   const walk = S.guide.legs.slice(s.li + 1, s.nextR ? s.nextR[1] : undefined).filter((x) => x.type === "walk").reduce((a, x) => a + x.dur, 0);
-  if (!s.nextR) return walk ? { txt: `${walk} min à pied jusqu'à l'arrivée`, html: `<span class="lbl">Ensuite</span><span>${walkSvg} ${walk} min à pied jusqu'à ${esc(pName(S.guide.to))}</span>` } : null;
+  if (!s.nextR) return walk ? { txt: `${walk} min à pied jusqu'à l'arrivée`, html: `<span class="lbl">Ensuite</span><span>${walkSvg} ${walk} min à pied jusqu'à ${esc(vName(S.guide.to))}</span>` } : null;
   const [g2] = s.nextR, l2 = legTimes(g2), p2 = l2.p;
   return { txt: `${net.R[p2.r].s} → ${p2.h} à ${hm(l2.dep)}`,
     html: `<span class="lbl">Ensuite, correspondance</span><span class="tk-line">${badge(p2.r, "", true)}<b>→ ${esc(p2.h)}</b></span><span>${walk ? walkSvg + " " + walk + " min à pied, puis " : ""}départ ${waitLabel(l2.dep, true) === hm(l2.dep) ? "à " + hm(l2.dep) : "dans " + waitLabel(l2.dep, true)} de ${esc(qName(p2.stops[g2.bi]))}</span>` };
@@ -2332,11 +2332,11 @@ function guideTick() {
   const chain = G.legs.map((g, i) => g.type === "ride" ? `<span class="gs${!s.done && i === s.li ? " on" : ""}${s.done || (s.li != null && i < s.li) ? " ok" : ""}">${badge(net.pats[g.pat].r, "sm", true)}</span>` : `<span class="gs w">${walkSvg}${g.dur}′</span>`).join(`<span class="sep"></span>`);
   if (s.done) {
     S.follow = null;
-    const html = `<div class="fhead"><button type="button" class="icon-btn" id="gd-back" aria-label="Retour">${backSvg}</button><div class="fh-t"><h2>Vous êtes arrivé</h2><span class="fh-s">${esc(pName(G.to))}</span></div><span class="pillmode">GUIDAGE</span></div>
+    const html = `<div class="fhead"><button type="button" class="icon-btn" id="gd-back" aria-label="Retour">${backSvg}</button><div class="fh-t"><h2>Vous êtes arrivé</h2><span class="fh-s">${esc(vName(G.to))}</span></div><span class="pillmode">GUIDAGE</span></div>
       <div class="gchain">${chain}</div><div class="gcard ok"><span class="tric ok">${okSvg}</span><div><b>Trajet terminé</b><span>Bonne journée !</span></div></div>
       <button type="button" class="btn primary" id="gd-end">Terminer le guidage</button>`;
     const fo = $("#fo"); if (fo.dataset.html !== html) { fo.innerHTML = html; fo.dataset.html = html; MB.key = ""; $("#gd-end").onclick = $("#gd-back").onclick = () => { S.guide = null; go("itineraire"); }; }
-    ping(G.id + ":fin", "Vous êtes arrivé", pName(G.to));
+    ping(G.id + ":fin", "Vous êtes arrivé", vName(G.to));
     return;
   }
   $("#fo").dataset.html = "";
@@ -2355,7 +2355,7 @@ function guideTick() {
     if (G.altFor !== mkey || !G.alt) {
       G.altFor = mkey;
       const day = todayIdx();
-      G.alt = day >= 0 && day < net.nd ? planDepart(net, missed.from, G.to, day, Math.ceil(missed.ready - Math.max(1, missed.walk)), 3).filter((j) => j.legs.some((x) => x.type === "ride")).slice(0, 3) : [];
+      G.alt = day >= 0 && day < net.nd ? planDepart(net, missed.from, engPlace(G.to), day, Math.ceil(missed.ready - Math.max(1, missed.walk)), 3).filter((j) => j.legs.some((x) => x.type === "ride")).slice(0, 3) : [];
       const p2 = net.pats[s.nextR[0].pat];
       ping(G.id + ":miss:" + mkey, "Correspondance compromise", `Votre ${net.R[p.r].s} arrive à ${hm(lt.arr)}, le ${net.R[p2.r].s} part à ${hm(missed.dep2)}. Touchez pour voir les solutions.`, true);
     }
@@ -2370,7 +2370,7 @@ function guideTick() {
     body = `<span class="k">${step} · ${s.prev ? "Correspondance" : "Départ"}</span>
       <span class="gl">${badge(p.r, "lg", false)}<b>→ ${esc(p.h)}</b></span>
       <span>à <b>${esc(qName(p.stops[g.bi]))}</b> · ${w < 0.5 ? "<b>à l'arrêt</b>" : w < 59.5 ? `départ dans <b>${Math.round(w)} min</b>` : `départ à <b>${hm(lt.dep)}</b>`} · ${dot(lt.live)} <small>${lt.live ? delayTxt(lt.dep, lt.sdep) : "horaire théorique"}</small></span>
-      ${walkTot ? `<span class="gw">${walkSvg} ${s.walks.length === 1 && net.Q[s.walks[0].from][0] === net.Q[s.walks[0].to][0] ? "Changez de quai" : "Marchez jusqu'à " + esc(qName(p.stops[g.bi]))} · ${walkTot} min</span>` : ""}
+      ${walkTot ? `<span class="gw">${walkSvg} ${s.walks.length === 1 && s.walks[0].from >= 0 && net.Q[s.walks[0].from][0] === net.Q[s.walks[0].to][0] ? "Changez de quai" : "Marchez jusqu'à " + esc(qName(p.stops[g.bi]))} · ${walkTot} min</span>` : ""}
       ${away != null && away > 0 ? `<span class="gw">${busPicto("currentColor", p.r)} le ${modeOf(p.r) === "tram" ? "tram" : "bus"} est à ${away} arrêt${away > 1 ? "s" : ""}</span>` : ""}`;
     if (s.prev) ping(G.id + ":corr:" + s.li, `Correspondance : ${net.R[p.r].s} → ${p.h}`, `à ${qName(p.stops[g.bi])}, départ ${w < 59.5 ? "dans " + Math.max(0, Math.round(w)) + " min" : "à " + hm(lt.dep)}`, true);
     if (w <= 2.2 && w > 0) ping(G.id + ":soon:" + s.li, `Votre ${net.R[p.r].s} arrive`, `${qName(p.stops[g.bi])} · dans ${Math.max(1, Math.round(w))} min`);
