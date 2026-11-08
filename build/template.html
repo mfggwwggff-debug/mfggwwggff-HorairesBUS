@@ -448,8 +448,7 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
 #inbus .ibr .btn { flex: none; }
 .mappill { position: absolute; z-index: 5; left: 50%; transform: translateX(-50%); top: calc(12px + var(--sat)); display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px; border: 0; border-radius: 99px; background: var(--ink); color: var(--surface); font: 600 14px/1 var(--font-body); box-shadow: 0 3px 14px rgba(0,0,0,.25); }
 .mappill[hidden] { display: none; }
-.mappill.grow { top: auto; bottom: auto; }
-body.p32band .mapctl, body.p32cover .mapctl, body.p32cover .profbtn { display: none; }
+body.p32cover .mapctl, body.p32cover .profbtn { display: none; }
 body.p32cover #grab { visibility: hidden; height: 6px; }
 body.p32cover .sheet { border-radius: 0; box-shadow: none; }
 .li32 { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; padding: 9px 14px; border-radius: 10px; border: 1.5px solid var(--rule); background: var(--surface); font: 600 14px/1 var(--font-body); color: var(--ink); }
@@ -1211,8 +1210,8 @@ let sheetState = "half";
 function sheetTops() {
   const H = $("#app").clientHeight, tab = $(".tabbar").offsetHeight;
   const sat = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--sat")) || 0;
-  // #32 (maquette) : « cover » = liste plein écran sans plan ; « band » = plan réduit à un bandeau de 170 px
-  return { full: Math.max(56, sat + 52), half: Math.round(H * 0.46), peek: H - tab - 150, cover: sat, band: sat + 170 };
+  // #32 : « cover » = liste plein écran, sans plan
+  return { full: Math.max(56, sat + 52), half: Math.round(H * 0.46), peek: H - tab - 150, cover: sat };
 }
 function setSheet(state, silent) {
   if (!isMobile()) return;
@@ -1583,7 +1582,7 @@ function runLi() {
   const dirs = [0, 1].filter((d) => linePats(S.line, d).length);
   if (!dirs.includes(S.dir)) S.dir = dirs[0];
   const dirName = (d) => { const ps = linePats(S.line, d); const cnt = {}; ps.forEach(([p]) => cnt[p.h] = (cnt[p.h] || 0) + p.nT); return Object.entries(cnt).sort((a, b) => b[1] - a[1])[0][0]; };
-  head.innerHTML = `<div class="lhead">${badge(S.line, "lg")}<h2>${esc(r.l)}</h2></div>${P32 && isMobile() ? `<button type="button" class="li32" data-li32><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6.5v13.5l6-2.5 6 2.5 6-2.5V4l-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/></svg>Voir le tracé sur le plan</button>` : ""}${trNoteFor([S.line]).replace('class="trnote"', 'class="trnote" style="margin-top:10px"')}
+  head.innerHTML = `<div class="lhead">${badge(S.line, "lg")}<h2>${esc(r.l)}</h2></div>${isMobile() ? `<button type="button" class="li32" data-li32><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6.5v13.5l6-2.5 6 2.5 6-2.5V4l-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/></svg>Voir le tracé sur le plan</button>` : ""}${trNoteFor([S.line]).replace('class="trnote"', 'class="trnote" style="margin-top:10px"')}
     <div class="row" style="margin-top:10px"><div class="seg" role="group" aria-label="Sens">${dirs.map((d) => `<button type="button" data-d="${d}" aria-pressed="${d === S.dir}">→ ${esc(dirName(d))}</button>`).join("")}</div></div>`;
   head.querySelectorAll("[data-d]").forEach((b) => b.addEventListener("click", () => { S.dir = +b.dataset.d; runLi(); }));
   const l32 = head.querySelector("[data-li32]"); if (l32) l32.onclick = () => { p32Open(); fitLine(S.line); };
@@ -2318,7 +2317,7 @@ function trTargets(x) {
   return null;
 }
 function trZoom(x, open = true) {
-  if (open) p32Open(); // #32 : en mode liste, le plan ne s'ouvre que sur « Voir sur le plan »
+  if (open) p32Open(); // #32 : le plan ne s'ouvre que sur « Voir sur le plan »
   const T = trTargets(x);
   TR.zoom = { id: x.id, routes: trRoutes(x), geo: [], ...(T || { old: [], neu: [], pairs: [], pts: [] }) };
   if (T && T.pts.length) {
@@ -2587,7 +2586,7 @@ function renderTrafic() {
   }
   head.querySelectorAll("[data-f]").forEach((b) => b.onclick = () => { TR.filter = b.dataset.f === "" ? null : [+b.dataset.f]; TR.open = null; renderTrafic(); if (TR.filter) fitLine(TR.filter[0]); else fitHome(); drawMap(); });
   res.querySelectorAll("details").forEach((d) => d.addEventListener("toggle", () => {
-    if (d.open) { TR.open = d.dataset.id; const x = TR.items.find((y) => y.id === d.dataset.id); if (x && (trTargets(x) || trRoutes(x).length === 1)) trZoom(x, P32 !== "liste"); }
+    if (d.open) { TR.open = d.dataset.id; const x = TR.items.find((y) => y.id === d.dataset.id); if (x && (trTargets(x) || trRoutes(x).length === 1)) trZoom(x, false); }
     else if (TR.open === d.dataset.id) { TR.open = null; if (TR.zoom && TR.zoom.id === d.dataset.id) { TR.zoom = null; drawMap(); } }
   }));
   res.querySelectorAll("[data-zoom]").forEach((b) => b.addEventListener("click", () => { const x = TR.items.find((y) => y.id === b.dataset.zoom); if (x) trZoom(x); }));
@@ -2672,28 +2671,23 @@ function route() {
   updMbFull();
   drawMap();
 }
-// ---------- #32 (maquette, ?p32=liste ou ?p32=bandeau) : Lignes & plans et Info trafic sans plan interactif ----------
-const P32 = (/[?&]p32=(liste|bandeau)/.exec(location.search) || [])[1] || "";
+// ---------- #32 : Lignes & plans et Info trafic en plein écran, sans plan ; le plan s'ouvre à la demande
+// (« Voir le tracé sur le plan » d'une ligne, « Voir sur le plan » d'une info), avec « Retour » pour revenir à la liste ----------
 S.mapOpen = false;
 const P32V = ["lignes", "plans", "trafic"];
 function p32Apply() {
   const pill = $("#mappill");
-  const on = P32 && isMobile() && P32V.includes(S.view);
   if (S.p32v !== S.view) { S.p32v = S.view; S.mapOpen = false; } // changement d'onglet : on revient à la liste
-  if (!on) { S.mapOpen = false; document.body.classList.remove("p32cover", "p32band"); pill.hidden = true; if (isMobile() && (sheetState === "cover" || sheetState === "band")) setSheet("half", true); return; }
+  const on = isMobile() && P32V.includes(S.view);
+  if (!on) { S.mapOpen = false; document.body.classList.remove("p32cover"); pill.hidden = true; if (isMobile() && sheetState === "cover") setSheet("half", true); return; }
   const closed = !S.mapOpen;
-  document.body.classList.toggle("p32cover", P32 === "liste" && closed);
-  document.body.classList.toggle("p32band", P32 === "bandeau" && closed);
-  if (closed) setSheet(P32 === "liste" ? "cover" : "band", true);
-  pill.hidden = P32 === "liste" ? closed : false;
-  const back = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 3 5 8l5 5"/></svg>`;
-  const grow = `<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9.5 2.5h4v4M6.5 13.5h-4v-4M13.5 2.5 9 7M2.5 13.5 7 9"/></svg>`;
-  const shrink = `<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 7H9V3M3 9h4v4M9 7l4.5-4.5M7 9l-4.5 4.5"/></svg>`;
-  if (P32 === "liste") pill.innerHTML = back + (S.view === "trafic" ? "Retour à l'info trafic" : "Retour aux lignes");
-  else { pill.innerHTML = closed ? grow + "Agrandir le plan" : shrink + "Réduire le plan"; pill.style.top = closed ? `calc(${170 - 50}px + var(--sat))` : ""; }
-  pill.onclick = () => { S.mapOpen = !S.mapOpen; if (S.mapOpen) setSheet(P32 === "liste" ? "half" : "peek"); p32Apply(); drawMap(); };
+  document.body.classList.toggle("p32cover", closed);
+  if (closed) setSheet("cover", true);
+  pill.hidden = closed;
+  pill.innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 3 5 8l5 5"/></svg>` + (S.view === "trafic" ? "Retour à l'info trafic" : "Retour aux lignes");
+  pill.onclick = () => { S.mapOpen = false; p32Apply(); drawMap(); };
 }
-function p32Open() { if (!P32 || !isMobile()) return; S.mapOpen = true; setSheet("half"); p32Apply(); }
+function p32Open() { if (!isMobile()) return; S.mapOpen = true; setSheet("half"); p32Apply(); }
 
 /*__MAP__*/
 
