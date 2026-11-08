@@ -279,6 +279,18 @@ details.inter li span:first-child { color: var(--muted); }
 .chip.soon { background: var(--ink); color: var(--surface); border-color: var(--ink); }
 .chip.soon small { color: inherit; opacity: .8; }
 .chip.soon .dotlive, .chip.soon .dottheo { box-shadow: 0 0 0 2px var(--ink), 0 0 0 3px var(--surface); }
+/* #24 : départ non assuré (lu dans l'info trafic) */
+:root { --na: #d0242b; } @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --na: #ff6b6f; } } :root[data-theme="dark"] { --na: #ff6b6f; }
+.chip.na { background: color-mix(in srgb, var(--na) 8%, var(--surface)); border-color: color-mix(in srgb, var(--na) 45%, var(--rule)); color: var(--na); }
+.chip.na .main s { text-decoration-thickness: 2px; }
+.chip.na small { color: var(--na); font-weight: 700; letter-spacing: .02em; }
+table.tt td.na { color: var(--na); text-decoration: line-through; text-decoration-thickness: 1.5px; }
+table.tt th.na { color: var(--na); }
+.mbal.na { color: var(--ink); border: 1px solid; border-color: color-mix(in srgb, var(--na) 50%, var(--rule)); background: color-mix(in srgb, var(--na) 9%, var(--surface)); }
+.mbal.na b { color: var(--na); }
+.mbal.na > svg { color: var(--na); } .mbal .lnk svg { width: 14px; height: 14px; color: var(--focus); }
+.mbal .lnk { align-self: flex-start; display: inline-flex; align-items: center; gap: 2px; margin-top: 6px; color: var(--focus); font-weight: 600; font-size: 13px; background: none; border: 0; padding: 0; }
+.trna { margin: 10px 0 0; padding: 8px 10px; border-radius: 8px; background: color-mix(in srgb, var(--na) 8%, var(--surface)); color: var(--na); font-size: 13px; font-weight: 600; }
 .dep .open { grid-column: 1 / -1; justify-self: start; }
 .pahead { display: flex; gap: 8px; align-items: center; }
 
@@ -304,6 +316,9 @@ table.tt td.live.late { color: var(--late); }
 .fhead { display: flex; gap: 10px; align-items: center; }
 .b9 { display: inline-flex; align-items: center; gap: 5px; margin-left: 8px; padding: 2px 9px; border: 1.5px solid #1a73e8; border-radius: 99px; background: none; color: #1a73e8; font: 600 12px/1.4 var(--font-body, inherit); white-space: nowrap; vertical-align: middle; cursor: pointer; }
 .b9.wait { border-style: dashed; cursor: default; }
+.mbh .b9.na9 { border-color: currentColor; color: inherit; padding: 4px 12px; font-size: 13px; }
+.mbt.na .mbr .t { text-decoration: line-through; color: var(--muted); } .mbt.na .tagx.wt { display: none; }
+.fh-s .nast { color: var(--na); font-weight: 700; }
 .b9row { display: block; } .b9row:not(:empty) { margin-top: 5px; } .b9row .b9 { margin-left: 0; }
 .b9spin { width: 9px; height: 9px; border: 2px solid #1a73e8; border-right-color: transparent; border-radius: 50%; animation: b9s 0.8s linear infinite; }
 @keyframes b9s { to { transform: rotate(360deg); } }
@@ -1129,7 +1144,7 @@ let sheetDragBind = () => {};
 function nextByLine(stop, maxGroups = 4) {
   const iso = parisNow().iso; if (!inRange(iso)) return [];
   const day = net.dayIndex(iso), t = Math.floor(nowMinF());
-  const rows = departures(net, stop, day, t - 1, 120).filter((x) => x.t >= nowMinF() - 0.5);
+  const rows = departures(net, stop, day, t - 1, 120).filter((x) => x.t >= nowMinF() - 0.5 && !x.na);
   const g = new Map();
   for (const x of rows) { const p = net.pats[x.pat]; const key = p.r + "|" + p.h; if (!g.has(key)) g.set(key, { r: p.r, h: p.h, dir: p.dir, list: [] }); const G = g.get(key); if (G.list.length < 2) G.list.push(x); }
   const act = [...g.values()].sort((a, b) => a.list[0].t - b.list[0].t);
@@ -1390,7 +1405,7 @@ function runPa() {
   if (!feat("pliage") && MFOLD.stop !== S.paStop) { MFOLD.clear(); MFOLD.stop = S.paStop; } // sans « Mémoire de l'affichage » : tout redéplié à chaque arrêt
   res.innerHTML = trNoteFor(net.pRoutes[S.paStop]).replace('class="trnote"', 'class="trnote" style="margin-bottom:10px"') + `<div class="legend-dots" style="margin:0 0 10px"><span>${dot(true)}temps réel</span><span>${dot(false)}horaire théorique</span><span>Touchez un horaire pour suivre le bus</span></div><div class="deps">` + byMode([...gs, ...ended], (g) => g.r).map(([mk, mn, L]) => `<div class="mgrp${mk && MFOLD.has(mk) ? " fold" : ""}">${mk ? modeFoldBtn(mk, mn, L.map((g) => g.r)) : ""}<div class="mbody">` + L.map((g) => g.list ? `
     <div class="dep">${badge(g.r, "lg")}<div class="dir">→ ${esc(g.h)}<small>${esc(net.R[g.r].l)}</small></div>
-      <div class="tt">${g.list.map((x, k) => { const w = x.t - nowF; return `<button type="button" class="chip${k === 0 && isToday && w <= 15 && w > -1 ? " soon" : ""}" data-follow="${x.pat}:${x.k}:${x.off}" title="${x.live ? "Temps réel, passage à " + hm(x.t) : "Horaire théorique, passage à " + hm(x.t)}"><span class="main">${dot(x.live)}${waitLabel(x.t, isToday)}</span>${x.live && Math.round(x.t) !== Math.round(x.st) ? `<small>${delayTxt(x.t, x.st)}</small>` : isToday && w >= 59.5 ? "" : isToday ? `<small>${hm(x.t)}</small>` : ""}</button>`; }).join("")}</div>
+      <div class="tt">${g.list.map((x, k) => { const w = x.t - nowF; if (x.na) return `<button type="button" class="chip na" data-follow="${x.pat}:${x.k}:${x.off}" title="Départ de ${hm(x.st)} non assuré (info trafic)"><span class="main"><s>${hm(x.st)}</s></span><small>NON ASSURÉ</small></button>`; return `<button type="button" class="chip${k === 0 && isToday && w <= 15 && w > -1 ? " soon" : ""}" data-follow="${x.pat}:${x.k}:${x.off}" title="${x.live ? "Temps réel, passage à " + hm(x.t) : "Horaire théorique, passage à " + hm(x.t)}"><span class="main">${dot(x.live)}${waitLabel(x.t, isToday)}</span>${x.live && Math.round(x.t) !== Math.round(x.st) ? `<small>${delayTxt(x.t, x.st)}</small>` : isToday && w >= 59.5 ? "" : isToday ? `<small>${hm(x.t)}</small>` : ""}</button>`; }).join("")}</div>
       <button type="button" class="linkbtn open" data-r="${g.r}" data-d="${g.dir}">Fiche horaire de la ligne ${esc(net.R[g.r].s)} ${chevR}</button>
     </div>` : endRow(g)).join("") + `</div></div>`).join("") + `</div>`;
   res.querySelectorAll(".mfold").forEach((b) => b.addEventListener("click", () => { const k = b.dataset.mode, g = b.parentElement, f = !g.classList.contains("fold"); g.classList.toggle("fold", f); b.setAttribute("aria-expanded", !f); if (f) MFOLD.add(k); else MFOLD.delete(k); store.set("modeFold", feat("pliage") ? [...MFOLD] : []); }));
@@ -1436,7 +1451,7 @@ function runLi() {
     const cells = new Map();
     const sd = off ? day - 1 : day, [LA, LD] = arr(net, p, sd), lv = isLive(net, p, k, sd);
     p.stops.forEach((q, i) => cells.set(net.Q[q][0], [LD[k * p.nS + i] + off, p.D[k * p.nS + i] + off]));
-    cols.push({ first, last: LA[k * p.nS + p.nS - 1] + off, cells, h: p.h, lv, pi, k, sd });
+    cols.push({ first, last: LA[k * p.nS + p.nS - 1] + off, cells, h: p.h, lv, pi, k, sd, na: isNA(pi, k, sd) });
   }
   cols.sort((a, b) => a.first - b.first);
   const vis = cols.filter((c) => c.last >= t);
@@ -1444,8 +1459,8 @@ function runLi() {
   if (!vis.length) { res.innerHTML = `<div class="empty">Plus de départ après ${hm(t)} ce jour-là. Premier départ : ${hm(cols[0].first)}, dernier : ${hm(cols[cols.length - 1].first)}.</div>`; drawMap(); return; }
   const show = vis.slice(0, 60);
   res.innerHTML = `<div class="lbl" style="margin-bottom:8px">${cols.length} départs le ${fmtDateLong(iso)} · premier ${hm(cols[0].first)}, dernier ${hm(cols[cols.length - 1].first)}</div>
-  <div class="ttwrap"><table class="tt"><thead><tr><th>Arrêt</th>${show.map((c, k) => { const hh = hm(c.first).slice(0, 2); const nw = k === 0 || hm(show[k - 1].first).slice(0, 2) !== hh; return `<th title="direction ${esc(c.h)}">${nw ? hh + " h" : ""}</th>`; }).join("")}</tr></thead><tbody>
-  ${order.map((par) => `<tr><th title="${esc(pName(par))}">${esc(pName(par))}</th>${show.map((c) => c.cells.has(par) ? (() => { const [v, sc] = c.cells.get(par); return `<td class="${c.lv ? "live" + (v - sc >= 2 ? " late" : "") : ""}" title="${c.lv ? "Temps réel, prévu " + hm(sc) : "Horaire théorique"}">${hm(v)}</td>`; })() : `<td class="no">·</td>`).join("")}</tr>`).join("")}
+  <div class="ttwrap"><table class="tt"><thead><tr><th>Arrêt</th>${show.map((c, k) => { const hh = hm(c.first).slice(0, 2); const nw = k === 0 || hm(show[k - 1].first).slice(0, 2) !== hh; return `<th${c.na ? ' class="na"' : ""} title="direction ${esc(c.h)}${c.na ? " · non assuré" : ""}">${nw ? hh + " h" : ""}</th>`; }).join("")}</tr></thead><tbody>
+  ${order.map((par) => `<tr><th title="${esc(pName(par))}">${esc(pName(par))}</th>${show.map((c) => c.cells.has(par) ? (() => { const [v, sc] = c.cells.get(par); return c.na ? `<td class="na" title="Départ non assuré (info trafic)">${hm(sc)}</td>` : `<td class="${c.lv ? "live" + (v - sc >= 2 ? " late" : "") : ""}" title="${c.lv ? "Temps réel, prévu " + hm(sc) : "Horaire théorique"}">${hm(v)}</td>`; })() : `<td class="no">·</td>`).join("")}</tr>`).join("")}
   </tbody></table></div>`;
   drawMap();
 }
@@ -1668,7 +1683,7 @@ function connsAt(par, t, exclR, max = 6) {
   if (day >= 0 && day < net.nd) {
     const g = new Map();
     for (const x of departures(net, par, day, Math.floor(t), 75)) {
-      const p = net.pats[x.pat]; if (p.r === exclR || x.t < t) continue;
+      const p = net.pats[x.pat]; if (p.r === exclR || x.t < t || x.na) continue;
       const k = p.r + "|" + p.h; if (!g.has(k)) g.set(k, { r: p.r, h: p.h, list: [] });
       const G = g.get(k); if (G.list.length < 2) G.list.push(x);
     }
@@ -1729,15 +1744,16 @@ function renderFollow() {
   const near = st.state === "running" && !st.atStop && st.at(next) - t <= 1.1;
   const delay = Math.round(st.at(Math.min(nS - 1, next)) - st.sched(Math.min(nS - 1, next)));
   // pas de bouton quand le départ du terminus est encore loin (plus de 10 min)
-  const b9 = st.gps || st.state === "done" || (st.state === "before" && st.dp(0) - st.t > 10) || !feat("gps") || !feat("dedans") ? "" : BOARD.claim ? `<span class="b9 wait"><i class="b9spin"></i>Calage…</span>` : `<button type="button" class="b9" data-board>Je suis à bord</button>`;
-  $("#mb-status").innerHTML = (st.gps ? `<i class="gpsdot"></i>À bord · position GPS${delay >= 1 ? " · retard " + delay + " min" : ""}` : `${dot(st.live)}${st.live ? `Temps réel · ${delay >= 1 ? "retard " + delay + " min" : delay <= -1 ? "avance " + -delay + " min" : "à l'heure"}` : "Horaire théorique (position estimée)"}`);
+  const b9 = isNA(pi, k, dk) || st.gps || st.state === "done" || (st.state === "before" && st.dp(0) - st.t > 10) || !feat("gps") || !feat("dedans") ? "" : BOARD.claim ? `<span class="b9 wait"><i class="b9spin"></i>Calage…</span>` : `<button type="button" class="b9" data-board>Je suis à bord</button>`;
+  $("#mb-status").innerHTML = isNA(pi, k, dk) ? `<span class="nast">Non assuré · info trafic</span>` : (st.gps ? `<i class="gpsdot"></i>À bord · position GPS${delay >= 1 ? " · retard " + delay + " min" : ""}` : `${dot(st.live)}${st.live ? `Temps réel · ${delay >= 1 ? "retard " + delay + " min" : delay <= -1 ? "avance " + -delay + " min" : "à l'heure"}` : "Horaire théorique (position estimée)"}`);
   { const h9 = b9; const e9 = $("#mb-b9"); if (e9 && e9.dataset.html !== h9) { e9.innerHTML = h9; e9.dataset.html = h9; } };
   // ligne : arrêts passés, arrêt suivant, bus
   // en attente au terminus ou à un arrêt : bus immobile sur l'arrêt, halo lent, étiquette ; en route : chevrons
   const waiting = st.state === "before" || st.atStop, waitAt = st.state === "before" ? 0 : st.i;
   const busTop = ((st.state === "before" ? 0 : st.pos) - MB.first) * ROWH + ROWH / 2;
   $("#mb-bus").style.top = busTop + "px";
-  $("#mb-bus").classList.toggle("hide", st.state === "done");
+  $("#mb-bus").classList.toggle("hide", st.state === "done" || isNA(pi, k, dk));
+  $("#mb-track").classList.toggle("na", isNA(pi, k, dk));
   $("#mb-bus").classList.toggle("wait", waiting);
   $("#mb-bus").classList.toggle("gps", !!st.gps);
   // les chevrons partent de sous le bus et s'arrêtent à l'arrêt suivant (#15 : jamais au-delà)
@@ -1796,10 +1812,20 @@ function renderFollow() {
       <div class="pg"><i style="width:${Math.round(prog * 100)}%;background:${R.c}"></i></div>
       <div class="r2"><span>${dest != null ? "Descente" : "Terminus"} : <b>${esc(qName(p.stops[target]))}</b></span><span>${st.state === "done" ? "arrivé" : tl}</span></div></div>`;
   }
-  if ($("#mb-hero").dataset.html !== hero) { $("#mb-hero").innerHTML = hero; $("#mb-hero").dataset.html = hero; }
+  // #24 : départ non assuré → à la place, le prochain départ assuré de la même ligne et direction
+  const naTrip = isNA(pi, k, dk);
+  if (naTrip) {
+    const fi = from ?? 0, par = net.Q[p.stops[fi]][0];
+    const nx = departures(net, par, dk, Math.ceil(st.dp(fi)), 240).find((x) => !x.na && x.off === 0 && net.pats[x.pat].r === p.r && net.pats[x.pat].h === p.h && x.t > st.dp(fi));
+    hero = `<div class="mbh"><div class="r1"><div class="c"><span class="k">Prochain départ assuré</span><b>${esc(qName(p.stops[fi]))}</b></div><span class="eta">${nx ? hm(nx.t) : "—"}</span></div>
+      <div class="r2"><span>${nx ? (nx.t - t < 59.5 ? "dans " + Math.max(1, Math.round(nx.t - t)) + " min" : "à " + hm(nx.t)) : "Plus de départ assuré aujourd'hui"}</span>${nx ? `<button type="button" class="b9 na9" data-nafollow="${nx.pat}:${nx.k}:${dk}:${par}">Suivre ce ${modeOf(p.r) === "tram" ? "tram" : "bus"}</button>` : ""}</div></div>`;
+  }
+  if ($("#mb-hero").dataset.html !== hero) { $("#mb-hero").innerHTML = hero; $("#mb-hero").dataset.html = hero; const nf = $("#mb-hero [data-nafollow]"); if (nf) nf.onclick = () => { const [a, b, c, d] = nf.dataset.nafollow.split(":").map(Number); startFollow(a, b, c, d); }; }
   // alertes de descente
   let banner = "";
-  if (dest != null && S.follow.alert && st.state !== "before") {
+  // #24 : course retirée par l'info trafic
+  if (naTrip) banner = `<div class="mbal na">${alertSvg}<div><b>Ce départ n'est pas assuré</b><span>Le départ de ${hm(st.dp(0))} de ${esc(qName(p.stops[0]))} est supprimé, selon l'info trafic.</span><button type="button" class="lnk" data-trlines="${p.r}">Voir l'info trafic ${chevR}</button></div></div>`;
+  else if (dest != null && S.follow.alert && st.state !== "before") {
     const dn = qName(p.stops[dest]);
     if (st.state !== "done" && st.atStop && st.i === dest || (st.state === "done" && dest === nS - 1)) {
       banner = `<div class="mbal hot">${bellSvg}<div><b>Vous êtes arrivé</b><span>${esc(dn)}</span></div></div>`;
@@ -2150,13 +2176,50 @@ function trZoom(x) {
   } else if (TR.zoom.routes.length === 1) fitLine(TR.zoom.routes[0]);
   drawMap();
 }
+// #24 : « Départs de Gare Clairmarais non assurés : 6h51-7h53-… » → courses retirées (barrées dans Passages, Mon bus et la fiche horaire,
+// jamais proposées dans l'itinéraire, pas de bus sur le plan). La date vient de la ligne « Samedi 7 novembre 2026 : », sinon de l'info, sinon aujourd'hui.
+const MOIS = ["janvier", "fevrier", "mars", "avril", "mai", "juin", "juillet", "aout", "septembre", "octobre", "novembre", "decembre"];
+const trKey = (s) => trPlain(s).replace(/[^a-z0-9]+/g, " ").trim();
+function trCancel() {
+  net.pats.forEach((p) => { p.na = null; });
+  TR.na = new Map(); // id de l'info → nombre de départs retirés
+  const poles = new Map(net.P.map((P, i) => [trKey(P[0]), i]));
+  for (const x of TR.items) {
+    if (!/non assur|pas assur/.test(trText(x))) continue;
+    const rs = trRoutes(x); if (!rs.length) continue;
+    let iso = x.start || parisNow().iso, n = 0;
+    for (const b of x.b || []) {
+      const t = trPlain((b.r || []).map((r) => r[0]).join(""));
+      const dm = t.match(/(\d{1,2})(?:er)? (janvier|fevrier|mars|avril|mai|juin|juillet|aout|septembre|octobre|novembre|decembre) (\d{4})/);
+      if (dm) { iso = `${dm[3]}-${String(MOIS.indexOf(dm[2]) + 1).padStart(2, "0")}-${dm[1].padStart(2, "0")}`; continue; }
+      const m = t.match(/departs? (?:de |du |d')(.+?) (?:sont |ne sont pas |)(?:non|pas) assures? ?:? ?(.+)/);
+      if (!m) continue;
+      const pole = poles.get(trKey(m[1])); if (pole == null) continue;
+      const mins = [...m[2].matchAll(/(\d{1,2}) ?h ?(\d{2})?/g)].map((h) => +h[1] * 60 + (+h[2] || 0));
+      const day = net.dayIndex(iso);
+      for (const pi of net.pats.keys()) {
+        const p = net.pats[pi]; if (!rs.includes(p.r)) continue;
+        for (let i = 0; i < p.nS - 1; i++) {
+          if (net.Q[p.stops[i]][0] !== pole) continue;
+          for (let k = 0; k < p.nT; k++) {
+            if (!net.svcOn(p.sv[k], day)) continue;
+            const dt = p.D[k * p.nS + i];
+            if (mins.some((mm) => Math.abs(mm - dt) <= 1)) { (p.na ||= new Set()).add(k + ":" + day); n++; }
+          }
+        }
+      }
+    }
+    if (n) TR.na.set(x.id, n);
+  }
+}
+const isNA = (pi, k, dk) => { const p = net.pats[pi]; return !!(p && p.na && p.na.has(k + ":" + dk)); };
 async function loadTrafic() {
   try {
     const r = await fetch("info-trafic.json?v=" + Math.floor(Date.now() / 120000), { cache: "no-cache" });
     if (!r.ok) throw new Error("HTTP " + r.status);
     const d = await r.json(); TR.items = d.items || []; TR.at = d.at || null; TR.src = d.src || ""; TR.ok = true;
   } catch (e) { /* page hébergée ailleurs (claude.ai) ou fichier absent : on garde l'état précédent */ }
-  trIndex(); buildGrid();
+  trCancel(); trIndex(); buildGrid();
   if (S.view === "trafic") renderTrafic(); else rerender();
 }
 function trNoteFor(routes, small) {
@@ -2200,7 +2263,9 @@ function trItem(x) {
   const rt = trRT(x) && st === "now";
   const zoomable = !!trTargets(x) || trRoutes(x).length === 1;
   const zb = zoomable ? `<button type="button" class="linkbtn trzoom" data-zoom="${esc(x.id)}">Voir sur le plan ${chevR}</button>` : "";
-  return `<details class="tritem${rt ? " trlive" : ""}" data-id="${esc(x.id)}"${TR.open === x.id ? " open" : ""}><summary><span class="tt2">${esc(x.t)}</span><svg class="chev" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 5 4 4 4-4"/></svg>${x.p ? `<span class="pp">${esc(x.p)}</span>` : ""}<span class="bs"><span class="tag ${rt ? "live" : st === "now" ? "now" : "soon"}">${rt ? "En direct" : st === "now" ? (trRecur(x) ? "Aujourd'hui" : "En cours") : st === "recur" ? "Chaque " + trRecur(x).name : st === "info" ? "Info" : "À venir"}</span>${trRoutes(x).map((r) => badge(r, "sm")).join("")}</span></summary>${body || zb ? `<div class="body">${body}${zb}</div>` : ""}</details>`;
+  const nna = TR.na && TR.na.get(x.id); // #24
+  const nab = nna ? `<div class="trna">${nna > 1 ? nna + " départs barrés" : "1 départ barré"} dans les horaires de l'appli et retirés des itinéraires.</div>` : "";
+  return `<details class="tritem${rt ? " trlive" : ""}" data-id="${esc(x.id)}"${TR.open === x.id ? " open" : ""}><summary><span class="tt2">${esc(x.t)}</span><svg class="chev" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 5 4 4 4-4"/></svg>${x.p ? `<span class="pp">${esc(x.p)}</span>` : ""}<span class="bs"><span class="tag ${rt ? "live" : st === "now" ? "now" : "soon"}">${rt ? "En direct" : st === "now" ? (trRecur(x) ? "Aujourd'hui" : "En cours") : st === "recur" ? "Chaque " + trRecur(x).name : st === "info" ? "Info" : "À venir"}</span>${trRoutes(x).map((r) => badge(r, "sm")).join("")}</span></summary>${body || zb || nab ? `<div class="body">${body}${nab}${zb}</div>` : ""}</details>`;
 }
 // ---------- #11 Mon profil ----------
 const grip = `<svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><circle cx="6.5" cy="4" r="1.4"/><circle cx="11.5" cy="4" r="1.4"/><circle cx="6.5" cy="9" r="1.4"/><circle cx="11.5" cy="9" r="1.4"/><circle cx="6.5" cy="14" r="1.4"/><circle cx="11.5" cy="14" r="1.4"/></svg>`;

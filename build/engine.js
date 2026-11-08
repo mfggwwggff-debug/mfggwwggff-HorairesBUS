@@ -99,7 +99,7 @@ function firstTrip(net, p, i, ready, day) {
     const [, DD] = arr(net, p, dk);
     for (let k = 0; k < p.nT; k++) {
       const t = DD[k * p.nS + i] + off;
-      if (t >= ready && (!best || t < best.t) && net.svcOn(p.sv[k], dk)) best = { k, off, t, dk };
+      if (t >= ready && (!best || t < best.t) && net.svcOn(p.sv[k], dk) && !(p.na && p.na.has(k + ":" + dk))) best = { k, off, t, dk };
     }
   }
   if (best) [best.A, best.D] = arr(net, p, best.dk);
@@ -250,7 +250,7 @@ function departures(net, pStop, day, t0, horizon = 120) {
         const [, DD] = arr(net, p, dk);
         for (let k = 0; k < p.nT; k++) {
           const tt = DD[k * p.nS + i] + off;
-          if (tt >= t0 && tt <= t0 + horizon && net.svcOn(p.sv[k], dk)) rows.push({ t: tt, st: p.D[k * p.nS + i] + off, live: isLive(net, p, k, dk), pat: lst[x], k, i, off, q });
+          if (tt >= t0 && tt <= t0 + horizon && net.svcOn(p.sv[k], dk)) rows.push({ t: tt, st: p.D[k * p.nS + i] + off, live: isLive(net, p, k, dk), pat: lst[x], k, i, off, q, na: !!(p.na && p.na.has(k + ":" + dk)) });
         }
       }
     }

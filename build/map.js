@@ -184,7 +184,7 @@ function vehicles() {
     for (const dk of [today, today - 1]) {
       if (dk < 0 || dk >= net.nd) continue;
       for (let k = 0; k < p.nT; k++) {
-        if (!net.svcOn(p.sv[k], dk)) continue;
+        if (!net.svcOn(p.sv[k], dk) || (p.na && p.na.has(k + ":" + dk))) continue; // #24 : départ non assuré, pas de bus
         const v = posOf(pi, k, dk, t, today); if (v) out.push(v);
       }
     }
