@@ -3031,9 +3031,18 @@ const UPD_0611 = [
 // ajouter une entrée en tête (1 à 4 volets de nouveautés + un volet « Corrections »), elle s'affiche une fois.
 const personSvg = (n) => `<svg width="${n}" height="${n}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.6 4.2-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/></svg>`;
 const UPD_LOG = [
-  { v: "2026-11-08", t: "Quelques corrections", slides: [
+  // 8 nov. au soir : remplace la présentation « Quelques corrections » du même jour (reprise dans le dernier volet)
+  { v: "2026-11-08.2", t: "Par où descendre, adresses et info trafic plus précise", slides: [
+    { ico: icoSvg('<rect x="3" y="7" width="18" height="10" rx="3"/><path d="M9 7v10M15 7v10M3 12h18"/><path d="M12 20v2M9 22h6"/>'), t: "Par où descendre",
+      b: "<p>Dans le tram et le BHNS, en arrivant à votre arrêt, l'appli vous montre par quelle porte descendre (avant, milieu ou arrière) pour être au plus près de votre correspondance.</p><p>Avec « Me guider », votre bus suivant est en orange, avec le chemin à pied.</p>" },
+    { ico: icoSvg('<path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/>'), t: "Partez d'une adresse",
+      b: "<p>Dans Itinéraire, tapez une adresse ou choisissez « Ma position ». Vous pouvez aussi toucher le plan n'importe où : « Partir d'ici » ou « Y aller ».</p><p>Le trajet compte la marche jusqu'aux arrêts, et le guidage vous mène jusqu'à l'adresse.</p>" },
+    { ico: icoSvg('<circle cx="12" cy="12" r="8.5"/><path d="M6 6l12 12"/>'), t: "Départs supprimés, tram remplacé",
+      b: "<p>Quand l'info trafic annonce des départs non assurés, ils sont barrés en rouge dans les horaires et ne vous sont plus proposés.</p><p>Les jours où le tram est remplacé par des bus, un bandeau vous indique où prendre la SUB à chaque arrêt du tram.</p>" },
+    { ico: icoSvg('<path d="M4 6h16M4 12h16M4 18h10"/>'), t: "Lignes et info trafic en plein écran",
+      b: "<p>Lignes & plans et Info trafic prennent tout l'écran, pour en voir plus d'un coup.</p><p>Le plan s'ouvre quand vous en avez besoin : « Voir le tracé sur le plan » pour une ligne, « Voir sur le plan » pour une info.</p>" },
     { ico: icoSvg('<path d="M20 6 9 17l-5-5"/>'), t: "Et quelques corrections",
-      b: "<ul><li>Le tram est de nouveau affiché comme un tram partout (picto, « Mon tram », plan).</li><li>Plus de traits de couleur parasites sur le plan quand on zoome.</li></ul>" },
+      b: "<ul><li>Le tram est de nouveau affiché comme un tram partout (picto, « Mon tram », plan).</li><li>Plus de traits de couleur parasites sur le plan quand on zoome.</li><li>Arrêté à un feu rouge, le bus ne recule plus sur le plan : il reste immobile.</li><li>Les bus de remplacement du tram (SUB) n'apparaissent que les jours où ils circulent.</li></ul>" },
   ] },
   { v: "2026-11-07", t: "Mon profil et un Mon bus plus malin", slides: [
     { ico: personSvg(34), t: "Votre profil",
@@ -3047,7 +3056,7 @@ const UPD_LOG = [
   { v: "2026-11-06", t: "Info trafic, fin de service et nouveau plan", slides: UPD_0611 },
 ];
 const UPD = UPD_LOG[0].v;
-const fmtUpd = (v) => new Date(v + "T12:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+const fmtUpd = (v) => new Date(v.slice(0, 10) + "T12:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
 // volets à faire défiler (présentation des mises à jour #23, installation de l'appli #22)
 function updPop(slides = UPD_LOG[0].slides, o = {}) {
   let el = $("#updpop");
