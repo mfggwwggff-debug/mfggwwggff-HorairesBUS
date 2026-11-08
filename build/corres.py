@@ -9,7 +9,7 @@ Ce que contient build/corres.json :
       "O1": { "<arrêt>": { "quai": ..., "dirs": { "<direction de la O1>"|"T": {...} } } },
       "O2": { ... } } }
   - Arrêts et directions : noms des horaires.
-  - Tram : N vers Neufchâtel, S vers Hôpital Debré / Gare TGV. T = terminus, positions notées dans le sens du DÉPART.
+  - Tram : N vers Neufchâtel, S vers Hôpital Debré / Gare TGV. T = terminus, positions notées dans le sens de l'ARRIVÉE (tram et BHNS, confirmé le 8 nov.).
   - BHNS : clé = direction de la O1 / O2 (« Moulin Housse », « Danemark », « C.C. Cormontreuil », « Gare Centre »).
   - "quai" : "lat" (latéraux), "dec" (latéraux décalés), "cen" (central), "uni" (quai unique).
   Chaque sens : { "portes": "d" | "g", "pos": [ ... ] } (le BHNS ouvre toujours à droite).
@@ -54,6 +54,7 @@ HEAD = {
     "val de vesle": "Val-de-Vesle", "st symphorien": "Saint-Symphorien", "z.i. pompelle": "ZI Pompelle",
     "cc champfleury": "C.C. Champfleury",
 }
+# « C' » du tableau = la C des horaires (confirmé le 8 nov.).
 # Arrêts de la O1 et de la O2 (nom du tableau normalisé -> nom des horaires)
 STOP_BHNS = {
     "danemark": "Danemark", "baussonnet": "Baussonnet", "romains": "Romains", "gare clairmarais": "Gare Clairmarais",
