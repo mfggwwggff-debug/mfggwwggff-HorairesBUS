@@ -1,13 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" fill="none">
-  <path d="M18 2.5H30M21 7.5 26 5 22 2.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-  <path fill="currentColor" fill-rule="evenodd" d="
-    M12.5 7.5H35.5Q39.5 7.5 39.5 11.5V37.5Q39.5 40.5 36.5 40.5H11.5Q8.5 40.5 8.5 37.5V11.5Q8.5 7.5 12.5 7.5Z
-    M13.6 10H34.4Q34.9 10 34.9 10.5V12Q34.9 12.5 34.4 12.5H13.6Q13.1 12.5 13.1 12V10.5Q13.1 10 13.6 10Z
-    M12.5 15.5H35.5V26Q35.5 28.5 33 28.5H15Q12.5 28.5 12.5 26Z
-    M13.3 33.2H17.7Q18.5 33.2 18.5 34Q18.5 34.8 17.7 34.8H13.3Q12.5 34.8 12.5 34Q12.5 33.2 13.3 33.2Z
-    M30.3 33.2H34.7Q35.5 33.2 35.5 34Q35.5 34.8 34.7 34.8H30.3Q29.5 34.8 29.5 34Q29.5 33.2 30.3 33.2Z
-    M22 32.5H26V36H22Z"/>
-  <path fill="currentColor" d="M13 40H18V42.5H13Z M30 40H35V42.5H30Z"/>
-  <path d="M8 44.3H40" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
-  <path d="M11 46.5V45M17 46.5V45M24 46.5V45M31 46.5V45M37 46.5V45" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" fill="none"><rect x="2" y="2" width="44" height="44" rx="10" stroke="currentColor" stroke-width="3"/><text x="24" y="29.5" text-anchor="middle" font-family="DM Sans,system-ui,sans-serif" font-size="17" font-weight="800" fill="currentColor" letter-spacing="-.02em">TER</text></svg>
