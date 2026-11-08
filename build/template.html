@@ -331,7 +331,7 @@ table.tt td.live.late { color: var(--late); }
 #fo-close { display: none; }
 @media (max-width: 899px) {
   body.mbfull .sheet { top: 0 !important; bottom: 0; z-index: 30; border-radius: 0; padding-top: var(--sat); transition: none; }
-  body.mbfull #grab, body.mbfull #sheethead, body.mbfull #nightbar, body.mbfull #netbar { display: none !important; }
+  body.mbfull #grab, body.mbfull #sheethead, body.mbfull #nightbar, body.mbfull #netbar, body.mbfull #subbar { display: none !important; }
   body.mbfull #fo-back { display: none; }
   body.mbfull #fo-close { display: grid; }
   body.mbfull .mbtop { padding-top: 10px; }
@@ -631,6 +631,21 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
 /* réseau fortement perturbé : bandeau orange + pop-up une fois par info */
 .netbar { flex: none; display: flex; align-items: center; gap: 10px; margin: 0 16px 8px; min-height: 40px; padding: 8px 12px; border: 0; border-radius: 12px; background: var(--accent-strong); color: var(--accent-strong-ink); font: 600 13.5px/1.25 var(--font-body); text-align: left; }
 .netbar[hidden] { display: none; }
+/* #30 : tram remplacé par des bus (SUB) */
+.netbar.subbar { background: #01A5C8; color: #fff; }
+.netbar.subbar .sbg { flex: none; display: inline-flex; }
+.subcard { margin: 0 0 12px; border: 1.5px solid color-mix(in srgb, #01A5C8 55%, var(--rule)); border-radius: var(--r); background: color-mix(in srgb, #01A5C8 7%, var(--surface)); overflow: hidden; }
+.subcard .subh { display: flex; align-items: center; gap: 10px; padding: 12px 12px 8px; }
+.subcard .subh .nm { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.subcard .subh b { font: 700 16px/1.2 var(--font-display); }
+.subcard .subh small { font-size: 12.5px; color: var(--muted); }
+.subcard .subw { display: flex; gap: 8px; align-items: flex-start; padding: 0 12px 10px; font-size: 14px; line-height: 1.35; }
+.subcard .subw svg { flex: none; margin-top: 1px; color: #01A5C8; }
+.subcard .subd { display: grid; grid-template-columns: 1fr; gap: 6px; padding: 10px 12px; border-top: 1px solid color-mix(in srgb, #01A5C8 25%, var(--rule)); background: var(--surface); }
+.subcard .subd .dir { font-weight: 600; font-size: 14px; }
+.subcard .subd .tt { display: flex; gap: 8px; overflow-x: auto; }
+.subcard .linkbtn { margin: 0; padding: 10px 12px; border-top: 1px solid color-mix(in srgb, #01A5C8 25%, var(--rule)); width: 100%; background: var(--surface); }
+.subline { display: flex; align-items: center; gap: 8px; padding: 8px 12px; font-size: 13px; color: var(--ink); background: color-mix(in srgb, #01A5C8 8%, var(--surface)); border-top: 1px solid var(--rule); }
 .netbar span { flex: 1; min-width: 0; }
 .mega { animation: shout 2.4s ease-in-out infinite; transform-origin: 30% 60%; }
 @keyframes shout { 0%, 60%, 100% { transform: rotate(0); } 10% { transform: rotate(-10deg) scale(1.06); } 20% { transform: rotate(8deg) scale(1.06); } 30% { transform: rotate(-6deg); } 40% { transform: rotate(4deg); } 50% { transform: rotate(0); } }
@@ -784,6 +799,7 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
     </header>
     <div class="nightbar" id="nightbar" role="status" hidden></div>
     <button type="button" class="netbar" id="netbar" hidden></button>
+    <button type="button" class="netbar subbar" id="subbar" hidden></button>
     <div class="scroll" id="scroll">
 
       <!-- Accueil -->
@@ -969,6 +985,17 @@ net.hidden = new Set();
 { const t0 = todayIdx(); net.R.forEach((r, ri) => { if (r.s !== "SUB") return; if (!net.pats.some((p) => p.r === ri && p.sv.some((sv) => net.svcOn(sv, t0) || net.svcOn(sv, t0 + 1)))) net.hidden.add(ri); }); }
 if (net.hidden.size) net.pRoutes = net.pRoutes.map((l) => l.filter((r) => !net.hidden.has(r)));
 const shownR = (i) => !net.hidden.has(i);
+// #30 : jour « mode SUB » = la SUB (bus de substitution du tram) circule ce jour-là
+const SUBR = net.R.findIndex((r) => r.s === "SUB");
+const isTramR = (r) => net.R[r].m === 1;
+const subOn = (day) => SUBR >= 0 && net.pats.some((p) => p.r === SUBR && p.sv.some((sv) => net.svcOn(sv, day)));
+const SUBP = SUBR < 0 ? [] : [...new Set(net.pats.filter((p) => p.r === SUBR).flatMap((p) => p.stops.map((q) => net.Q[q][0])))];
+// arrêt de la SUB le plus proche d'un arrêt du tram (même arrêt, ou à pied)
+function subNear(par) {
+  const P0 = net.P[par]; let best = null;
+  for (const sp of SUBP) { const d = sp === par ? 0 : distM(P0[1], P0[2], net.P[sp][1], net.P[sp][2]); if (!best || d < best.d) best = { i: sp, d }; }
+  return best;
+}
 const toMin = (v) => { const [h, m] = (v || "0:0").split(":").map(Number); return h * 60 + m; };
 const toVal = (m) => hm(m);
 $(".mark").innerHTML = grmSymbol();
@@ -1177,6 +1204,12 @@ function endedLines(stop, act, day, t, horizon) {
   return out.sort((a, b) => (a.next ?? 1e9) - (b.next ?? 1e9) || a.r - b.r);
 }
 const endRowHtml = (G) => `<div class="endrow">${badge(G.r)}<span class="dir">${esc(G.h)}</span><span class="endt"><b>${G.end}</b><small>${G.sub}</small></span></div>`;
+// #30 : sous une carte d'arrêt du tram, où prendre la SUB
+function subCardLine(i) {
+  if (SUBR < 0 || !subOn(todayIdx()) || !net.pRoutes[i].some(isTramR)) return "";
+  const nb = subNear(i); if (!nb || nb.d > 700) return `<div class="subline">${badge(SUBR, "sm", true)}<span>Tram remplacé par des bus · pas de SUB à cet arrêt</span></div>`;
+  return `<button type="button" class="subline" data-openstop="${nb.i}" style="width:100%;border:0;text-align:left">${badge(SUBR, "sm", true)}<span style="flex:1">Tram remplacé : SUB ${nb.i === i ? "à cet arrêt" : "à " + esc(pName(nb.i)) + " · " + walkTxt(nb.d)}</span>${chevR}</button>`;
+}
 function stopCard(i, sub) {
   const gs = nextByLine(i);
   const star = isFavStop(i);
@@ -1185,6 +1218,7 @@ function stopCard(i, sub) {
       <button type="button" class="icon-btn star" data-favstop="${i}" aria-pressed="${star}" aria-label="${star ? "Retirer des favoris" : "Ajouter aux favoris"}">${starSvg}</button></div>
     <div class="mini">${gs.length ? byMode(gs, (G) => G.r).map(([mk, mn, L]) => (mk ? `<div class="mgh">${modeHead(mk, mn)}</div>` : "") + L.map((G) => { if (!G.list) return endRowHtml(G); const a = G.list[0], b = G.list[1]; return `<button type="button" data-follow="${a.pat}:${a.k}:${a.off}">${badge(G.r)}<span class="dir">${esc(G.h)}</span><span class="tw"><span class="t1">${dot(a.live)}${waitLabel(a.t, true)}</span>${b ? `<span class="t2">${waitLabel(b.t, true)}</span>` : ""}</span></button>`; }).join("")).join("") : `<div class="none">Aucun départ dans les 2 prochaines heures.</div>`}
       <button type="button" data-openstop="${i}" style="grid-template-columns:1fr auto;color:var(--focus);font-weight:600;font-size:14px">Tous les passages ${chevR}</button></div>
+    ${subCardLine(i)}
   </div>`;
 }
 function tripCardHtml(a, b, k) {
@@ -1403,7 +1437,7 @@ function runPa() {
   if (!gs.length && !ended.length) { res.innerHTML = `<div class="empty">Aucun passage dans les 3 heures après ${hm(t0)} le ${fmtDateLong(iso)}.</div>`; drawMap(); return; }
   const nowF = nowMinF();
   if (!feat("pliage") && MFOLD.stop !== S.paStop) { MFOLD.clear(); MFOLD.stop = S.paStop; } // sans « Mémoire de l'affichage » : tout redéplié à chaque arrêt
-  res.innerHTML = trNoteFor(net.pRoutes[S.paStop]).replace('class="trnote"', 'class="trnote" style="margin-bottom:10px"') + `<div class="legend-dots" style="margin:0 0 10px"><span>${dot(true)}temps réel</span><span>${dot(false)}horaire théorique</span><span>Touchez un horaire pour suivre le bus</span></div><div class="deps">` + byMode([...gs, ...ended], (g) => g.r).map(([mk, mn, L]) => `<div class="mgrp${mk && MFOLD.has(mk) ? " fold" : ""}">${mk ? modeFoldBtn(mk, mn, L.map((g) => g.r)) : ""}<div class="mbody">` + L.map((g) => g.list ? `
+  res.innerHTML = subBlock(S.paStop, day, t0, isToday) + trNoteFor(net.pRoutes[S.paStop]).replace('class="trnote"', 'class="trnote" style="margin-bottom:10px"') + `<div class="legend-dots" style="margin:0 0 10px"><span>${dot(true)}temps réel</span><span>${dot(false)}horaire théorique</span><span>Touchez un horaire pour suivre le bus</span></div><div class="deps">` + byMode([...gs, ...ended], (g) => g.r).map(([mk, mn, L]) => `<div class="mgrp${mk && MFOLD.has(mk) ? " fold" : ""}">${mk ? modeFoldBtn(mk, mn, L.map((g) => g.r)) : ""}<div class="mbody">` + L.map((g) => g.list ? `
     <div class="dep">${badge(g.r, "lg")}<div class="dir">→ ${esc(g.h)}<small>${esc(net.R[g.r].l)}</small></div>
       <div class="tt">${g.list.map((x, k) => { const w = x.t - nowF; if (x.na) return `<button type="button" class="chip na" data-follow="${x.pat}:${x.k}:${x.off}" title="Départ de ${hm(x.st)} non assuré (info trafic)"><span class="main"><s>${hm(x.st)}</s></span><small>NON ASSURÉ</small></button>`; return `<button type="button" class="chip${k === 0 && isToday && w <= 15 && w > -1 ? " soon" : ""}" data-follow="${x.pat}:${x.k}:${x.off}" title="${x.live ? "Temps réel, passage à " + hm(x.t) : "Horaire théorique, passage à " + hm(x.t)}"><span class="main">${dot(x.live)}${waitLabel(x.t, isToday)}</span>${x.live && Math.round(x.t) !== Math.round(x.st) ? `<small>${delayTxt(x.t, x.st)}</small>` : isToday && w >= 59.5 ? "" : isToday ? `<small>${hm(x.t)}</small>` : ""}</button>`; }).join("")}</div>
       <button type="button" class="linkbtn open" data-r="${g.r}" data-d="${g.dir}">Fiche horaire de la ligne ${esc(net.R[g.r].s)} ${chevR}</button>
@@ -1412,6 +1446,41 @@ function runPa() {
   res.querySelectorAll(".open").forEach((b) => b.addEventListener("click", () => { S.line = +b.dataset.r; S.dir = +b.dataset.d; $("#li-date").value = $("#pa-date").value; $("#li-time").value = $("#pa-time").value; go("lignes"); }));
   res.querySelectorAll("[data-follow]").forEach((b) => b.addEventListener("click", () => { const [pi, k, off] = b.dataset.follow.split(":").map(Number); startFollow(pi, k, day + (off ? -1 : 0), S.paStop); }));
   drawMap();
+}
+
+// ---------- #30 : tram remplacé par des bus (SUB) ----------
+const pinSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg>`;
+const walkTxt = (d) => `${Math.round(d / 10) * 10} m · ${Math.max(1, Math.round(d * 1.25 / 75))} min à pied`;
+function subBlock(par, day, t0, isToday) {
+  if (SUBR < 0 || !subOn(day) || !net.pRoutes[par].some(isTramR) && !SUBP.includes(par)) return "";
+  const nb = subNear(par); if (!nb) return "";
+  const when = isToday ? "Aujourd'hui, toute la journée" : fmtDateLong(net.isoOf(day)).replace(/^./, (c) => c.toUpperCase());
+  let h = `<div class="subcard"><div class="subh">${badge(SUBR, "lg", true)}<div class="nm"><b>Tram remplacé par des bus</b><small>${when}</small></div></div>`;
+  if (nb.d > 700) return h + `<div class="subw">${pinSvg}<span>Pas de bus de remplacement à cet arrêt. Arrêt de la SUB le plus proche : <b>${esc(pName(nb.i))}</b> (${(nb.d / 1000).toFixed(1).replace(".", ",")} km). Pour le centre-ville, prenez les bus du réseau.</span></div><button type="button" class="linkbtn" data-subline>Plan de la SUB ${chevR}</button></div>`;
+  // chaque sens de la SUB peut s'arrêter de l'autre côté de la rue (autre arrêt) : on prend, pour chaque direction, l'arrêt le plus proche
+  const P0 = net.P[par], near = SUBP.map((sp) => ({ i: sp, d: sp === par ? 0 : distM(P0[1], P0[2], net.P[sp][1], net.P[sp][2]) })).filter((x) => x.d <= nb.d + 250).sort((a, b) => a.d - b.d);
+  const nowF = nowMinF(), g = new Map();
+  for (const n of near) for (const x of departures(net, n.i, day, t0, 180)) {
+    const p = net.pats[x.pat]; if (p.r !== SUBR || (isToday && x.t < nowF - 0.5)) continue;
+    if (!g.has(p.h)) g.set(p.h, { at: n, list: [] }); const G = g.get(p.h); if (G.at.i !== n.i) continue; if (G.list.length < 4) G.list.push(x);
+  }
+  const same = [...g.values()].every((G) => G.at.i === par);
+  h += `<div class="subw">${pinSvg}<span>${same ? "Prenez la <b>SUB</b> à cet arrêt" : "Prenez la <b>SUB</b> à deux pas, selon votre direction"}</span></div>`;
+  h += [...g].map(([hd, G]) => `<div class="subd"><span class="dir">→ ${esc(hd)}${same ? "" : `<small style="display:block;font-weight:500;color:var(--muted);font-size:12.5px">Arrêt ${esc(pName(G.at.i))} · ${G.at.d < 30 ? "sur place" : walkTxt(G.at.d)}</small>`}</span><div class="tt">${G.list.map((x) => `<button type="button" class="chip" data-subfollow="${x.pat}:${x.k}:${x.off}:${G.at.i}"><span class="main">${dot(x.live)}${waitLabel(x.t, isToday)}</span>${isToday && x.t - nowF < 59.5 ? `<small>${hm(x.t)}</small>` : ""}</button>`).join("")}</div></div>`).join("");
+  return h + `<button type="button" class="linkbtn" data-subline>Plan et horaires de la SUB ${chevR}</button></div>`;
+}
+const openLine = (ri) => { S.line = ri; S.dir = 0; go("lignes"); setTimeout(() => { runLi(); fitLine(ri); const hd = $("#li-head"); if (hd) hd.scrollIntoView({ block: "start" }); }, 80); };
+document.addEventListener("click", (e) => {
+  const f = e.target.closest("[data-subfollow]");
+  if (f) { e.stopPropagation(); const [pi, k, off, par] = f.dataset.subfollow.split(":").map(Number); const iso = S.view === "passages" ? $("#pa-date").value : parisNow().iso; startFollow(pi, k, net.dayIndex(iso) + (off ? -1 : 0), par); return; }
+  if (e.target.closest("[data-subline]")) openLine(SUBR);
+}, true);
+function subBarCheck() {
+  const bar = $("#subbar"); if (!bar) return;
+  const on = subOn(todayIdx());
+  bar.hidden = !on; if (!on) return;
+  bar.innerHTML = `<span class="sbg">${modeIcon(1).replace('class="mode"', 'class="mode" style="width:20px;height:20px"')}</span><span>Tram remplacé par des bus aujourd'hui · où prendre la SUB</span>${chevR}`;
+  bar.onclick = () => openLine(SUBR);
 }
 
 // ---------- Lignes ----------
@@ -1455,7 +1524,7 @@ function runLi() {
   }
   cols.sort((a, b) => a.first - b.first);
   const vis = cols.filter((c) => c.last >= t);
-  if (!cols.length) { res.innerHTML = `<div class="empty">La ligne ${esc(r.s)} ne circule pas dans ce sens le ${fmtDateLong(iso)}.</div>`; drawMap(); return; }
+  if (!cols.length) { res.innerHTML = (r.m === 1 && subOn(day) ? `<div class="subcard"><div class="subh">${badge(SUBR, "lg", true)}<div class="nm"><b>Tram remplacé par des bus</b><small>Le ${fmtDateLong(iso)}, le tram ne circule pas : la SUB le remplace.</small></div></div><button type="button" class="linkbtn" data-subline>Plan et horaires de la SUB ${chevR}</button></div>` : "") + `<div class="empty">La ligne ${esc(r.s)} ne circule pas dans ce sens le ${fmtDateLong(iso)}.</div>`; drawMap(); return; }
   if (!vis.length) { res.innerHTML = `<div class="empty">Plus de départ après ${hm(t)} ce jour-là. Premier départ : ${hm(cols[0].first)}, dernier : ${hm(cols[cols.length - 1].first)}.</div>`; drawMap(); return; }
   const show = vis.slice(0, 60);
   res.innerHTML = `<div class="lbl" style="margin-bottom:8px">${cols.length} départs le ${fmtDateLong(iso)} · premier ${hm(cols[0].first)}, dernier ${hm(cols[cols.length - 1].first)}</div>
@@ -2048,7 +2117,7 @@ function trNetwork(x) {
 function trIndex() {
   TR.byRoute = new Map(); TR.alert = new Set();
   trActive().forEach((x) => { if (trStatus(x) !== "now") return; const g = trGene(x); trRoutes(x).forEach((ri) => { if (!TR.byRoute.has(ri)) TR.byRoute.set(ri, []); TR.byRoute.get(ri).push(x); if (g) TR.alert.add(ri); }); });
-  trBang(); trNetCheck(); alertMyLines();
+  trBang(); trNetCheck(); subBarCheck(); alertMyLines();
 }
 // #11 « Perturbation sur mes lignes » : prévenu une fois par info, appli ouverte
 function alertMyLines() {
@@ -2339,7 +2408,7 @@ function featChanged(k) {
   if (k === "pliage" && !feat("pliage")) { MFOLD.clear(); store.set("modeFold", []); }
   if (k === "gps" && !feat("gps")) BOARD.on = false;
   if (k === "inbus" && !feat("inbus")) { $("#inbus").classList.remove("on"); INBUS.shownKey = ""; }
-  try { buildGrid(); trBang(); trNetCheck(); checkNight(); updMbFull(); renderHome(); if (S.view === "trafic") renderTrafic(); if (S.view === "suivi") renderFollow(); } catch (e) {}
+  try { buildGrid(); trBang(); trNetCheck(); subBarCheck(); checkNight(); updMbFull(); renderHome(); if (S.view === "trafic") renderTrafic(); if (S.view === "suivi") renderFollow(); } catch (e) {}
 }
 // #22 : mode d'emploi (installation en volets, puis chapitres à déplier, avec de vraies captures de l'appli)
 const GUIDE_IMG = (f) => `${/\/test\//.test(location.pathname) ? "../" : ""}guide/${f}`;
