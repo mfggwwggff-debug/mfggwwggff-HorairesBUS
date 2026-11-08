@@ -646,6 +646,79 @@ body.p32cover .sheet { border-radius: 0; box-shadow: none; }
 /* réseau fortement perturbé : bandeau orange + pop-up une fois par info */
 .netbar { flex: none; display: flex; align-items: center; gap: 10px; margin: 0 16px 8px; min-height: 40px; padding: 8px 12px; border: 0; border-radius: 12px; background: var(--accent-strong); color: var(--accent-strong-ink); font: 600 13.5px/1.25 var(--font-body); text-align: left; }
 .netbar[hidden] { display: none; }
+/* #28 : par où descendre (tram et BHNS) */
+:root { --sc28bg: #f6f6f8; --sc28q: #ececf0; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --sc28bg: #1b232a; --sc28q: #222c34; } }
+:root[data-theme="dark"] { --sc28bg: #1b232a; --sc28q: #222c34; }
+#a28 { position: fixed; inset: 0; z-index: 91; background: var(--surface); color: var(--ink); display: none; overflow: auto; -webkit-overflow-scrolling: touch; }
+#a28.on { display: block; animation: tkin .25s ease-out; }
+.a28in { max-width: 520px; margin: 0 auto; padding: calc(10px + var(--sat)) 0 calc(16px + var(--sab)); }
+.a28h { display: flex; align-items: center; gap: 10px; padding: 0 16px 10px; }
+.a28h .fh-t { flex: 1; min-width: 0; } .a28h h2 { margin: 0; font: 700 19px/1.15 var(--font-display); }
+.a28hero { margin: 0 16px; background: #15202b; color: #fff; border-radius: 18px; padding: 14px 16px; display: flex; flex-direction: column; gap: 2px; }
+.a28hero .k { font: 700 11.5px/1.2 var(--font-body); letter-spacing: .08em; color: #9fb0bd; text-transform: uppercase; }
+.a28hero b { font: 700 24px/1.15 var(--font-display); }
+.a28hero .s { font-size: 14px; color: #ffcf9e; margin-top: 4px; }
+.a28hero .s b { font: inherit; font-weight: 700; }
+.sc28 { position: relative; overflow: hidden; margin: 12px 0 10px; }
+.sc28in { width: 390px; transform-origin: 0 0; }
+.labs28 { display: grid; grid-template-columns: repeat(3, 122px); gap: 6px; padding: 0 6px 0; align-items: end; }
+.l28 { background: #fff; color: #15202b; border: 1px solid #dde1df; border-radius: 10px; padding: 8px 9px 9px; display: flex; flex-direction: column; gap: 5px; }
+.l28.empty { visibility: hidden; }
+.l28 .t { font: 700 9px/1.2 var(--font-body); letter-spacing: .03em; color: #5a6670; }
+.l28.hl { background: #c4430f; border-color: #c4430f; color: #fff; }
+.l28.hl .t { color: #ffd9c4; }
+.l28 .yb { display: flex; align-items: center; gap: 6px; font-size: 12.5px; padding-bottom: 5px; border-bottom: 1px solid rgb(255 217 196 / .45); }
+.l28 .bs, .row28 .it { display: flex; flex-wrap: wrap; gap: 3px; align-items: center; }
+.l28 .st { white-space: nowrap; font: 700 8.5px/1 var(--font-body); letter-spacing: .03em; opacity: .75; margin-top: 2px; }
+.pic28 { display: block; flex: none; }
+.tx28 { font: 600 11px/1.2 var(--font-body); }
+.sc28 svg { display: block; }
+/* animation (une fois) : arrivée, portes qui s'ouvrent, voitures hors conseil en gris, étiquettes, halo et chemin */
+.sc28.anim .mv28 { animation: mv28 3.3s cubic-bezier(.22,.62,.32,1) both; }
+@keyframes mv28 { 0% { transform: translateX(-480px); } 88% { transform: translateX(3px); } 100% { transform: translateX(0); } }
+.sc28.anim .dl { animation: dl28a .5s ease 3.4s both; } .sc28.anim .dr { animation: dr28a .5s ease 3.4s both; }
+.sc28:not(.anim) .dl { transform: translateX(-11px); } .sc28:not(.anim) .dr { transform: translateX(11px); }
+@keyframes dl28a { to { transform: translateX(-11px); } } @keyframes dr28a { to { transform: translateX(11px); } }
+.sc28.bhns.anim .dl { animation-name: dl28b; } .sc28.bhns.anim .dr { animation-name: dr28b; }
+.sc28.bhns:not(.anim) .dl { transform: translateX(-10px); } .sc28.bhns:not(.anim) .dr { transform: translateX(10px); }
+@keyframes dl28b { to { transform: translateX(-10px); } } @keyframes dr28b { to { transform: translateX(10px); } }
+.sc28.anim .knee { animation: kn28 .3s ease 3.3s both; } .sc28:not(.anim) .knee { transform: translateY(2.5px); }
+@keyframes kn28 { to { transform: translateY(2.5px); } }
+.sc28 .gT { animation: gT28a .6s ease 3.6s both; } .sc28 .gB { animation: gB28a .6s ease 3.6s both; } .sc28 .gD { animation: gD28a .6s ease 3.6s both; }
+.sc28:not(.anim) .gT, .sc28:not(.anim) .gB, .sc28:not(.anim) .gD { animation-duration: 0s; animation-delay: 0s; }
+@keyframes gT28a { from { fill: var(--cT); } to { fill: #d4d4d6; } } @keyframes gB28a { from { fill: var(--cB); } to { fill: #e4e4e6; } } @keyframes gD28a { from { fill: var(--cD); } to { fill: #b4b4b8; } }
+.sc28.anim .l28:not(.empty) { animation: l28in .45s ease calc(3.2s + var(--d)) both; }
+.sc28.anim .ln28 { animation: l28f .45s ease 3.4s both; }
+@keyframes l28in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes l28f { from { opacity: 0; } to { opacity: 1; } }
+.ring28 { animation: ring28 1.6s infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes ring28 { 0% { transform: scale(.6); opacity: .9; } 100% { transform: scale(1.8); opacity: 0; } }
+.sc28.anim .ringw28 { animation: l28f .3s ease 4s both; }
+.path28 { stroke-dasharray: 6 6; }
+.sc28.anim .path28 { animation: path28 .8s ease 4.1s both; }
+@keyframes path28 { from { stroke-dashoffset: 120; opacity: 0; } 10% { opacity: 1; } to { stroke-dashoffset: 0; opacity: 1; } }
+.sc28.anim .chip28 { animation: l28f .35s ease 4.7s both; }
+@media (prefers-reduced-motion: reduce) { .sc28.anim * { animation-duration: 0s !important; animation-delay: 0s !important; } }
+.list28 { margin: 0 16px 14px; border: 1px solid var(--rule); border-radius: 16px; overflow: hidden; }
+.list28 h4 { margin: 0; padding: 12px 14px 6px; font: 700 12px/1.2 var(--font-body); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
+.row28 { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-top: 1px solid var(--rule); font-size: 14px; }
+.list28 h4 + .row28 { border-top: 0; }
+.row28 .it { flex: 1; min-width: 0; }
+.pos28 { flex: none; width: 62px; text-align: center; border-radius: 6px; padding: 3px 0; font: 700 10.5px/1.3 var(--font-body); letter-spacing: .05em; background: var(--sunk); }
+.pos28.pa { background: #c4430f; color: #fff; }
+.row28.hl { background: color-mix(in srgb, #c4430f 7%, var(--surface)); }
+.row28 .w { margin-left: auto; text-align: right; font-weight: 700; white-space: nowrap; }
+.row28 .w small { display: block; font-weight: 500; color: var(--muted); font-size: 11.5px; }
+.a28ok { display: block; width: calc(100% - 32px); margin: 0 16px; }
+.pd28 { display: grid; grid-template-columns: 1fr auto; gap: 6px 8px; align-items: center; width: 100%; margin-bottom: 10px; padding: 9px 12px; border: 1px solid var(--rule); border-radius: 12px; background: var(--surface); text-align: left; color: var(--ink); }
+.pd28 > svg { grid-row: 1 / span 2; grid-column: 2; }
+.pd28 .pdt { font-size: 13.5px; } .pd28 .pdy { color: #c4430f; font-weight: 700; }
+.pd28 .pds { display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.pdg { display: inline-flex; align-items: center; gap: 3px; }
+.pdg i { font: 700 10px/1 var(--font-body); font-style: normal; letter-spacing: .04em; color: var(--muted); margin-right: 2px; }
+.pdg.hl i { color: #c4430f; }
+.pdg em { font: 600 11px/1 var(--font-body); font-style: normal; color: var(--muted); }
 /* #30 : tram remplacé par des bus (SUB) */
 .netbar.subbar { background: #01A5C8; color: #fff; }
 .netbar.subbar .sbg { flex: none; display: inline-flex; }
@@ -1041,7 +1114,8 @@ const FEATS = [
     ["plein", "Mode plein écran", "Tirez le panneau vers le haut : votre trajet occupe tout l'écran. Touchez la croix pour revenir."],
     ["centre", "Toujours centré sur le bus", "La liste des arrêts suit le bus. Si vous la faites défiler, elle revient sur lui au bout de 4 secondes."],
     ["chevrons", "Animation du trajet", "Des flèches défilent devant le bus quand il roule : on voit d'un coup d'œil qu'il avance."],
-    ["cxdir", "Correspondances détaillées", "Chaque correspondance indique sa direction et son heure de passage, par exemple « U3 › Maurencienne · 3 min »."]]],
+    ["cxdir", "Correspondances détaillées", "Chaque correspondance indique sa direction et son heure de passage, par exemple « U3 › Maurencienne · 3 min »."],
+    ["descente", "Par où descendre", "Dans le tram et le BHNS, l'appli montre par quelle porte descendre (avant, milieu, arrière) pour être au plus près de votre correspondance."]]],
   ["Détection automatique", [
     ["inbus", "Détection du bus", "Vous montez sans rien faire ? L'appli reconnaît le bus ou le tram dans lequel vous êtes et vous propose de le suivre."]]],
   ["Aux arrêts", [
@@ -1805,6 +1879,7 @@ function ping(key, title, body, big) {
 }
 // alerte plein écran (« Descendez au prochain arrêt »)
 function takeover(o) {
+  { const a = $("#a28"); if (a && a.classList.contains("on")) return; } // #28 : l'écran « par où descendre » est déjà ouvert
   let el = $("#takeover");
   if (!el) { el = document.createElement("div"); el.id = "takeover"; el.setAttribute("role", "alertdialog"); el.setAttribute("aria-modal", "true"); document.body.appendChild(el); }
   el.innerHTML = `<div class="tk-in">
@@ -1822,6 +1897,180 @@ function takeover(o) {
 const bellSvg = `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10.3 20a2 2 0 0 0 3.4 0"/></svg>`;
 // icône du véhicule : selon le mode de la ligne si on la connaît (#16 : tram, BHNS, bus), sinon bus ; dessin recentré dans son rond
 const busPicto = (c, ri) => ri != null && net.R[ri] ? (() => { const k = modeOf(ri), [x, y, w, hh] = MODE_BB[k], q = 48; return `<svg width="20" height="20" viewBox="${x + w / 2 - q / 2} ${y + hh / 2 - q / 2} ${q} ${q}" fill="none" style="color:${c}" aria-hidden="true">${MODE_SVG[k]}</svg>`; })() : `<svg width="18" height="18" viewBox="0 2.25 48 48" fill="${c}" aria-hidden="true"><path fill-rule="evenodd" d="M14.5 8H33.5Q38 8 38 12.5V37.5Q38 40.5 35 40.5H13Q10 40.5 10 37.5V12.5Q10 8 14.5 8ZM14.5 15.5H33.5Q35.5 15.5 35.5 17.5V29Q35.5 31 33.5 31H14.5Q12.5 31 12.5 29V17.5Q12.5 15.5 14.5 15.5Z"/><path d="M12.5 40H17V44.5H12.5ZM31 40H35.5V44.5H31Z"/></svg>`;
+
+// ---------- #28 : par où descendre (tram et BHNS) ----------
+// Données : build/corres.json (tableau Corres.xlsx de l'utilisateur), par arrêt et par sens : position dans la rame
+// (arrière, milieu, avant), distance à pied, quai. Plein écran animé à l'arrêt de descente, petit bandeau aux autres arrêts.
+// « Votre bus » (en orange) : seulement la ligne suivante de l'itinéraire suivi (Me guider).
+const CORRES = /*__CORRES__*/null;
+const CO_POS = { ar: 1, mi: 2, av: 3 }, CO_NAME = { 1: "arrière", 2: "milieu", 3: "avant" };
+const coLine = (r) => { const s = net.R[r].s; return /^T\d/.test(s) ? "T" : /^O\d/.test(s) ? s : null; };
+function coAt(pi, i) {
+  if (!CORRES || !feat("descente")) return null;
+  const p = net.pats[pi], L = coLine(p.r); if (!L || i < 0 || i >= p.nS) return null;
+  const par = net.Q[p.stops[i]][0], S0 = CORRES.lignes[L] && CORRES.lignes[L][pName(par)]; if (!S0) return null;
+  let key;
+  if (i === p.nS - 1) key = "T"; // terminus : positions notées dans le sens de l'arrivée
+  else if (L === "T") key = /neufch/i.test(p.h) ? "N" : "S";
+  else key = Object.keys(S0.dirs).find((k) => trKey(k) === trKey(p.h));
+  const d = key && S0.dirs[key]; if (!d || !d.pos || !d.pos.length) return null;
+  return { pi, i, par, r: p.r, veh: L === "T" ? "tram" : "bhns", portes: d.portes, pos: d.pos };
+}
+const coWalk = (m) => Math.max(1, Math.ceil((m || 0) / 80)); // 80 m par minute, arrondi au-dessus
+const coRoute = (l) => net.R.findIndex((r) => r.s === l);
+const picTxt = (t, n = 26) => `<svg class="pic28" width="${n}" height="${n}" viewBox="0 0 48 48" fill="none" aria-label="${t}"><rect x="2" y="2" width="44" height="44" rx="10" stroke="currentColor" stroke-width="3"/><text x="24" y="29.5" text-anchor="middle" font-family="DM Sans,system-ui,sans-serif" font-size="17" font-weight="800" fill="currentColor">${t}</text></svg>`;
+// « votre bus » : la ligne suivante de l'itinéraire, si on descend à cet arrêt pour la prendre
+function coYours(c) {
+  if (!S.guide) return null;
+  const s = guideState(); if (s.done || !s.nextR || s.g.pat !== c.pi || s.g.ai !== c.i) return null;
+  const [g2] = s.nextR, l2 = legTimes(g2), p2 = l2.p, R2 = net.R[p2.r];
+  const it = c.pos.find((x) => x.l === R2.s && (!x.h || trKey(x.h) === trKey(p2.h))) || c.pos.find((x) => x.l === R2.s);
+  if (!it) return null;
+  return { r: p2.r, h: p2.h, pos: CO_POS[it.p] || 2, m: it.m, ou: it.ou, dep: l2.dep, arrHere: s.lt.arr };
+}
+// regroupe les éléments par position : lignes (une fois chacune), gare SNCF, services, lieux ; « autre quai » à part
+function coGroups(c) {
+  const G = { 1: null, 2: null, 3: null };
+  for (const x of c.pos) {
+    const k = CO_POS[x.p] || 2, g = G[k] || (G[k] = { pos: k, here: [], other: [], m: [], seen: new Set(), ou: new Set() });
+    const tgt = x.ou === "autre" ? g.other : g.here;
+    if (x.ou) g.ou.add(x.ou);
+    if (x.ou !== "ici" && x.ou !== "autre") g.m.push(x.m || 0);
+    if (x.l) { const r = coRoute(x.l); if (r < 0 || g.seen.has(tgt === g.other ? "o" + r : r)) continue; g.seen.add(tgt === g.other ? "o" + r : r); tgt.push({ r, h: x.h, m: x.m, nt: x.nt }); }
+    else if (x.s === "train" || x.s === "tgv") { if (!g.seen.has("train")) { g.seen.add("train"); tgt.push({ pic: ["TGV", "TER"], n: x.n, m: x.m }); } }
+    else if (x.s === "car") tgt.push({ txt: x.n || "Cars", m: x.m });
+    else if (x.s === "pr") tgt.push({ txt: "P+R", m: x.m });
+    else if (x.s === "velo") tgt.push({ txt: "Vélos", m: x.m });
+    else if (x.n) tgt.push({ txt: x.n, m: x.m });
+  }
+  return G;
+}
+const coTitleWalk = (g) => g.ou.has("ici") && !g.m.length ? "sur ce quai" : g.m.length ? (Math.min(...g.m) <= 20 ? "sur place" : coWalk(Math.min(...g.m)) + " min") : "";
+const coItem = (x) => x.r != null ? badge(x.r, "sm", true) : x.pic ? x.pic.map((t) => picTxt(t, 22)).join("") : `<span class="tx28">${esc(x.txt)}</span>`;
+// --- dessin du véhicule (design validé : claude/tram-28-arrivee-station.md et claude/bhns-29-arrivee-station.md) ---
+function tram28(adv) {
+  const MODS = [["cab", "R"], ["car", 53, 77, 97], ["car", 146, 170, 190], ["car", 239, 263, 283], ["cab", "F"]];
+  let o = "";
+  MODS.forEach((m, i) => {
+    const grey = adv && i !== adv && i !== 4, cB = grey ? ' class="gB"' : "", cT = grey ? ' class="gT"' : "", cD = grey ? ' class="gD"' : "";
+    const bands = `<rect x="0" y="122" width="390" height="70" fill="#ef6b63"${cB}/><rect x="0" y="142" width="390" height="30" fill="#e2231a"${cT}/>`;
+    if (m[0] === "cab") {
+      const R = m[1] === "R", d = R ? "M41 122H26Q23 122 22.2 124.5L3.5 183Q1 192 11 192H41Q48 192 48 185V129Q48 122 41 122Z" : "M339 122H354Q357 122 357.8 124.5L376.5 183Q379 192 369 192H339Q332 192 332 185V129Q332 122 339 122Z";
+      o += `<clipPath id="a28c${m[1]}"><path d="${d}"/></clipPath><g clip-path="url(#a28c${m[1]})">${bands}</g><path d="${R ? "M41 144H22.1L15.2 167H41Z" : "M339 144H357.9L364.8 167H339Z"}" fill="#fff" stroke="#fff" stroke-width="6" stroke-linejoin="round"/>`;
+    } else {
+      const [, x, a, b] = m;
+      o += `<clipPath id="a28v${x}"><rect x="${x}" y="122" width="88" height="70" rx="7"/></clipPath><g clip-path="url(#a28v${x})">${bands}</g><rect x="${a}" y="132" width="40" height="60" fill="#3b1210"/>`
+        + `<g class="dl"><rect x="${a}" y="132" width="20" height="60" fill="#9e1510"${cD}/><rect x="${a + 3}" y="136" width="14" height="34" rx="2" fill="#fff"/></g>`
+        + `<g class="dr"><rect x="${b}" y="132" width="20" height="60" fill="#9e1510"${cD}/><rect x="${b + 3}" y="136" width="14" height="34" rx="2" fill="#fff"/></g>`;
+    }
+  });
+  return o;
+}
+const BUS28 = { O1: ["#e8511c", "#9a3510", "#2a0f05"], O2: ["#009E45", "#006b2e", "#032a14"] };
+function bus28(adv, line) {
+  const [band, door, inner] = BUS28[line] || BUS28.O1, rearGrey = adv === 3, frontGrey = adv && adv !== 3;
+  const cls = (g) => g ? [' class="gB"', ' class="gT"', ' class="gD"'] : ["", "", ""];
+  const doors = (a, cD) => `<rect x="${a}" y="132" width="36" height="54" fill="${inner}"/><g class="dl"><rect x="${a}" y="132" width="18" height="54" fill="${door}"${cD}/><rect x="${a + 3}" y="136" width="12" height="30" rx="2" fill="#fff"/></g><g class="dr"><rect x="${a + 18}" y="132" width="18" height="54" fill="${door}"${cD}/><rect x="${a + 21}" y="136" width="12" height="30" rx="2" fill="#fff"/></g>`;
+  let [cB, cT, cD] = cls(rearGrey);
+  let o = `<rect x="52" y="182" width="22" height="12" rx="5" fill="#2b2f36"/><rect x="141" y="182" width="22" height="12" rx="5" fill="#2b2f36"/><rect x="229" y="182" width="22" height="12" rx="5" fill="#2b2f36"/><g class="knee">`
+    + `<clipPath id="a28bR"><path d="M8 124H124Q130 124 130 130V180Q130 186 124 186H8Q0 186 0 178V132Q0 124 8 124Z"/></clipPath><g clip-path="url(#a28bR)"><rect x="0" y="124" width="390" height="62" fill="#c9ab76"${cB}/><rect x="0" y="142" width="390" height="28" fill="${band}"${cT}/></g>`
+    + doors(14, cD) + doors(79, cD);
+  [cB, cT, cD] = cls(frontGrey);
+  o += `<clipPath id="a28bF"><path d="M142 124H312Q326 124 328 136L330.5 176Q331 186 322 186H142Q136 186 136 180V130Q136 124 142 124Z"/></clipPath><g clip-path="url(#a28bF)"><rect x="0" y="124" width="390" height="62" fill="#c9ab76"${cB}/><rect x="0" y="142" width="390" height="28" fill="${band}"${cT}/></g>`
+    + `<path d="M309 139H320L321.5 163H309Z" fill="#fff" stroke="#fff" stroke-width="6" stroke-linejoin="round"/>` + doors(172, cD) + doors(261, cD)
+    + `<rect x="129.5" y="127" width="7" height="56" fill="#cfd3d8"/></g>`;
+  return o;
+}
+// scène : étiquettes par position (au-dessus), véhicule à quai, halo et chemin vers « votre bus »
+function scene28(c, yb, anim) {
+  const G = coGroups(c), adv = yb ? yb.pos : 0, isT = c.veh === "tram";
+  const V = isT ? { cx: 190, cy: 157, s: .92, doors: [97, 190, 283], top: 122, bot: 192, ring: 163 } : { cx: 165.5, cy: 155, s: 1, doors: [32, 97, 190], top: 124, bot: 194, ring: 159 };
+  const CY = 40 + (V.cy - V.top) * V.s, tx = (x) => 195 + (x - V.cx) * V.s, ty = (y) => CY + (y - V.cy) * V.s;
+  const door = (k) => tx(V.doors[k - 1]), TOP = 40, BOT = ty(V.bot), H = Math.round(BOT + (yb ? 100 : 34));
+  const cols = [1, 2, 3].map((k) => {
+    const g = G[k];
+    if (!g || (!g.here.length && !g.other.length)) return `<div class="l28 empty"></div>`;
+    const yours = yb && yb.pos === k;
+    let h = `<div class="l28${yours ? " hl" : ""}" style="--d:${(k - 1) * .25}s"><span class="t">${CO_NAME[k].toUpperCase()}${yours ? " · VOTRE " + (modeOf(yb.r) === "tram" ? "TRAM" : "BUS") : coTitleWalk(g) ? " · " + coTitleWalk(g).toUpperCase() : ""}</span>`;
+    if (yours) { const w = Math.round(yb.dep - yb.arrHere); h += `<span class="yb">${badge(yb.r, "sm", true)}<b>${w <= 0 ? "à quai" : "dans " + w + " min"}</b></span>`; }
+    const here = g.here.filter((x) => !(yours && x.r === yb.r));
+    if (here.length) h += `<span class="bs">${here.map(coItem).join("")}</span>`;
+    if (g.other.length) h += `<span class="st">AUTRE QUAI · ${coWalk(Math.min(...g.other.map((x) => x.m || 0)))} MIN</span><span class="bs">${g.other.map(coItem).join("")}</span>`;
+    return h + `</div>`;
+  }).join("");
+  // traits des étiquettes jusqu'à la porte (coudés si la porte n'est pas sous l'étiquette)
+  const lines = [1, 2, 3].filter((k) => G[k] && (G[k].here.length || G[k].other.length)).map((k) => {
+    const x0 = 6 + (k - 1) * 128, d = door(k), yours = yb && yb.pos === k;
+    const st = yours ? `stroke="#c4430f" stroke-width="1.5"` : `stroke="#8a948f" stroke-dasharray="2 2"`;
+    if (d >= x0 + 12 && d <= x0 + 110) return `<line class="ln28" x1="${d}" y1="0" x2="${d}" y2="${TOP}" ${st}/>`;
+    const sx = d < x0 ? x0 + 14 : x0 + 108;
+    return `<path class="ln28" d="M${sx} 0V${TOP - 14}H${d}V${TOP}" fill="none" ${st}/>`;
+  }).join("");
+  const veh = isT ? tram28(adv) : bus28(adv, net.R[c.r].s);
+  const qy = BOT, dx = adv ? door(adv) : 0, chipW = 150, cx0 = adv ? Math.max(6, Math.min(390 - 6 - chipW, dx - chipW / 2)) : 0, ccx = cx0 + chipW / 2;
+  const chip = yb ? (yb.ou === "ici" ? "Sur ce quai" : yb.ou === "face" ? "Quai d'en face · " + coWalk(yb.m) + " min" : `Quai ${net.R[yb.r].s} · ${coWalk(yb.m)} min à pied`) : "";
+  const pal = isT ? ["#e2231a", "#ef6b63", "#9e1510"] : [(BUS28[net.R[c.r].s] || BUS28.O1)[0], "#c9ab76", (BUS28[net.R[c.r].s] || BUS28.O1)[1]];
+  return `<div class="sc28${anim ? " anim" : ""}${isT ? "" : " bhns"}" style="--cT:${pal[0]};--cB:${pal[1]};--cD:${pal[2]}"><div class="sc28in">
+    <div class="labs28">${cols}</div>
+    <svg width="390" height="${H}" viewBox="0 0 390 ${H}" aria-hidden="true">
+      <rect x="0" y="${TOP - 6}" width="390" height="${H - TOP + 6}" fill="var(--sc28bg)"/>
+      <rect x="0" y="${qy + 1}" width="390" height="5" rx="2.5" fill="#e3e0ee"/>
+      <rect x="0" y="${qy + 20}" width="390" height="${H - qy - 20}" fill="var(--sc28q)"/>
+      <rect x="0" y="${qy + 20}" width="390" height="5" fill="#f2c94c"/>
+      ${lines}
+      <g class="veh28"><g transform="translate(195 ${CY}) scale(${V.s}) translate(${-V.cx} ${-V.cy})"><g class="mv28">${veh}</g></g></g>
+      ${yb ? `<g class="ringw28"><circle class="ring28" cx="${dx}" cy="${ty(V.ring)}" r="24" fill="none" stroke="#c4430f" stroke-width="3"/></g>
+      <path class="path28" d="M${dx} ${qy + 8} C ${dx} ${qy + 40}, ${ccx} ${qy + 36}, ${ccx} ${qy + 58}" fill="none" stroke="#c4430f" stroke-width="2.5" stroke-linecap="round"/>
+      <g class="chip28"><rect x="${cx0}" y="${qy + 58}" width="${chipW}" height="28" rx="14" fill="#fff" stroke="#c4430f" stroke-width="1.5"/><text x="${ccx}" y="${qy + 76}" font-size="11" font-weight="700" fill="#c4430f" text-anchor="middle" font-family="DM Sans,system-ui,sans-serif">${esc(chip)}</text></g>` : ""}
+    </svg></div></div>`;
+}
+// liste sous la scène : une ligne par position (votre bus en premier)
+function rows28(c, yb) {
+  const G = coGroups(c), out = [];
+  if (yb) out.push(`<div class="row28 hl"><span class="pos28 pa">${CO_NAME[yb.pos].toUpperCase()}</span><span class="it">${badge(yb.r, "sm", true)}<span>→ ${esc(yb.h)}</span></span><span class="w">${Math.max(0, Math.round(yb.dep - yb.arrHere))} min<small>${yb.ou === "ici" ? "sur ce quai" : coWalk(yb.m) + " min à pied"}</small></span></div>`);
+  for (const k of [1, 2, 3]) {
+    const g = G[k]; if (!g) continue;
+    const here = g.here.filter((x) => !(yb && x.r === yb.r && yb.pos === k));
+    if (here.length) { const ms = here.map((x) => x.m || 0); out.push(`<div class="row28"><span class="pos28">${CO_NAME[k].toUpperCase()}</span><span class="it">${here.map(coItem).join("")}</span><span class="w"><small>${g.ou.has("ici") && Math.max(...ms) === 0 ? "sur ce quai" : walkRange(ms)}</small></span></div>`); }
+    if (g.other.length) out.push(`<div class="row28"><span class="pos28">${CO_NAME[k].toUpperCase()}</span><span class="it">${g.other.map(coItem).join("")}<span class="tx28">autre quai</span></span><span class="w"><small>${walkRange(g.other.map((x) => x.m || 0))}</small></span></div>`);
+  }
+  return out.join("");
+}
+const walkRange = (ms) => { const a = coWalk(Math.min(...ms)), b = coWalk(Math.max(...ms)); return (a === b ? a : a + " à " + b) + " min à pied"; };
+// plein écran
+const A28 = { seen: new Set(), open: null };
+function openA28(c, auto) {
+  if (!c) return;
+  const yb = coYours(c), p = net.pats[c.pi], R = net.R[p.r], isT = c.veh === "tram";
+  let el = $("#a28");
+  if (!el) { el = document.createElement("div"); el.id = "a28"; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); document.body.appendChild(el); }
+  const word = yb ? `Descendez par l'<b>${CO_NAME[yb.pos]}</b>` : "Correspondances ci-dessous";
+  el.innerHTML = `<div class="a28in">
+    <div class="a28h"><button type="button" class="icon-btn" id="a28x" aria-label="Fermer">${closeSvg}</button>${badge(p.r, "lg")}<div class="fh-t"><h2>→ ${esc(p.h)}</h2></div><span class="pillmode">${isT ? "MON TRAM" : "MON BUS"}</span></div>
+    <div class="a28hero"><span class="k">${isT ? "Arrivée en station" : "Arrivée à l'arrêt"}</span><b>${esc(qName(p.stops[c.i]))}</b><span class="s">${isT ? `Portes à ${c.portes === "g" ? "gauche" : "droite"} · ` : ""}${word}</span></div>
+    ${scene28(c, yb, true)}
+    <div class="list28"><h4>Correspondances, par où descendre</h4>${rows28(c, yb)}</div>
+    <button type="button" class="btn primary a28ok" id="a28ok">J'ai compris</button>
+  </div>`;
+  el.classList.add("on"); A28.open = c.pi + ":" + c.i;
+  fit28(el);
+  const close = () => { el.classList.remove("on"); A28.open = null; };
+  $("#a28x", el).onclick = close; $("#a28ok", el).onclick = close;
+  if (auto) { const tk = $("#takeover"); if (tk) tk.classList.remove("on"); }
+}
+// la scène est dessinée sur 390 px de large : mise à l'échelle de l'écran
+function fit28(root) {
+  root.querySelectorAll(".sc28").forEach((sc) => { const inr = $(".sc28in", sc), k = Math.min(1.25, sc.clientWidth / 390); inr.style.transform = `scale(${k})`; sc.style.height = inr.offsetHeight * k + "px"; });
+}
+window.addEventListener("resize", () => { const el = $("#a28"); if (el && el.classList.contains("on")) fit28(el); });
+// petit bandeau « par où descendre » sous la carte du haut de Mon bus (arrêt suivant)
+function pd28Html(c) {
+  if (!c) return "";
+  const G = coGroups(c), yb = coYours(c);
+  const seg = [1, 2, 3].filter((k) => G[k] && G[k].here.length).map((k) => { const L = G[k].here; return `<span class="pdg${yb && yb.pos === k ? " hl" : ""}"><i>${CO_NAME[k].slice(0, 2).toUpperCase()}</i>${L.slice(0, 3).map(coItem).join("")}${L.length > 3 ? `<em>+${L.length - 3}</em>` : ""}</span>`; }).join("");
+  return `<button type="button" class="pd28" data-a28="${c.pi}:${c.i}"><span class="pdt"><b>Par où descendre</b> à ${esc(qName(net.pats[c.pi].stops[c.i]))}${yb ? ` · <span class="pdy">${CO_NAME[yb.pos]} pour le ${esc(net.R[yb.r].s)}</span>` : ""}</span><span class="pds">${seg}</span>${chevR}</button>`;
+}
+document.addEventListener("click", (e) => { const b = e.target.closest("[data-a28]"); if (!b) return; const [pi, i] = b.dataset.a28.split(":").map(Number); openA28(coAt(pi, i)); });
 
 // prochains départs des autres lignes à un arrêt, après l'heure t (une ligne + direction par groupe)
 const connCache = new Map();
@@ -1869,6 +2118,7 @@ function renderFollow() {
     el.innerHTML = `<div class="mbtop" id="mb-top"><div class="fhead"><button type="button" class="icon-btn" id="fo-back" aria-label="Retour">${backSvg}</button><button type="button" class="icon-btn" id="fo-close" aria-label="Quitter le plein écran">${closeSvg}</button>${badge(p.r, "lg")}<div class="fh-t"><h2>→ ${esc(p.h)}</h2><span class="fh-s" id="mb-status"></span><span class="b9row" id="mb-b9"></span></div><span class="pillmode">${S.guide ? "GUIDAGE" : modeOf(p.r) === "tram" ? "MON TRAM" : "MON BUS"}</span></div>
       <div id="gd-card"></div>
       <div id="mb-banner"></div>
+      <div id="mb-pd"></div>
       <div id="mb-hero"></div></div>
       <div class="mbt" id="mb-track" style="--c:${R.c};--ct:${R.t}">
         <div class="mbt-rail" style="top:${ROWH / 2}px;height:${(p.nS - 1 - MB.first) * ROWH}px"></div>
@@ -1969,6 +2219,12 @@ function renderFollow() {
     hero = `<div class="mbh"><div class="r1"><div class="c"><span class="k">Prochain départ assuré</span><b>${esc(qName(p.stops[fi]))}</b></div><span class="eta">${nx ? hm(nx.t) : "—"}</span></div>
       <div class="r2"><span>${nx ? (nx.t - t < 59.5 ? "dans " + Math.max(1, Math.round(nx.t - t)) + " min" : "à " + hm(nx.t)) : "Plus de départ assuré aujourd'hui"}</span>${nx ? `<button type="button" class="b9 na9" data-nafollow="${nx.pat}:${nx.k}:${dk}:${par}">Suivre ce ${modeOf(p.r) === "tram" ? "tram" : "bus"}</button>` : ""}</div></div>`;
   }
+  // #28 : par où descendre à l'arrêt suivant (petit bandeau) ; plein écran à l'arrivée à l'arrêt de descente
+  { const c = st.state === "running" ? coAt(pi, next) : null, h28 = c && !isNA(pi, k, dk) ? pd28Html(c) : "", e28 = $("#mb-pd"); if (e28 && e28.dataset.html !== h28) { e28.innerHTML = h28; e28.dataset.html = h28; } }
+  if (dest != null && !isNA(pi, k, dk) && ((st.state === "running" && next === dest && !st.atStop && st.at(dest) - t <= 1.1) || (st.atStop && st.i === dest))) {
+    const k28 = [pi, k, dk, dest].join(":"), c = !A28.seen.has(k28) ? coAt(pi, dest) : null;
+    if (c) { A28.seen.add(k28); openA28(c, true); }
+  }
   if ($("#mb-hero").dataset.html !== hero) { $("#mb-hero").innerHTML = hero; $("#mb-hero").dataset.html = hero; const nf = $("#mb-hero [data-nafollow]"); if (nf) nf.onclick = () => { const [a, b, c, d] = nf.dataset.nafollow.split(":").map(Number); startFollow(a, b, c, d); }; }
   // alertes de descente
   let banner = "";
@@ -2029,7 +2285,7 @@ function mbCenter(st, instant) {
   clearTimeout(MB.progT); MB.progT = setTimeout(() => { MB.progScroll = false; }, 800);
 }
 // plein écran de Mon bus : en tirant le panneau tout en haut, le plan, l'en-tête et les onglets s'effacent
-if (/[?&]simu=/.test(location.search)) window.__t = { startFollow: (...a) => startFollow(...a), tripState: (...a) => tripState(...a), setSheet: (x) => setSheet(x), todayIdx: () => todayIdx(), net: () => net, MB, shape: (pi) => shapeOfPat[pi], BOARD, ME, onPat: userOnPat, popStop: (i) => { const p = net.P[i]; const [sx, sy] = toS(PX(p[2]), PY(p[1])); clickMap(sx, sy); return [sx, sy]; }, openPa: (i) => openPassages(i), pName: (i) => pName(i), go: (v) => go(v) , showInBus: (c, dk) => showInBus(c, dk) };
+if (/[?&]simu=/.test(location.search)) window.__t = { startFollow: (...a) => startFollow(...a), tripState: (...a) => tripState(...a), setSheet: (x) => setSheet(x), todayIdx: () => todayIdx(), net: () => net, MB, shape: (pi) => shapeOfPat[pi], BOARD, ME, onPat: userOnPat, popStop: (i) => { const p = net.P[i]; const [sx, sy] = toS(PX(p[2]), PY(p[1])); clickMap(sx, sy); return [sx, sy]; }, openPa: (i) => openPassages(i), pName: (i) => pName(i), go: (v) => go(v) , showInBus: (c, dk) => showInBus(c, dk), a28: (pi, i) => openA28(coAt(pi, i)), coAt: (pi, i) => coAt(pi, i), startGuide: (j, to) => startGuide(j, to), A28 };
 function updMbFull() { document.body.classList.toggle("mbfull", feat("plein") && isMobile() && S.view === "suivi" && sheetState === "full"); }
 
 const renderFollowBg = () => renderFollow();

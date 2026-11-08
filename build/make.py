@@ -30,6 +30,10 @@ HEAD = """<meta name="theme-color" content="#ea5a14">
 t = open(os.path.join(here, "template.html"), encoding="utf-8").read()
 d = open(data, encoding="utf-8").read().replace("</", "<\\/")
 e = "\n".join(open(os.path.join(here, f), encoding="utf-8").read() for f in ("engine.js", "rt.js", "assets.js"))
+# #28 : correspondances par position dans le tram et le BHNS (build/corres.json, tiré du tableau Corres.xlsx par build/corres.py)
+cf = os.path.join(here, "corres.json")
+co = json.dumps(json.load(open(cf, encoding="utf-8")), ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/") if os.path.exists(cf) else "null"
+t = t.replace("/*__CORRES__*/null", co, 1)
 t = t.replace("/*__MAP__*/", open(os.path.join(here, "map.js"), encoding="utf-8").read(), 1).replace("<!--__HEAD__-->", HEAD, 1).replace("__DATA__", d, 1).replace("/*__ENGINE__*/", e, 1)
 out = os.path.join(root, "index.html")
 if test:
