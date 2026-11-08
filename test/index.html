@@ -1362,6 +1362,11 @@ const minIso = net.isoOf(0), maxIso = net.isoOf(net.nd - 1);
 const inRange = (iso) => iso >= minIso && iso <= maxIso;
 const startIso = inRange(NOW.iso) ? NOW.iso : (NOW.iso < minIso ? minIso : maxIso);
 const todayIdx = () => net.dayIndex(parisNow().iso);
+// #35 : la SUB (bus de substitution du tram) n'apparaît que si elle circule aujourd'hui ou demain
+net.hidden = new Set();
+{ const t0 = todayIdx(); net.R.forEach((r, ri) => { if (r.s !== "SUB") return; if (!net.pats.some((p) => p.r === ri && p.sv.some((sv) => net.svcOn(sv, t0) || net.svcOn(sv, t0 + 1)))) net.hidden.add(ri); }); }
+if (net.hidden.size) net.pRoutes = net.pRoutes.map((l) => l.filter((r) => !net.hidden.has(r)));
+const shownR = (i) => !net.hidden.has(i);
 const toMin = (v) => { const [h, m] = (v || "0:0").split(":").map(Number); return h * 60 + m; };
 const toVal = (m) => hm(m);
 $(".mark").innerHTML = grmSymbol();
@@ -1422,7 +1427,7 @@ const ME = { pos: null, acc: 0, watching: false, err: "", hist: [] };
 function distM(lat1, lon1, lat2, lon2) { const R = 6371000, r = Math.PI / 180; const a = Math.sin((lat2 - lat1) * r / 2) ** 2 + Math.cos(lat1 * r) * Math.cos(lat2 * r) * Math.sin((lon2 - lon1) * r / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(a)); }
 function nearestStops(n = 5, maxD = 1200) {
   if (!ME.pos) return [];
-  return net.P.map((p, i) => ({ i, d: distM(ME.pos[0], ME.pos[1], p[1], p[2]) })).filter((x) => x.d <= maxD).sort((a, b) => a.d - b.d).slice(0, n);
+  return net.P.map((p, i) => ({ i, d: distM(ME.pos[0], ME.pos[1], p[1], p[2]) })).filter((x) => x.d <= maxD && net.pRoutes[x.i].length).sort((a, b) => a.d - b.d).slice(0, n);
 }
 function locate(onOk, quiet) {
   if (!("geolocation" in navigator)) { ME.err = "La localisation n'est pas disponible sur cet appareil."; if (!quiet) toast(ME.err); renderHome(); return; }
@@ -1447,7 +1452,7 @@ function locate(onOk, quiet) {
 
 // ---------- sélecteur d'arrêt ----------
 const norm = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
-const stopIdx = net.P.map((p, i) => ({ i, n: norm(p[0]) }));
+const stopIdx = net.P.map((p, i) => ({ i, n: norm(p[0]) })).filter((x) => net.pRoutes[x.i].length); // #35 : arrêts de la SUB seule masqués quand elle ne circule pas
 function picker(root, onPick) {
   const inp = $("input", root), box = $(".sugg", root);
   let items = [], sel = -1, value = null;
@@ -1811,7 +1816,7 @@ function runPa() {
 setupDT($("#li-date"), $("#li-time"), () => runLi());
 function buildGrid() {
   const groups = [["Mes lignes", (r) => myFirst(net.R.indexOf(r)), "star"], ["Tram", (r) => r.m === 1, 1], ["BHNS", (r) => /^O\d/.test(r.s), "bhns"], ["Urbaines", (r) => /^U/.test(r.s), 3], ["Centre et scolaires", (r) => /^[CS]/.test(r.s), 3], ["Express", (r) => /^E/.test(r.s), 3]];
-  $("#li-grid").innerHTML = groups.map(([n, f, m]) => { const ids = net.R.map((r, i) => [r, i]).filter(([r]) => f(r)).map(([, i]) => i); return ids.length ? `<div class="lbl withico">${m === "star" ? `<span class="mode" style="color:var(--accent-strong,#C4430F)">${starSvg}</span>` : modeIcon(m)}${n}</div><div class="lgrid">${ids.map((i) => `<button type="button" data-r="${i}" aria-pressed="${i === S.line}" aria-label="Ligne ${esc(net.R[i].s)}">${badge(i, "lg")}</button>`).join("")}</div>` : ""; }).join("");
+  $("#li-grid").innerHTML = groups.map(([n, f, m]) => { const ids = net.R.map((r, i) => [r, i]).filter(([r, i]) => f(r) && shownR(i)).map(([, i]) => i); return ids.length ? `<div class="lbl withico">${m === "star" ? `<span class="mode" style="color:var(--accent-strong,#C4430F)">${starSvg}</span>` : modeIcon(m)}${n}</div><div class="lgrid">${ids.map((i) => `<button type="button" data-r="${i}" aria-pressed="${i === S.line}" aria-label="Ligne ${esc(net.R[i].s)}">${badge(i, "lg")}</button>`).join("")}</div>` : ""; }).join("");
 }
 buildGrid();
 $("#li-grid").addEventListener("click", (e) => { const b = e.target.closest("button[data-r]"); if (!b) return; S.line = +b.dataset.r; S.dir = 0; runLi(); fitLine(S.line); });
@@ -2629,7 +2634,7 @@ function renderProfile(page) {
     <h3>Mes trajets</h3>
     <div class="pcard" data-plist="trips">${fav.trips.length ? fav.trips.map(([a, b]) => { const tn = MY.names[tripKey(a, b)]; return `<div class="prow" data-pk="${esc(tripKey(a, b))}"><span class="grip" aria-label="Déplacer">${grip}</span><span class="pn"><b>${esc(tn || (MY.names[a] || a) + " → " + (MY.names[b] || b))}</b>${tn ? `<small>${esc(a)} → ${esc(b)}</small>` : ""}</span><button type="button" class="pact" data-pa="ren" aria-label="Renommer">${penSvg}</button><button type="button" class="pact" data-pa="del" aria-label="Supprimer">${xSvg}</button></div>`; }).join("") : `<div class="prow"><span class="pn"><small>Enregistrez un trajet depuis l'onglet Itinéraire.</small></span></div>`}</div>
     <h3>Mes lignes</h3>
-    <div class="pcard plines">${groups.map(([m, f]) => { const ids = net.R.map((r, i) => [r, i]).filter(([r]) => f(r)).map(([, i]) => i); return `<div class="plg">${modeIcon(m)}${ids.map((i) => `<button type="button" class="plb" data-myl="${i}" aria-pressed="${MY.lines.includes(i)}">${badge(i, "sm", true)}</button>`).join("")}</div>`; }).join("")}</div>
+    <div class="pcard plines">${groups.map(([m, f]) => { const ids = net.R.map((r, i) => [r, i]).filter(([r, i]) => f(r) && shownR(i)).map(([, i]) => i); return `<div class="plg">${modeIcon(m)}${ids.map((i) => `<button type="button" class="plb" data-myl="${i}" aria-pressed="${MY.lines.includes(i)}">${badge(i, "sm", true)}</button>`).join("")}</div>`; }).join("")}</div>
     <p class="pnote">Elles passent en premier dans Info trafic et dans Lignes & plans.</p>
     <h3>Mes alertes</h3>
     <div class="pcard">
@@ -2802,7 +2807,7 @@ function renderPlans() {
     if (!PL.err && !PL.loading) { PL.loading = true; loadPlans(); }
     return;
   }
-  res.innerHTML = PL.list.map((p) => { const m = p.title.match(/^(.*?)\s*\((.*)\)\s*$/); const ri = p.line ? net.R.findIndex((r) => r.s === p.line) : -1;
+  res.innerHTML = PL.list.filter((p) => { const ri = p.line ? net.R.findIndex((r) => r.s === p.line) : -1; return ri < 0 || shownR(ri); }).map((p) => { const m = p.title.match(/^(.*?)\s*\((.*)\)\s*$/); const ri = p.line ? net.R.findIndex((r) => r.s === p.line) : -1;
     return `<button type="button" class="plc" data-pl="${esc(p.id)}"><span class="im" style="background-image:url('../plans/${esc(p.thumb)}')"></span><span class="tx">${ri >= 0 ? badge(ri, "sm", true) : ""}<b>${esc(m ? m[1] : p.title)}</b>${m ? `<small>${esc(m[2])}</small>` : ""}<small>${p.pages.length > 1 ? p.pages.length + " pages · " : ""}PDF ${p.mb} Mo</small></span></button>`; }).join("");
   res.querySelectorAll("[data-pl]").forEach((b) => b.onclick = () => openPlan(b.dataset.pl, 0));
   $("#pl-src").innerHTML = `Plans officiels de Grand Reims Mobilités, <a href="${esc(site)}" target="_blank" rel="noopener">téléchargeables sur leur site</a>. Mis à jour automatiquement chaque semaine.`;
@@ -2995,7 +3000,7 @@ function getQuays() {
   const tot = net.R.map(() => 0); net.pats.forEach((p) => { tot[p.r] += p.nT; });
   const routes = new Map(), mid = new Set(), end = new Set(), byP = net.P.map(() => []);
   net.pats.forEach((p) => {
-    if (p.nT < 0.04 * tot[p.r]) return;
+    if (p.nT < 0.04 * tot[p.r] || net.hidden?.has(p.r)) return;
     p.stops.forEach((q, k) => {
       let s = routes.get(q); if (!s) { routes.set(q, s = new Set()); byP[net.Q[q][0]].push(q); }
       s.add(p.r);
@@ -3020,6 +3025,7 @@ function nearOn(O, x, y) {
 // Entre deux arrêts, le bus avance le long du tracé au prorata du temps écoulé entre le départ du
 // précédent et l'arrivée au suivant. Horaires temps réel si la course est suivie, théoriques sinon.
 let showBuses = store.get("buses") !== false;
+const VMEM = new Map(); // dernière position affichée de chaque course (#34)
 function posOf(pi, k, dk, t, today) {
   const p = net.pats[pi], off = (dk - today) * 1440, o = k * p.nS;
   const [A, D] = arr(net, p, dk);
@@ -3031,6 +3037,12 @@ function posOf(pi, k, dk, t, today) {
   if (t >= ai && t <= di) { d = g.sOff[i]; nextI = i; atStop = true; }
   else if (i >= p.nS - 1) { d = g.sOff[p.nS - 1]; nextI = p.nS - 1; atStop = true; }
   else { const t0 = di, t1 = A[o + i + 1] + off, f = t1 > t0 ? (t - t0) / (t1 - t0) : 1; d = g.sOff[i] + Math.max(0, Math.min(1, f)) * (g.sOff[i + 1] - g.sOff[i]); nextI = i + 1; }
+  // #34 : si le temps réel annonce soudain du retard (feu rouge, bouchon), le bus reste immobile
+  // à sa dernière position affichée au lieu de reculer, jusqu'à ce que l'estimation le rattrape
+  const key = pi + ":" + k + ":" + dk, prev = VMEM.get(key);
+  if (prev && d < prev.d) { d = prev.d; nextI = prev.nextI; atStop = prev.atStop; }
+  VMEM.set(key, { d, nextI, atStop, t });
+  if (VMEM.size > 400) for (const [kk, v] of VMEM) if (Math.abs(t - v.t) > 10) VMEM.delete(kk);
   const [x, y, ang] = pointAt(g, d);
   const live = isLive(net, p, k, dk);
   return { pi, k, dk, x, y, ang, live, nextI, atStop, next: A[o + nextI] + off, delay: live ? Math.round(A[o + nextI] - p.A[o + nextI]) : 0, r: p.r };
@@ -3264,7 +3276,7 @@ function paint() {
   ctx.lineJoin = "round"; ctx.lineCap = "round";
   const focus = hl.routes && hl.routes.size > 0;
   const journey = hl.legs.length > 0;
-  const order = net.R.map((r, i) => i).sort((a, b) => ((hl.routes?.has(a) ? 1 : 0) - (hl.routes?.has(b) ? 1 : 0)) || ((net.R[a].m === 1) - (net.R[b].m === 1)));
+  const order = net.R.map((r, i) => i).filter((i) => !net.hidden?.has(i)).sort((a, b) => ((hl.routes?.has(a) ? 1 : 0) - (hl.routes?.has(b) ? 1 : 0)) || ((net.R[a].m === 1) - (net.R[b].m === 1)));
   // écartement entre lignes parallèles (px) : les traits se touchent, comme sur le plan officiel
   const sp = lw;
   const [vx0, vy1] = fromS(-40, -40), [vx1, vy0] = fromS(W + 40, H + 40);
