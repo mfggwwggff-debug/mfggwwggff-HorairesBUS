@@ -383,7 +383,7 @@ function drawTiles(bg) {
   }
 }
 
-let raf = 0, hover = null, lastVeh = [];
+let raf = 0, hover = null, lastVeh = [], lastQuay = [], lastLab = []; // quais et noms d'arrêts dessinés (pour le toucher)
 function drawMap() { if (!raf) raf = requestAnimationFrame(() => { raf = 0; paint(); }); }
 function roundRect(x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
 function paint() {
@@ -451,11 +451,13 @@ function paint() {
   // arrêts : une barre blanche en travers des lignes qui s'arrêtent à chaque quai (rond pour une seule ligne),
   // gros point au terminus ; de près, un pointillé relie les quais d'un même arrêt
   const QI = getQuays();
+  lastQuay = []; lastLab = [];
   const barW = Math.max(4.5, lw * 0.8), barC = isDark() ? "#e9ecef" : C.surf;
   const stroke2 = (outer, inner) => { ctx.strokeStyle = outC; ctx.lineWidth = outer; ctx.stroke(); ctx.strokeStyle = barC; ctx.lineWidth = inner; ctx.stroke(); };
   const quayMark = (q, strongMark) => {
     const [qx, qy] = toS(...warp(PX(net.Q[q][2]), PY(net.Q[q][1])));
     if (qx < -30 || qy < -30 || qx > W + 30 || qy > H + 30) return null;
+    lastQuay.push([net.Q[q][0], qx, qy]);
     const hits = [];
     for (const r of QI.routes.get(q) || []) {
       if (focus && !hl.routes.has(r)) continue;
@@ -532,7 +534,7 @@ function paint() {
       const bx = side > 0 ? x + 8 : x - 8 - w, box = [bx - 2, y - 8, bx + w + 2, y + 8];
       if (box[0] < 2 || box[2] > W - 2) continue;
       if (!strong && placed.some((b) => !(box[2] < b[0] || box[0] > b[2] || box[3] < b[1] || box[1] > b[3]))) continue;
-      placed.push(box); done.add(i);
+      placed.push(box); done.add(i); lastLab.push([i, box]);
       ctx.lineWidth = 4; ctx.strokeStyle = C.bg; ctx.strokeText(p[0], bx, y);
       ctx.fillStyle = strong ? C.ink : C.muted; ctx.fillText(p[0], bx, y);
       return;
@@ -694,10 +696,14 @@ function fitMe() { if (!ME.pos) return; centerOn(PX(ME.pos[1]), PY(ME.pos[0]), M
 function hitTest(sx, sy) {
   let best = null, bd = 18 * 18;
   for (const v of lastVeh) { const d = (v.sx - sx) ** 2 + (v.sy - sy) ** 2; if (d < bd) { bd = d; best = { kind: "veh", v }; } }
-  if (best) return best;
-  bd = 15 * 15;
-  net.P.forEach((p, i) => { const [x, y] = stopS(i); const d = (x - sx) ** 2 + (y - sy) ** 2; if (d < bd) { bd = d; best = { kind: "stop", i }; } });
-  return best;
+  // arrêts : le nom écrit sur le plan, chaque quai (barre) et le point de l'arrêt comptent ; zone de toucher large
+  let sb = null, sd = 26 * 26;
+  for (const [i, b] of lastLab) if (sx >= b[0] - 4 && sx <= b[2] + 4 && sy >= b[1] - 6 && sy <= b[3] + 6) { const [x, y] = stopS(i), d = Math.min(sd - 1, ((x - sx) ** 2 + (y - sy) ** 2) / 4); if (d < sd) { sd = d; sb = { kind: "stop", i }; } }
+  for (const [i, x, y] of lastQuay) { const d = (x - sx) ** 2 + (y - sy) ** 2; if (d < sd) { sd = d; sb = { kind: "stop", i }; } }
+  net.P.forEach((p, i) => { const [x, y] = stopS(i); const d = (x - sx) ** 2 + (y - sy) ** 2; if (d < sd) { sd = d; sb = { kind: "stop", i }; } });
+  // un bus tout proche du doigt passe avant ; sinon l'arrêt le plus proche
+  if (best && (!sb || bd <= sd)) return best;
+  return sb || best;
 }
 const ptrs = new Map(); let moved = false, pinch0 = null, downAt = null;
 const pos = (e) => { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
@@ -715,7 +721,7 @@ cv.addEventListener("pointermove", (e) => {
   }
   const [ox, oy] = ptrs.get(e.pointerId); ptrs.set(e.pointerId, [px, py]);
   if (ptrs.size === 1) {
-    if (!moved && Math.hypot(px - downAt[0], py - downAt[1]) < 6) return;
+    if (!moved && Math.hypot(px - downAt[0], py - downAt[1]) < (e.pointerType === "mouse" ? 6 : 12)) return; // un doigt bouge un peu en touchant
     if (!moved) { moved = true; cv.classList.add("drag"); userMoved(); }
     view.cx -= (px - ox) / view.s; view.cy += (py - oy) / view.s; drawMap();
   } else if (ptrs.size === 2 && pinch0) {
