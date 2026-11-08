@@ -129,7 +129,7 @@ function getQuays() {
   const tot = net.R.map(() => 0); net.pats.forEach((p) => { tot[p.r] += p.nT; });
   const routes = new Map(), mid = new Set(), end = new Set(), byP = net.P.map(() => []);
   net.pats.forEach((p) => {
-    if (p.nT < 0.04 * tot[p.r]) return;
+    if (p.nT < 0.04 * tot[p.r] || net.hidden?.has(p.r)) return;
     p.stops.forEach((q, k) => {
       let s = routes.get(q); if (!s) { routes.set(q, s = new Set()); byP[net.Q[q][0]].push(q); }
       s.add(p.r);
@@ -154,6 +154,7 @@ function nearOn(O, x, y) {
 // Entre deux arrêts, le bus avance le long du tracé au prorata du temps écoulé entre le départ du
 // précédent et l'arrivée au suivant. Horaires temps réel si la course est suivie, théoriques sinon.
 let showBuses = store.get("buses") !== false;
+const VMEM = new Map(); // dernière position affichée de chaque course (#34)
 function posOf(pi, k, dk, t, today) {
   const p = net.pats[pi], off = (dk - today) * 1440, o = k * p.nS;
   const [A, D] = arr(net, p, dk);
@@ -165,6 +166,12 @@ function posOf(pi, k, dk, t, today) {
   if (t >= ai && t <= di) { d = g.sOff[i]; nextI = i; atStop = true; }
   else if (i >= p.nS - 1) { d = g.sOff[p.nS - 1]; nextI = p.nS - 1; atStop = true; }
   else { const t0 = di, t1 = A[o + i + 1] + off, f = t1 > t0 ? (t - t0) / (t1 - t0) : 1; d = g.sOff[i] + Math.max(0, Math.min(1, f)) * (g.sOff[i + 1] - g.sOff[i]); nextI = i + 1; }
+  // #34 : si le temps réel annonce soudain du retard (feu rouge, bouchon), le bus reste immobile
+  // à sa dernière position affichée au lieu de reculer, jusqu'à ce que l'estimation le rattrape
+  const key = pi + ":" + k + ":" + dk, prev = VMEM.get(key);
+  if (prev && d < prev.d) { d = prev.d; nextI = prev.nextI; atStop = prev.atStop; }
+  VMEM.set(key, { d, nextI, atStop, t });
+  if (VMEM.size > 400) for (const [kk, v] of VMEM) if (Math.abs(t - v.t) > 10) VMEM.delete(kk);
   const [x, y, ang] = pointAt(g, d);
   const live = isLive(net, p, k, dk);
   return { pi, k, dk, x, y, ang, live, nextI, atStop, next: A[o + nextI] + off, delay: live ? Math.round(A[o + nextI] - p.A[o + nextI]) : 0, r: p.r };
@@ -398,7 +405,7 @@ function paint() {
   ctx.lineJoin = "round"; ctx.lineCap = "round";
   const focus = hl.routes && hl.routes.size > 0;
   const journey = hl.legs.length > 0;
-  const order = net.R.map((r, i) => i).sort((a, b) => ((hl.routes?.has(a) ? 1 : 0) - (hl.routes?.has(b) ? 1 : 0)) || ((net.R[a].m === 1) - (net.R[b].m === 1)));
+  const order = net.R.map((r, i) => i).filter((i) => !net.hidden?.has(i)).sort((a, b) => ((hl.routes?.has(a) ? 1 : 0) - (hl.routes?.has(b) ? 1 : 0)) || ((net.R[a].m === 1) - (net.R[b].m === 1)));
   // écartement entre lignes parallèles (px) : les traits se touchent, comme sur le plan officiel
   const sp = lw;
   const [vx0, vy1] = fromS(-40, -40), [vx1, vy0] = fromS(W + 40, H + 40);
