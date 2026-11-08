@@ -166,6 +166,15 @@ details.when .whenbody { padding: 4px 12px 12px; display: flex; flex-direction: 
 .sugg button[aria-selected="true"], .sugg button:hover { background: var(--sunk); }
 .sugg .nm { display: flex; flex-direction: column; }
 .sugg .nm small { color: var(--muted); font-size: 12px; }
+.sugg button.plc { flex-direction: row; justify-content: flex-start; align-items: center; text-align: left; gap: 10px; }
+.sugg button.plc .nm { align-items: flex-start; }
+.sugg .pic { flex: none; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--sunk); color: var(--ink); }
+.sugg button.plc:first-child .pic { background: color-mix(in srgb, var(--me) 14%, var(--surface)); color: var(--me); }
+.sugg .sg-wait { padding: 10px 12px; color: var(--muted); font-size: 13px; }
+.picker .inp.isplace { font-weight: 600; }
+.ptpop { display: flex; gap: 10px; align-items: center; padding-right: 22px; margin-bottom: 8px; }
+.ptpop h3 { margin: 0; padding: 0; } .ptpop .sub { margin: 0; }
+.ptpop .pic { flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: color-mix(in srgb, var(--me) 14%, var(--surface)); color: var(--me); }
 .badges { display: flex; gap: 3px; flex-wrap: wrap; justify-content: flex-end; max-width: 55%; }
 
 .seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 10px; padding: 3px; background: var(--sunk); }
@@ -279,6 +288,18 @@ details.inter li span:first-child { color: var(--muted); }
 .chip.soon { background: var(--ink); color: var(--surface); border-color: var(--ink); }
 .chip.soon small { color: inherit; opacity: .8; }
 .chip.soon .dotlive, .chip.soon .dottheo { box-shadow: 0 0 0 2px var(--ink), 0 0 0 3px var(--surface); }
+/* #24 : départ non assuré (lu dans l'info trafic) */
+:root { --na: #d0242b; } @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --na: #ff6b6f; } } :root[data-theme="dark"] { --na: #ff6b6f; }
+.chip.na { background: color-mix(in srgb, var(--na) 8%, var(--surface)); border-color: color-mix(in srgb, var(--na) 45%, var(--rule)); color: var(--na); }
+.chip.na .main s { text-decoration-thickness: 2px; }
+.chip.na small { color: var(--na); font-weight: 700; letter-spacing: .02em; }
+table.tt td.na { color: var(--na); text-decoration: line-through; text-decoration-thickness: 1.5px; }
+table.tt th.na { color: var(--na); }
+.mbal.na { color: var(--ink); border: 1px solid; border-color: color-mix(in srgb, var(--na) 50%, var(--rule)); background: color-mix(in srgb, var(--na) 9%, var(--surface)); }
+.mbal.na b { color: var(--na); }
+.mbal.na > svg { color: var(--na); } .mbal .lnk svg { width: 14px; height: 14px; color: var(--focus); }
+.mbal .lnk { align-self: flex-start; display: inline-flex; align-items: center; gap: 2px; margin-top: 6px; color: var(--focus); font-weight: 600; font-size: 13px; background: none; border: 0; padding: 0; }
+.trna { margin: 10px 0 0; padding: 8px 10px; border-radius: 8px; background: color-mix(in srgb, var(--na) 8%, var(--surface)); color: var(--na); font-size: 13px; font-weight: 600; }
 .dep .open { grid-column: 1 / -1; justify-self: start; }
 .pahead { display: flex; gap: 8px; align-items: center; }
 
@@ -304,6 +325,9 @@ table.tt td.live.late { color: var(--late); }
 .fhead { display: flex; gap: 10px; align-items: center; }
 .b9 { display: inline-flex; align-items: center; gap: 5px; margin-left: 8px; padding: 2px 9px; border: 1.5px solid #1a73e8; border-radius: 99px; background: none; color: #1a73e8; font: 600 12px/1.4 var(--font-body, inherit); white-space: nowrap; vertical-align: middle; cursor: pointer; }
 .b9.wait { border-style: dashed; cursor: default; }
+.mbh .b9.na9 { border-color: currentColor; color: inherit; padding: 4px 12px; font-size: 13px; }
+.mbt.na .mbr .t { text-decoration: line-through; color: var(--muted); } .mbt.na .tagx.wt { display: none; }
+.fh-s .nast { color: var(--na); font-weight: 700; }
 .b9row { display: block; } .b9row:not(:empty) { margin-top: 5px; } .b9row .b9 { margin-left: 0; }
 .b9spin { width: 9px; height: 9px; border: 2px solid #1a73e8; border-right-color: transparent; border-radius: 50%; animation: b9s 0.8s linear infinite; }
 @keyframes b9s { to { transform: rotate(360deg); } }
@@ -316,7 +340,7 @@ table.tt td.live.late { color: var(--late); }
 #fo-close { display: none; }
 @media (max-width: 899px) {
   body.mbfull .sheet { top: 0 !important; bottom: 0; z-index: 30; border-radius: 0; padding-top: var(--sat); transition: none; }
-  body.mbfull #grab, body.mbfull #sheethead, body.mbfull #nightbar, body.mbfull #netbar { display: none !important; }
+  body.mbfull #grab, body.mbfull #sheethead, body.mbfull #nightbar, body.mbfull #netbar, body.mbfull #subbar { display: none !important; }
   body.mbfull #fo-back { display: none; }
   body.mbfull #fo-close { display: grid; }
   body.mbfull .mbtop { padding-top: 10px; }
@@ -422,6 +446,12 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
 #inbus .ibr .d { flex: 1; min-width: 0; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #inbus .ibr .d small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; }
 #inbus .ibr .btn { flex: none; }
+.mappill { position: absolute; z-index: 5; left: 50%; transform: translateX(-50%); top: calc(12px + var(--sat)); display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px; border: 0; border-radius: 99px; background: var(--ink); color: var(--surface); font: 600 14px/1 var(--font-body); box-shadow: 0 3px 14px rgba(0,0,0,.25); }
+.mappill[hidden] { display: none; }
+body.p32cover .mapctl, body.p32cover .profbtn { display: none; }
+body.p32cover #grab { visibility: hidden; height: 6px; }
+body.p32cover .sheet { border-radius: 0; box-shadow: none; }
+.li32 { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; padding: 9px 14px; border-radius: 10px; border: 1.5px solid var(--rule); background: var(--surface); font: 600 14px/1 var(--font-body); color: var(--ink); }
 .mapctl { position: absolute; right: 12px; top: 12px; display: flex; flex-direction: column; gap: 8px; z-index: 4; }
 .mapctl button { width: 42px; height: 42px; border-radius: 12px; border: 1px solid var(--rule); background: color-mix(in srgb, var(--surface) 92%, transparent); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); font-size: 20px; line-height: 1; box-shadow: 0 2px 8px rgb(0 0 0 / .14); display: grid; place-items: center; }
 .mapctl button[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
@@ -616,6 +646,94 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
 /* réseau fortement perturbé : bandeau orange + pop-up une fois par info */
 .netbar { flex: none; display: flex; align-items: center; gap: 10px; margin: 0 16px 8px; min-height: 40px; padding: 8px 12px; border: 0; border-radius: 12px; background: var(--accent-strong); color: var(--accent-strong-ink); font: 600 13.5px/1.25 var(--font-body); text-align: left; }
 .netbar[hidden] { display: none; }
+/* #28 : par où descendre (tram et BHNS) */
+:root { --sc28bg: #f6f6f8; --sc28q: #ececf0; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --sc28bg: #1b232a; --sc28q: #222c34; } }
+:root[data-theme="dark"] { --sc28bg: #1b232a; --sc28q: #222c34; }
+#a28 { position: fixed; inset: 0; z-index: 91; background: var(--surface); color: var(--ink); display: none; overflow: auto; -webkit-overflow-scrolling: touch; }
+#a28.on { display: block; animation: tkin .25s ease-out; }
+.a28in { max-width: 520px; margin: 0 auto; padding: calc(10px + var(--sat)) 0 calc(16px + var(--sab)); }
+.a28h { display: flex; align-items: center; gap: 10px; padding: 0 16px 10px; }
+.a28h .fh-t { flex: 1; min-width: 0; } .a28h h2 { margin: 0; font: 700 19px/1.15 var(--font-display); }
+.a28hero { margin: 0 16px; background: #15202b; color: #fff; border-radius: 18px; padding: 14px 16px; display: flex; flex-direction: column; gap: 2px; }
+.a28hero .k { font: 700 11.5px/1.2 var(--font-body); letter-spacing: .08em; color: #9fb0bd; text-transform: uppercase; }
+.a28hero b { font: 700 24px/1.15 var(--font-display); }
+.a28hero .s { font-size: 14px; color: #ffcf9e; margin-top: 4px; }
+.a28hero .s b { font: inherit; font-weight: 700; }
+.sc28 { position: relative; overflow: hidden; margin: 12px 0 10px; }
+.sc28in { width: 390px; transform-origin: 0 0; }
+.labs28 { display: grid; grid-template-columns: repeat(3, 122px); gap: 6px; padding: 0 6px 0; align-items: end; }
+.l28 { background: #fff; color: #15202b; border: 1px solid #dde1df; border-radius: 10px; padding: 8px 9px 9px; display: flex; flex-direction: column; gap: 5px; }
+.l28.empty { visibility: hidden; }
+.l28 .t { font: 700 9px/1.2 var(--font-body); letter-spacing: .03em; color: #5a6670; }
+.l28.hl { background: #c4430f; border-color: #c4430f; color: #fff; }
+.l28.hl .t { color: #ffd9c4; }
+.l28 .yb { display: flex; align-items: center; gap: 6px; font-size: 12.5px; padding-bottom: 5px; border-bottom: 1px solid rgb(255 217 196 / .45); }
+.l28 .bs, .row28 .it { display: flex; flex-wrap: wrap; gap: 3px; align-items: center; }
+.l28 .st { white-space: nowrap; font: 700 8.5px/1 var(--font-body); letter-spacing: .03em; opacity: .75; margin-top: 2px; }
+.pic28 { display: block; flex: none; }
+.tx28 { font: 600 11px/1.2 var(--font-body); }
+.sc28 svg { display: block; }
+/* animation (une fois) : arrivée, portes qui s'ouvrent, voitures hors conseil en gris, étiquettes, halo et chemin */
+.sc28.anim .mv28 { animation: mv28 3.3s cubic-bezier(.22,.62,.32,1) both; }
+@keyframes mv28 { 0% { transform: translateX(-480px); } 88% { transform: translateX(3px); } 100% { transform: translateX(0); } }
+.sc28.anim .dl { animation: dl28a .5s ease 3.4s both; } .sc28.anim .dr { animation: dr28a .5s ease 3.4s both; }
+.sc28:not(.anim) .dl { transform: translateX(-11px); } .sc28:not(.anim) .dr { transform: translateX(11px); }
+@keyframes dl28a { to { transform: translateX(-11px); } } @keyframes dr28a { to { transform: translateX(11px); } }
+.sc28.bhns.anim .dl { animation-name: dl28b; } .sc28.bhns.anim .dr { animation-name: dr28b; }
+.sc28.bhns:not(.anim) .dl { transform: translateX(-10px); } .sc28.bhns:not(.anim) .dr { transform: translateX(10px); }
+@keyframes dl28b { to { transform: translateX(-10px); } } @keyframes dr28b { to { transform: translateX(10px); } }
+.sc28.anim .knee { animation: kn28 .3s ease 3.3s both; } .sc28:not(.anim) .knee { transform: translateY(2.5px); }
+@keyframes kn28 { to { transform: translateY(2.5px); } }
+.sc28 .gT { animation: gT28a .6s ease 3.6s both; } .sc28 .gB { animation: gB28a .6s ease 3.6s both; } .sc28 .gD { animation: gD28a .6s ease 3.6s both; }
+.sc28:not(.anim) .gT, .sc28:not(.anim) .gB, .sc28:not(.anim) .gD { animation-duration: 0s; animation-delay: 0s; }
+@keyframes gT28a { from { fill: var(--cT); } to { fill: #d4d4d6; } } @keyframes gB28a { from { fill: var(--cB); } to { fill: #e4e4e6; } } @keyframes gD28a { from { fill: var(--cD); } to { fill: #b4b4b8; } }
+.sc28.anim .l28:not(.empty) { animation: l28in .45s ease calc(3.2s + var(--d)) both; }
+.sc28.anim .ln28 { animation: l28f .45s ease 3.4s both; }
+@keyframes l28in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes l28f { from { opacity: 0; } to { opacity: 1; } }
+.ring28 { animation: ring28 1.6s infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes ring28 { 0% { transform: scale(.6); opacity: .9; } 100% { transform: scale(1.8); opacity: 0; } }
+.sc28.anim .ringw28 { animation: l28f .3s ease 4s both; }
+.path28 { stroke-dasharray: 6 6; }
+.sc28.anim .path28 { animation: path28 .8s ease 4.1s both; }
+@keyframes path28 { from { stroke-dashoffset: 120; opacity: 0; } 10% { opacity: 1; } to { stroke-dashoffset: 0; opacity: 1; } }
+.sc28.anim .chip28 { animation: l28f .35s ease 4.7s both; }
+@media (prefers-reduced-motion: reduce) { .sc28.anim * { animation-duration: 0s !important; animation-delay: 0s !important; } }
+.list28 { margin: 0 16px 14px; border: 1px solid var(--rule); border-radius: 16px; overflow: hidden; }
+.list28 h4 { margin: 0; padding: 12px 14px 6px; font: 700 12px/1.2 var(--font-body); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
+.row28 { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-top: 1px solid var(--rule); font-size: 14px; }
+.list28 h4 + .row28 { border-top: 0; }
+.row28 .it { flex: 1; min-width: 0; }
+.pos28 { flex: none; width: 62px; text-align: center; border-radius: 6px; padding: 3px 0; font: 700 10.5px/1.3 var(--font-body); letter-spacing: .05em; background: var(--sunk); }
+.pos28.pa { background: #c4430f; color: #fff; }
+.row28.hl { background: color-mix(in srgb, #c4430f 7%, var(--surface)); }
+.row28 .w { margin-left: auto; text-align: right; font-weight: 700; white-space: nowrap; }
+.row28 .w small { display: block; font-weight: 500; color: var(--muted); font-size: 11.5px; }
+.a28ok { display: block; width: calc(100% - 32px); margin: 0 16px; }
+.pd28 { display: grid; grid-template-columns: 1fr auto; gap: 6px 8px; align-items: center; width: 100%; margin-bottom: 10px; padding: 9px 12px; border: 1px solid var(--rule); border-radius: 12px; background: var(--surface); text-align: left; color: var(--ink); }
+.pd28 > svg { grid-row: 1 / span 2; grid-column: 2; }
+.pd28 .pdt { font-size: 13.5px; } .pd28 .pdy { color: #c4430f; font-weight: 700; }
+.pd28 .pds { display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.pdg { display: inline-flex; align-items: center; gap: 3px; }
+.pdg i { font: 700 10px/1 var(--font-body); font-style: normal; letter-spacing: .04em; color: var(--muted); margin-right: 2px; }
+.pdg.hl i { color: #c4430f; }
+.pdg em { font: 600 11px/1 var(--font-body); font-style: normal; color: var(--muted); }
+/* #30 : tram remplacé par des bus (SUB) */
+.netbar.subbar { background: #01A5C8; color: #fff; }
+.netbar.subbar .sbg { flex: none; display: inline-flex; }
+.subcard { margin: 0 0 12px; border: 1.5px solid color-mix(in srgb, #01A5C8 55%, var(--rule)); border-radius: var(--r); background: color-mix(in srgb, #01A5C8 7%, var(--surface)); overflow: hidden; }
+.subcard .subh { display: flex; align-items: center; gap: 10px; padding: 12px 12px 8px; }
+.subcard .subh .nm { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.subcard .subh b { font: 700 16px/1.2 var(--font-display); }
+.subcard .subh small { font-size: 12.5px; color: var(--muted); }
+.subcard .subw { display: flex; gap: 8px; align-items: flex-start; padding: 0 12px 10px; font-size: 14px; line-height: 1.35; }
+.subcard .subw svg { flex: none; margin-top: 1px; color: #01A5C8; }
+.subcard .subd { display: grid; grid-template-columns: 1fr; gap: 6px; padding: 10px 12px; border-top: 1px solid color-mix(in srgb, #01A5C8 25%, var(--rule)); background: var(--surface); }
+.subcard .subd .dir { font-weight: 600; font-size: 14px; }
+.subcard .subd .tt { display: flex; gap: 8px; overflow-x: auto; }
+.subcard .linkbtn { margin: 0; padding: 10px 12px; border-top: 1px solid color-mix(in srgb, #01A5C8 25%, var(--rule)); width: 100%; background: var(--surface); }
+.subline { display: flex; align-items: center; gap: 8px; padding: 8px 12px; font-size: 13px; color: var(--ink); background: color-mix(in srgb, #01A5C8 8%, var(--surface)); border-top: 1px solid var(--rule); }
 .netbar span { flex: 1; min-width: 0; }
 .mega { animation: shout 2.4s ease-in-out infinite; transform-origin: 30% 60%; }
 @keyframes shout { 0%, 60%, 100% { transform: rotate(0); } 10% { transform: rotate(-10deg) scale(1.06); } 20% { transform: rotate(8deg) scale(1.06); } 30% { transform: rotate(-6deg); } 40% { transform: rotate(4deg); } 50% { transform: rotate(0); } }
@@ -731,6 +849,7 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
   <section class="mapwrap" aria-label="Plan du réseau">
     <canvas id="tiles" aria-hidden="true"></canvas>
     <canvas id="map" aria-label="Plan interactif du réseau"></canvas>
+    <button type="button" class="mappill" id="mappill" hidden></button>
     <button type="button" class="profbtn" id="prof-btn" aria-label="Mon profil"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.6 4.2-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/></svg></button>
     <div class="mapctl">
       <div class="grp">
@@ -769,6 +888,7 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
     </header>
     <div class="nightbar" id="nightbar" role="status" hidden></div>
     <button type="button" class="netbar" id="netbar" hidden></button>
+    <button type="button" class="netbar subbar" id="subbar" hidden></button>
     <div class="scroll" id="scroll">
 
       <!-- Accueil -->
@@ -949,6 +1069,22 @@ const minIso = net.isoOf(0), maxIso = net.isoOf(net.nd - 1);
 const inRange = (iso) => iso >= minIso && iso <= maxIso;
 const startIso = inRange(NOW.iso) ? NOW.iso : (NOW.iso < minIso ? minIso : maxIso);
 const todayIdx = () => net.dayIndex(parisNow().iso);
+// #35 : la SUB (bus de substitution du tram) n'apparaît que si elle circule aujourd'hui ou demain
+net.hidden = new Set();
+{ const t0 = todayIdx(); net.R.forEach((r, ri) => { if (r.s !== "SUB") return; if (!net.pats.some((p) => p.r === ri && p.sv.some((sv) => net.svcOn(sv, t0) || net.svcOn(sv, t0 + 1)))) net.hidden.add(ri); }); }
+if (net.hidden.size) net.pRoutes = net.pRoutes.map((l) => l.filter((r) => !net.hidden.has(r)));
+const shownR = (i) => !net.hidden.has(i);
+// #30 : jour « mode SUB » = la SUB (bus de substitution du tram) circule ce jour-là
+const SUBR = net.R.findIndex((r) => r.s === "SUB");
+const isTramR = (r) => net.R[r].m === 1;
+const subOn = (day) => SUBR >= 0 && net.pats.some((p) => p.r === SUBR && p.sv.some((sv) => net.svcOn(sv, day)));
+const SUBP = SUBR < 0 ? [] : [...new Set(net.pats.filter((p) => p.r === SUBR).flatMap((p) => p.stops.map((q) => net.Q[q][0])))];
+// arrêt de la SUB le plus proche d'un arrêt du tram (même arrêt, ou à pied)
+function subNear(par) {
+  const P0 = net.P[par]; let best = null;
+  for (const sp of SUBP) { const d = sp === par ? 0 : distM(P0[1], P0[2], net.P[sp][1], net.P[sp][2]); if (!best || d < best.d) best = { i: sp, d }; }
+  return best;
+}
 const toMin = (v) => { const [h, m] = (v || "0:0").split(":").map(Number); return h * 60 + m; };
 const toVal = (m) => hm(m);
 $(".mark").innerHTML = grmSymbol();
@@ -978,7 +1114,8 @@ const FEATS = [
     ["plein", "Mode plein écran", "Tirez le panneau vers le haut : votre trajet occupe tout l'écran. Touchez la croix pour revenir."],
     ["centre", "Toujours centré sur le bus", "La liste des arrêts suit le bus. Si vous la faites défiler, elle revient sur lui au bout de 4 secondes."],
     ["chevrons", "Animation du trajet", "Des flèches défilent devant le bus quand il roule : on voit d'un coup d'œil qu'il avance."],
-    ["cxdir", "Correspondances détaillées", "Chaque correspondance indique sa direction et son heure de passage, par exemple « U3 › Maurencienne · 3 min »."]]],
+    ["cxdir", "Correspondances détaillées", "Chaque correspondance indique sa direction et son heure de passage, par exemple « U3 › Maurencienne · 3 min »."],
+    ["descente", "Par où descendre", "Dans le tram et le BHNS, l'appli montre par quelle porte descendre (avant, milieu, arrière) pour être au plus près de votre correspondance."]]],
   ["Détection automatique", [
     ["inbus", "Détection du bus", "Vous montez sans rien faire ? L'appli reconnaît le bus ou le tram dans lequel vous êtes et vous propose de le suivre."]]],
   ["Aux arrêts", [
@@ -999,7 +1136,7 @@ const myFirst = (ri) => feat("mesl") && MY.lines.includes(ri); // « Mes lignes 
 const uName = (i) => MY.names[pName(i)] || pName(i); // nom donné par l'utilisateur (Mon profil), sinon le vrai nom
 const tripKey = (a, b) => a + "|" + b;
 const isFavStop = (i) => i != null && fav.stops.includes(pName(i));
-const isFavTrip = (a, b) => a != null && b != null && fav.trips.some(([x, y]) => x === pName(a) && y === pName(b));
+const isFavTrip = (a, b) => a != null && b != null && !isPlace(a) && !isPlace(b) && fav.trips.some(([x, y]) => x === pName(a) && y === pName(b));
 function toggleFavStop(i) { const n = pName(i); fav.stops = isFavStop(i) ? fav.stops.filter((x) => x !== n) : [...fav.stops, n]; saveFav(); toast(isFavStop(i) ? `${n} ajouté à l'accueil` : `${n} retiré des favoris`); }
 function toggleFavTrip(a, b) { const A = pName(a), B = pName(b); fav.trips = isFavTrip(a, b) ? fav.trips.filter(([x, y]) => !(x === A && y === B)) : [...fav.trips, [A, B]]; saveFav(); toast(isFavTrip(a, b) ? "Trajet ajouté à l'accueil" : "Trajet retiré des favoris"); }
 function setStar(btn, on) { btn.innerHTML = starSvg; btn.setAttribute("aria-pressed", on); }
@@ -1009,7 +1146,7 @@ const ME = { pos: null, acc: 0, watching: false, err: "", hist: [] };
 function distM(lat1, lon1, lat2, lon2) { const R = 6371000, r = Math.PI / 180; const a = Math.sin((lat2 - lat1) * r / 2) ** 2 + Math.cos(lat1 * r) * Math.cos(lat2 * r) * Math.sin((lon2 - lon1) * r / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(a)); }
 function nearestStops(n = 5, maxD = 1200) {
   if (!ME.pos) return [];
-  return net.P.map((p, i) => ({ i, d: distM(ME.pos[0], ME.pos[1], p[1], p[2]) })).filter((x) => x.d <= maxD).sort((a, b) => a.d - b.d).slice(0, n);
+  return net.P.map((p, i) => ({ i, d: distM(ME.pos[0], ME.pos[1], p[1], p[2]) })).filter((x) => x.d <= maxD && net.pRoutes[x.i].length).sort((a, b) => a.d - b.d).slice(0, n);
 }
 function locate(onOk, quiet) {
   if (!("geolocation" in navigator)) { ME.err = "La localisation n'est pas disponible sur cet appareil."; if (!quiet) toast(ME.err); renderHome(); return; }
@@ -1034,16 +1171,51 @@ function locate(onOk, quiet) {
 
 // ---------- sélecteur d'arrêt ----------
 const norm = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
-const stopIdx = net.P.map((p, i) => ({ i, n: norm(p[0]) }));
-function picker(root, onPick) {
+const stopIdx = net.P.map((p, i) => ({ i, n: norm(p[0]) })).filter((x) => net.pRoutes[x.i].length); // #35 : arrêts de la SUB seule masqués quand elle ne circule pas
+// ---------- #21 (maquette) : lieux = adresse (Base Adresse Nationale, géocodage de l'IGN), ma position, point touché sur le plan ----------
+const isPlace = (v) => v != null && typeof v === "object";
+const GEO = "https://data.geopf.fr/geocodage"; // ex-api-adresse.data.gouv.fr (fermée fin janvier 2026)
+// quais à moins de 700 m (au moins les 3 plus proches), avec le temps à pied
+function placeQ(lat, lon) {
+  const L = net.Q.map((Q, q) => [q, distM(lat, lon, Q[1], Q[2])]).filter(([q]) => net.qp[q].length && net.pRoutes[net.Q[q][0]].length).sort((a, b) => a[1] - b[1]);
+  return L.filter(([, d], i) => d <= 700 || i < 3).slice(0, 16).map(([q, d]) => [q, Math.max(1, Math.ceil(d * 1.25 / 75))]);
+}
+// deux marches à la suite (changement de quai puis marche jusqu'au lieu) → une seule marche directe
+function mergeWalks(j) {
+  const L = j.legs, n = L.length;
+  const pt = (q) => q === -1 ? [S.from.lat, S.from.lon] : q === -2 ? [S.to.lat, S.to.lon] : [net.Q[q][1], net.Q[q][2]];
+  const wm = (a, b) => { const [x, y] = pt(a), [u, v] = pt(b); return Math.max(1, Math.ceil(distM(x, y, u, v) * 1.25 / 75)); };
+  if (n >= 2 && L[n - 1].type === "walk" && L[n - 1].to === -2 && L[n - 2].type === "walk") { const a = L[n - 2], d = wm(a.from, -2); if (d <= a.dur + L[n - 1].dur) { L.splice(n - 2, 2, { type: "walk", from: a.from, to: -2, dur: d, dep: a.dep, arr: a.dep + d }); j.arr = a.dep + d; } }
+  if (L.length >= 2 && L[0].type === "walk" && L[0].from === -1 && L[1].type === "walk") { const b = L[1], d = wm(-1, b.to); if (d <= L[0].dur + b.dur) { L.splice(0, 2, { type: "walk", from: -1, to: b.to, dur: d, dep: b.arr - d, arr: b.arr }); j.dep = b.arr - d; } }
+  return j;
+}
+const engPlace = (v) => isPlace(v) ? { q: v.q || (v.q = placeQ(v.lat, v.lon)) } : v;
+const vName = (v) => v == null ? "" : isPlace(v) ? v.label : uName(v);
+const geoIco = {
+  pos: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4" fill="currentColor"/><circle cx="12" cy="12" r="8.5"/></svg>`,
+  adr: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M4 11 12 4l8 7v9h-5v-6H9v6H4z"/></svg>`,
+  pt: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg>`,
+};
+const GEOC = new Map();
+async function geoSearch(q) {
+  if (GEOC.has(q)) return GEOC.get(q);
+  const u = `${GEO}/search?q=${encodeURIComponent(q)}&limit=5&autocomplete=1&lat=49.2583&lon=4.0317&index=address`;
+  try { const r = await fetch(u); const d = await r.json(); const out = (d.features || []).map((f) => ({ kind: "adr", label: f.properties.name, sub: [f.properties.postcode, f.properties.city].filter(Boolean).join(" "), lat: f.geometry.coordinates[1], lon: f.geometry.coordinates[0] })); GEOC.set(q, out); return out; } catch (e) { return []; }
+}
+async function geoReverse(lat, lon) {
+  try { const r = await fetch(`${GEO}/reverse?lat=${lat}&lon=${lon}&limit=1&index=address`); const d = await r.json(); const f = (d.features || [])[0]; return f ? { label: f.properties.name, sub: [f.properties.postcode, f.properties.city].filter(Boolean).join(" ") } : null; } catch (e) { return null; }
+}
+function picker(root, onPick, opts = {}) {
   const inp = $("input", root), box = $(".sugg", root);
-  let items = [], sel = -1, value = null;
+  let items = [], sel = -1, value = null, gseq = 0;
+  const prow = (v, k) => `<button type="button" role="option" class="plc" data-k="${k}" aria-selected="${k === sel}"><span class="pic">${geoIco[v.kind]}</span><span class="nm"><span>${esc(v.label)}</span>${v.sub ? `<small>${esc(v.sub)}</small>` : ""}</span></button>`;
   const row = (i, k, sub) => `<button type="button" role="option" data-k="${k}" aria-selected="${k === sel}"><span class="nm"><span>${esc(uName(i))}</span>${sub || MY.names[pName(i)] ? `<small>${[MY.names[pName(i)] ? esc(pName(i)) : "", sub || ""].filter(Boolean).join(" · ")}</small>` : ""}</span><span class="badges">${net.pRoutes[i].slice(0, 5).map((r) => badge(r, "sm")).join("")}${net.pRoutes[i].length > 5 ? "…" : ""}</span></button>`;
   const render = () => {
     const q = norm(inp.value);
     let html = "";
     items = [];
     if (!q) {
+      if (opts.places) { html += prow({ kind: "pos", label: "Ma position", sub: ME.pos ? "Position actuelle du téléphone" : "Autoriser la localisation" }, items.length); items.push({ place: "pos" }); }
       // suggestions sans saisie : arrêts proches puis favoris
       const near = nearestStops(3, 900);
       if (near.length) { html += `<div class="sg-h lbl">Près de vous</div>`; near.forEach((x) => { html += row(x.i, items.length, Math.round(x.d / 10) * 10 + " m"); items.push({ i: x.i }); }); }
@@ -1056,14 +1228,38 @@ function picker(root, onPick) {
       const mine = fav.stops.filter((n) => MY.names[n] && words.every((w) => norm(MY.names[n]).includes(w))).map(findStop).filter((i) => i >= 0);
       items = stopIdx.filter((s) => !mine.includes(s.i) && words.every((w) => s.n.includes(w))).sort((a, b) => (a.n.startsWith(q) ? 0 : 1) - (b.n.startsWith(q) ? 0 : 1) || a.n.localeCompare(b.n)).slice(0, 30);
       items = [...mine.map((i) => ({ i })), ...items];
-      html = items.length ? items.map((s, k) => row(s.i, k)).join("") : `<div class="empty">Aucun arrêt ne correspond.</div>`;
+      if (opts.places) items = items.slice(0, 6);
+      html = items.length ? (opts.places ? `<div class="sg-h lbl">Arrêts</div>` : "") + items.map((s, k) => row(s.i, k)).join("") : opts.places ? "" : `<div class="empty">Aucun arrêt ne correspond.</div>`;
+      // #21 : adresses de la Base Adresse Nationale, sous les arrêts
+      if (opts.places && q.length >= 3) {
+        html += `<div class="sg-h lbl" data-adrh>Adresses</div><div class="sg-wait" data-adr>Recherche…</div>`;
+        const my = ++gseq, raw = inp.value.trim();
+        setTimeout(async () => {
+          if (my !== gseq) return;
+          const res = await geoSearch(raw); if (my !== gseq || !box.classList.contains("on")) return;
+          const at = box.querySelector("[data-adr]"); if (!at) return;
+          const base = items.length;
+          res.forEach((v) => items.push({ place: v }));
+          at.outerHTML = res.length ? res.map((v, j) => prow(v, base + j)).join("") : `<div class="sg-wait">Aucune adresse trouvée</div>`;
+          if (sel < 0 && items.length) sel = 0;
+        }, 220);
+      }
     }
     sel = items.length ? 0 : -1;
     box.innerHTML = html; box.classList.add("on");
     box.querySelectorAll("button").forEach((b, k) => b.setAttribute("aria-selected", k === sel));
   };
-  const choose = (k) => { if (k < 0 || !items[k]) return; set(items[k].i); inp.blur(); onPick(value); };
-  const set = (i) => { value = i; inp.value = i == null ? "" : uName(i); box.classList.remove("on"); };
+  const choose = (k) => {
+    if (k < 0 || !items[k]) return;
+    const it = items[k];
+    if (it.place === "pos") { // ma position : localisation puis lieu
+      const use = () => { if (!ME.pos) return; set({ kind: "pos", label: "Ma position", lat: ME.pos[0], lon: ME.pos[1] }); inp.blur(); onPick(value); };
+      if (ME.pos) use(); else locate(use);
+      return;
+    }
+    set(it.place || it.i); inp.blur(); onPick(value);
+  };
+  const set = (i) => { value = i; inp.value = i == null ? "" : vName(i); inp.classList.toggle("isplace", isPlace(i)); box.classList.remove("on"); };
   inp.addEventListener("input", render);
   inp.addEventListener("focus", () => { inp.select(); if (isMobile()) setSheet("full"); render(); });
   inp.addEventListener("keydown", (e) => {
@@ -1074,7 +1270,7 @@ function picker(root, onPick) {
   });
   box.addEventListener("pointerdown", (e) => e.preventDefault());
   box.addEventListener("click", (e) => { const b = e.target.closest("button[data-k]"); if (b) choose(+b.dataset.k); });
-  inp.addEventListener("blur", () => { setTimeout(() => { box.classList.remove("on"); if (value != null) inp.value = uName(value); }, 150); });
+  inp.addEventListener("blur", () => { setTimeout(() => { box.classList.remove("on"); if (value != null) inp.value = vName(value); }, 150); });
   return { get: () => value, set };
 }
 const findStop = (name) => net.P.findIndex((p) => p[0] === name);
@@ -1088,7 +1284,8 @@ let sheetState = "half";
 function sheetTops() {
   const H = $("#app").clientHeight, tab = $(".tabbar").offsetHeight;
   const sat = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--sat")) || 0;
-  return { full: Math.max(56, sat + 52), half: Math.round(H * 0.46), peek: H - tab - 150 };
+  // #32 : « cover » = liste plein écran, sans plan
+  return { full: Math.max(56, sat + 52), half: Math.round(H * 0.46), peek: H - tab - 150, cover: sat };
 }
 function setSheet(state, silent) {
   if (!isMobile()) return;
@@ -1101,7 +1298,7 @@ function sheetInsetBottom() { if (!isMobile()) return 0; const H = $("#app").cli
 let sheetDragBind = () => {};
 (function sheetDrag() {
   let y0 = 0, top0 = 0, t0 = 0, dragging = false, moved = false, tapOk = true;
-  const start = (e) => { if (!isMobile()) return; if (e.target.closest("button, input, a, [data-board]")) return; dragging = true; moved = false; tapOk = !e.currentTarget.dataset.notap; y0 = e.clientY; top0 = sheet.getBoundingClientRect().top - $("#app").getBoundingClientRect().top; t0 = performance.now(); sheet.classList.add("dragging"); e.currentTarget.setPointerCapture(e.pointerId); };
+  const start = (e) => { if (!isMobile() || sheetState === "cover") return; if (e.target.closest("button, input, a, [data-board]")) return; dragging = true; moved = false; tapOk = !e.currentTarget.dataset.notap; y0 = e.clientY; top0 = sheet.getBoundingClientRect().top - $("#app").getBoundingClientRect().top; t0 = performance.now(); sheet.classList.add("dragging"); e.currentTarget.setPointerCapture(e.pointerId); };
   const move = (e) => { if (!dragging) return; const dy = e.clientY - y0; if (Math.abs(dy) > 4) moved = true; const T = sheetTops(); sheet.style.top = Math.max(T.full - 20, Math.min(T.peek + 40, top0 + dy)) + "px"; };
   const end = (e) => {
     if (!dragging) return; dragging = false; sheet.classList.remove("dragging");
@@ -1124,7 +1321,7 @@ let sheetDragBind = () => {};
 function nextByLine(stop, maxGroups = 4) {
   const iso = parisNow().iso; if (!inRange(iso)) return [];
   const day = net.dayIndex(iso), t = Math.floor(nowMinF());
-  const rows = departures(net, stop, day, t - 1, 120).filter((x) => x.t >= nowMinF() - 0.5);
+  const rows = departures(net, stop, day, t - 1, 120).filter((x) => x.t >= nowMinF() - 0.5 && !x.na);
   const g = new Map();
   for (const x of rows) { const p = net.pats[x.pat]; const key = p.r + "|" + p.h; if (!g.has(key)) g.set(key, { r: p.r, h: p.h, dir: p.dir, list: [] }); const G = g.get(key); if (G.list.length < 2) G.list.push(x); }
   const act = [...g.values()].sort((a, b) => a.list[0].t - b.list[0].t);
@@ -1157,6 +1354,12 @@ function endedLines(stop, act, day, t, horizon) {
   return out.sort((a, b) => (a.next ?? 1e9) - (b.next ?? 1e9) || a.r - b.r);
 }
 const endRowHtml = (G) => `<div class="endrow">${badge(G.r)}<span class="dir">${esc(G.h)}</span><span class="endt"><b>${G.end}</b><small>${G.sub}</small></span></div>`;
+// #30 : sous une carte d'arrêt du tram, où prendre la SUB
+function subCardLine(i) {
+  if (SUBR < 0 || !subOn(todayIdx()) || !net.pRoutes[i].some(isTramR)) return "";
+  const nb = subNear(i); if (!nb || nb.d > 700) return `<div class="subline">${badge(SUBR, "sm", true)}<span>Tram remplacé par des bus · pas de SUB à cet arrêt</span></div>`;
+  return `<button type="button" class="subline" data-openstop="${nb.i}" style="width:100%;border:0;text-align:left">${badge(SUBR, "sm", true)}<span style="flex:1">Tram remplacé : SUB ${nb.i === i ? "à cet arrêt" : "à " + esc(pName(nb.i)) + " · " + walkTxt(nb.d)}</span>${chevR}</button>`;
+}
 function stopCard(i, sub) {
   const gs = nextByLine(i);
   const star = isFavStop(i);
@@ -1165,6 +1368,7 @@ function stopCard(i, sub) {
       <button type="button" class="icon-btn star" data-favstop="${i}" aria-pressed="${star}" aria-label="${star ? "Retirer des favoris" : "Ajouter aux favoris"}">${starSvg}</button></div>
     <div class="mini">${gs.length ? byMode(gs, (G) => G.r).map(([mk, mn, L]) => (mk ? `<div class="mgh">${modeHead(mk, mn)}</div>` : "") + L.map((G) => { if (!G.list) return endRowHtml(G); const a = G.list[0], b = G.list[1]; return `<button type="button" data-follow="${a.pat}:${a.k}:${a.off}">${badge(G.r)}<span class="dir">${esc(G.h)}</span><span class="tw"><span class="t1">${dot(a.live)}${waitLabel(a.t, true)}</span>${b ? `<span class="t2">${waitLabel(b.t, true)}</span>` : ""}</span></button>`; }).join("")).join("") : `<div class="none">Aucun départ dans les 2 prochaines heures.</div>`}
       <button type="button" data-openstop="${i}" style="grid-template-columns:1fr auto;color:var(--focus);font-weight:600;font-size:14px">Tous les passages ${chevR}</button></div>
+    ${subCardLine(i)}
   </div>`;
 }
 function tripCardHtml(a, b, k) {
@@ -1210,8 +1414,8 @@ $("#v-accueil").addEventListener("click", (e) => {
 });
 
 // ---------- Itinéraire ----------
-const fromP = picker($("#it-from").parentNode, (v) => { S.from = v; if (S.to == null) $("#it-to").focus(); else { if (isMobile()) setSheet("half", true); runIt(); } });
-const toP = picker($("#it-to").parentNode, (v) => { S.to = v; if (isMobile()) setSheet("half", true); runIt(); });
+const fromP = picker($("#it-from").parentNode, (v) => { S.from = v; if (S.to == null) $("#it-to").focus(); else { if (isMobile()) setSheet("half", true); runIt(); } }, { places: true });
+const toP = picker($("#it-to").parentNode, (v) => { S.to = v; if (isMobile()) setSheet("half", true); runIt(); }, { places: true });
 let itFollowNow = true;
 function setupDT(dateEl, timeEl, cb, onManual) {
   dateEl.min = minIso; dateEl.max = maxIso; dateEl.value = startIso; timeEl.value = toVal(inRange(NOW.iso) ? NOW.min : 7 * 60);
@@ -1221,7 +1425,7 @@ function setupDT(dateEl, timeEl, cb, onManual) {
 setupDT($("#it-date"), $("#it-time"), () => runIt(), () => { itFollowNow = false; });
 $("#it-now").addEventListener("click", () => { itFollowNow = true; S.mode = "dep"; syncMode(); $("#it-when").open = false; runIt(); });
 $("#it-swap").addEventListener("click", () => { [S.from, S.to] = [S.to, S.from]; fromP.set(S.from); toP.set(S.to); runIt(); });
-$("#it-star").addEventListener("click", () => { if (S.from == null || S.to == null) { toast("Choisissez d'abord un départ et une arrivée."); return; } toggleFavTrip(S.from, S.to); syncItStar(); });
+$("#it-star").addEventListener("click", () => { if (S.from == null || S.to == null) { toast("Choisissez d'abord un départ et une arrivée."); return; } if (isPlace(S.from) || isPlace(S.to)) { toast("Seuls les trajets d'arrêt à arrêt peuvent être enregistrés pour l'instant.", 2600); return; } toggleFavTrip(S.from, S.to); syncItStar(); });
 const syncItStar = () => setStar($("#it-star"), isFavTrip(S.from, S.to));
 const syncMode = () => { $("#it-dep").setAttribute("aria-pressed", S.mode === "dep"); $("#it-arr").setAttribute("aria-pressed", S.mode === "arr"); };
 $("#it-dep").addEventListener("click", () => { S.mode = "dep"; syncMode(); itFollowNow = false; runIt(); });
@@ -1237,7 +1441,7 @@ function runIt(noFit) {
   syncItStar();
   if (itFollowNow) { const n = parisNow(); if (inRange(n.iso)) { $("#it-date").value = n.iso; $("#it-time").value = toVal(n.min); } }
   const msg = $("#it-msg"), res = $("#it-res");
-  store.set("od", [S.from, S.to].map((x) => x == null ? null : pName(x)));
+  store.set("od", [S.from, S.to].map((x) => x == null || isPlace(x) ? null : pName(x)));
   const iso = $("#it-date").value, t = toMin($("#it-time").value);
   const isToday = iso === parisNow().iso;
   $("#it-whenlbl").textContent = itFollowNow ? "Partir maintenant" : `${S.mode === "dep" ? "Partir à" : "Arriver avant"} ${hm(t)}${isToday ? "" : ", " + fmtDateShort(iso)}`;
@@ -1249,7 +1453,9 @@ function runIt(noFit) {
   const day = net.dayIndex(iso);
   // #12 : 6 trajets d'emblée (« Plus de choix de trajets » coupé : comme avant, 4 ou 5 en « Partir à », 3 en « Arriver avant »)
   const more = feat("plus");
-  const js = S.mode === "dep" ? planDepart(net, S.from, S.to, day, t, more ? 6 : 4).slice(0, more ? 6 : 5) : planArrive(net, S.from, S.to, day, t, more ? 6 : 3);
+  const eF = engPlace(S.from), eT = engPlace(S.to);
+  const js = S.mode === "dep" ? planDepart(net, eF, eT, day, t, more ? 6 : 4).slice(0, more ? 6 : 5) : planArrive(net, eF, eT, day, t, more ? 6 : 3);
+  if (isPlace(S.from) || isPlace(S.to)) js.forEach(mergeWalks);
   S.journeys = js; S.selJ = S.mode === "arr" ? js.length - 1 : 0; S.itq = { day, isToday };
   if (!js.length) { res.innerHTML = `<div class="empty">Aucun trajet trouvé ${S.mode === "dep" ? "après " + hm(t) : "arrivant avant " + hm(t)} le ${fmtDateLong(iso)}. Essayez une autre heure : certaines lignes ne circulent qu'en semaine ou en journée.</div>`; drawMap(); return; }
   renderIt(noFit);
@@ -1262,14 +1468,14 @@ function itMore(dir) {
   if (dir < 0) {
     const first = js[0];
     for (let back = 60; back <= 240 && add.length < 4; back += 60) {
-      const c = S.mode === "dep" ? planDepart(net, S.from, S.to, q.day, Math.max(0, first.dep - back), 8).filter((j) => j.dep < first.dep)
-        : planArrive(net, S.from, S.to, q.day, first.arr - 1, 6).filter((j) => j.arr < first.arr);
+      const c = S.mode === "dep" ? planDepart(net, engPlace(S.from), engPlace(S.to), q.day, Math.max(0, first.dep - back), 8).filter((j) => j.dep < first.dep)
+        : planArrive(net, engPlace(S.from), engPlace(S.to), q.day, first.arr - 1, 6).filter((j) => j.arr < first.arr);
       add = c.filter((j) => !have.has(j.key)).slice(-4);
       if (S.mode === "arr") break;
     }
   } else {
     const last = js[js.length - 1];
-    add = planDepart(net, S.from, S.to, q.day, Math.floor(last.dep) + 1, 4).filter((j) => j.dep > last.dep && !have.has(j.key)).slice(0, 4);
+    add = planDepart(net, engPlace(S.from), engPlace(S.to), q.day, Math.floor(last.dep) + 1, 4).filter((j) => j.dep > last.dep && !have.has(j.key)).slice(0, 4);
   }
   if (!add.length) { toast(dir < 0 ? "Pas de trajet plus tôt" : "Pas d'autre trajet après", 1800); return; }
   S.journeys = [...js, ...add].sort((a, b) => a.dep - b.dep || a.arr - b.arr);
@@ -1320,11 +1526,12 @@ function timeline(j, jk) {
   const L = j.legs;
   L.forEach((g, i) => {
     if (g.type === "walk") {
-      const same = net.Q[g.from][0] === net.Q[g.to][0];
-      const label = same ? `Changement de quai à ${esc(qName(g.to))}` : `Marche jusqu'à ${esc(qName(g.to))}`;
-      if (i === 0) h += `<div class="st cap"><div class="t">${hm(g.dep)}</div><div class="rail"><span class="node"></span></div><div class="body"><div class="name">${esc(qName(g.from))}</div><div class="sub">Départ à pied</div></div></div>`;
+      const nmOf = (q) => q === -1 ? vName(S.from) : q === -2 ? vName(S.to) : qName(q);
+      const same = g.from >= 0 && g.to >= 0 && net.Q[g.from][0] === net.Q[g.to][0];
+      const label = same ? `Changement de quai à ${esc(qName(g.to))}` : `Marche jusqu'à ${g.to === -2 ? "<b>" + esc(nmOf(g.to)) + "</b>" : "l'arrêt " + esc(qName(g.to))}`;
+      if (i === 0) h += `<div class="st cap"><div class="t">${hm(g.dep)}</div><div class="rail"><span class="node"></span></div><div class="body"><div class="name">${esc(nmOf(g.from))}</div><div class="sub">Départ à pied</div></div></div>`;
       h += `<div class="st walk"><div class="t"></div><div class="rail"></div><div class="body"><div class="sub">${walkSvg} ${label} · ${g.dur} min</div></div></div>`;
-      if (i === L.length - 1) h += `<div class="st end"><div class="t">${hm(g.arr)}</div><div class="rail"><span class="node" style="--c:var(--ink);border-radius:3px"></span></div><div class="body"><div class="name">${esc(qName(g.to))}</div><div class="sub">Arrivée</div></div></div>`;
+      if (i === L.length - 1) h += `<div class="st end"><div class="t">${hm(g.arr)}</div><div class="rail"><span class="node" style="--c:var(--ink);border-radius:3px"></span></div><div class="body"><div class="name">${esc(nmOf(g.to))}</div><div class="sub">Arrivée</div></div></div>`;
       return;
     }
     const p = net.pats[g.pat], r = net.R[p.r];
@@ -1383,9 +1590,9 @@ function runPa() {
   if (!gs.length && !ended.length) { res.innerHTML = `<div class="empty">Aucun passage dans les 3 heures après ${hm(t0)} le ${fmtDateLong(iso)}.</div>`; drawMap(); return; }
   const nowF = nowMinF();
   if (!feat("pliage") && MFOLD.stop !== S.paStop) { MFOLD.clear(); MFOLD.stop = S.paStop; } // sans « Mémoire de l'affichage » : tout redéplié à chaque arrêt
-  res.innerHTML = trNoteFor(net.pRoutes[S.paStop]).replace('class="trnote"', 'class="trnote" style="margin-bottom:10px"') + `<div class="legend-dots" style="margin:0 0 10px"><span>${dot(true)}temps réel</span><span>${dot(false)}horaire théorique</span><span>Touchez un horaire pour suivre le bus</span></div><div class="deps">` + byMode([...gs, ...ended], (g) => g.r).map(([mk, mn, L]) => `<div class="mgrp${mk && MFOLD.has(mk) ? " fold" : ""}">${mk ? modeFoldBtn(mk, mn, L.map((g) => g.r)) : ""}<div class="mbody">` + L.map((g) => g.list ? `
+  res.innerHTML = subBlock(S.paStop, day, t0, isToday) + trNoteFor(net.pRoutes[S.paStop]).replace('class="trnote"', 'class="trnote" style="margin-bottom:10px"') + `<div class="legend-dots" style="margin:0 0 10px"><span>${dot(true)}temps réel</span><span>${dot(false)}horaire théorique</span><span>Touchez un horaire pour suivre le bus</span></div><div class="deps">` + byMode([...gs, ...ended], (g) => g.r).map(([mk, mn, L]) => `<div class="mgrp${mk && MFOLD.has(mk) ? " fold" : ""}">${mk ? modeFoldBtn(mk, mn, L.map((g) => g.r)) : ""}<div class="mbody">` + L.map((g) => g.list ? `
     <div class="dep">${badge(g.r, "lg")}<div class="dir">→ ${esc(g.h)}<small>${esc(net.R[g.r].l)}</small></div>
-      <div class="tt">${g.list.map((x, k) => { const w = x.t - nowF; return `<button type="button" class="chip${k === 0 && isToday && w <= 15 && w > -1 ? " soon" : ""}" data-follow="${x.pat}:${x.k}:${x.off}" title="${x.live ? "Temps réel, passage à " + hm(x.t) : "Horaire théorique, passage à " + hm(x.t)}"><span class="main">${dot(x.live)}${waitLabel(x.t, isToday)}</span>${x.live && Math.round(x.t) !== Math.round(x.st) ? `<small>${delayTxt(x.t, x.st)}</small>` : isToday && w >= 59.5 ? "" : isToday ? `<small>${hm(x.t)}</small>` : ""}</button>`; }).join("")}</div>
+      <div class="tt">${g.list.map((x, k) => { const w = x.t - nowF; if (x.na) return `<button type="button" class="chip na" data-follow="${x.pat}:${x.k}:${x.off}" title="Départ de ${hm(x.st)} non assuré (info trafic)"><span class="main"><s>${hm(x.st)}</s></span><small>NON ASSURÉ</small></button>`; return `<button type="button" class="chip${k === 0 && isToday && w <= 15 && w > -1 ? " soon" : ""}" data-follow="${x.pat}:${x.k}:${x.off}" title="${x.live ? "Temps réel, passage à " + hm(x.t) : "Horaire théorique, passage à " + hm(x.t)}"><span class="main">${dot(x.live)}${waitLabel(x.t, isToday)}</span>${x.live && Math.round(x.t) !== Math.round(x.st) ? `<small>${delayTxt(x.t, x.st)}</small>` : isToday && w >= 59.5 ? "" : isToday ? `<small>${hm(x.t)}</small>` : ""}</button>`; }).join("")}</div>
       <button type="button" class="linkbtn open" data-r="${g.r}" data-d="${g.dir}">Fiche horaire de la ligne ${esc(net.R[g.r].s)} ${chevR}</button>
     </div>` : endRow(g)).join("") + `</div></div>`).join("") + `</div>`;
   res.querySelectorAll(".mfold").forEach((b) => b.addEventListener("click", () => { const k = b.dataset.mode, g = b.parentElement, f = !g.classList.contains("fold"); g.classList.toggle("fold", f); b.setAttribute("aria-expanded", !f); if (f) MFOLD.add(k); else MFOLD.delete(k); store.set("modeFold", feat("pliage") ? [...MFOLD] : []); }));
@@ -1394,11 +1601,46 @@ function runPa() {
   drawMap();
 }
 
+// ---------- #30 : tram remplacé par des bus (SUB) ----------
+const pinSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg>`;
+const walkTxt = (d) => `${Math.round(d / 10) * 10} m · ${Math.max(1, Math.round(d * 1.25 / 75))} min à pied`;
+function subBlock(par, day, t0, isToday) {
+  if (SUBR < 0 || !subOn(day) || !net.pRoutes[par].some(isTramR) && !SUBP.includes(par)) return "";
+  const nb = subNear(par); if (!nb) return "";
+  const when = isToday ? "Aujourd'hui, toute la journée" : fmtDateLong(net.isoOf(day)).replace(/^./, (c) => c.toUpperCase());
+  let h = `<div class="subcard"><div class="subh">${badge(SUBR, "lg", true)}<div class="nm"><b>Tram remplacé par des bus</b><small>${when}</small></div></div>`;
+  if (nb.d > 700) return h + `<div class="subw">${pinSvg}<span>Pas de bus de remplacement à cet arrêt. Arrêt de la SUB le plus proche : <b>${esc(pName(nb.i))}</b> (${(nb.d / 1000).toFixed(1).replace(".", ",")} km). Pour le centre-ville, prenez les bus du réseau.</span></div><button type="button" class="linkbtn" data-subline>Plan de la SUB ${chevR}</button></div>`;
+  // chaque sens de la SUB peut s'arrêter de l'autre côté de la rue (autre arrêt) : on prend, pour chaque direction, l'arrêt le plus proche
+  const P0 = net.P[par], near = SUBP.map((sp) => ({ i: sp, d: sp === par ? 0 : distM(P0[1], P0[2], net.P[sp][1], net.P[sp][2]) })).filter((x) => x.d <= nb.d + 250).sort((a, b) => a.d - b.d);
+  const nowF = nowMinF(), g = new Map();
+  for (const n of near) for (const x of departures(net, n.i, day, t0, 180)) {
+    const p = net.pats[x.pat]; if (p.r !== SUBR || (isToday && x.t < nowF - 0.5)) continue;
+    if (!g.has(p.h)) g.set(p.h, { at: n, list: [] }); const G = g.get(p.h); if (G.at.i !== n.i) continue; if (G.list.length < 4) G.list.push(x);
+  }
+  const same = [...g.values()].every((G) => G.at.i === par);
+  h += `<div class="subw">${pinSvg}<span>${same ? "Prenez la <b>SUB</b> à cet arrêt" : "Prenez la <b>SUB</b> à deux pas, selon votre direction"}</span></div>`;
+  h += [...g].map(([hd, G]) => `<div class="subd"><span class="dir">→ ${esc(hd)}${same ? "" : `<small style="display:block;font-weight:500;color:var(--muted);font-size:12.5px">Arrêt ${esc(pName(G.at.i))} · ${G.at.d < 30 ? "sur place" : walkTxt(G.at.d)}</small>`}</span><div class="tt">${G.list.map((x) => `<button type="button" class="chip" data-subfollow="${x.pat}:${x.k}:${x.off}:${G.at.i}"><span class="main">${dot(x.live)}${waitLabel(x.t, isToday)}</span>${isToday && x.t - nowF < 59.5 ? `<small>${hm(x.t)}</small>` : ""}</button>`).join("")}</div></div>`).join("");
+  return h + `<button type="button" class="linkbtn" data-subline>Plan et horaires de la SUB ${chevR}</button></div>`;
+}
+const openLine = (ri) => { S.line = ri; S.dir = 0; go("lignes"); setTimeout(() => { runLi(); fitLine(ri); const hd = $("#li-head"); if (hd) hd.scrollIntoView({ block: "start" }); }, 80); };
+document.addEventListener("click", (e) => {
+  const f = e.target.closest("[data-subfollow]");
+  if (f) { e.stopPropagation(); const [pi, k, off, par] = f.dataset.subfollow.split(":").map(Number); const iso = S.view === "passages" ? $("#pa-date").value : parisNow().iso; startFollow(pi, k, net.dayIndex(iso) + (off ? -1 : 0), par); return; }
+  if (e.target.closest("[data-subline]")) openLine(SUBR);
+}, true);
+function subBarCheck() {
+  const bar = $("#subbar"); if (!bar) return;
+  const on = subOn(todayIdx());
+  bar.hidden = !on; if (!on) return;
+  bar.innerHTML = `<span class="sbg">${modeIcon(1).replace('class="mode"', 'class="mode" style="width:20px;height:20px"')}</span><span>Tram remplacé par des bus aujourd'hui · où prendre la SUB</span>${chevR}`;
+  bar.onclick = () => openLine(SUBR);
+}
+
 // ---------- Lignes ----------
 setupDT($("#li-date"), $("#li-time"), () => runLi());
 function buildGrid() {
   const groups = [["Mes lignes", (r) => myFirst(net.R.indexOf(r)), "star"], ["Tram", (r) => r.m === 1, 1], ["BHNS", (r) => /^O\d/.test(r.s), "bhns"], ["Urbaines", (r) => /^U/.test(r.s), 3], ["Centre et scolaires", (r) => /^[CS]/.test(r.s), 3], ["Express", (r) => /^E/.test(r.s), 3]];
-  $("#li-grid").innerHTML = groups.map(([n, f, m]) => { const ids = net.R.map((r, i) => [r, i]).filter(([r]) => f(r)).map(([, i]) => i); return ids.length ? `<div class="lbl withico">${m === "star" ? `<span class="mode" style="color:var(--accent-strong,#C4430F)">${starSvg}</span>` : modeIcon(m)}${n}</div><div class="lgrid">${ids.map((i) => `<button type="button" data-r="${i}" aria-pressed="${i === S.line}" aria-label="Ligne ${esc(net.R[i].s)}">${badge(i, "lg")}</button>`).join("")}</div>` : ""; }).join("");
+  $("#li-grid").innerHTML = groups.map(([n, f, m]) => { const ids = net.R.map((r, i) => [r, i]).filter(([r, i]) => f(r) && shownR(i)).map(([, i]) => i); return ids.length ? `<div class="lbl withico">${m === "star" ? `<span class="mode" style="color:var(--accent-strong,#C4430F)">${starSvg}</span>` : modeIcon(m)}${n}</div><div class="lgrid">${ids.map((i) => `<button type="button" data-r="${i}" aria-pressed="${i === S.line}" aria-label="Ligne ${esc(net.R[i].s)}">${badge(i, "lg")}</button>`).join("")}</div>` : ""; }).join("");
 }
 buildGrid();
 $("#li-grid").addEventListener("click", (e) => { const b = e.target.closest("button[data-r]"); if (!b) return; S.line = +b.dataset.r; S.dir = 0; runLi(); fitLine(S.line); });
@@ -1414,9 +1656,10 @@ function runLi() {
   const dirs = [0, 1].filter((d) => linePats(S.line, d).length);
   if (!dirs.includes(S.dir)) S.dir = dirs[0];
   const dirName = (d) => { const ps = linePats(S.line, d); const cnt = {}; ps.forEach(([p]) => cnt[p.h] = (cnt[p.h] || 0) + p.nT); return Object.entries(cnt).sort((a, b) => b[1] - a[1])[0][0]; };
-  head.innerHTML = `<div class="lhead">${badge(S.line, "lg")}<h2>${esc(r.l)}</h2></div>${trNoteFor([S.line]).replace('class="trnote"', 'class="trnote" style="margin-top:10px"')}
+  head.innerHTML = `<div class="lhead">${badge(S.line, "lg")}<h2>${esc(r.l)}</h2></div>${isMobile() ? `<button type="button" class="li32" data-li32><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6.5v13.5l6-2.5 6 2.5 6-2.5V4l-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/></svg>Voir le tracé sur le plan</button>` : ""}${trNoteFor([S.line]).replace('class="trnote"', 'class="trnote" style="margin-top:10px"')}
     <div class="row" style="margin-top:10px"><div class="seg" role="group" aria-label="Sens">${dirs.map((d) => `<button type="button" data-d="${d}" aria-pressed="${d === S.dir}">→ ${esc(dirName(d))}</button>`).join("")}</div></div>`;
   head.querySelectorAll("[data-d]").forEach((b) => b.addEventListener("click", () => { S.dir = +b.dataset.d; runLi(); }));
+  const l32 = head.querySelector("[data-li32]"); if (l32) l32.onclick = () => { p32Open(); fitLine(S.line); };
   if (!inRange(iso)) { res.innerHTML = ""; drawMap(); return; }
   const day = net.dayIndex(iso);
   const ps = linePats(S.line, S.dir);
@@ -1431,16 +1674,16 @@ function runLi() {
     const cells = new Map();
     const sd = off ? day - 1 : day, [LA, LD] = arr(net, p, sd), lv = isLive(net, p, k, sd);
     p.stops.forEach((q, i) => cells.set(net.Q[q][0], [LD[k * p.nS + i] + off, p.D[k * p.nS + i] + off]));
-    cols.push({ first, last: LA[k * p.nS + p.nS - 1] + off, cells, h: p.h, lv, pi, k, sd });
+    cols.push({ first, last: LA[k * p.nS + p.nS - 1] + off, cells, h: p.h, lv, pi, k, sd, na: isNA(pi, k, sd) });
   }
   cols.sort((a, b) => a.first - b.first);
   const vis = cols.filter((c) => c.last >= t);
-  if (!cols.length) { res.innerHTML = `<div class="empty">La ligne ${esc(r.s)} ne circule pas dans ce sens le ${fmtDateLong(iso)}.</div>`; drawMap(); return; }
+  if (!cols.length) { res.innerHTML = (r.m === 1 && subOn(day) ? `<div class="subcard"><div class="subh">${badge(SUBR, "lg", true)}<div class="nm"><b>Tram remplacé par des bus</b><small>Le ${fmtDateLong(iso)}, le tram ne circule pas : la SUB le remplace.</small></div></div><button type="button" class="linkbtn" data-subline>Plan et horaires de la SUB ${chevR}</button></div>` : "") + `<div class="empty">La ligne ${esc(r.s)} ne circule pas dans ce sens le ${fmtDateLong(iso)}.</div>`; drawMap(); return; }
   if (!vis.length) { res.innerHTML = `<div class="empty">Plus de départ après ${hm(t)} ce jour-là. Premier départ : ${hm(cols[0].first)}, dernier : ${hm(cols[cols.length - 1].first)}.</div>`; drawMap(); return; }
   const show = vis.slice(0, 60);
   res.innerHTML = `<div class="lbl" style="margin-bottom:8px">${cols.length} départs le ${fmtDateLong(iso)} · premier ${hm(cols[0].first)}, dernier ${hm(cols[cols.length - 1].first)}</div>
-  <div class="ttwrap"><table class="tt"><thead><tr><th>Arrêt</th>${show.map((c, k) => { const hh = hm(c.first).slice(0, 2); const nw = k === 0 || hm(show[k - 1].first).slice(0, 2) !== hh; return `<th title="direction ${esc(c.h)}">${nw ? hh + " h" : ""}</th>`; }).join("")}</tr></thead><tbody>
-  ${order.map((par) => `<tr><th title="${esc(pName(par))}">${esc(pName(par))}</th>${show.map((c) => c.cells.has(par) ? (() => { const [v, sc] = c.cells.get(par); return `<td class="${c.lv ? "live" + (v - sc >= 2 ? " late" : "") : ""}" title="${c.lv ? "Temps réel, prévu " + hm(sc) : "Horaire théorique"}">${hm(v)}</td>`; })() : `<td class="no">·</td>`).join("")}</tr>`).join("")}
+  <div class="ttwrap"><table class="tt"><thead><tr><th>Arrêt</th>${show.map((c, k) => { const hh = hm(c.first).slice(0, 2); const nw = k === 0 || hm(show[k - 1].first).slice(0, 2) !== hh; return `<th${c.na ? ' class="na"' : ""} title="direction ${esc(c.h)}${c.na ? " · non assuré" : ""}">${nw ? hh + " h" : ""}</th>`; }).join("")}</tr></thead><tbody>
+  ${order.map((par) => `<tr><th title="${esc(pName(par))}">${esc(pName(par))}</th>${show.map((c) => c.cells.has(par) ? (() => { const [v, sc] = c.cells.get(par); return c.na ? `<td class="na" title="Départ non assuré (info trafic)">${hm(sc)}</td>` : `<td class="${c.lv ? "live" + (v - sc >= 2 ? " late" : "") : ""}" title="${c.lv ? "Temps réel, prévu " + hm(sc) : "Horaire théorique"}">${hm(v)}</td>`; })() : `<td class="no">·</td>`).join("")}</tr>`).join("")}
   </tbody></table></div>`;
   drawMap();
 }
@@ -1636,6 +1879,7 @@ function ping(key, title, body, big) {
 }
 // alerte plein écran (« Descendez au prochain arrêt »)
 function takeover(o) {
+  { const a = $("#a28"); if (a && a.classList.contains("on")) return; } // #28 : l'écran « par où descendre » est déjà ouvert
   let el = $("#takeover");
   if (!el) { el = document.createElement("div"); el.id = "takeover"; el.setAttribute("role", "alertdialog"); el.setAttribute("aria-modal", "true"); document.body.appendChild(el); }
   el.innerHTML = `<div class="tk-in">
@@ -1654,6 +1898,180 @@ const bellSvg = `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" str
 // icône du véhicule : selon le mode de la ligne si on la connaît (#16 : tram, BHNS, bus), sinon bus ; dessin recentré dans son rond
 const busPicto = (c, ri) => ri != null && net.R[ri] ? (() => { const k = modeOf(ri), [x, y, w, hh] = MODE_BB[k], q = 48; return `<svg width="20" height="20" viewBox="${x + w / 2 - q / 2} ${y + hh / 2 - q / 2} ${q} ${q}" fill="none" style="color:${c}" aria-hidden="true">${MODE_SVG[k]}</svg>`; })() : `<svg width="18" height="18" viewBox="0 2.25 48 48" fill="${c}" aria-hidden="true"><path fill-rule="evenodd" d="M14.5 8H33.5Q38 8 38 12.5V37.5Q38 40.5 35 40.5H13Q10 40.5 10 37.5V12.5Q10 8 14.5 8ZM14.5 15.5H33.5Q35.5 15.5 35.5 17.5V29Q35.5 31 33.5 31H14.5Q12.5 31 12.5 29V17.5Q12.5 15.5 14.5 15.5Z"/><path d="M12.5 40H17V44.5H12.5ZM31 40H35.5V44.5H31Z"/></svg>`;
 
+// ---------- #28 : par où descendre (tram et BHNS) ----------
+// Données : build/corres.json (tableau Corres.xlsx de l'utilisateur), par arrêt et par sens : position dans la rame
+// (arrière, milieu, avant), distance à pied, quai. Plein écran animé à l'arrêt de descente, petit bandeau aux autres arrêts.
+// « Votre bus » (en orange) : seulement la ligne suivante de l'itinéraire suivi (Me guider).
+const CORRES = /*__CORRES__*/null;
+const CO_POS = { ar: 1, mi: 2, av: 3 }, CO_NAME = { 1: "arrière", 2: "milieu", 3: "avant" };
+const coLine = (r) => { const s = net.R[r].s; return /^T\d/.test(s) ? "T" : /^O\d/.test(s) ? s : null; };
+function coAt(pi, i) {
+  if (!CORRES || !feat("descente")) return null;
+  const p = net.pats[pi], L = coLine(p.r); if (!L || i < 0 || i >= p.nS) return null;
+  const par = net.Q[p.stops[i]][0], S0 = CORRES.lignes[L] && CORRES.lignes[L][pName(par)]; if (!S0) return null;
+  let key;
+  if (i === p.nS - 1) key = "T"; // terminus : positions notées dans le sens de l'arrivée
+  else if (L === "T") key = /neufch/i.test(p.h) ? "N" : "S";
+  else key = Object.keys(S0.dirs).find((k) => trKey(k) === trKey(p.h));
+  const d = key && S0.dirs[key]; if (!d || !d.pos || !d.pos.length) return null;
+  return { pi, i, par, r: p.r, veh: L === "T" ? "tram" : "bhns", portes: d.portes, pos: d.pos };
+}
+const coWalk = (m) => Math.max(1, Math.ceil((m || 0) / 80)); // 80 m par minute, arrondi au-dessus
+const coRoute = (l) => net.R.findIndex((r) => r.s === l);
+const picTxt = (t, n = 26) => `<svg class="pic28" width="${n}" height="${n}" viewBox="0 0 48 48" fill="none" aria-label="${t}"><rect x="2" y="2" width="44" height="44" rx="10" stroke="currentColor" stroke-width="3"/><text x="24" y="29.5" text-anchor="middle" font-family="DM Sans,system-ui,sans-serif" font-size="17" font-weight="800" fill="currentColor">${t}</text></svg>`;
+// « votre bus » : la ligne suivante de l'itinéraire, si on descend à cet arrêt pour la prendre
+function coYours(c) {
+  if (!S.guide) return null;
+  const s = guideState(); if (s.done || !s.nextR || s.g.pat !== c.pi || s.g.ai !== c.i) return null;
+  const [g2] = s.nextR, l2 = legTimes(g2), p2 = l2.p, R2 = net.R[p2.r];
+  const it = c.pos.find((x) => x.l === R2.s && (!x.h || trKey(x.h) === trKey(p2.h))) || c.pos.find((x) => x.l === R2.s);
+  if (!it) return null;
+  return { r: p2.r, h: p2.h, pos: CO_POS[it.p] || 2, m: it.m, ou: it.ou, dep: l2.dep, arrHere: s.lt.arr };
+}
+// regroupe les éléments par position : lignes (une fois chacune), gare SNCF, services, lieux ; « autre quai » à part
+function coGroups(c) {
+  const G = { 1: null, 2: null, 3: null };
+  for (const x of c.pos) {
+    const k = CO_POS[x.p] || 2, g = G[k] || (G[k] = { pos: k, here: [], other: [], m: [], seen: new Set(), ou: new Set() });
+    const tgt = x.ou === "autre" ? g.other : g.here;
+    if (x.ou) g.ou.add(x.ou);
+    if (x.ou !== "ici" && x.ou !== "autre") g.m.push(x.m || 0);
+    if (x.l) { const r = coRoute(x.l); if (r < 0 || g.seen.has(tgt === g.other ? "o" + r : r)) continue; g.seen.add(tgt === g.other ? "o" + r : r); tgt.push({ r, h: x.h, m: x.m, nt: x.nt }); }
+    else if (x.s === "train" || x.s === "tgv") { if (!g.seen.has("train")) { g.seen.add("train"); tgt.push({ pic: ["TGV", "TER"], n: x.n, m: x.m }); } }
+    else if (x.s === "car") tgt.push({ txt: x.n || "Cars", m: x.m });
+    else if (x.s === "pr") tgt.push({ txt: "P+R", m: x.m });
+    else if (x.s === "velo") tgt.push({ txt: "Vélos", m: x.m });
+    else if (x.n) tgt.push({ txt: x.n, m: x.m });
+  }
+  return G;
+}
+const coTitleWalk = (g) => g.ou.has("ici") && !g.m.length ? "sur ce quai" : g.m.length ? (Math.min(...g.m) <= 20 ? "sur place" : coWalk(Math.min(...g.m)) + " min") : "";
+const coItem = (x) => x.r != null ? badge(x.r, "sm", true) : x.pic ? x.pic.map((t) => picTxt(t, 22)).join("") : `<span class="tx28">${esc(x.txt)}</span>`;
+// --- dessin du véhicule (design validé : claude/tram-28-arrivee-station.md et claude/bhns-29-arrivee-station.md) ---
+function tram28(adv) {
+  const MODS = [["cab", "R"], ["car", 53, 77, 97], ["car", 146, 170, 190], ["car", 239, 263, 283], ["cab", "F"]];
+  let o = "";
+  MODS.forEach((m, i) => {
+    const grey = adv && i !== adv && i !== 4, cB = grey ? ' class="gB"' : "", cT = grey ? ' class="gT"' : "", cD = grey ? ' class="gD"' : "";
+    const bands = `<rect x="0" y="122" width="390" height="70" fill="#ef6b63"${cB}/><rect x="0" y="142" width="390" height="30" fill="#e2231a"${cT}/>`;
+    if (m[0] === "cab") {
+      const R = m[1] === "R", d = R ? "M41 122H26Q23 122 22.2 124.5L3.5 183Q1 192 11 192H41Q48 192 48 185V129Q48 122 41 122Z" : "M339 122H354Q357 122 357.8 124.5L376.5 183Q379 192 369 192H339Q332 192 332 185V129Q332 122 339 122Z";
+      o += `<clipPath id="a28c${m[1]}"><path d="${d}"/></clipPath><g clip-path="url(#a28c${m[1]})">${bands}</g><path d="${R ? "M41 144H22.1L15.2 167H41Z" : "M339 144H357.9L364.8 167H339Z"}" fill="#fff" stroke="#fff" stroke-width="6" stroke-linejoin="round"/>`;
+    } else {
+      const [, x, a, b] = m;
+      o += `<clipPath id="a28v${x}"><rect x="${x}" y="122" width="88" height="70" rx="7"/></clipPath><g clip-path="url(#a28v${x})">${bands}</g><rect x="${a}" y="132" width="40" height="60" fill="#3b1210"/>`
+        + `<g class="dl"><rect x="${a}" y="132" width="20" height="60" fill="#9e1510"${cD}/><rect x="${a + 3}" y="136" width="14" height="34" rx="2" fill="#fff"/></g>`
+        + `<g class="dr"><rect x="${b}" y="132" width="20" height="60" fill="#9e1510"${cD}/><rect x="${b + 3}" y="136" width="14" height="34" rx="2" fill="#fff"/></g>`;
+    }
+  });
+  return o;
+}
+const BUS28 = { O1: ["#e8511c", "#9a3510", "#2a0f05"], O2: ["#009E45", "#006b2e", "#032a14"] };
+function bus28(adv, line) {
+  const [band, door, inner] = BUS28[line] || BUS28.O1, rearGrey = adv === 3, frontGrey = adv && adv !== 3;
+  const cls = (g) => g ? [' class="gB"', ' class="gT"', ' class="gD"'] : ["", "", ""];
+  const doors = (a, cD) => `<rect x="${a}" y="132" width="36" height="54" fill="${inner}"/><g class="dl"><rect x="${a}" y="132" width="18" height="54" fill="${door}"${cD}/><rect x="${a + 3}" y="136" width="12" height="30" rx="2" fill="#fff"/></g><g class="dr"><rect x="${a + 18}" y="132" width="18" height="54" fill="${door}"${cD}/><rect x="${a + 21}" y="136" width="12" height="30" rx="2" fill="#fff"/></g>`;
+  let [cB, cT, cD] = cls(rearGrey);
+  let o = `<rect x="52" y="182" width="22" height="12" rx="5" fill="#2b2f36"/><rect x="141" y="182" width="22" height="12" rx="5" fill="#2b2f36"/><rect x="229" y="182" width="22" height="12" rx="5" fill="#2b2f36"/><g class="knee">`
+    + `<clipPath id="a28bR"><path d="M8 124H124Q130 124 130 130V180Q130 186 124 186H8Q0 186 0 178V132Q0 124 8 124Z"/></clipPath><g clip-path="url(#a28bR)"><rect x="0" y="124" width="390" height="62" fill="#c9ab76"${cB}/><rect x="0" y="142" width="390" height="28" fill="${band}"${cT}/></g>`
+    + doors(14, cD) + doors(79, cD);
+  [cB, cT, cD] = cls(frontGrey);
+  o += `<clipPath id="a28bF"><path d="M142 124H312Q326 124 328 136L330.5 176Q331 186 322 186H142Q136 186 136 180V130Q136 124 142 124Z"/></clipPath><g clip-path="url(#a28bF)"><rect x="0" y="124" width="390" height="62" fill="#c9ab76"${cB}/><rect x="0" y="142" width="390" height="28" fill="${band}"${cT}/></g>`
+    + `<path d="M309 139H320L321.5 163H309Z" fill="#fff" stroke="#fff" stroke-width="6" stroke-linejoin="round"/>` + doors(172, cD) + doors(261, cD)
+    + `<rect x="129.5" y="127" width="7" height="56" fill="#cfd3d8"/></g>`;
+  return o;
+}
+// scène : étiquettes par position (au-dessus), véhicule à quai, halo et chemin vers « votre bus »
+function scene28(c, yb, anim) {
+  const G = coGroups(c), adv = yb ? yb.pos : 0, isT = c.veh === "tram";
+  const V = isT ? { cx: 190, cy: 157, s: .92, doors: [97, 190, 283], top: 122, bot: 192, ring: 163 } : { cx: 165.5, cy: 155, s: 1, doors: [32, 97, 190], top: 124, bot: 194, ring: 159 };
+  const CY = 40 + (V.cy - V.top) * V.s, tx = (x) => 195 + (x - V.cx) * V.s, ty = (y) => CY + (y - V.cy) * V.s;
+  const door = (k) => tx(V.doors[k - 1]), TOP = 40, BOT = ty(V.bot), H = Math.round(BOT + (yb ? 100 : 34));
+  const cols = [1, 2, 3].map((k) => {
+    const g = G[k];
+    if (!g || (!g.here.length && !g.other.length)) return `<div class="l28 empty"></div>`;
+    const yours = yb && yb.pos === k;
+    let h = `<div class="l28${yours ? " hl" : ""}" style="--d:${(k - 1) * .25}s"><span class="t">${CO_NAME[k].toUpperCase()}${yours ? " · VOTRE " + (modeOf(yb.r) === "tram" ? "TRAM" : "BUS") : coTitleWalk(g) ? " · " + coTitleWalk(g).toUpperCase() : ""}</span>`;
+    if (yours) { const w = Math.round(yb.dep - yb.arrHere); h += `<span class="yb">${badge(yb.r, "sm", true)}<b>${w <= 0 ? "à quai" : "dans " + w + " min"}</b></span>`; }
+    const here = g.here.filter((x) => !(yours && x.r === yb.r));
+    if (here.length) h += `<span class="bs">${here.map(coItem).join("")}</span>`;
+    if (g.other.length) h += `<span class="st">AUTRE QUAI · ${coWalk(Math.min(...g.other.map((x) => x.m || 0)))} MIN</span><span class="bs">${g.other.map(coItem).join("")}</span>`;
+    return h + `</div>`;
+  }).join("");
+  // traits des étiquettes jusqu'à la porte (coudés si la porte n'est pas sous l'étiquette)
+  const lines = [1, 2, 3].filter((k) => G[k] && (G[k].here.length || G[k].other.length)).map((k) => {
+    const x0 = 6 + (k - 1) * 128, d = door(k), yours = yb && yb.pos === k;
+    const st = yours ? `stroke="#c4430f" stroke-width="1.5"` : `stroke="#8a948f" stroke-dasharray="2 2"`;
+    if (d >= x0 + 12 && d <= x0 + 110) return `<line class="ln28" x1="${d}" y1="0" x2="${d}" y2="${TOP}" ${st}/>`;
+    const sx = d < x0 ? x0 + 14 : x0 + 108;
+    return `<path class="ln28" d="M${sx} 0V${TOP - 14}H${d}V${TOP}" fill="none" ${st}/>`;
+  }).join("");
+  const veh = isT ? tram28(adv) : bus28(adv, net.R[c.r].s);
+  const qy = BOT, dx = adv ? door(adv) : 0, chipW = 150, cx0 = adv ? Math.max(6, Math.min(390 - 6 - chipW, dx - chipW / 2)) : 0, ccx = cx0 + chipW / 2;
+  const chip = yb ? (yb.ou === "ici" ? "Sur ce quai" : yb.ou === "face" ? "Quai d'en face · " + coWalk(yb.m) + " min" : `Quai ${net.R[yb.r].s} · ${coWalk(yb.m)} min à pied`) : "";
+  const pal = isT ? ["#e2231a", "#ef6b63", "#9e1510"] : [(BUS28[net.R[c.r].s] || BUS28.O1)[0], "#c9ab76", (BUS28[net.R[c.r].s] || BUS28.O1)[1]];
+  return `<div class="sc28${anim ? " anim" : ""}${isT ? "" : " bhns"}" style="--cT:${pal[0]};--cB:${pal[1]};--cD:${pal[2]}"><div class="sc28in">
+    <div class="labs28">${cols}</div>
+    <svg width="390" height="${H}" viewBox="0 0 390 ${H}" aria-hidden="true">
+      <rect x="0" y="${TOP - 6}" width="390" height="${H - TOP + 6}" fill="var(--sc28bg)"/>
+      <rect x="0" y="${qy + 1}" width="390" height="5" rx="2.5" fill="#e3e0ee"/>
+      <rect x="0" y="${qy + 20}" width="390" height="${H - qy - 20}" fill="var(--sc28q)"/>
+      <rect x="0" y="${qy + 20}" width="390" height="5" fill="#f2c94c"/>
+      ${lines}
+      <g class="veh28"><g transform="translate(195 ${CY}) scale(${V.s}) translate(${-V.cx} ${-V.cy})"><g class="mv28">${veh}</g></g></g>
+      ${yb ? `<g class="ringw28"><circle class="ring28" cx="${dx}" cy="${ty(V.ring)}" r="24" fill="none" stroke="#c4430f" stroke-width="3"/></g>
+      <path class="path28" d="M${dx} ${qy + 8} C ${dx} ${qy + 40}, ${ccx} ${qy + 36}, ${ccx} ${qy + 58}" fill="none" stroke="#c4430f" stroke-width="2.5" stroke-linecap="round"/>
+      <g class="chip28"><rect x="${cx0}" y="${qy + 58}" width="${chipW}" height="28" rx="14" fill="#fff" stroke="#c4430f" stroke-width="1.5"/><text x="${ccx}" y="${qy + 76}" font-size="11" font-weight="700" fill="#c4430f" text-anchor="middle" font-family="DM Sans,system-ui,sans-serif">${esc(chip)}</text></g>` : ""}
+    </svg></div></div>`;
+}
+// liste sous la scène : une ligne par position (votre bus en premier)
+function rows28(c, yb) {
+  const G = coGroups(c), out = [];
+  if (yb) out.push(`<div class="row28 hl"><span class="pos28 pa">${CO_NAME[yb.pos].toUpperCase()}</span><span class="it">${badge(yb.r, "sm", true)}<span>→ ${esc(yb.h)}</span></span><span class="w">${Math.max(0, Math.round(yb.dep - yb.arrHere))} min<small>${yb.ou === "ici" ? "sur ce quai" : coWalk(yb.m) + " min à pied"}</small></span></div>`);
+  for (const k of [1, 2, 3]) {
+    const g = G[k]; if (!g) continue;
+    const here = g.here.filter((x) => !(yb && x.r === yb.r && yb.pos === k));
+    if (here.length) { const ms = here.map((x) => x.m || 0); out.push(`<div class="row28"><span class="pos28">${CO_NAME[k].toUpperCase()}</span><span class="it">${here.map(coItem).join("")}</span><span class="w"><small>${g.ou.has("ici") && Math.max(...ms) === 0 ? "sur ce quai" : walkRange(ms)}</small></span></div>`); }
+    if (g.other.length) out.push(`<div class="row28"><span class="pos28">${CO_NAME[k].toUpperCase()}</span><span class="it">${g.other.map(coItem).join("")}<span class="tx28">autre quai</span></span><span class="w"><small>${walkRange(g.other.map((x) => x.m || 0))}</small></span></div>`);
+  }
+  return out.join("");
+}
+const walkRange = (ms) => { const a = coWalk(Math.min(...ms)), b = coWalk(Math.max(...ms)); return (a === b ? a : a + " à " + b) + " min à pied"; };
+// plein écran
+const A28 = { seen: new Set(), open: null };
+function openA28(c, auto) {
+  if (!c) return;
+  const yb = coYours(c), p = net.pats[c.pi], R = net.R[p.r], isT = c.veh === "tram";
+  let el = $("#a28");
+  if (!el) { el = document.createElement("div"); el.id = "a28"; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); document.body.appendChild(el); }
+  const word = yb ? `Descendez par l'<b>${CO_NAME[yb.pos]}</b>` : "Correspondances ci-dessous";
+  el.innerHTML = `<div class="a28in">
+    <div class="a28h"><button type="button" class="icon-btn" id="a28x" aria-label="Fermer">${closeSvg}</button>${badge(p.r, "lg")}<div class="fh-t"><h2>→ ${esc(p.h)}</h2></div><span class="pillmode">${isT ? "MON TRAM" : "MON BUS"}</span></div>
+    <div class="a28hero"><span class="k">${isT ? "Arrivée en station" : "Arrivée à l'arrêt"}</span><b>${esc(qName(p.stops[c.i]))}</b><span class="s">${isT ? `Portes à ${c.portes === "g" ? "gauche" : "droite"} · ` : ""}${word}</span></div>
+    ${scene28(c, yb, true)}
+    <div class="list28"><h4>Correspondances, par où descendre</h4>${rows28(c, yb)}</div>
+    <button type="button" class="btn primary a28ok" id="a28ok">J'ai compris</button>
+  </div>`;
+  el.classList.add("on"); A28.open = c.pi + ":" + c.i;
+  fit28(el);
+  const close = () => { el.classList.remove("on"); A28.open = null; };
+  $("#a28x", el).onclick = close; $("#a28ok", el).onclick = close;
+  if (auto) { const tk = $("#takeover"); if (tk) tk.classList.remove("on"); }
+}
+// la scène est dessinée sur 390 px de large : mise à l'échelle de l'écran
+function fit28(root) {
+  root.querySelectorAll(".sc28").forEach((sc) => { const inr = $(".sc28in", sc), k = Math.min(1.25, sc.clientWidth / 390); inr.style.transform = `scale(${k})`; sc.style.height = inr.offsetHeight * k + "px"; });
+}
+window.addEventListener("resize", () => { const el = $("#a28"); if (el && el.classList.contains("on")) fit28(el); });
+// petit bandeau « par où descendre » sous la carte du haut de Mon bus (arrêt suivant)
+function pd28Html(c) {
+  if (!c) return "";
+  const G = coGroups(c), yb = coYours(c);
+  const seg = [1, 2, 3].filter((k) => G[k] && G[k].here.length).map((k) => { const L = G[k].here; return `<span class="pdg${yb && yb.pos === k ? " hl" : ""}"><i>${CO_NAME[k].slice(0, 2).toUpperCase()}</i>${L.slice(0, 3).map(coItem).join("")}${L.length > 3 ? `<em>+${L.length - 3}</em>` : ""}</span>`; }).join("");
+  return `<button type="button" class="pd28" data-a28="${c.pi}:${c.i}"><span class="pdt"><b>Par où descendre</b> à ${esc(qName(net.pats[c.pi].stops[c.i]))}${yb ? ` · <span class="pdy">${CO_NAME[yb.pos]} pour le ${esc(net.R[yb.r].s)}</span>` : ""}</span><span class="pds">${seg}</span>${chevR}</button>`;
+}
+document.addEventListener("click", (e) => { const b = e.target.closest("[data-a28]"); if (!b) return; const [pi, i] = b.dataset.a28.split(":").map(Number); openA28(coAt(pi, i)); });
+
 // prochains départs des autres lignes à un arrêt, après l'heure t (une ligne + direction par groupe)
 const connCache = new Map();
 function connsAt(par, t, exclR, max = 6) {
@@ -1663,7 +2081,7 @@ function connsAt(par, t, exclR, max = 6) {
   if (day >= 0 && day < net.nd) {
     const g = new Map();
     for (const x of departures(net, par, day, Math.floor(t), 75)) {
-      const p = net.pats[x.pat]; if (p.r === exclR || x.t < t) continue;
+      const p = net.pats[x.pat]; if (p.r === exclR || x.t < t || x.na) continue;
       const k = p.r + "|" + p.h; if (!g.has(k)) g.set(k, { r: p.r, h: p.h, list: [] });
       const G = g.get(k); if (G.list.length < 2) G.list.push(x);
     }
@@ -1700,6 +2118,7 @@ function renderFollow() {
     el.innerHTML = `<div class="mbtop" id="mb-top"><div class="fhead"><button type="button" class="icon-btn" id="fo-back" aria-label="Retour">${backSvg}</button><button type="button" class="icon-btn" id="fo-close" aria-label="Quitter le plein écran">${closeSvg}</button>${badge(p.r, "lg")}<div class="fh-t"><h2>→ ${esc(p.h)}</h2><span class="fh-s" id="mb-status"></span><span class="b9row" id="mb-b9"></span></div><span class="pillmode">${S.guide ? "GUIDAGE" : modeOf(p.r) === "tram" ? "MON TRAM" : "MON BUS"}</span></div>
       <div id="gd-card"></div>
       <div id="mb-banner"></div>
+      <div id="mb-pd"></div>
       <div id="mb-hero"></div></div>
       <div class="mbt" id="mb-track" style="--c:${R.c};--ct:${R.t}">
         <div class="mbt-rail" style="top:${ROWH / 2}px;height:${(p.nS - 1 - MB.first) * ROWH}px"></div>
@@ -1724,15 +2143,16 @@ function renderFollow() {
   const near = st.state === "running" && !st.atStop && st.at(next) - t <= 1.1;
   const delay = Math.round(st.at(Math.min(nS - 1, next)) - st.sched(Math.min(nS - 1, next)));
   // pas de bouton quand le départ du terminus est encore loin (plus de 10 min)
-  const b9 = st.gps || st.state === "done" || (st.state === "before" && st.dp(0) - st.t > 10) || !feat("gps") || !feat("dedans") ? "" : BOARD.claim ? `<span class="b9 wait"><i class="b9spin"></i>Calage…</span>` : `<button type="button" class="b9" data-board>Je suis à bord</button>`;
-  $("#mb-status").innerHTML = (st.gps ? `<i class="gpsdot"></i>À bord · position GPS${delay >= 1 ? " · retard " + delay + " min" : ""}` : `${dot(st.live)}${st.live ? `Temps réel · ${delay >= 1 ? "retard " + delay + " min" : delay <= -1 ? "avance " + -delay + " min" : "à l'heure"}` : "Horaire théorique (position estimée)"}`);
+  const b9 = isNA(pi, k, dk) || st.gps || st.state === "done" || (st.state === "before" && st.dp(0) - st.t > 10) || !feat("gps") || !feat("dedans") ? "" : BOARD.claim ? `<span class="b9 wait"><i class="b9spin"></i>Calage…</span>` : `<button type="button" class="b9" data-board>Je suis à bord</button>`;
+  $("#mb-status").innerHTML = isNA(pi, k, dk) ? `<span class="nast">Non assuré · info trafic</span>` : (st.gps ? `<i class="gpsdot"></i>À bord · position GPS${delay >= 1 ? " · retard " + delay + " min" : ""}` : `${dot(st.live)}${st.live ? `Temps réel · ${delay >= 1 ? "retard " + delay + " min" : delay <= -1 ? "avance " + -delay + " min" : "à l'heure"}` : "Horaire théorique (position estimée)"}`);
   { const h9 = b9; const e9 = $("#mb-b9"); if (e9 && e9.dataset.html !== h9) { e9.innerHTML = h9; e9.dataset.html = h9; } };
   // ligne : arrêts passés, arrêt suivant, bus
   // en attente au terminus ou à un arrêt : bus immobile sur l'arrêt, halo lent, étiquette ; en route : chevrons
   const waiting = st.state === "before" || st.atStop, waitAt = st.state === "before" ? 0 : st.i;
   const busTop = ((st.state === "before" ? 0 : st.pos) - MB.first) * ROWH + ROWH / 2;
   $("#mb-bus").style.top = busTop + "px";
-  $("#mb-bus").classList.toggle("hide", st.state === "done");
+  $("#mb-bus").classList.toggle("hide", st.state === "done" || isNA(pi, k, dk));
+  $("#mb-track").classList.toggle("na", isNA(pi, k, dk));
   $("#mb-bus").classList.toggle("wait", waiting);
   $("#mb-bus").classList.toggle("gps", !!st.gps);
   // les chevrons partent de sous le bus et s'arrêtent à l'arrêt suivant (#15 : jamais au-delà)
@@ -1791,10 +2211,26 @@ function renderFollow() {
       <div class="pg"><i style="width:${Math.round(prog * 100)}%;background:${R.c}"></i></div>
       <div class="r2"><span>${dest != null ? "Descente" : "Terminus"} : <b>${esc(qName(p.stops[target]))}</b></span><span>${st.state === "done" ? "arrivé" : tl}</span></div></div>`;
   }
-  if ($("#mb-hero").dataset.html !== hero) { $("#mb-hero").innerHTML = hero; $("#mb-hero").dataset.html = hero; }
+  // #24 : départ non assuré → à la place, le prochain départ assuré de la même ligne et direction
+  const naTrip = isNA(pi, k, dk);
+  if (naTrip) {
+    const fi = from ?? 0, par = net.Q[p.stops[fi]][0];
+    const nx = departures(net, par, dk, Math.ceil(st.dp(fi)), 240).find((x) => !x.na && x.off === 0 && net.pats[x.pat].r === p.r && net.pats[x.pat].h === p.h && x.t > st.dp(fi));
+    hero = `<div class="mbh"><div class="r1"><div class="c"><span class="k">Prochain départ assuré</span><b>${esc(qName(p.stops[fi]))}</b></div><span class="eta">${nx ? hm(nx.t) : "—"}</span></div>
+      <div class="r2"><span>${nx ? (nx.t - t < 59.5 ? "dans " + Math.max(1, Math.round(nx.t - t)) + " min" : "à " + hm(nx.t)) : "Plus de départ assuré aujourd'hui"}</span>${nx ? `<button type="button" class="b9 na9" data-nafollow="${nx.pat}:${nx.k}:${dk}:${par}">Suivre ce ${modeOf(p.r) === "tram" ? "tram" : "bus"}</button>` : ""}</div></div>`;
+  }
+  // #28 : par où descendre à l'arrêt suivant (petit bandeau) ; plein écran à l'arrivée à l'arrêt de descente
+  { const c = st.state === "running" ? coAt(pi, next) : null, h28 = c && !isNA(pi, k, dk) ? pd28Html(c) : "", e28 = $("#mb-pd"); if (e28 && e28.dataset.html !== h28) { e28.innerHTML = h28; e28.dataset.html = h28; } }
+  if (dest != null && !isNA(pi, k, dk) && ((st.state === "running" && next === dest && !st.atStop && st.at(dest) - t <= 1.1) || (st.atStop && st.i === dest))) {
+    const k28 = [pi, k, dk, dest].join(":"), c = !A28.seen.has(k28) ? coAt(pi, dest) : null;
+    if (c) { A28.seen.add(k28); openA28(c, true); }
+  }
+  if ($("#mb-hero").dataset.html !== hero) { $("#mb-hero").innerHTML = hero; $("#mb-hero").dataset.html = hero; const nf = $("#mb-hero [data-nafollow]"); if (nf) nf.onclick = () => { const [a, b, c, d] = nf.dataset.nafollow.split(":").map(Number); startFollow(a, b, c, d); }; }
   // alertes de descente
   let banner = "";
-  if (dest != null && S.follow.alert && st.state !== "before") {
+  // #24 : course retirée par l'info trafic
+  if (naTrip) banner = `<div class="mbal na">${alertSvg}<div><b>Ce départ n'est pas assuré</b><span>Le départ de ${hm(st.dp(0))} de ${esc(qName(p.stops[0]))} est supprimé, selon l'info trafic.</span><button type="button" class="lnk" data-trlines="${p.r}">Voir l'info trafic ${chevR}</button></div></div>`;
+  else if (dest != null && S.follow.alert && st.state !== "before") {
     const dn = qName(p.stops[dest]);
     if (st.state !== "done" && st.atStop && st.i === dest || (st.state === "done" && dest === nS - 1)) {
       banner = `<div class="mbal hot">${bellSvg}<div><b>Vous êtes arrivé</b><span>${esc(dn)}</span></div></div>`;
@@ -1849,7 +2285,7 @@ function mbCenter(st, instant) {
   clearTimeout(MB.progT); MB.progT = setTimeout(() => { MB.progScroll = false; }, 800);
 }
 // plein écran de Mon bus : en tirant le panneau tout en haut, le plan, l'en-tête et les onglets s'effacent
-if (/[?&]simu=/.test(location.search)) window.__t = { startFollow: (...a) => startFollow(...a), tripState: (...a) => tripState(...a), setSheet: (x) => setSheet(x), todayIdx: () => todayIdx(), net: () => net, MB, shape: (pi) => shapeOfPat[pi], BOARD, ME, onPat: userOnPat, popStop: (i) => { const p = net.P[i]; const [sx, sy] = toS(PX(p[2]), PY(p[1])); clickMap(sx, sy); return [sx, sy]; }, openPa: (i) => openPassages(i), pName: (i) => pName(i), go: (v) => go(v) , showInBus: (c, dk) => showInBus(c, dk) };
+if (/[?&]simu=/.test(location.search)) window.__t = { startFollow: (...a) => startFollow(...a), tripState: (...a) => tripState(...a), setSheet: (x) => setSheet(x), todayIdx: () => todayIdx(), net: () => net, MB, shape: (pi) => shapeOfPat[pi], BOARD, ME, onPat: userOnPat, popStop: (i) => { const p = net.P[i]; const [sx, sy] = toS(PX(p[2]), PY(p[1])); clickMap(sx, sy); return [sx, sy]; }, openPa: (i) => openPassages(i), pName: (i) => pName(i), go: (v) => go(v) , showInBus: (c, dk) => showInBus(c, dk), a28: (pi, i) => openA28(coAt(pi, i)), coAt: (pi, i) => coAt(pi, i), startGuide: (j, to) => startGuide(j, to), A28 };
 function updMbFull() { document.body.classList.toggle("mbfull", feat("plein") && isMobile() && S.view === "suivi" && sheetState === "full"); }
 
 const renderFollowBg = () => renderFollow();
@@ -1884,7 +2320,7 @@ function guideState() {
 function guideNextInfo() {
   const s = guideState(); if (s.done) return null;
   const walk = S.guide.legs.slice(s.li + 1, s.nextR ? s.nextR[1] : undefined).filter((x) => x.type === "walk").reduce((a, x) => a + x.dur, 0);
-  if (!s.nextR) return walk ? { txt: `${walk} min à pied jusqu'à l'arrivée`, html: `<span class="lbl">Ensuite</span><span>${walkSvg} ${walk} min à pied jusqu'à ${esc(pName(S.guide.to))}</span>` } : null;
+  if (!s.nextR) return walk ? { txt: `${walk} min à pied jusqu'à l'arrivée`, html: `<span class="lbl">Ensuite</span><span>${walkSvg} ${walk} min à pied jusqu'à ${esc(vName(S.guide.to))}</span>` } : null;
   const [g2] = s.nextR, l2 = legTimes(g2), p2 = l2.p;
   return { txt: `${net.R[p2.r].s} → ${p2.h} à ${hm(l2.dep)}`,
     html: `<span class="lbl">Ensuite, correspondance</span><span class="tk-line">${badge(p2.r, "", true)}<b>→ ${esc(p2.h)}</b></span><span>${walk ? walkSvg + " " + walk + " min à pied, puis " : ""}départ ${waitLabel(l2.dep, true) === hm(l2.dep) ? "à " + hm(l2.dep) : "dans " + waitLabel(l2.dep, true)} de ${esc(qName(p2.stops[g2.bi]))}</span>` };
@@ -1896,11 +2332,11 @@ function guideTick() {
   const chain = G.legs.map((g, i) => g.type === "ride" ? `<span class="gs${!s.done && i === s.li ? " on" : ""}${s.done || (s.li != null && i < s.li) ? " ok" : ""}">${badge(net.pats[g.pat].r, "sm", true)}</span>` : `<span class="gs w">${walkSvg}${g.dur}′</span>`).join(`<span class="sep"></span>`);
   if (s.done) {
     S.follow = null;
-    const html = `<div class="fhead"><button type="button" class="icon-btn" id="gd-back" aria-label="Retour">${backSvg}</button><div class="fh-t"><h2>Vous êtes arrivé</h2><span class="fh-s">${esc(pName(G.to))}</span></div><span class="pillmode">GUIDAGE</span></div>
+    const html = `<div class="fhead"><button type="button" class="icon-btn" id="gd-back" aria-label="Retour">${backSvg}</button><div class="fh-t"><h2>Vous êtes arrivé</h2><span class="fh-s">${esc(vName(G.to))}</span></div><span class="pillmode">GUIDAGE</span></div>
       <div class="gchain">${chain}</div><div class="gcard ok"><span class="tric ok">${okSvg}</span><div><b>Trajet terminé</b><span>Bonne journée !</span></div></div>
       <button type="button" class="btn primary" id="gd-end">Terminer le guidage</button>`;
     const fo = $("#fo"); if (fo.dataset.html !== html) { fo.innerHTML = html; fo.dataset.html = html; MB.key = ""; $("#gd-end").onclick = $("#gd-back").onclick = () => { S.guide = null; go("itineraire"); }; }
-    ping(G.id + ":fin", "Vous êtes arrivé", pName(G.to));
+    ping(G.id + ":fin", "Vous êtes arrivé", vName(G.to));
     return;
   }
   $("#fo").dataset.html = "";
@@ -1919,7 +2355,7 @@ function guideTick() {
     if (G.altFor !== mkey || !G.alt) {
       G.altFor = mkey;
       const day = todayIdx();
-      G.alt = day >= 0 && day < net.nd ? planDepart(net, missed.from, G.to, day, Math.ceil(missed.ready - Math.max(1, missed.walk)), 3).filter((j) => j.legs.some((x) => x.type === "ride")).slice(0, 3) : [];
+      G.alt = day >= 0 && day < net.nd ? planDepart(net, missed.from, engPlace(G.to), day, Math.ceil(missed.ready - Math.max(1, missed.walk)), 3).filter((j) => j.legs.some((x) => x.type === "ride")).slice(0, 3) : [];
       const p2 = net.pats[s.nextR[0].pat];
       ping(G.id + ":miss:" + mkey, "Correspondance compromise", `Votre ${net.R[p.r].s} arrive à ${hm(lt.arr)}, le ${net.R[p2.r].s} part à ${hm(missed.dep2)}. Touchez pour voir les solutions.`, true);
     }
@@ -1934,7 +2370,7 @@ function guideTick() {
     body = `<span class="k">${step} · ${s.prev ? "Correspondance" : "Départ"}</span>
       <span class="gl">${badge(p.r, "lg", false)}<b>→ ${esc(p.h)}</b></span>
       <span>à <b>${esc(qName(p.stops[g.bi]))}</b> · ${w < 0.5 ? "<b>à l'arrêt</b>" : w < 59.5 ? `départ dans <b>${Math.round(w)} min</b>` : `départ à <b>${hm(lt.dep)}</b>`} · ${dot(lt.live)} <small>${lt.live ? delayTxt(lt.dep, lt.sdep) : "horaire théorique"}</small></span>
-      ${walkTot ? `<span class="gw">${walkSvg} ${s.walks.length === 1 && net.Q[s.walks[0].from][0] === net.Q[s.walks[0].to][0] ? "Changez de quai" : "Marchez jusqu'à " + esc(qName(p.stops[g.bi]))} · ${walkTot} min</span>` : ""}
+      ${walkTot ? `<span class="gw">${walkSvg} ${s.walks.length === 1 && s.walks[0].from >= 0 && net.Q[s.walks[0].from][0] === net.Q[s.walks[0].to][0] ? "Changez de quai" : "Marchez jusqu'à " + esc(qName(p.stops[g.bi]))} · ${walkTot} min</span>` : ""}
       ${away != null && away > 0 ? `<span class="gw">${busPicto("currentColor", p.r)} le ${modeOf(p.r) === "tram" ? "tram" : "bus"} est à ${away} arrêt${away > 1 ? "s" : ""}</span>` : ""}`;
     if (s.prev) ping(G.id + ":corr:" + s.li, `Correspondance : ${net.R[p.r].s} → ${p.h}`, `à ${qName(p.stops[g.bi])}, départ ${w < 59.5 ? "dans " + Math.max(0, Math.round(w)) + " min" : "à " + hm(lt.dep)}`, true);
     if (w <= 2.2 && w > 0) ping(G.id + ":soon:" + s.li, `Votre ${net.R[p.r].s} arrive`, `${qName(p.stops[g.bi])} · dans ${Math.max(1, Math.round(w))} min`);
@@ -2017,7 +2453,7 @@ function trNetwork(x) {
 function trIndex() {
   TR.byRoute = new Map(); TR.alert = new Set();
   trActive().forEach((x) => { if (trStatus(x) !== "now") return; const g = trGene(x); trRoutes(x).forEach((ri) => { if (!TR.byRoute.has(ri)) TR.byRoute.set(ri, []); TR.byRoute.get(ri).push(x); if (g) TR.alert.add(ri); }); });
-  trBang(); trNetCheck(); alertMyLines();
+  trBang(); trNetCheck(); subBarCheck(); alertMyLines();
 }
 // #11 « Perturbation sur mes lignes » : prévenu une fois par info, appli ouverte
 function alertMyLines() {
@@ -2136,7 +2572,8 @@ function trTargets(x) {
   }
   return null;
 }
-function trZoom(x) {
+function trZoom(x, open = true) {
+  if (open) p32Open(); // #32 : le plan ne s'ouvre que sur « Voir sur le plan »
   const T = trTargets(x);
   TR.zoom = { id: x.id, routes: trRoutes(x), geo: [], ...(T || { old: [], neu: [], pairs: [], pts: [] }) };
   if (T && T.pts.length) {
@@ -2145,13 +2582,50 @@ function trZoom(x) {
   } else if (TR.zoom.routes.length === 1) fitLine(TR.zoom.routes[0]);
   drawMap();
 }
+// #24 : « Départs de Gare Clairmarais non assurés : 6h51-7h53-… » → courses retirées (barrées dans Passages, Mon bus et la fiche horaire,
+// jamais proposées dans l'itinéraire, pas de bus sur le plan). La date vient de la ligne « Samedi 7 novembre 2026 : », sinon de l'info, sinon aujourd'hui.
+const MOIS = ["janvier", "fevrier", "mars", "avril", "mai", "juin", "juillet", "aout", "septembre", "octobre", "novembre", "decembre"];
+const trKey = (s) => trPlain(s).replace(/[^a-z0-9]+/g, " ").trim();
+function trCancel() {
+  net.pats.forEach((p) => { p.na = null; });
+  TR.na = new Map(); // id de l'info → nombre de départs retirés
+  const poles = new Map(net.P.map((P, i) => [trKey(P[0]), i]));
+  for (const x of TR.items) {
+    if (!/non assur|pas assur/.test(trText(x))) continue;
+    const rs = trRoutes(x); if (!rs.length) continue;
+    let iso = x.start || parisNow().iso, n = 0;
+    for (const b of x.b || []) {
+      const t = trPlain((b.r || []).map((r) => r[0]).join(""));
+      const dm = t.match(/(\d{1,2})(?:er)? (janvier|fevrier|mars|avril|mai|juin|juillet|aout|septembre|octobre|novembre|decembre) (\d{4})/);
+      if (dm) { iso = `${dm[3]}-${String(MOIS.indexOf(dm[2]) + 1).padStart(2, "0")}-${dm[1].padStart(2, "0")}`; continue; }
+      const m = t.match(/departs? (?:de |du |d')(.+?) (?:sont |ne sont pas |)(?:non|pas) assures? ?:? ?(.+)/);
+      if (!m) continue;
+      const pole = poles.get(trKey(m[1])); if (pole == null) continue;
+      const mins = [...m[2].matchAll(/(\d{1,2}) ?h ?(\d{2})?/g)].map((h) => +h[1] * 60 + (+h[2] || 0));
+      const day = net.dayIndex(iso);
+      for (const pi of net.pats.keys()) {
+        const p = net.pats[pi]; if (!rs.includes(p.r)) continue;
+        for (let i = 0; i < p.nS - 1; i++) {
+          if (net.Q[p.stops[i]][0] !== pole) continue;
+          for (let k = 0; k < p.nT; k++) {
+            if (!net.svcOn(p.sv[k], day)) continue;
+            const dt = p.D[k * p.nS + i];
+            if (mins.some((mm) => Math.abs(mm - dt) <= 1)) { (p.na ||= new Set()).add(k + ":" + day); n++; }
+          }
+        }
+      }
+    }
+    if (n) TR.na.set(x.id, n);
+  }
+}
+const isNA = (pi, k, dk) => { const p = net.pats[pi]; return !!(p && p.na && p.na.has(k + ":" + dk)); };
 async function loadTrafic() {
   try {
     const r = await fetch("info-trafic.json?v=" + Math.floor(Date.now() / 120000), { cache: "no-cache" });
     if (!r.ok) throw new Error("HTTP " + r.status);
     const d = await r.json(); TR.items = d.items || []; TR.at = d.at || null; TR.src = d.src || ""; TR.ok = true;
   } catch (e) { /* page hébergée ailleurs (claude.ai) ou fichier absent : on garde l'état précédent */ }
-  trIndex(); buildGrid();
+  trCancel(); trIndex(); buildGrid();
   if (S.view === "trafic") renderTrafic(); else rerender();
 }
 function trNoteFor(routes, small) {
@@ -2195,7 +2669,9 @@ function trItem(x) {
   const rt = trRT(x) && st === "now";
   const zoomable = !!trTargets(x) || trRoutes(x).length === 1;
   const zb = zoomable ? `<button type="button" class="linkbtn trzoom" data-zoom="${esc(x.id)}">Voir sur le plan ${chevR}</button>` : "";
-  return `<details class="tritem${rt ? " trlive" : ""}" data-id="${esc(x.id)}"${TR.open === x.id ? " open" : ""}><summary><span class="tt2">${esc(x.t)}</span><svg class="chev" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 5 4 4 4-4"/></svg>${x.p ? `<span class="pp">${esc(x.p)}</span>` : ""}<span class="bs"><span class="tag ${rt ? "live" : st === "now" ? "now" : "soon"}">${rt ? "En direct" : st === "now" ? (trRecur(x) ? "Aujourd'hui" : "En cours") : st === "recur" ? "Chaque " + trRecur(x).name : st === "info" ? "Info" : "À venir"}</span>${trRoutes(x).map((r) => badge(r, "sm")).join("")}</span></summary>${body || zb ? `<div class="body">${body}${zb}</div>` : ""}</details>`;
+  const nna = TR.na && TR.na.get(x.id); // #24
+  const nab = nna ? `<div class="trna">${nna > 1 ? nna + " départs barrés" : "1 départ barré"} dans les horaires de l'appli et retirés des itinéraires.</div>` : "";
+  return `<details class="tritem${rt ? " trlive" : ""}" data-id="${esc(x.id)}"${TR.open === x.id ? " open" : ""}><summary><span class="tt2">${esc(x.t)}</span><svg class="chev" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 5 4 4 4-4"/></svg>${x.p ? `<span class="pp">${esc(x.p)}</span>` : ""}<span class="bs"><span class="tag ${rt ? "live" : st === "now" ? "now" : "soon"}">${rt ? "En direct" : st === "now" ? (trRecur(x) ? "Aujourd'hui" : "En cours") : st === "recur" ? "Chaque " + trRecur(x).name : st === "info" ? "Info" : "À venir"}</span>${trRoutes(x).map((r) => badge(r, "sm")).join("")}</span></summary>${body || zb || nab ? `<div class="body">${body}${nab}${zb}</div>` : ""}</details>`;
 }
 // ---------- #11 Mon profil ----------
 const grip = `<svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><circle cx="6.5" cy="4" r="1.4"/><circle cx="11.5" cy="4" r="1.4"/><circle cx="6.5" cy="9" r="1.4"/><circle cx="11.5" cy="9" r="1.4"/><circle cx="6.5" cy="14" r="1.4"/><circle cx="11.5" cy="14" r="1.4"/></svg>`;
@@ -2216,7 +2692,7 @@ function renderProfile(page) {
     <h3>Mes trajets</h3>
     <div class="pcard" data-plist="trips">${fav.trips.length ? fav.trips.map(([a, b]) => { const tn = MY.names[tripKey(a, b)]; return `<div class="prow" data-pk="${esc(tripKey(a, b))}"><span class="grip" aria-label="Déplacer">${grip}</span><span class="pn"><b>${esc(tn || (MY.names[a] || a) + " → " + (MY.names[b] || b))}</b>${tn ? `<small>${esc(a)} → ${esc(b)}</small>` : ""}</span><button type="button" class="pact" data-pa="ren" aria-label="Renommer">${penSvg}</button><button type="button" class="pact" data-pa="del" aria-label="Supprimer">${xSvg}</button></div>`; }).join("") : `<div class="prow"><span class="pn"><small>Enregistrez un trajet depuis l'onglet Itinéraire.</small></span></div>`}</div>
     <h3>Mes lignes</h3>
-    <div class="pcard plines">${groups.map(([m, f]) => { const ids = net.R.map((r, i) => [r, i]).filter(([r]) => f(r)).map(([, i]) => i); return `<div class="plg">${modeIcon(m)}${ids.map((i) => `<button type="button" class="plb" data-myl="${i}" aria-pressed="${MY.lines.includes(i)}">${badge(i, "sm", true)}</button>`).join("")}</div>`; }).join("")}</div>
+    <div class="pcard plines">${groups.map(([m, f]) => { const ids = net.R.map((r, i) => [r, i]).filter(([r, i]) => f(r) && shownR(i)).map(([, i]) => i); return `<div class="plg">${modeIcon(m)}${ids.map((i) => `<button type="button" class="plb" data-myl="${i}" aria-pressed="${MY.lines.includes(i)}">${badge(i, "sm", true)}</button>`).join("")}</div>`; }).join("")}</div>
     <p class="pnote">Elles passent en premier dans Info trafic et dans Lignes & plans.</p>
     <h3>Mes alertes</h3>
     <div class="pcard">
@@ -2269,7 +2745,7 @@ function featChanged(k) {
   if (k === "pliage" && !feat("pliage")) { MFOLD.clear(); store.set("modeFold", []); }
   if (k === "gps" && !feat("gps")) BOARD.on = false;
   if (k === "inbus" && !feat("inbus")) { $("#inbus").classList.remove("on"); INBUS.shownKey = ""; }
-  try { buildGrid(); trBang(); trNetCheck(); checkNight(); updMbFull(); renderHome(); if (S.view === "trafic") renderTrafic(); if (S.view === "suivi") renderFollow(); } catch (e) {}
+  try { buildGrid(); trBang(); trNetCheck(); subBarCheck(); checkNight(); updMbFull(); renderHome(); if (S.view === "trafic") renderTrafic(); if (S.view === "suivi") renderFollow(); } catch (e) {}
 }
 // #22 : mode d'emploi (installation en volets, puis chapitres à déplier, avec de vraies captures de l'appli)
 const GUIDE_IMG = (f) => `${/\/test\//.test(location.pathname) ? "../" : ""}guide/${f}`;
@@ -2366,7 +2842,7 @@ function renderTrafic() {
   }
   head.querySelectorAll("[data-f]").forEach((b) => b.onclick = () => { TR.filter = b.dataset.f === "" ? null : [+b.dataset.f]; TR.open = null; renderTrafic(); if (TR.filter) fitLine(TR.filter[0]); else fitHome(); drawMap(); });
   res.querySelectorAll("details").forEach((d) => d.addEventListener("toggle", () => {
-    if (d.open) { TR.open = d.dataset.id; const x = TR.items.find((y) => y.id === d.dataset.id); if (x && (trTargets(x) || trRoutes(x).length === 1)) trZoom(x); }
+    if (d.open) { TR.open = d.dataset.id; const x = TR.items.find((y) => y.id === d.dataset.id); if (x && (trTargets(x) || trRoutes(x).length === 1)) trZoom(x, false); }
     else if (TR.open === d.dataset.id) { TR.open = null; if (TR.zoom && TR.zoom.id === d.dataset.id) { TR.zoom = null; drawMap(); } }
   }));
   res.querySelectorAll("[data-zoom]").forEach((b) => b.addEventListener("click", () => { const x = TR.items.find((y) => y.id === b.dataset.zoom); if (x) trZoom(x); }));
@@ -2389,7 +2865,7 @@ function renderPlans() {
     if (!PL.err && !PL.loading) { PL.loading = true; loadPlans(); }
     return;
   }
-  res.innerHTML = PL.list.map((p) => { const m = p.title.match(/^(.*?)\s*\((.*)\)\s*$/); const ri = p.line ? net.R.findIndex((r) => r.s === p.line) : -1;
+  res.innerHTML = PL.list.filter((p) => { const ri = p.line ? net.R.findIndex((r) => r.s === p.line) : -1; return ri < 0 || shownR(ri); }).map((p) => { const m = p.title.match(/^(.*?)\s*\((.*)\)\s*$/); const ri = p.line ? net.R.findIndex((r) => r.s === p.line) : -1;
     return `<button type="button" class="plc" data-pl="${esc(p.id)}"><span class="im" style="background-image:url('plans/${esc(p.thumb)}')"></span><span class="tx">${ri >= 0 ? badge(ri, "sm", true) : ""}<b>${esc(m ? m[1] : p.title)}</b>${m ? `<small>${esc(m[2])}</small>` : ""}<small>${p.pages.length > 1 ? p.pages.length + " pages · " : ""}PDF ${p.mb} Mo</small></span></button>`; }).join("");
   res.querySelectorAll("[data-pl]").forEach((b) => b.onclick = () => openPlan(b.dataset.pl, 0));
   $("#pl-src").innerHTML = `Plans officiels de Grand Reims Mobilités, <a href="${esc(site)}" target="_blank" rel="noopener">téléchargeables sur leur site</a>. Mis à jour automatiquement chaque semaine.`;
@@ -2447,9 +2923,27 @@ function route() {
   else if (S.view === "trafic") { renderTrafic(); if (TR.filter && TR.filter.length === 1) fitLine(TR.filter[0]); else fitHome(); }
   else { renderFollow(); if (isMobile() && sheetState === "full") setSheet("half", true); followCam(true); }
   if (isMobile() && sheetState === "peek") setSheet("half", true);
+  p32Apply();
   updMbFull();
   drawMap();
 }
+// ---------- #32 : Lignes & plans et Info trafic en plein écran, sans plan ; le plan s'ouvre à la demande
+// (« Voir le tracé sur le plan » d'une ligne, « Voir sur le plan » d'une info), avec « Retour » pour revenir à la liste ----------
+S.mapOpen = false;
+const P32V = ["lignes", "plans", "trafic"];
+function p32Apply() {
+  const pill = $("#mappill");
+  if (S.p32v !== S.view) { S.p32v = S.view; S.mapOpen = false; } // changement d'onglet : on revient à la liste
+  const on = isMobile() && P32V.includes(S.view);
+  if (!on) { S.mapOpen = false; document.body.classList.remove("p32cover"); pill.hidden = true; if (isMobile() && sheetState === "cover") setSheet("half", true); return; }
+  const closed = !S.mapOpen;
+  document.body.classList.toggle("p32cover", closed);
+  if (closed) setSheet("cover", true);
+  pill.hidden = closed;
+  pill.innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 3 5 8l5 5"/></svg>` + (S.view === "trafic" ? "Retour à l'info trafic" : "Retour aux lignes");
+  pill.onclick = () => { S.mapOpen = false; p32Apply(); drawMap(); };
+}
+function p32Open() { if (!isMobile()) return; S.mapOpen = true; setSheet("half"); p32Apply(); }
 
 /*__MAP__*/
 
@@ -2537,9 +3031,18 @@ const UPD_0611 = [
 // ajouter une entrée en tête (1 à 4 volets de nouveautés + un volet « Corrections »), elle s'affiche une fois.
 const personSvg = (n) => `<svg width="${n}" height="${n}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.6 4.2-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/></svg>`;
 const UPD_LOG = [
-  { v: "2026-11-08", t: "Quelques corrections", slides: [
+  // 8 nov. au soir : remplace la présentation « Quelques corrections » du même jour (reprise dans le dernier volet)
+  { v: "2026-11-08.2", t: "Par où descendre, adresses et info trafic plus précise", slides: [
+    { ico: icoSvg('<rect x="3" y="7" width="18" height="10" rx="3"/><path d="M9 7v10M15 7v10M3 12h18"/><path d="M12 20v2M9 22h6"/>'), t: "Par où descendre",
+      b: "<p>Dans le tram et le BHNS, en arrivant à votre arrêt, l'appli vous montre par quelle porte descendre (avant, milieu ou arrière) pour être au plus près de votre correspondance.</p><p>Avec « Me guider », votre bus suivant est en orange, avec le chemin à pied.</p>" },
+    { ico: icoSvg('<path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/>'), t: "Partez d'une adresse",
+      b: "<p>Dans Itinéraire, tapez une adresse ou choisissez « Ma position ». Vous pouvez aussi toucher le plan n'importe où : « Partir d'ici » ou « Y aller ».</p><p>Le trajet compte la marche jusqu'aux arrêts, et le guidage vous mène jusqu'à l'adresse.</p>" },
+    { ico: icoSvg('<circle cx="12" cy="12" r="8.5"/><path d="M6 6l12 12"/>'), t: "Départs supprimés, tram remplacé",
+      b: "<p>Quand l'info trafic annonce des départs non assurés, ils sont barrés en rouge dans les horaires et ne vous sont plus proposés.</p><p>Les jours où le tram est remplacé par des bus, un bandeau vous indique où prendre la SUB à chaque arrêt du tram.</p>" },
+    { ico: icoSvg('<path d="M4 6h16M4 12h16M4 18h10"/>'), t: "Lignes et info trafic en plein écran",
+      b: "<p>Lignes & plans et Info trafic prennent tout l'écran, pour en voir plus d'un coup.</p><p>Le plan s'ouvre quand vous en avez besoin : « Voir le tracé sur le plan » pour une ligne, « Voir sur le plan » pour une info.</p>" },
     { ico: icoSvg('<path d="M20 6 9 17l-5-5"/>'), t: "Et quelques corrections",
-      b: "<ul><li>Le tram est de nouveau affiché comme un tram partout (picto, « Mon tram », plan).</li><li>Plus de traits de couleur parasites sur le plan quand on zoome.</li></ul>" },
+      b: "<ul><li>Le tram est de nouveau affiché comme un tram partout (picto, « Mon tram », plan).</li><li>Plus de traits de couleur parasites sur le plan quand on zoome.</li><li>Arrêté à un feu rouge, le bus ne recule plus sur le plan : il reste immobile.</li><li>Les bus de remplacement du tram (SUB) n'apparaissent que les jours où ils circulent.</li></ul>" },
   ] },
   { v: "2026-11-07", t: "Mon profil et un Mon bus plus malin", slides: [
     { ico: personSvg(34), t: "Votre profil",
@@ -2553,7 +3056,7 @@ const UPD_LOG = [
   { v: "2026-11-06", t: "Info trafic, fin de service et nouveau plan", slides: UPD_0611 },
 ];
 const UPD = UPD_LOG[0].v;
-const fmtUpd = (v) => new Date(v + "T12:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+const fmtUpd = (v) => new Date(v.slice(0, 10) + "T12:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
 // volets à faire défiler (présentation des mises à jour #23, installation de l'appli #22)
 function updPop(slides = UPD_LOG[0].slides, o = {}) {
   let el = $("#updpop");
