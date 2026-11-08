@@ -869,12 +869,63 @@ def parallel_lines(data, step=8.0, dedupe=45.0, near=14.0, slot_m=10.0, oneway=5
     return len(frags), sum(len(o[2]) for o in out)
 
 
+def tram_mode(data):
+    """Le reste du code repère le tram par m == 1. Le GTFS du 6 nov. 2026 a passé le tram de route_type 1
+    (métro) à 0 (tramway, la vraie valeur GTFS) : l'appli l'affichait alors comme un bus. On ramène tout tram
+    (route_type 0, 900 à 906, ligne TRAM / T1 / T2) à m = 1."""
+    for r in data["R"]:
+        if r.get("m") in (0, 900, 901, 902, 903, 904, 905, 906) or r["s"] in ("TRAM", "T1", "T2") or str(r.get("id", "")).upper().startswith("TRAM"):
+            r["m"] = 1
+
+
+def clean_ln(data, min_seg=1.0):
+    """Tracés du plan sans point en double ni demi-tour brusque : au zoom, un demi-tour dessinait de longs
+    traits parasites (arrondi d'angle impossible)."""
+    for item in data["LN"]:
+        cs, sl = item[1], item[2]
+        ow = item[3] if len(item) > 3 else None
+        x = y = 0
+        pts = []
+        for i in range(0, len(cs), 2):
+            x += cs[i]; y += cs[i + 1]
+            pts.append((x, y))
+        keep = list(range(len(pts)))
+        changed = True
+        while changed and len(keep) > 2:
+            changed = False
+            # point en double (moins de ~1 m)
+            for j in range(1, len(keep)):
+                a, b = pts[keep[j - 1]], pts[keep[j]]
+                if abs(a[0] - b[0]) + abs(a[1] - b[1]) < min_seg:
+                    del keep[j if j < len(keep) - 1 else j - 1]; changed = True; break
+            if changed:
+                continue
+            for j in range(1, len(keep) - 1):
+                a, b, c = pts[keep[j - 1]], pts[keep[j]], pts[keep[j + 1]]
+                ux, uy, vx, vy = b[0] - a[0], (b[1] - a[1]) * 1.5, c[0] - b[0], (c[1] - b[1]) * 1.5
+                lu, lv = math.hypot(ux, uy), math.hypot(vx, vy)
+                if lu and lv and (ux * vx + uy * vy) / (lu * lv) < -0.5:
+                    del keep[j]; changed = True; break
+        if len(keep) == len(pts):
+            continue
+        out, px, py = [], 0, 0
+        for k in keep:
+            out += [pts[k][0] - px, pts[k][1] - py]; px, py = pts[k]
+        item[1] = out
+        item[2] = [sl[k] for k in keep]
+        if ow is not None:
+            item[3] = [ow[k] for k in keep]
+
+
 def finalize(data):
+    tram_mode(data)
     split_tram(data)
+    tram_mode(data)
     text_colors(data)
     user_traces(data)
     tram_paths(data)
     nf, npts = parallel_lines(data)
+    clean_ln(data)
     print("tronçons du plan", nf, "points", npts)
     return data
 

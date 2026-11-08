@@ -296,8 +296,13 @@ function offsetPath(f, sp) {
   const R0 = Math.max(3, 12 * view.s / 111320);
   for (let i = 1; i < n - 1; i++) {
     const l1 = Math.hypot(O[i][0] - O[i - 1][0], O[i][1] - O[i - 1][1]), l2 = Math.hypot(O[i + 1][0] - O[i][0], O[i + 1][1] - O[i][1]);
-    const r = Math.min(R0, l1 / 2, l2 / 2);
-    if (r < 0.5) ctx.lineTo(O[i][0], O[i][1]); else ctx.arcTo(O[i][0], O[i][1], O[i + 1][0], O[i + 1][1], r);
+    // rayon limité pour que l'arrondi reste sur les deux segments (sinon, sur un angle très fermé, arcTo
+    // trace une longue ligne hors du tracé : « traits au hasard » en zoomant)
+    const ax = O[i - 1][0] - O[i][0], ay = O[i - 1][1] - O[i][1], bx = O[i + 1][0] - O[i][0], by = O[i + 1][1] - O[i][1];
+    const cosP = l1 && l2 ? Math.max(-1, Math.min(1, (ax * bx + ay * by) / (l1 * l2))) : 1;
+    const half = Math.acos(cosP) / 2;                       // moitié de l'angle entre les deux segments
+    const r = Math.min(R0, Math.min(l1, l2) / 2 * Math.tan(half));
+    if (!(r >= 0.5) || half < 0.35) ctx.lineTo(O[i][0], O[i][1]); else ctx.arcTo(O[i][0], O[i][1], O[i + 1][0], O[i + 1][1], r);
   }
   ctx.lineTo(O[n - 1][0], O[n - 1][1]);
   f.O = O;

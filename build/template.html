@@ -2537,6 +2537,10 @@ const UPD_0611 = [
 // ajouter une entrée en tête (1 à 4 volets de nouveautés + un volet « Corrections »), elle s'affiche une fois.
 const personSvg = (n) => `<svg width="${n}" height="${n}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.6 4.2-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/></svg>`;
 const UPD_LOG = [
+  { v: "2026-11-08", t: "Quelques corrections", slides: [
+    { ico: icoSvg('<path d="M20 6 9 17l-5-5"/>'), t: "Et quelques corrections",
+      b: "<ul><li>Le tram est de nouveau affiché comme un tram partout (picto, « Mon tram », plan).</li><li>Plus de traits de couleur parasites sur le plan quand on zoome.</li></ul>" },
+  ] },
   { v: "2026-11-07", t: "Mon profil et un Mon bus plus malin", slides: [
     { ico: personSvg(34), t: "Votre profil",
       b: "<p>Touchez le rond en haut à gauche du plan. Rangez et renommez vos arrêts et trajets (« Maison », « Boulot »), choisissez vos lignes et vos alertes.</p><p>Chaque fonctionnalité peut aussi être coupée, et le mode d'emploi est là.</p>" },
