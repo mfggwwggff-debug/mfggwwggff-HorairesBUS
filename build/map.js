@@ -212,6 +212,8 @@ function segmentD(pi, a, b) {
   const pb = pointAt(g, b); out.push([IX(pb[0]), IY(pb[1])]);
   return out;
 }
+// #21 : un quai, ou le lieu de départ (-1) / d'arrivée (-2) → [lon, lat]
+const qPt = (q) => q === -1 ? [S.from.lon, S.from.lat] : q === -2 ? [S.to.lon, S.to.lat] : [net.Q[q][2], net.Q[q][1]];
 function highlight() {
   const H = { routes: null, legs: [], stops: [], ends: [], trips: null };
   if (S.view === "itineraire") {
@@ -225,8 +227,8 @@ function highlight() {
           H.routes.add(p.r); H.trips.add(g.pat + ":" + g.trip);
           for (let s = g.bi; s <= g.ai; s++) H.stops.push(net.Q[p.stops[s]][0]);
         } else {
-          const a = net.Q[g.from], b = net.Q[g.to];
-          H.legs.push({ pts: [[a[2], a[1]], [b[2], b[1]]], walk: true });
+          const a = qPt(g.from), b = qPt(g.to);
+          H.legs.push({ pts: [a, b], walk: true });
         }
       });
     }
@@ -538,18 +540,20 @@ function paint() {
   };
   // réserve la zone des boutons du plan
   placed.push([W - 64, 0, W, tl + 200]);
-  hl.ends.forEach(([i]) => label(i, true));
+  hl.ends.forEach(([i]) => { if (!isPlace(i)) label(i, true); });
   if (S.view === "itineraire" && S.journeys[S.selJ]) S.journeys[S.selJ].legs.forEach((g) => { if (g.type === "ride") { const p = net.pats[g.pat]; label(net.Q[p.stops[g.bi]][0], true); label(net.Q[p.stops[g.ai]][0], true); } });
   if (hover && hover.kind === "stop") label(hover.i, true);
   if (hs.size && z > 1.1) [...hs].forEach((i) => label(i, false));
   if (z > 1.0) [...hubs].forEach((i) => label(i, false));
   if (showAll && z > 2.4) net.P.forEach((p, i) => label(i, false));
   hl.ends.forEach(([i, kind]) => {
+    if (isPlace(i)) { drawPin(geoS(i.lon, i.lat), kind, i.label); return; }
     const p = net.P[i]; const [x, y] = stopS(i);
     ctx.beginPath();
     if (kind === "to") roundRect(x - 7.5, y - 7.5, 15, 15, 3); else ctx.arc(x, y, 8, 0, 7);
     ctx.fillStyle = kind === "to" ? C.ink : C.surf; ctx.fill(); ctx.lineWidth = 3.5; ctx.strokeStyle = C.ink; ctx.stroke();
   });
+  if (PTMARK) drawPin(geoS(PTMARK.lon, PTMARK.lat), "from");
   // info trafic : arrêt habituel barré, arrêt de report entouré, flèche en pointillé de l'un à l'autre
   if (hl.tr) {
     const al = css("--alert");
@@ -670,7 +674,17 @@ function fitBox(pts, pad = 50) {
   const s = Math.max(ZMIN, Math.min((W - p * 2 - (isMobile() ? 40 : 0)) / Math.max(x1 - x0, 0.004), (visH - p * 2) / Math.max(y1 - y0, 0.003), 60000));
   centerOn((x0 + x1) / 2, (y0 + y1) / 2, s, true);
 }
-function fitJourney(j) { if (!j) return; const pts = []; j.legs.forEach((g) => { if (g.type === "ride") { const p = net.pats[g.pat]; for (let s = g.bi; s <= g.ai; s++) { const q = net.Q[p.stops[s]]; pts.push([q[2], q[1]]); } } else { [g.from, g.to].forEach((q) => pts.push([net.Q[q][2], net.Q[q][1]])); } }); fitBox(pts, 60); }
+function fitJourney(j) { if (!j) return; const pts = []; j.legs.forEach((g) => { if (g.type === "ride") { const p = net.pats[g.pat]; for (let s = g.bi; s <= g.ai; s++) { const q = net.Q[p.stops[s]]; pts.push([q[2], q[1]]); } } else { [g.from, g.to].forEach((q) => pts.push(qPt(q))); } }); fitBox(pts, 60); }
+// #21 : épingle d'un lieu (adresse, ma position, point du plan)
+function drawPin([x, y], kind, txt) {
+  ctx.save(); const C = { ink: css("--ink"), bg: css("--map-bg"), font: css("--font-display") };
+  const c = kind === "to" ? C.ink : css("--me");
+  ctx.beginPath(); ctx.moveTo(x, y); ctx.bezierCurveTo(x - 4, y - 8, x - 11, y - 13, x - 11, y - 21); ctx.arc(x, y - 21, 11, Math.PI, 0); ctx.bezierCurveTo(x + 11, y - 13, x + 4, y - 8, x, y); ctx.closePath();
+  ctx.fillStyle = c; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = C.bg; ctx.stroke();
+  ctx.beginPath(); ctx.arc(x, y - 21, 4.2, 0, 7); ctx.fillStyle = C.bg; ctx.fill();
+  if (txt) { ctx.font = `700 13px ${C.font}`; ctx.textBaseline = "middle"; ctx.lineWidth = 4; ctx.strokeStyle = C.bg; ctx.strokeText(txt, x + 14, y - 21); ctx.fillStyle = C.ink; ctx.fillText(txt, x + 14, y - 21); }
+  ctx.restore();
+}
 function fitLine(ri) { const pts = []; routeShapes[ri].forEach((k) => keyToPts.get(k).forEach((p) => pts.push(p))); fitBox(pts, 30); }
 function fitStop(i) { const p = net.P[i]; centerOn(PX(p[2]), PY(p[1]), Math.max(view.s, 26000), true); }
 function fitHome() { const pts = net.pats.filter((p) => !/^E/.test(net.R[p.r].s)).flatMap((p) => p.stops.map((q) => [net.Q[q][2], net.Q[q][1]])); fitBox(pts, 16); }
@@ -758,8 +772,8 @@ cv.addEventListener("keydown", (e) => {
 });
 
 // ---------- info-bulle ancrée sur le plan ----------
-const pop = $("#pop"); let popAt = null;
-function hidePop() { pop.classList.remove("on"); popAt = null; }
+const pop = $("#pop"); let popAt = null, PTMARK = null;
+function hidePop() { pop.classList.remove("on"); popAt = null; if (PTMARK) { PTMARK = null; drawMap(); } }
 function placePop() {
   if (!popAt) return;
   let sx, sy;
@@ -787,6 +801,7 @@ function fillVehPop(v) {
 pop.addEventListener("click", (e) => {
   if (e.target.closest(".x")) return hidePop();
   const a = e.target.closest("[data-a]")?.dataset.a; if (!a) return;
+  if ((a === "ptfrom" || a === "ptto") && popAt?.pt) { const pt = popAt.pt; hidePop(); if (a === "ptfrom") { S.from = pt; fromP.set(pt); } else { S.to = pt; toP.set(pt); } itFollowNow = true; go("itineraire"); if (S.view === "itineraire") runIt(); return; }
   if (a === "follow" && popAt?.veh) { const { pi, k, dk } = popAt.veh; hidePop(); startFollow(pi, k, dk); return; }
   if (popAt?.stop == null) return;
   const best = popAt.stop; hidePop();
@@ -797,7 +812,18 @@ pop.addEventListener("click", (e) => {
 });
 function clickMap(sx, sy) {
   const h = hitTest(sx, sy);
-  if (!h) { hidePop(); return; }
+  if (!h) {
+    // #21 : point touché sur le plan (sans arrêt dessous) → partir d'ici / y aller
+    if (S.view !== "itineraire" && S.view !== "accueil") { hidePop(); return; }
+    const [mx, my] = fromS(sx, sy), lon = IX(mx), lat = IY(my);
+    const pt = { kind: "pt", label: "Point sur le plan", sub: "", lat, lon };
+    pop.dataset.html = "";
+    const fill = () => { pop.innerHTML = `<button type="button" class="x" aria-label="Fermer">×</button><div class="ptpop"><span class="pic">${geoIco.pt}</span><div><h3>${esc(pt.label)}</h3><div class="sub">${esc(pt.sub || "Recherche de l'adresse…")}</div></div></div>
+      <div class="acts"><button type="button" class="btn small primary" data-a="ptfrom">Partir d'ici</button><button type="button" class="btn small" data-a="ptto">Y aller</button></div>`; };
+    fill(); popAt = { x: mx, y: my, pt }; PTMARK = pt; pop.classList.add("on"); placePop(); drawMap();
+    geoReverse(lat, lon).then((r) => { if (popAt?.pt !== pt) return; if (r) { pt.label = r.label; pt.sub = r.sub; } else pt.sub = `${lat.toFixed(5)}, ${lon.toFixed(5)}`; fill(); placePop(); drawMap(); });
+    return;
+  }
   if (h.kind === "veh") { pop.dataset.html = ""; popAt = { veh: { pi: h.v.pi, k: h.v.k, dk: h.v.dk } }; fillVehPop(h.v); pop.classList.add("on"); placePop(); return; }
   const best = h.i, p = net.P[best];
   pop.dataset.html = "";

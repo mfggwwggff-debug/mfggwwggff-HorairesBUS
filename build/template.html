@@ -166,6 +166,15 @@ details.when .whenbody { padding: 4px 12px 12px; display: flex; flex-direction: 
 .sugg button[aria-selected="true"], .sugg button:hover { background: var(--sunk); }
 .sugg .nm { display: flex; flex-direction: column; }
 .sugg .nm small { color: var(--muted); font-size: 12px; }
+.sugg button.plc { flex-direction: row; justify-content: flex-start; align-items: center; text-align: left; gap: 10px; }
+.sugg button.plc .nm { align-items: flex-start; }
+.sugg .pic { flex: none; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--sunk); color: var(--ink); }
+.sugg button.plc:first-child .pic { background: color-mix(in srgb, var(--me) 14%, var(--surface)); color: var(--me); }
+.sugg .sg-wait { padding: 10px 12px; color: var(--muted); font-size: 13px; }
+.picker .inp.isplace { font-weight: 600; }
+.ptpop { display: flex; gap: 10px; align-items: center; padding-right: 22px; margin-bottom: 8px; }
+.ptpop h3 { margin: 0; padding: 0; } .ptpop .sub { margin: 0; }
+.ptpop .pic { flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: color-mix(in srgb, var(--me) 14%, var(--surface)); color: var(--me); }
 .badges { display: flex; gap: 3px; flex-wrap: wrap; justify-content: flex-end; max-width: 55%; }
 
 .seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 10px; padding: 3px; background: var(--sunk); }
@@ -1054,7 +1063,7 @@ const myFirst = (ri) => feat("mesl") && MY.lines.includes(ri); // « Mes lignes 
 const uName = (i) => MY.names[pName(i)] || pName(i); // nom donné par l'utilisateur (Mon profil), sinon le vrai nom
 const tripKey = (a, b) => a + "|" + b;
 const isFavStop = (i) => i != null && fav.stops.includes(pName(i));
-const isFavTrip = (a, b) => a != null && b != null && fav.trips.some(([x, y]) => x === pName(a) && y === pName(b));
+const isFavTrip = (a, b) => a != null && b != null && !isPlace(a) && !isPlace(b) && fav.trips.some(([x, y]) => x === pName(a) && y === pName(b));
 function toggleFavStop(i) { const n = pName(i); fav.stops = isFavStop(i) ? fav.stops.filter((x) => x !== n) : [...fav.stops, n]; saveFav(); toast(isFavStop(i) ? `${n} ajouté à l'accueil` : `${n} retiré des favoris`); }
 function toggleFavTrip(a, b) { const A = pName(a), B = pName(b); fav.trips = isFavTrip(a, b) ? fav.trips.filter(([x, y]) => !(x === A && y === B)) : [...fav.trips, [A, B]]; saveFav(); toast(isFavTrip(a, b) ? "Trajet ajouté à l'accueil" : "Trajet retiré des favoris"); }
 function setStar(btn, on) { btn.innerHTML = starSvg; btn.setAttribute("aria-pressed", on); }
@@ -1090,15 +1099,50 @@ function locate(onOk, quiet) {
 // ---------- sélecteur d'arrêt ----------
 const norm = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 const stopIdx = net.P.map((p, i) => ({ i, n: norm(p[0]) })).filter((x) => net.pRoutes[x.i].length); // #35 : arrêts de la SUB seule masqués quand elle ne circule pas
-function picker(root, onPick) {
+// ---------- #21 (maquette) : lieux = adresse (Base Adresse Nationale, géocodage de l'IGN), ma position, point touché sur le plan ----------
+const isPlace = (v) => v != null && typeof v === "object";
+const GEO = "https://data.geopf.fr/geocodage"; // ex-api-adresse.data.gouv.fr (fermée fin janvier 2026)
+// quais à moins de 700 m (au moins les 3 plus proches), avec le temps à pied
+function placeQ(lat, lon) {
+  const L = net.Q.map((Q, q) => [q, distM(lat, lon, Q[1], Q[2])]).filter(([q]) => net.qp[q].length && net.pRoutes[net.Q[q][0]].length).sort((a, b) => a[1] - b[1]);
+  return L.filter(([, d], i) => d <= 700 || i < 3).slice(0, 16).map(([q, d]) => [q, Math.max(1, Math.ceil(d * 1.25 / 75))]);
+}
+// deux marches à la suite (changement de quai puis marche jusqu'au lieu) → une seule marche directe
+function mergeWalks(j) {
+  const L = j.legs, n = L.length;
+  const pt = (q) => q === -1 ? [S.from.lat, S.from.lon] : q === -2 ? [S.to.lat, S.to.lon] : [net.Q[q][1], net.Q[q][2]];
+  const wm = (a, b) => { const [x, y] = pt(a), [u, v] = pt(b); return Math.max(1, Math.ceil(distM(x, y, u, v) * 1.25 / 75)); };
+  if (n >= 2 && L[n - 1].type === "walk" && L[n - 1].to === -2 && L[n - 2].type === "walk") { const a = L[n - 2], d = wm(a.from, -2); if (d <= a.dur + L[n - 1].dur) { L.splice(n - 2, 2, { type: "walk", from: a.from, to: -2, dur: d, dep: a.dep, arr: a.dep + d }); j.arr = a.dep + d; } }
+  if (L.length >= 2 && L[0].type === "walk" && L[0].from === -1 && L[1].type === "walk") { const b = L[1], d = wm(-1, b.to); if (d <= L[0].dur + b.dur) { L.splice(0, 2, { type: "walk", from: -1, to: b.to, dur: d, dep: b.arr - d, arr: b.arr }); j.dep = b.arr - d; } }
+  return j;
+}
+const engPlace = (v) => isPlace(v) ? { q: v.q || (v.q = placeQ(v.lat, v.lon)) } : v;
+const vName = (v) => v == null ? "" : isPlace(v) ? v.label : uName(v);
+const geoIco = {
+  pos: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4" fill="currentColor"/><circle cx="12" cy="12" r="8.5"/></svg>`,
+  adr: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M4 11 12 4l8 7v9h-5v-6H9v6H4z"/></svg>`,
+  pt: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg>`,
+};
+const GEOC = new Map();
+async function geoSearch(q) {
+  if (GEOC.has(q)) return GEOC.get(q);
+  const u = `${GEO}/search?q=${encodeURIComponent(q)}&limit=5&autocomplete=1&lat=49.2583&lon=4.0317&index=address`;
+  try { const r = await fetch(u); const d = await r.json(); const out = (d.features || []).map((f) => ({ kind: "adr", label: f.properties.name, sub: [f.properties.postcode, f.properties.city].filter(Boolean).join(" "), lat: f.geometry.coordinates[1], lon: f.geometry.coordinates[0] })); GEOC.set(q, out); return out; } catch (e) { return []; }
+}
+async function geoReverse(lat, lon) {
+  try { const r = await fetch(`${GEO}/reverse?lat=${lat}&lon=${lon}&limit=1&index=address`); const d = await r.json(); const f = (d.features || [])[0]; return f ? { label: f.properties.name, sub: [f.properties.postcode, f.properties.city].filter(Boolean).join(" ") } : null; } catch (e) { return null; }
+}
+function picker(root, onPick, opts = {}) {
   const inp = $("input", root), box = $(".sugg", root);
-  let items = [], sel = -1, value = null;
+  let items = [], sel = -1, value = null, gseq = 0;
+  const prow = (v, k) => `<button type="button" role="option" class="plc" data-k="${k}" aria-selected="${k === sel}"><span class="pic">${geoIco[v.kind]}</span><span class="nm"><span>${esc(v.label)}</span>${v.sub ? `<small>${esc(v.sub)}</small>` : ""}</span></button>`;
   const row = (i, k, sub) => `<button type="button" role="option" data-k="${k}" aria-selected="${k === sel}"><span class="nm"><span>${esc(uName(i))}</span>${sub || MY.names[pName(i)] ? `<small>${[MY.names[pName(i)] ? esc(pName(i)) : "", sub || ""].filter(Boolean).join(" · ")}</small>` : ""}</span><span class="badges">${net.pRoutes[i].slice(0, 5).map((r) => badge(r, "sm")).join("")}${net.pRoutes[i].length > 5 ? "…" : ""}</span></button>`;
   const render = () => {
     const q = norm(inp.value);
     let html = "";
     items = [];
     if (!q) {
+      if (opts.places) { html += prow({ kind: "pos", label: "Ma position", sub: ME.pos ? "Position actuelle du téléphone" : "Autoriser la localisation" }, items.length); items.push({ place: "pos" }); }
       // suggestions sans saisie : arrêts proches puis favoris
       const near = nearestStops(3, 900);
       if (near.length) { html += `<div class="sg-h lbl">Près de vous</div>`; near.forEach((x) => { html += row(x.i, items.length, Math.round(x.d / 10) * 10 + " m"); items.push({ i: x.i }); }); }
@@ -1111,14 +1155,38 @@ function picker(root, onPick) {
       const mine = fav.stops.filter((n) => MY.names[n] && words.every((w) => norm(MY.names[n]).includes(w))).map(findStop).filter((i) => i >= 0);
       items = stopIdx.filter((s) => !mine.includes(s.i) && words.every((w) => s.n.includes(w))).sort((a, b) => (a.n.startsWith(q) ? 0 : 1) - (b.n.startsWith(q) ? 0 : 1) || a.n.localeCompare(b.n)).slice(0, 30);
       items = [...mine.map((i) => ({ i })), ...items];
-      html = items.length ? items.map((s, k) => row(s.i, k)).join("") : `<div class="empty">Aucun arrêt ne correspond.</div>`;
+      if (opts.places) items = items.slice(0, 6);
+      html = items.length ? (opts.places ? `<div class="sg-h lbl">Arrêts</div>` : "") + items.map((s, k) => row(s.i, k)).join("") : opts.places ? "" : `<div class="empty">Aucun arrêt ne correspond.</div>`;
+      // #21 : adresses de la Base Adresse Nationale, sous les arrêts
+      if (opts.places && q.length >= 3) {
+        html += `<div class="sg-h lbl" data-adrh>Adresses</div><div class="sg-wait" data-adr>Recherche…</div>`;
+        const my = ++gseq, raw = inp.value.trim();
+        setTimeout(async () => {
+          if (my !== gseq) return;
+          const res = await geoSearch(raw); if (my !== gseq || !box.classList.contains("on")) return;
+          const at = box.querySelector("[data-adr]"); if (!at) return;
+          const base = items.length;
+          res.forEach((v) => items.push({ place: v }));
+          at.outerHTML = res.length ? res.map((v, j) => prow(v, base + j)).join("") : `<div class="sg-wait">Aucune adresse trouvée</div>`;
+          if (sel < 0 && items.length) sel = 0;
+        }, 220);
+      }
     }
     sel = items.length ? 0 : -1;
     box.innerHTML = html; box.classList.add("on");
     box.querySelectorAll("button").forEach((b, k) => b.setAttribute("aria-selected", k === sel));
   };
-  const choose = (k) => { if (k < 0 || !items[k]) return; set(items[k].i); inp.blur(); onPick(value); };
-  const set = (i) => { value = i; inp.value = i == null ? "" : uName(i); box.classList.remove("on"); };
+  const choose = (k) => {
+    if (k < 0 || !items[k]) return;
+    const it = items[k];
+    if (it.place === "pos") { // ma position : localisation puis lieu
+      const use = () => { if (!ME.pos) return; set({ kind: "pos", label: "Ma position", lat: ME.pos[0], lon: ME.pos[1] }); inp.blur(); onPick(value); };
+      if (ME.pos) use(); else locate(use);
+      return;
+    }
+    set(it.place || it.i); inp.blur(); onPick(value);
+  };
+  const set = (i) => { value = i; inp.value = i == null ? "" : vName(i); inp.classList.toggle("isplace", isPlace(i)); box.classList.remove("on"); };
   inp.addEventListener("input", render);
   inp.addEventListener("focus", () => { inp.select(); if (isMobile()) setSheet("full"); render(); });
   inp.addEventListener("keydown", (e) => {
@@ -1129,7 +1197,7 @@ function picker(root, onPick) {
   });
   box.addEventListener("pointerdown", (e) => e.preventDefault());
   box.addEventListener("click", (e) => { const b = e.target.closest("button[data-k]"); if (b) choose(+b.dataset.k); });
-  inp.addEventListener("blur", () => { setTimeout(() => { box.classList.remove("on"); if (value != null) inp.value = uName(value); }, 150); });
+  inp.addEventListener("blur", () => { setTimeout(() => { box.classList.remove("on"); if (value != null) inp.value = vName(value); }, 150); });
   return { get: () => value, set };
 }
 const findStop = (name) => net.P.findIndex((p) => p[0] === name);
@@ -1273,8 +1341,8 @@ $("#v-accueil").addEventListener("click", (e) => {
 });
 
 // ---------- Itinéraire ----------
-const fromP = picker($("#it-from").parentNode, (v) => { S.from = v; if (S.to == null) $("#it-to").focus(); else { if (isMobile()) setSheet("half", true); runIt(); } });
-const toP = picker($("#it-to").parentNode, (v) => { S.to = v; if (isMobile()) setSheet("half", true); runIt(); });
+const fromP = picker($("#it-from").parentNode, (v) => { S.from = v; if (S.to == null) $("#it-to").focus(); else { if (isMobile()) setSheet("half", true); runIt(); } }, { places: true });
+const toP = picker($("#it-to").parentNode, (v) => { S.to = v; if (isMobile()) setSheet("half", true); runIt(); }, { places: true });
 let itFollowNow = true;
 function setupDT(dateEl, timeEl, cb, onManual) {
   dateEl.min = minIso; dateEl.max = maxIso; dateEl.value = startIso; timeEl.value = toVal(inRange(NOW.iso) ? NOW.min : 7 * 60);
@@ -1300,7 +1368,7 @@ function runIt(noFit) {
   syncItStar();
   if (itFollowNow) { const n = parisNow(); if (inRange(n.iso)) { $("#it-date").value = n.iso; $("#it-time").value = toVal(n.min); } }
   const msg = $("#it-msg"), res = $("#it-res");
-  store.set("od", [S.from, S.to].map((x) => x == null ? null : pName(x)));
+  store.set("od", [S.from, S.to].map((x) => x == null || isPlace(x) ? null : pName(x)));
   const iso = $("#it-date").value, t = toMin($("#it-time").value);
   const isToday = iso === parisNow().iso;
   $("#it-whenlbl").textContent = itFollowNow ? "Partir maintenant" : `${S.mode === "dep" ? "Partir à" : "Arriver avant"} ${hm(t)}${isToday ? "" : ", " + fmtDateShort(iso)}`;
@@ -1312,7 +1380,9 @@ function runIt(noFit) {
   const day = net.dayIndex(iso);
   // #12 : 6 trajets d'emblée (« Plus de choix de trajets » coupé : comme avant, 4 ou 5 en « Partir à », 3 en « Arriver avant »)
   const more = feat("plus");
-  const js = S.mode === "dep" ? planDepart(net, S.from, S.to, day, t, more ? 6 : 4).slice(0, more ? 6 : 5) : planArrive(net, S.from, S.to, day, t, more ? 6 : 3);
+  const eF = engPlace(S.from), eT = engPlace(S.to);
+  const js = S.mode === "dep" ? planDepart(net, eF, eT, day, t, more ? 6 : 4).slice(0, more ? 6 : 5) : planArrive(net, eF, eT, day, t, more ? 6 : 3);
+  if (isPlace(S.from) || isPlace(S.to)) js.forEach(mergeWalks);
   S.journeys = js; S.selJ = S.mode === "arr" ? js.length - 1 : 0; S.itq = { day, isToday };
   if (!js.length) { res.innerHTML = `<div class="empty">Aucun trajet trouvé ${S.mode === "dep" ? "après " + hm(t) : "arrivant avant " + hm(t)} le ${fmtDateLong(iso)}. Essayez une autre heure : certaines lignes ne circulent qu'en semaine ou en journée.</div>`; drawMap(); return; }
   renderIt(noFit);
@@ -1325,14 +1395,14 @@ function itMore(dir) {
   if (dir < 0) {
     const first = js[0];
     for (let back = 60; back <= 240 && add.length < 4; back += 60) {
-      const c = S.mode === "dep" ? planDepart(net, S.from, S.to, q.day, Math.max(0, first.dep - back), 8).filter((j) => j.dep < first.dep)
-        : planArrive(net, S.from, S.to, q.day, first.arr - 1, 6).filter((j) => j.arr < first.arr);
+      const c = S.mode === "dep" ? planDepart(net, engPlace(S.from), engPlace(S.to), q.day, Math.max(0, first.dep - back), 8).filter((j) => j.dep < first.dep)
+        : planArrive(net, engPlace(S.from), engPlace(S.to), q.day, first.arr - 1, 6).filter((j) => j.arr < first.arr);
       add = c.filter((j) => !have.has(j.key)).slice(-4);
       if (S.mode === "arr") break;
     }
   } else {
     const last = js[js.length - 1];
-    add = planDepart(net, S.from, S.to, q.day, Math.floor(last.dep) + 1, 4).filter((j) => j.dep > last.dep && !have.has(j.key)).slice(0, 4);
+    add = planDepart(net, engPlace(S.from), engPlace(S.to), q.day, Math.floor(last.dep) + 1, 4).filter((j) => j.dep > last.dep && !have.has(j.key)).slice(0, 4);
   }
   if (!add.length) { toast(dir < 0 ? "Pas de trajet plus tôt" : "Pas d'autre trajet après", 1800); return; }
   S.journeys = [...js, ...add].sort((a, b) => a.dep - b.dep || a.arr - b.arr);
@@ -1362,7 +1432,7 @@ function renderIt(noFit) {
         ${isToday && TR.net ? jcWarn(j) : ""}
         ${tags.length ? `<div class="chain" style="grid-column:1/-1">${tags.join("")}</div>` : ""}
       </button>
-      <div class="tl">${isToday ? `<button type="button" class="btn primary guidebtn" data-guide="${k}">${bellSvg.replace('width="40" height="40"', 'width="18" height="18"')}Me guider jusqu'à l'arrivée</button>` : ""}${timeline(j, k)}</div>
+      <div class="tl">${isToday && !isPlace(S.to) ? `<button type="button" class="btn primary guidebtn" data-guide="${k}">${bellSvg.replace('width="40" height="40"', 'width="18" height="18"')}Me guider jusqu'à l'arrivée</button>` : ""}${timeline(j, k)}</div>
     </article>`;
   }).join("") + mb(1);
   res.querySelectorAll("[data-more]").forEach((b) => b.onclick = () => itMore(+b.dataset.more));
@@ -1383,11 +1453,12 @@ function timeline(j, jk) {
   const L = j.legs;
   L.forEach((g, i) => {
     if (g.type === "walk") {
-      const same = net.Q[g.from][0] === net.Q[g.to][0];
-      const label = same ? `Changement de quai à ${esc(qName(g.to))}` : `Marche jusqu'à ${esc(qName(g.to))}`;
-      if (i === 0) h += `<div class="st cap"><div class="t">${hm(g.dep)}</div><div class="rail"><span class="node"></span></div><div class="body"><div class="name">${esc(qName(g.from))}</div><div class="sub">Départ à pied</div></div></div>`;
+      const nmOf = (q) => q === -1 ? vName(S.from) : q === -2 ? vName(S.to) : qName(q);
+      const same = g.from >= 0 && g.to >= 0 && net.Q[g.from][0] === net.Q[g.to][0];
+      const label = same ? `Changement de quai à ${esc(qName(g.to))}` : `Marche jusqu'à ${g.to === -2 ? "<b>" + esc(nmOf(g.to)) + "</b>" : "l'arrêt " + esc(qName(g.to))}`;
+      if (i === 0) h += `<div class="st cap"><div class="t">${hm(g.dep)}</div><div class="rail"><span class="node"></span></div><div class="body"><div class="name">${esc(nmOf(g.from))}</div><div class="sub">Départ à pied</div></div></div>`;
       h += `<div class="st walk"><div class="t"></div><div class="rail"></div><div class="body"><div class="sub">${walkSvg} ${label} · ${g.dur} min</div></div></div>`;
-      if (i === L.length - 1) h += `<div class="st end"><div class="t">${hm(g.arr)}</div><div class="rail"><span class="node" style="--c:var(--ink);border-radius:3px"></span></div><div class="body"><div class="name">${esc(qName(g.to))}</div><div class="sub">Arrivée</div></div></div>`;
+      if (i === L.length - 1) h += `<div class="st end"><div class="t">${hm(g.arr)}</div><div class="rail"><span class="node" style="--c:var(--ink);border-radius:3px"></span></div><div class="body"><div class="name">${esc(nmOf(g.to))}</div><div class="sub">Arrivée</div></div></div>`;
       return;
     }
     const p = net.pats[g.pat], r = net.R[p.r];

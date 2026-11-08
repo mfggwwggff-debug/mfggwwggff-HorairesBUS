@@ -106,15 +106,18 @@ function firstTrip(net, p, i, ready, day) {
   return best;
 }
 
+// o et dst : un arrêt (index de pôle) ou un lieu (#21 : adresse, ma position, point du plan) = { q: [[quai, minutes à pied], …] }
 function raptor(net, o, dst, day, t0, maxRides = 5) {
   const nQ = net.nQ, INF = 1e9;
-  const dstQ = new Set(net.P[dst][3]);
+  const dstW = new Map(typeof dst === "number" ? net.P[dst][3].map((q) => [q, 0]) : dst.q);
+  const dstQ = new Set(dstW.keys());
   const tau = [], lab = [];
   const best = new Int32Array(nQ).fill(INF);
   const newRound = () => { const t = new Int32Array(nQ).fill(INF); tau.push(t); const l = { ty: new Int8Array(nQ), a: new Int32Array(nQ), b: new Int32Array(nQ), c: new Int32Array(nQ), d: new Int32Array(nQ), e: new Int32Array(nQ) }; lab.push(l); return [t, l]; };
   let [t, l] = newRound();
   let marked = new Set();
-  for (const q of net.P[o][3]) { t[q] = t0; best[q] = t0; l.ty[q] = 1; marked.add(q); }
+  if (typeof o === "number") for (const q of net.P[o][3]) { t[q] = t0; best[q] = t0; l.ty[q] = 1; marked.add(q); }
+  else for (const [q, w] of o.q) { t[q] = t0 + w; best[q] = t0 + w; l.ty[q] = 4; l.b[q] = w; marked.add(q); }
   const relax = (k, from) => {
     const T = tau[k], L = lab[k], add = [];
     for (const q of from) {
@@ -128,7 +131,7 @@ function raptor(net, o, dst, day, t0, maxRides = 5) {
     add.forEach((q) => from.add(q));
   };
   relax(0, marked);
-  const destBest = () => { let m = INF; dstQ.forEach((q) => { if (best[q] < m) m = best[q]; }); return m; };
+  const destBest = () => { let m = INF; dstW.forEach((w, q) => { if (best[q] + w < m) m = best[q] + w; }); return m; };
   for (let k = 1; k <= maxRides && marked.size; k++) {
     const prevT = tau[k - 1], prevL = lab[k - 1];
     [t, l] = newRound();
@@ -166,18 +169,20 @@ function raptor(net, o, dst, day, t0, maxRides = 5) {
   let prevBest = INF;
   for (let k = 1; k < tau.length; k++) {
     let bq = -1, bv = INF;
-    dstQ.forEach((q) => { if (tau[k][q] < bv) { bv = tau[k][q]; bq = q; } });
-    if (bv < prevBest) { prevBest = bv; res.push(rebuild(net, tau, lab, k, bq, day)); }
+    dstW.forEach((w, q) => { if (tau[k][q] < INF && tau[k][q] + w < bv) { bv = tau[k][q] + w; bq = q; } });
+    if (bv < prevBest) { prevBest = bv; const j = rebuild(net, tau, lab, k, bq, day, dstW.get(bq)); if (j.rides) res.push(j); }
   }
   return res;
 }
 
-function rebuild(net, tau, lab, k, q, day) {
+function rebuild(net, tau, lab, k, q, day, egress = 0) {
   const legs = [];
+  if (egress) legs.push({ type: "walk", from: q, to: -2, dur: egress, arr: tau[k][q] + egress }); // marche jusqu'au lieu d'arrivée
   while (k >= 0) {
     const L = lab[k];
     const ty = L.ty[q];
     if (ty === 1) break;
+    if (ty === 4) { legs.push({ type: "walk", from: -1, to: q, dur: L.b[q], arr: tau[k][q] }); break; } // marche depuis le lieu de départ
     if (ty === 3) { legs.push({ type: "walk", from: L.a[q], to: q, dur: L.b[q], arr: tau[k][q] }); q = L.a[q]; continue; }
     if (ty === 2) {
       const p = net.pats[L.a[q]];
