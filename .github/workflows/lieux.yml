@@ -1,0 +1,43 @@
+name: Lieux (OSM)
+
+# Relève les lieux d'intérêt du Grand Reims (écoles, musées, magasins, restaurants…) dans OpenStreetMap
+# → lieux.json à la racine, cherchés dans les champs Départ / Arrivée de l'itinéraire. Une fois par semaine suffit.
+on:
+  schedule:
+    - cron: "37 2 * * 0"   # le dimanche, 2h37 UTC
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - build/lieux.py
+      - .github/workflows/lieux.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: lieux
+  cancel-in-progress: false
+
+jobs:
+  lieux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Relever les lieux
+        run: python3 build/lieux.py
+
+      - name: Publier si quelque chose a changé
+        run: |
+          git add lieux.json
+          if git diff --cached --quiet; then
+            echo "Lieux inchangés."
+            exit 0
+          fi
+          git config user.name "lieux-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Lieux (OSM) : mise à jour"
+          for i in 1 2 3; do git pull --rebase -q && git push -q && exit 0; sleep 5; done
+          exit 1
