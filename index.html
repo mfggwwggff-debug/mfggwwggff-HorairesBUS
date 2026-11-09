@@ -1572,36 +1572,26 @@ const saveFav = () => { store.set("favStops", fav.stops); store.set("favTrips", 
 // #11 : fonctionnalités désactivables (toutes actives au départ)
 const FEATS = [
   ["Pendant le trajet", [
-    ["gps", "Bus suivi en direct", "Quand vous êtes à bord, le bus avance sur l'écran avec vous, grâce au GPS de votre téléphone. Les heures d'arrivée sont plus précises."],
-    ["dedans", "Bouton « Je suis à bord »", "Un bouton pour dire à l'appli que vous êtes monté : le bus se cale sur vous en quelques secondes."],
-    ["retour", "Reprise instantanée", "Si vous quittez l'appli pendant le trajet, le bus se recale tout de suite sur vous à votre retour, même arrêté à un feu rouge."],
-    ["plein", "Mode plein écran", "Tirez le panneau vers le haut : votre trajet occupe tout l'écran. Touchez la croix pour revenir."],
-    ["centre", "Toujours centré sur le bus", "La liste des arrêts suit le bus. Si vous la faites défiler, elle revient sur lui au bout de 4 secondes."],
-    ["chevrons", "Animation du trajet", "Des flèches défilent devant le bus quand il roule : on voit d'un coup d'œil qu'il avance."],
-    ["cxdir", "Correspondances détaillées", "Chaque correspondance indique sa direction et son heure de passage, par exemple « U3 › Maurencienne · 3 min »."],
-    ["descente", "Par où descendre", "Dans le tram et le BHNS, l'appli montre par quelle porte descendre (avant, milieu, arrière) pour être au plus près de votre correspondance."],
-    ["gares", "Animation à chaque station", "En plein écran, à chaque arrivée en station du tram ou du BHNS, l'animation montre par où descendre pour chaque correspondance, même sans itinéraire."]]],
+    ["chevrons", "Animation du trajet", "Flèches devant le bus qui roule."],
+    ["cxdir", "Correspondances détaillées", "Direction et attente de chaque ligne."],
+    ["descente", "Par où descendre", "La bonne porte, en tram et BHNS."],
+    ["gares", "Animation à chaque station", "Par où descendre, station par station."]]],
   ["Détection automatique", [
-    ["inbus", "Détection du bus", "Vous montez sans rien faire ? L'appli reconnaît le bus ou le tram dans lequel vous êtes et vous propose de le suivre."]]],
-  ["Aux arrêts", [
-    ["parmode", "Lignes classées par transport", "À chaque arrêt, les lignes sont rangées par type : tram, BHNS, bus et express. Plus facile de s'y retrouver."],
-    ["pliage", "Mémoire de l'affichage", "Les catégories que vous repliez (le tram, par exemple) restent repliées d'un arrêt à l'autre."]]],
-  ["Itinéraires", [
-    ["plus", "Plus de choix de trajets", "6 trajets proposés d'emblée, avec « Plus tôt » et « Départs suivants » pour en voir d'autres."]]],
+    ["inbus", "Détection du bus", "Propose de suivre le bus où vous êtes."]]],
   ["Info trafic", [
-    ["bang", "Signal des nouvelles perturbations", "Un « ! » orange s'anime sur l'onglet Info trafic dès qu'une perturbation vient d'apparaître."],
-    ["perturbe", "Alerte réseau perturbé", "En cas de neige, de grève ou de réseau suspendu, un message vous prévient dès l'ouverture de l'appli."],
-    ["mesl", "Mes lignes d'abord", "Les lignes choisies dans « Mes lignes » apparaissent en premier dans Info trafic et dans Lignes & plans."]]],
+    ["bang", "Signal des perturbations", "Un « ! » sur l'onglet Info trafic."],
+    ["perturbe", "Alerte réseau perturbé", "Message en cas de neige, grève…"],
+    ["mesl", "Mes lignes d'abord", "En tête d'Info trafic et Lignes & plans."]]],
   ["Sons", [
-    ["sons", "Sons de l'appli", "De petits sons discrets accompagnent le trajet : votre bus arrive, préparez-vous, descendez ici, le tram entre en station et repart. Ils suivent le volume et le mode silencieux de votre téléphone."]]],
-  ["Le soir", [
-    ["nuit", "Message de fin de service", "Quand le dernier bus est passé, un message vous l'indique une fois par nuit, puis un petit bandeau reste en haut jusqu'au matin."]]]];
+    ["sons", "Sons de l'appli", "Suivent le volume du téléphone."]]]];
+// toujours actives (choix du 9 nov.) : plus d'interrupteur
+const FEAT_ON = new Set(["gps", "dedans", "retour", "plein", "centre", "parmode", "pliage", "plus", "nuit"]);
 const MY = { ft: store.get("myFeats") || {}, lines: store.get("myLines") || [], names: store.get("stopNames") || {}, al: Object.assign({ trafic: true, last: true, arrive: true, arriveMin: 5, scope: "mine", desc: true, quiet: false, qFrom: "22:30", qTo: "06:30", push: false, habit: true, hab: [] }, store.get("myAlerts") || {}) };
 const saveMy = () => { store.set("myFeats", MY.ft); store.set("myLines", MY.lines); store.set("stopNames", MY.names); store.set("myAlerts", MY.al); pushSoon(); };
 // #20 : abonnement au service d'alertes (voir plus bas, pushEnable)
 const PUSH = { url: null, id: store.get("pushId") || null, key: store.get("pushKey") || null, suivi: false, t: 0, syncAt: 0 };
 const pushOn = () => !!(MY.al.push && PUSH.id);
-const feat = (k) => MY.ft[k] !== false; // #11 : fonctionnalité active ? (toutes actives au départ)
+const feat = (k) => FEAT_ON.has(k) || MY.ft[k] !== false; // #11 : fonctionnalité active ? (toutes actives au départ)
 const myFirst = (ri) => feat("mesl") && MY.lines.includes(ri); // « Mes lignes d'abord »
 const uName = (i) => MY.names[pName(i)] || pName(i); // nom donné par l'utilisateur (Mon profil), sinon le vrai nom
 const tripKey = (a, b) => a + "|" + b;
@@ -3397,7 +3387,7 @@ function renderHabit(el, k) {
   if (H.t == null && deps.length) H.t = deps[Math.min(2, deps.length - 1)].st;
   const stopLbl = MY.names[H.stop] ? `${esc(MY.names[H.stop])} <small>${esc(H.stop)}</small>` : esc(H.stop);
   el.innerHTML = `<div class="ph"><button type="button" class="icon-btn" id="prof-back" aria-label="Retour">${backSvg}</button><h2>${isNew ? "Ajouter un bus" : "Mon bus habituel"}</h2><button type="button" class="icon-btn" id="prof-x" aria-label="Fermer">${closeSvg}</button></div>
-    <p class="psub">Vous êtes prévenu avant son passage à votre arrêt, en tenant compte de son retard.</p>
+    <p class="psub">Prévenu avant son passage, retard compris.</p>
     <div class="hsec">Arrêt</div>
     <div class="pcard"><button type="button" class="prow plink" data-hstop><span class="pn"><b>${stopLbl}</b></span>${chevR}</button></div>
     <div class="hsec">Ligne et sens</div>
@@ -3410,7 +3400,7 @@ function renderHabit(el, k) {
     <div class="hstep"><button type="button" data-hmin="-1" aria-label="Une minute de moins">−</button><b>${H.min} min</b><button type="button" data-hmin="1" aria-label="Une minute de plus">+</button><span>avant son passage</span></div>
     <div class="hsec">Mises à jour de la notification</div>
     <span class="seg alseg" style="margin-top:0">${Object.entries(HFREQ).map(([f, l]) => `<button type="button" data-hfreq="${f}" aria-pressed="${H.freq === f}">${l[0].toUpperCase() + l.slice(1)}</button>`).join("")}</span>
-    <p class="pnote">${H.freq === "steps" ? `À ${[...new Set([H.min, 5, 2].filter((m) => m <= H.min))].join(", ")} min, puis quand le bus arrive.` : H.freq === "min" ? `Toutes les minutes à partir de ${H.min} min. Sur iPhone, chaque mise à jour fait vibrer le téléphone.` : `Une seule notification, ${H.min} min avant.`}</p>
+    <p class="pnote">${H.freq === "steps" ? `À ${[...new Set([H.min, 5, 2].filter((m) => m <= H.min))].join(", ")} min, puis quand le bus arrive.` : H.freq === "min" ? `Chaque minute dès ${H.min} min (vibre à chaque fois).` : `Une notification, ${H.min} min avant.`}</p>
     <div class="hbtns"><button type="button" class="btn accent" data-hsave>Enregistrer</button>${isNew ? "" : `<button type="button" class="btn ghost" data-hdel>Supprimer ce bus</button>`}</div>`;
   const back = () => { renderHabit.draft = null; renderProfile(); };
   $("#prof-back").onclick = back; $("#prof-x").onclick = () => el.classList.remove("on");
@@ -3426,11 +3416,11 @@ function renderHabit(el, k) {
 }
 function alPushCard() {
   const st = alPushState();
-  if (st === "on") return `<div class="ginst alpush"><span class="gok">${okSvg}</span><div><b>Alertes activées sur ce téléphone</b><small>Elles arrivent même appli fermée, sur l'écran verrouillé.</small></div><div class="gbtns"><button type="button" class="btn small ghost" data-push="test">Envoyer une notification d'essai</button><button type="button" class="btn small ghost" data-push="off">Couper</button></div></div>`;
-  if (st === "install") return `<div class="ginst alpush"><span class="gwarn">${alBellSvg}</span><div><b>Recevoir les alertes appli fermée</b><small>Sur iPhone, installez d'abord l'appli sur votre écran d'accueil : c'est elle qui reçoit les alertes.</small></div><div class="gbtns"><button type="button" class="btn small" data-push="inst">Comment faire sur iPhone</button></div></div>`;
-  if (st === "denied") return `<div class="ginst alpush"><span class="gwarn">${bellOffSvg}</span><div><b>Notifications bloquées</b><small>Autorisez-les dans Réglages › Notifications › Horaires, puis revenez ici.</small></div></div>`;
-  if (st === "nosupport") return `<div class="ginst alpush"><span class="gwarn">${bellOffSvg}</span><div><b>Alertes appli fermée indisponibles</b><small>Ce navigateur ne sait pas recevoir de notifications.</small></div></div>`;
-  return `<div class="ginst alpush"><span class="gwarn">${alBellSvg}</span><div><b>Recevoir les alertes appli fermée</b><small>Sur l'écran verrouillé, comme un message. Le téléphone vous demandera d'autoriser les notifications.</small></div><div class="gbtns"><button type="button" class="btn small accent" data-push="on">Activer</button></div></div>`;
+  if (st === "on") return `<div class="ginst alpush"><span class="gok">${okSvg}</span><div><b>Alertes activées sur ce téléphone</b><small>Même appli fermée.</small></div><div class="gbtns"><button type="button" class="btn small ghost" data-push="test">Envoyer une notification d'essai</button><button type="button" class="btn small ghost" data-push="off">Couper</button></div></div>`;
+  if (st === "install") return `<div class="ginst alpush"><span class="gwarn">${alBellSvg}</span><div><b>Recevoir les alertes appli fermée</b><small>Sur iPhone, installez d'abord l'appli sur l'écran d'accueil.</small></div><div class="gbtns"><button type="button" class="btn small" data-push="inst">Comment faire sur iPhone</button></div></div>`;
+  if (st === "denied") return `<div class="ginst alpush"><span class="gwarn">${bellOffSvg}</span><div><b>Notifications bloquées</b><small>Réglages › Notifications › Horaires.</small></div></div>`;
+  if (st === "nosupport") return `<div class="ginst alpush"><span class="gwarn">${bellOffSvg}</span><div><b>Alertes appli fermée indisponibles</b><small>Navigateur incompatible.</small></div></div>`;
+  return `<div class="ginst alpush"><span class="gwarn">${alBellSvg}</span><div><b>Recevoir les alertes appli fermée</b><small>Sur l'écran verrouillé.</small></div><div class="gbtns"><button type="button" class="btn small accent" data-push="on">Activer</button></div></div>`;
 }
 function renderProfile(page) {
   const el = $("#prof");
@@ -3449,24 +3439,24 @@ function renderProfile(page) {
     <div class="pcard" data-plist="trips">${fav.trips.length ? fav.trips.map(([a, b]) => { const tn = MY.names[tripKey(a, b)]; return `<div class="prow" data-pk="${esc(tripKey(a, b))}"><span class="grip" aria-label="Déplacer">${grip}</span><span class="pn"><b>${esc(tn || (MY.names[a] || a) + " → " + (MY.names[b] || b))}</b>${tn ? `<small>${esc(a)} → ${esc(b)}</small>` : ""}</span><button type="button" class="pact" data-pa="ren" aria-label="Renommer">${penSvg}</button><button type="button" class="pact" data-pa="del" aria-label="Supprimer">${xSvg}</button></div>`; }).join("") : `<div class="prow"><span class="pn"><small>Enregistrez un trajet depuis l'onglet Itinéraire.</small></span></div>`}</div>
     <h3>Mes lignes</h3>
     <div class="pcard plines">${groups.map(([m, f]) => { const ids = net.R.map((r, i) => [r, i]).filter(([r, i]) => f(r) && shownR(i)).map(([, i]) => i); return `<div class="plg">${modeIcon(m)}${ids.map((i) => `<button type="button" class="plb" data-myl="${i}" aria-pressed="${MY.lines.includes(i)}">${badge(i, "sm", true)}</button>`).join("")}</div>`; }).join("")}</div>
-    <p class="pnote">Elles passent en premier dans Info trafic et dans Lignes & plans.</p>
+    <p class="pnote">En premier dans Info trafic et Lignes & plans.</p>
     <h3>Mes alertes</h3>
     ${alPushCard()}
     <div class="pcard">
-      <div class="prow"><span class="pn"><b>Mon bus habituel</b><small>Un bus précis, à mon arrêt, les jours choisis : prévenu avant son passage, en tenant compte du temps réel</small><span class="habs">${MY.al.hab.map((h, k) => habRow(h, k)).join("")}<button type="button" class="hadd" data-hab="new">+ Ajouter un bus</button></span></span>${tg("habit")}</div>
-      <div class="prow"><span class="pn"><b>Perturbations</b><small>Dès qu'une nouvelle info trafic est publiée${MY.al.scope !== "all" ? ". Les infos de tout le réseau arrivent aussi" : ""}</small><span class="seg alseg"><button type="button" data-alscope="mine" aria-pressed="${MY.al.scope !== "all"}">Mes lignes</button><button type="button" data-alscope="all" aria-pressed="${MY.al.scope === "all"}">Tout le réseau</button></span>${MY.al.scope !== "all" ? (MY.lines.length ? `<small style="display:flex;flex-wrap:wrap;gap:4px;margin-top:7px">${MY.lines.map((i) => badge(i, "sm", true)).join("")}</small>` : `<small style="display:block;margin-top:5px">Choisissez vos lignes juste au-dessus.</small>`) : ""}</span>${tg("trafic")}</div>
-      <div class="prow"><span class="pn"><b>Dernier bus de mes trajets</b><small>Le soir, 30 min avant le dernier départ utile</small></span>${tg("last")}</div>
-      <div class="prow"><span class="pn"><b>Mon bus arrive</b><small>Pendant un suivi, <select class="psel" data-almin>${[3, 5, 10, 15].map((m) => `<option${m === MY.al.arriveMin ? " selected" : ""}>${m}</option>`).join("")}</select> min avant le passage à mon arrêt</small></span>${tg("arrive")}</div>
-      <div class="prow"><span class="pn"><b>Descendez au bon arrêt</b><small>Pendant un trajet suivi : 2 arrêts avant, puis au moment de descendre</small></span>${tg("desc")}</div>
+      <div class="prow"><span class="pn"><b>Mon bus habituel</b><small>Prévenu avant son passage, retard compris</small><span class="habs">${MY.al.hab.map((h, k) => habRow(h, k)).join("")}<button type="button" class="hadd" data-hab="new">+ Ajouter un bus</button></span></span>${tg("habit")}</div>
+      <div class="prow"><span class="pn"><b>Perturbations</b><small>Nouvelles infos trafic${MY.al.scope !== "all" ? ", et celles de tout le réseau" : ""}</small><span class="seg alseg"><button type="button" data-alscope="mine" aria-pressed="${MY.al.scope !== "all"}">Mes lignes</button><button type="button" data-alscope="all" aria-pressed="${MY.al.scope === "all"}">Tout le réseau</button></span>${MY.al.scope !== "all" ? (MY.lines.length ? `<small style="display:flex;flex-wrap:wrap;gap:4px;margin-top:7px">${MY.lines.map((i) => badge(i, "sm", true)).join("")}</small>` : `<small style="display:block;margin-top:5px">Choisissez vos lignes juste au-dessus.</small>`) : ""}</span>${tg("trafic")}</div>
+      <div class="prow"><span class="pn"><b>Dernier bus de mes trajets</b><small>Le soir, 30 min avant</small></span>${tg("last")}</div>
+      <div class="prow"><span class="pn"><b>Mon bus arrive</b><small>Pendant un suivi, <select class="psel" data-almin>${[3, 5, 10, 15].map((m) => `<option${m === MY.al.arriveMin ? " selected" : ""}>${m}</option>`).join("")}</select> min avant</small></span>${tg("arrive")}</div>
+      <div class="prow"><span class="pn"><b>Descendez au bon arrêt</b><small>À 2 arrêts, puis au dernier</small></span>${tg("desc")}</div>
     </div>
     <div class="pcat">Heures calmes</div>
     <div class="pcard">
-      <div class="prow"><span class="pn"><b>Pas d'alerte la nuit</b><small>De <select class="psel" data-alq="qFrom">${qOpts(MY.al.qFrom, 20, 24)}</select> à <select class="psel" data-alq="qTo">${qOpts(MY.al.qTo, 5, 10)}</select></small><small style="display:block;margin-top:4px">Les perturbations attendent le matin. Le dernier bus et vos bus sont toujours signalés.</small></span>${tg("quiet")}</div>
+      <div class="prow"><span class="pn"><b>Pas d'alerte la nuit</b><small>De <select class="psel" data-alq="qFrom">${qOpts(MY.al.qFrom, 20, 24)}</select> à <select class="psel" data-alq="qTo">${qOpts(MY.al.qTo, 5, 10)}</select></small><small style="display:block;margin-top:4px">Sauf dernier bus et vos bus</small></span>${tg("quiet")}</div>
     </div>
-    <p class="pnote">${alPushOn() ? "Pour vous prévenir appli fermée, un petit service garde un identifiant anonyme, vos lignes, vos heures de trajet et ces réglages. Pas de nom, pas de compte : tout est effacé si vous coupez les alertes." : "Sans activation, ces alertes ne marchent que lorsque l'appli est ouverte."}</p>
+    <p class="pnote">${alPushOn() ? "Un service garde un identifiant anonyme et ces réglages, effacés si vous coupez." : "Sans activation : appli ouverte seulement."}</p>
     <h3>Fonctionnalités</h3>
     ${FEATS.map(([cat, list]) => `<div class="pcat">${cat}</div><div class="pcard">${list.map(([k, t, d]) => `<div class="prow"><span class="pn"><b>${t}</b><small>${d}</small></span><button type="button" class="tg" data-ft="${k}" aria-pressed="${MY.ft[k] !== false}" aria-label="Activer"></button></div>`).join("")}</div>`).join("")}
-    <p class="pnote">Toutes les fonctionnalités sont activées au départ. Vous pouvez en couper une à tout moment : l'appli revient alors à un affichage plus simple.</p>`;
+    <p class="pnote">Toutes actives au départ.</p>`;
   $("#prof-x").onclick = () => el.classList.remove("on");
   el.querySelectorAll("[data-pg]").forEach((b) => b.onclick = () => renderProfile(b.dataset.pg));
   el.querySelectorAll("[data-myl]").forEach((b) => b.onclick = () => { const i = +b.dataset.myl; MY.lines = MY.lines.includes(i) ? MY.lines.filter((x) => x !== i) : [...MY.lines, i]; saveMy(); b.setAttribute("aria-pressed", MY.lines.includes(i)); buildGrid(); if (S.view === "trafic") renderTrafic(); });
@@ -4644,6 +4634,10 @@ const UPD_0611 = [
 // ajouter une entrée en tête (1 à 4 volets de nouveautés + un volet « Corrections »), elle s'affiche une fois.
 const personSvg = (n) => `<svg width="${n}" height="${n}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.6 4.2-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/></svg>`;
 const UPD_LOG = [
+  { v: "2026-11-09.4", t: "Mon profil plus simple", slides: [
+    { ico: icoSvg('<circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.6 4.2-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/>'), t: "Mon profil plus simple",
+      b: "<p>Moins d'options et des textes plus courts. Le suivi du bus en direct, « Je suis à bord », le plein écran, les lignes rangées par transport, les trajets en plus et le message de fin de service sont toujours actifs.</p>" },
+  ] },
   { v: "2026-11-09.3", t: "Vos alertes, même appli fermée", slides: [
     { ico: icoSvg('<path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/>'), t: "Vos alertes, même appli fermée",
       b: "<p>Les alertes arrivent maintenant sur l'écran verrouillé, même quand l'appli est fermée : perturbations, dernier bus, votre bus qui arrive, descendez au bon arrêt.</p><p>Activez-les dans Mon profil, « Mes alertes ». Sur iPhone, l'appli doit être installée sur l'écran d'accueil.</p>" },
