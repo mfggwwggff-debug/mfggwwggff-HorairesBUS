@@ -466,8 +466,8 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
 #updpop .up-img svg { width: 120px; height: 120px; }
 #prof .pnote { color: var(--muted); font-size: 12.5px; margin: 8px 2px 0; line-height: 1.4; }
 .myl-h { display: flex; align-items: center; gap: 6px; }
-#inbus { position: fixed; left: 10px; right: 10px; top: calc(var(--sat, 0px) + 10px); z-index: 70; background: var(--surface); border-radius: 18px; box-shadow: 0 10px 34px rgba(0,0,0,.22); padding: 12px 12px 8px; transform: translateY(-140%); transition: transform .35s cubic-bezier(.2,.9,.3,1.2); }
-#inbus.on { transform: none; }
+#inbus { position: fixed; left: 10px; right: 10px; top: calc(var(--sat, 0px) + 10px); z-index: 70; background: var(--surface); border-radius: 18px; box-shadow: 0 10px 34px rgba(0,0,0,.22); padding: 12px 12px 8px; transform: translateY(calc(-100% - var(--sat, 0px) - 40px)); visibility: hidden; transition: transform .35s cubic-bezier(.2,.9,.3,1.2), visibility 0s .35s; }
+#inbus.on { transform: none; visibility: visible; transition: transform .35s cubic-bezier(.2,.9,.3,1.2); }
 #inbus .ibh { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
 #inbus .ibh .ic { width: 36px; height: 36px; border-radius: 50%; background: #1a73e8; color: #fff; display: grid; place-items: center; flex: none; }
 #inbus .ibh .ic .mode { width: 20px; height: 20px; display: block; }
@@ -3389,7 +3389,8 @@ function renderHabit(el, k) {
   el.innerHTML = `<div class="ph"><button type="button" class="icon-btn" id="prof-back" aria-label="Retour">${backSvg}</button><h2>${isNew ? "Ajouter un bus" : "Mon bus habituel"}</h2><button type="button" class="icon-btn" id="prof-x" aria-label="Fermer">${closeSvg}</button></div>
     <p class="psub">Prévenu avant son passage, retard compris.</p>
     <div class="hsec">Arrêt</div>
-    <div class="pcard"><button type="button" class="prow plink" data-hstop><span class="pn"><b>${stopLbl}</b></span>${chevR}</button></div>
+    ${H.pick ? `<div class="pcard"><div class="prow"><input class="pin" type="search" id="hstop-q" placeholder="Nom de l'arrêt" autocomplete="off" aria-label="Chercher un arrêt"></div><div id="hstop-res"></div></div>`
+      : `<div class="pcard"><button type="button" class="prow plink" data-hstop><span class="pn"><b>${stopLbl}</b></span>${chevR}</button></div>`}
     <div class="hsec">Ligne et sens</div>
     <div class="hchips">${dirs.map((G) => `<button type="button" class="hchip" data-hdir="${G.r}|${G.dir}" aria-pressed="${G.r === H.r && G.dir === H.dir}">${badge(G.r, "sm", true)}→ ${esc(G.h)}</button>`).join("")}</div>
     <div class="hsec">Départ <small>· horaires du ${DAYF[(wd + off) % 7]}</small></div>
@@ -3403,14 +3404,28 @@ function renderHabit(el, k) {
     <p class="pnote">${H.freq === "steps" ? `À ${[...new Set([H.min, 5, 2].filter((m) => m <= H.min))].join(", ")} min, puis quand le bus arrive.` : H.freq === "min" ? `Chaque minute dès ${H.min} min (vibre à chaque fois).` : `Une notification, ${H.min} min avant.`}</p>
     <div class="hbtns"><button type="button" class="btn accent" data-hsave>Enregistrer</button>${isNew ? "" : `<button type="button" class="btn ghost" data-hdel>Supprimer ce bus</button>`}</div>`;
   const back = () => { renderHabit.draft = null; renderProfile(); };
-  $("#prof-back").onclick = back; $("#prof-x").onclick = () => el.classList.remove("on");
+  $("#prof-back").onclick = back; $("#prof-x").onclick = () => { renderHabit.draft = null; el.classList.remove("on"); };
   el.querySelectorAll("[data-hdir]").forEach((b) => b.onclick = () => { const [r, d] = b.dataset.hdir.split("|").map(Number); const G = dirs.find((g) => g.r === r && g.dir === d); Object.assign(H, { r, dir: d, h: G.h, t: null }); keep(); });
   el.querySelectorAll("[data-ht]").forEach((b) => b.onclick = () => { H.t = +b.dataset.ht; keep(); });
   el.querySelectorAll("[data-hday]").forEach((b) => b.onclick = () => { const i = +b.dataset.hday; H.days = H.days.includes(i) ? H.days.filter((x) => x !== i) : [...H.days, i].sort(); if (!H.days.length) H.days = [i]; keep(); });
   el.querySelectorAll("[data-hmin]").forEach((b) => b.onclick = () => { H.min = Math.max(1, Math.min(30, H.min + +b.dataset.hmin)); keep(); });
   el.querySelectorAll("[data-hfreq]").forEach((b) => b.onclick = () => { H.freq = b.dataset.hfreq; keep(); });
-  el.querySelector("[data-hstop]").onclick = () => toast("Maquette : ici, la recherche d'arrêt (vos arrêts en premier)");
-  el.querySelector("[data-hsave]").onclick = () => { if (isNew) MY.al.hab.push(H); else MY.al.hab[+k] = H; saveMy(); back(); toast("Bus enregistré"); };
+  const hs = el.querySelector("[data-hstop]"); if (hs) hs.onclick = () => { H.pick = true; keep(); const q = $("#hstop-q"); if (q) q.focus(); };
+  const hq = $("#hstop-q");
+  if (hq) {
+    const list = (v) => {
+      const n = norm(v || ""), favs = fav.stops.map((x) => findStop(x)).filter((i) => i >= 0);
+      let ids;
+      if (!n) ids = favs;
+      else { const byName = Object.entries(MY.names).filter(([k, nm]) => !k.includes("|") && norm(nm).includes(n)).map(([k]) => findStop(k)).filter((i) => i >= 0);
+        ids = [...new Set([...byName, ...stopIdx.filter((x) => x.n.includes(n)).sort((a, b) => (b.n.startsWith(n) - a.n.startsWith(n)) || a.n.localeCompare(b.n)).map((x) => x.i)])].slice(0, 12); }
+      $("#hstop-res").innerHTML = ids.length ? ids.map((i) => `<button type="button" class="prow plink" data-hpick="${i}"><span class="pn"><b>${esc(MY.names[pName(i)] || pName(i))}</b>${MY.names[pName(i)] ? `<small>${esc(pName(i))}</small>` : ""}</span></button>`).join("")
+        : `<div class="prow"><span class="pn"><small>${n ? "Aucun arrêt trouvé." : "Tapez le nom d'un arrêt."}</small></span></div>`;
+      $("#hstop-res").querySelectorAll("[data-hpick]").forEach((b) => b.onclick = () => { Object.assign(H, { stop: pName(+b.dataset.hpick), r: null, dir: null, h: "", t: null, pick: false }); keep(); });
+    };
+    hq.oninput = () => list(hq.value); list("");
+  }
+  el.querySelector("[data-hsave]").onclick = () => { delete H.pick; if (H.r == null || H.t == null) { toast("Choisissez une ligne et un départ"); return; } if (isNew) MY.al.hab.push(H); else MY.al.hab[+k] = H; saveMy(); back(); toast("Bus enregistré"); };
   const del = el.querySelector("[data-hdel]"); if (del) del.onclick = () => { MY.al.hab.splice(+k, 1); saveMy(); back(); };
   function keep() { const sc = el.scrollTop; if (isNew) { renderHabit.draft = H; renderHabit(el, "new"); } else { const save = MY.al.hab[+k]; MY.al.hab[+k] = H; renderHabit(el, k); MY.al.hab[+k] = save; } el.scrollTop = sc; }
 }
