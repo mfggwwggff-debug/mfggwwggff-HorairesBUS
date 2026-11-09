@@ -707,7 +707,16 @@ body.p32cover .sheet { border-radius: 0; box-shadow: none; }
 .sc28.anim .chip28 { animation: l28f .35s ease 4.7s both; }
 @media (prefers-reduced-motion: reduce) { .sc28.anim * { animation-duration: 0s !important; animation-delay: 0s !important; } }
 #mb-sc:empty { display: none; }
-#mb-sc { margin: 0 -16px; }
+#mb-sc { margin: 0 -16px; display: grid; grid-template-rows: 0fr; opacity: 0; transform: translateY(-10px); transition: grid-template-rows .5s cubic-bezier(.2,.7,.2,1), opacity .4s ease, transform .5s cubic-bezier(.2,.7,.2,1); cursor: pointer; }
+#mb-sc.open { grid-template-rows: 1fr; opacity: 1; transform: none; }
+#mb-sc > .scb28 { overflow: hidden; min-height: 0; }
+.more28 { display: block; text-align: right; font: 600 12px var(--font-body); color: var(--accent); padding: 8px 14px 2px; }
+/* départ : portes fermées, le véhicule repart vers la droite en accélérant */
+.sc28.go28 .mv28 { animation: go28 1.1s cubic-bezier(.55,0,.9,.45) .15s both !important; }
+.sc28.go28 .dl, .sc28.go28 .dr { transform: none !important; transition: transform .25s; animation: none !important; }
+.sc28.go28 .l28, .sc28.go28 .ln28 { opacity: 0; transition: opacity .3s; }
+@keyframes go28 { from { transform: translateX(0); } to { transform: translateX(480px); } }
+@media (prefers-reduced-motion: reduce) { #mb-sc { transition: none; } }
 #mb-sc .list28 { margin-bottom: 4px; }
 .list28 { margin: 0 16px 14px; border: 1px solid var(--rule); border-radius: 16px; overflow: hidden; }
 .list28 h4 { margin: 0; padding: 12px 14px 6px; font: 700 12px/1.2 var(--font-body); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
@@ -1359,7 +1368,7 @@ function endedLines(stop, act, day, t, horizon) {
     if (busy.has(key)) continue;
     const st = lineDirService(net, L.items, day, t, horizon);
     if (st.state === "end") out.push({ r: L.r, h: L.h, dir: L.dir, end: "Service terminé", sub: repriseTxt(st, day, true), next: st.next });
-    else if (st.state === "none") out.push({ r: L.r, h: L.h, dir: L.dir, end: "Pas de service aujourd'hui", sub: repriseTxt(st, day, false), next: st.next });
+    else if (st.state === "none" && L.r !== SUBR) out.push({ r: L.r, h: L.h, dir: L.dir, end: "Pas de service aujourd'hui", sub: repriseTxt(st, day, false), next: st.next });
   }
   return out.sort((a, b) => (a.next ?? 1e9) - (b.next ?? 1e9) || a.r - b.r);
 }
@@ -2254,18 +2263,32 @@ function renderFollow() {
   // #28 : par où descendre à l'arrêt suivant (petit bandeau) ; plein écran à l'arrivée à l'arrêt de descente
   // en plein écran (option « Animation à chaque station ») : la scène s'affiche à l'approche de chaque station
   // et juste après l'arrêt, à la place du petit bandeau ; elle repousse le thermomètre vers le bas
+  // en plein écran (option « Animation à chaque station ») : l'encart glisse vers le bas à l'approche d'une station
+  // (le tram ou le BHNS arrive), reste pendant l'arrêt, puis le véhicule repart et l'encart remonte ; il ne revient
+  // qu'à l'approche de la station suivante. Toucher l'encart ouvre toutes les correspondances.
   let scC = null;
   if (feat("gares") && document.body.classList.contains("mbfull") && st.state === "running" && !isNA(pi, k, dk)) {
-    if (!st.atStop && st.at(next) - t <= 0.6) scC = coAt(pi, next);
-    else if (st.atStop || t - st.dp(st.i) < 0.4) scC = coAt(pi, st.i);
+    const atSt = st.atStop || (st.i > 0 && t - st.at(st.i) < 0.35);   // à quai (au moins ~20 s après l'arrivée)
+    if (atSt) scC = coAt(pi, st.i);
+    else if (st.at(next) - t <= 0.6) scC = coAt(pi, next);
   }
   { const host = $("#mb-sc"); if (host) {
-    if (!scC) { if (host.dataset.k) { host.innerHTML = ""; host.dataset.k = ""; } }
-    else {
-      const sk = scC.pi + ":" + scC.i, yb = coYours(scC); scC.t = t;
-      const list = `<div class="list28"><h4>${esc(qName(net.pats[scC.pi].stops[scC.i]))} · par où descendre</h4>${rows28(scC, yb)}</div>`;
-      if (host.dataset.k !== sk) { host.innerHTML = `<div class="scw28">${scene28(scC, yb, true)}</div><div class="lsw28">${list}</div>`; host.dataset.k = sk; host.dataset.list = list; fit28(host); }
-      else if (host.dataset.list !== list) { $(".lsw28", host).innerHTML = list; host.dataset.list = list; }
+    const sk = scC ? scC.pi + ":" + scC.i : "";
+    if (host.dataset.k && host.dataset.k !== sk && !host.dataset.out) {
+      // départ : le véhicule repart, puis l'encart remonte
+      host.dataset.out = 1;
+      const sc = $(".sc28", host); if (sc) sc.classList.add("go28");
+      setTimeout(() => host.classList.remove("open"), 1100);
+      setTimeout(() => { host.innerHTML = ""; host.dataset.k = ""; host.dataset.out = ""; }, 1650);
+    } else if (scC && !host.dataset.out) {
+      const yb = coYours(scC); scC.t = t;
+      const list = `<div class="list28"><h4>${esc(qName(net.pats[scC.pi].stops[scC.i]))} · par où descendre</h4>${rows28(scC, yb)}<span class="more28">Toutes les correspondances ›</span></div>`;
+      if (host.dataset.k !== sk) {
+        host.innerHTML = `<div class="scb28"><div class="scw28">${scene28(scC, yb, true)}</div><div class="lsw28">${list}</div></div>`;
+        host.dataset.k = sk; host.dataset.list = list; fit28(host);
+        const cc = scC; host.onclick = () => openA28(cc);
+        requestAnimationFrame(() => requestAnimationFrame(() => host.classList.add("open")));
+      } else if (host.dataset.list !== list) { $(".lsw28", host).innerHTML = list; host.dataset.list = list; }
     }
   } }
   { const c = st.state === "running" && !scC ? coAt(pi, next) : null, h28 = c && !isNA(pi, k, dk) ? pd28Html(c) : "", e28 = $("#mb-pd"); if (e28 && e28.dataset.html !== h28) { e28.innerHTML = h28; e28.dataset.html = h28; } }
@@ -3081,9 +3104,9 @@ const personSvg = (n) => `<svg width="${n}" height="${n}" viewBox="0 0 24 24" fi
 const UPD_LOG = [
   { v: "2026-11-09", t: "Arrêts plus faciles à toucher, animation à chaque station", slides: [
     { ico: icoSvg('<rect x="3" y="7" width="18" height="10" rx="3"/><path d="M9 7v10M15 7v10M3 12h18"/><path d="M12 20v2M9 22h6"/>'), t: "L'animation à chaque station",
-      b: "<p>En plein écran, le tram et le BHNS montrent par où descendre à chaque arrivée en station, même sans itinéraire.</p><p>Option à couper dans Mon profil, « Animation à chaque station ».</p>" },
+      b: "<p>En plein écran, le tram et le BHNS montrent par où descendre à chaque arrivée en station, même sans itinéraire. L'encart repart avec le véhicule et revient à la station suivante ; touchez-le pour voir toutes les correspondances.</p><p>Option à couper dans Mon profil, « Animation à chaque station ».</p>" },
     { ico: icoSvg('<path d="M20 6 9 17l-5-5"/>'), t: "Et quelques corrections",
-      b: "<ul><li>Les arrêts du plan se touchent du premier coup, y compris en touchant leur nom.</li><li>Le T2 est bleu dans l'animation d'arrivée en station.</li><li>Avec une ou deux correspondances, l'animation donne leurs directions et l'attente.</li></ul>" },
+      b: "<ul><li>Les arrêts du plan se touchent du premier coup, y compris en touchant leur nom.</li><li>Le T2 est bleu dans l'animation d'arrivée en station.</li><li>Avec une ou deux correspondances, l'animation donne leurs directions et l'attente.</li><li>La SUB n'apparaît plus aux arrêts les jours où elle ne circule pas.</li></ul>" },
   ] },
   // 8 nov. au soir : remplace la présentation « Quelques corrections » du même jour (reprise dans le dernier volet)
   { v: "2026-11-08.2", t: "Par où descendre, adresses et info trafic plus précise", slides: [
