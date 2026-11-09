@@ -710,6 +710,10 @@ body.p32cover .sheet { border-radius: 0; box-shadow: none; }
 .l28 .st { white-space: nowrap; font: 700 8.5px/1 var(--font-body); letter-spacing: .03em; opacity: .75; margin-top: 2px; }
 .pic28 { display: block; flex: none; }
 .tx28 { font: 600 11px/1.2 var(--font-body); }
+.dd28.fx28 { flex-direction: row; align-items: center; gap: 4px; width: auto; max-width: 100%; }
+.l28 .dd28.fx28 { width: 100%; }
+.nt28 { font: 600 10px/1.25 var(--font-body); color: #5a6670; font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.l28.hl .nt28 { color: #ffd9c4; }
 .sc28 svg { display: block; }
 /* animation (une fois) : arrivée, portes qui s'ouvrent, voitures hors conseil en gris, étiquettes, halo et chemin */
 .sc28.anim .mv28 { animation: mv28 3.3s cubic-bezier(.22,.62,.32,1) both; }
@@ -2040,10 +2044,9 @@ function coAt(pi, i) {
   if (!CORRES || !feat("descente")) return null;
   const p = net.pats[pi], L = coLine(p.r); if (!L || i < 0 || i >= p.nS) return null;
   const par = net.Q[p.stops[i]][0], S0 = CORRES.lignes[L] && CORRES.lignes[L][pName(par)]; if (!S0) return null;
-  let key;
-  if (i === p.nS - 1) key = "T"; // terminus : positions notées dans le sens de l'arrivée
-  else if (L === "T") key = /neufch/i.test(p.h) ? "N" : "S";
-  else key = Object.keys(S0.dirs).find((k) => trKey(k) === trKey(p.h));
+  let key = i === p.nS - 1 && S0.dirs.T ? "T" : null; // terminus : positions notées dans le sens de l'arrivée
+  // (une course qui s'arrête avant le terminus, ex. T1 → Léon Blum, garde les positions de son sens)
+  if (!key) key = L === "T" ? (/neufch/i.test(p.h) ? "N" : "S") : Object.keys(S0.dirs).find((k) => trKey(k) === trKey(p.h));
   const d = key && S0.dirs[key]; if (!d || !d.pos || !d.pos.length) return null;
   return { pi, i, par, r: p.r, veh: L === "T" ? "tram" : "bhns", portes: d.portes, pos: d.pos };
 }
@@ -2067,24 +2070,48 @@ function coGroups(c) {
     const tgt = x.ou === "autre" ? g.other : g.here;
     if (x.ou) g.ou.add(x.ou);
     if (x.ou !== "ici" && x.ou !== "autre") g.m.push(x.m || 0);
-    if (x.l) { const r = coRoute(x.l); if (r < 0 || g.seen.has(tgt === g.other ? "o" + r : r)) continue; g.seen.add(tgt === g.other ? "o" + r : r); tgt.push({ r, h: x.h, m: x.m, nt: x.nt }); }
+    if (x.l) {
+      const r = coRoute(x.l); if (r < 0) continue;
+      const old = tgt.find((y) => y.r === r);
+      if (old) { if (x.h && !old.hs.includes(x.h)) old.hs.push(x.h); old.m = Math.min(old.m || 0, x.m || 0); if (x.nt && !old.nt) old.nt = x.nt; continue; }
+      tgt.push({ r, hs: x.h ? [x.h] : [], m: x.m, nt: x.nt, ou: x.ou });
+    }
     else if (x.s === "train" || x.s === "tgv") { if (!g.seen.has("train")) { g.seen.add("train"); tgt.push({ pic: ["TGV", "TER"], n: x.n, m: x.m }); } }
     else if (x.s === "car") tgt.push({ txt: x.n || "Cars", m: x.m });
     else if (x.s === "pr") tgt.push({ txt: "P+R", m: x.m });
     else if (x.s === "velo") tgt.push({ txt: "Vélos", m: x.m });
     else if (x.n) tgt.push({ txt: x.n, m: x.m });
   }
+  // une même ligne à plusieurs portes (un sens à l'arrière, l'autre à l'avant…) : sa direction est affichée partout
+  const n = new Map();
+  for (const k of [1, 2, 3]) if (G[k]) for (const L of [G[k].here, G[k].other]) for (const x of L) if (x.r != null) n.set(x.r, (n.get(x.r) || 0) + 1);
+  G.dup = new Set([...n].filter(([, v]) => v > 1).map(([r]) => r));
   return G;
 }
 // départs des correspondances à cet arrêt (une ligne : un ou deux sens, prochain départ de chacun)
-function coDirs(c, r) {
-  const cs = connsAt(c.par, c.t ?? nowMinF(), c.r, 40).filter((G) => G.r === r);
-  return cs.slice(0, 2).map((G) => ({ h: G.h, t: G.list[0].t, live: G.list[0].live }));
+function coDirs(c, r, hs) {
+  const want = (h) => !hs || !hs.length || hs.some((x) => trKey(x) === trKey(h));
+  const cs = connsAt(c.par, c.t ?? nowMinF(), c.r, 40).filter((G) => G.r === r && want(G.h));
+  const out = cs.slice(0, 2).map((G) => ({ h: G.h, t: G.list[0].t, live: G.list[0].live }));
+  // sens noté dans le tableau mais sans départ proche : la direction reste affichée, sans attente
+  if (hs) for (const h of hs) if (out.length < 2 && !out.some((d) => trKey(d.h) === trKey(h))) out.push({ h, t: null });
+  return out;
 }
 const coFew = (G) => { const rs = new Set(); for (const k of [1, 2, 3]) if (G[k]) for (const x of [...G[k].here, ...G[k].other]) if (x.r != null) rs.add(x.r); return rs.size <= 2; };
-const coDirHtml = (c, x) => { const ds = coDirs(c, x.r); return `<span class="dd28">${badge(x.r, "sm", true)}${ds.length ? `<span class="dls28">${ds.map((d) => `<span><b>${waitLabel(d.t, true)}</b> → ${esc(d.h)}</span>`).join("")}</span>` : ""}</span>`; };
-const coTitleWalk = (g) => g.ou.has("ici") && !g.m.length ? "sur ce quai" : g.m.length ? (Math.min(...g.m) <= 20 ? "sur place" : coWalk(Math.min(...g.m)) + " min") : "";
-const coItem = (x) => x.r != null ? badge(x.r, "sm", true) : x.pic ? x.pic.map((t) => picTxt(t, 22)).join("") : `<span class="tx28">${esc(x.txt)}</span>`;
+const coNt = (x) => x.nt ? `<span class="nt28">${esc(x.nt)}</span>` : "";
+const coDirHtml = (c, x) => { const ds = coDirs(c, x.r, x.hs); return `<span class="dd28">${badge(x.r, "sm", true)}${ds.length || x.nt ? `<span class="dls28">${ds.map((d) => `<span>${d.t != null ? `<b>${waitLabel(d.t, true)}</b> ` : ""}→ ${esc(d.h)}</span>`).join("")}${coNt(x)}</span>` : ""}</span>`; };
+// une ligne présente à plusieurs portes : pastille + direction(s) notée(s) pour cette porte
+const coDirFix = (x) => `<span class="dd28 fx28">${badge(x.r, "sm", true)}<span class="dls28">${x.hs.map((h) => `<span>→ ${esc(h)}</span>`).join("")}${coNt(x)}</span></span>`;
+// temps à pied d'un groupe (même texte dans l'étiquette et dans la liste)
+function coWalkTxt(ms, ici) {
+  if (!ms.length) return ici ? "sur ce quai" : "";
+  const a = Math.min(...ms), b = Math.max(...ms);
+  if (b <= 20) return "sur place";
+  const lo = ici ? 0 : coWalk(a), hi = coWalk(b); // lignes sur ce quai et d'autres plus loin : « 0 à 3 min »
+  return lo === hi ? lo + " min" : lo + " à " + hi + " min";
+}
+const coTitleWalk = (g) => coWalkTxt(g.m, g.ou.has("ici"));
+const coItem = (x, G) => x.r != null ? (G && G.dup.has(x.r) && x.hs.length ? coDirFix(x) : x.nt ? `<span class="dd28 fx28">${badge(x.r, "sm", true)}<span class="dls28">${coNt(x)}</span></span>` : badge(x.r, "sm", true)) : x.pic ? x.pic.map((t) => picTxt(t, 22)).join("") : `<span class="tx28">${esc(x.txt)}</span>`;
 // --- dessin du véhicule (design validé : claude/tram-28-arrivee-station.md et claude/bhns-29-arrivee-station.md) ---
 // couleurs du tram selon la ligne : [bande du milieu, bandes claires, vantaux, intérieur des portes]
 const TRAM28 = { T1: ["#e2231a", "#ef6b63", "#9e1510", "#3b1210"], T2: ["#0a8fd6", "#5ec4f2", "#0b5c8c", "#082b40"] };
@@ -2125,7 +2152,7 @@ function bus28(adv, line) {
 // scène : étiquettes par position (au-dessus), véhicule à quai, halo et chemin vers « votre bus »
 function scene28(c, yb, anim) {
   const G = coGroups(c), adv = yb ? yb.pos : 0, isT = c.veh === "tram", few = coFew(G);
-  const item = (x) => few && x.r != null ? coDirHtml(c, x) : coItem(x);
+  const item = (x) => few && x.r != null ? coDirHtml(c, x) : coItem(x, G);
   const V = isT ? { cx: 190, cy: 157, s: .92, doors: [97, 190, 283], top: 122, bot: 192, ring: 163 } : { cx: 165.5, cy: 155, s: 1, doors: [32, 97, 190], top: 124, bot: 194, ring: 159 };
   const CY = 40 + (V.cy - V.top) * V.s, tx = (x) => 195 + (x - V.cx) * V.s, ty = (y) => CY + (y - V.cy) * V.s;
   const door = (k) => tx(V.doors[k - 1]), TOP = 40, BOT = ty(V.bot), H = Math.round(BOT + (yb ? 100 : 34));
@@ -2176,14 +2203,14 @@ function rows28(c, yb) {
     // peu de lignes (une ou deux) : une rangée par direction, avec l'attente
     if (few && here.some((x) => x.r != null)) {
       for (const x of here) {
-        const walk = g.ou.has("ici") && !(x.m > 0) ? "sur ce quai" : coWalk(x.m || 0) + " min à pied";
-        if (x.r == null) { out.push(`<div class="row28"><span class="pos28">${CO_NAME[k].toUpperCase()}</span><span class="it">${coItem(x)}</span><span class="w"><small>${walk}</small></span></div>`); continue; }
-        const ds = coDirs(c, x.r);
-        if (!ds.length) out.push(`<div class="row28"><span class="pos28">${CO_NAME[k].toUpperCase()}</span><span class="it">${coItem(x)}</span><span class="w"><small>${walk}</small></span></div>`);
-        for (const d of ds) out.push(`<div class="row28"><span class="pos28">${CO_NAME[k].toUpperCase()}</span><span class="it">${badge(x.r, "sm", true)}<span>→ ${esc(d.h)}</span></span><span class="w">${dot(d.live)}${waitLabel(d.t, true)}<small>${walk}</small></span></div>`);
+        const w0 = x.ou === "ici" ? "sur ce quai" : coWalkTxt([x.m || 0], false), walk = w0 === "sur ce quai" || w0 === "sur place" ? w0 : w0 + " à pied";
+        if (x.r == null) { out.push(`<div class="row28"><span class="pos28">${CO_NAME[k].toUpperCase()}</span><span class="it">${coItem(x, G)}</span><span class="w"><small>${walk}</small></span></div>`); continue; }
+        const ds = coDirs(c, x.r, x.hs);
+        if (!ds.length) out.push(`<div class="row28"><span class="pos28">${CO_NAME[k].toUpperCase()}</span><span class="it">${coItem(x, G)}</span><span class="w"><small>${walk}</small></span></div>`);
+        for (const d of ds) out.push(`<div class="row28"><span class="pos28">${CO_NAME[k].toUpperCase()}</span><span class="it">${badge(x.r, "sm", true)}<span>→ ${esc(d.h)}</span>${coNt(x)}</span><span class="w">${d.t != null ? dot(d.live) + waitLabel(d.t, true) : ""}<small>${walk}</small></span></div>`);
       }
-    } else if (here.length) { const ms = here.map((x) => x.m || 0); out.push(`<div class="row28"><span class="pos28">${CO_NAME[k].toUpperCase()}</span><span class="it">${here.map(coItem).join("")}</span><span class="w"><small>${g.ou.has("ici") && Math.max(...ms) === 0 ? "sur ce quai" : walkRange(ms)}</small></span></div>`); }
-    if (g.other.length) out.push(`<div class="row28"><span class="pos28">${CO_NAME[k].toUpperCase()}</span><span class="it">${g.other.map(coItem).join("")}<span class="tx28">autre quai</span></span><span class="w"><small>${walkRange(g.other.map((x) => x.m || 0))}</small></span></div>`);
+    } else if (here.length) { const w = coTitleWalk(g); out.push(`<div class="row28"><span class="pos28">${CO_NAME[k].toUpperCase()}</span><span class="it">${here.map((x) => coItem(x, G)).join("")}</span><span class="w"><small>${/min$/.test(w) ? w + " à pied" : w}</small></span></div>`); }
+    if (g.other.length) out.push(`<div class="row28"><span class="pos28">${CO_NAME[k].toUpperCase()}</span><span class="it">${g.other.map((x) => coItem(x, G)).join("")}<span class="tx28">autre quai</span></span><span class="w"><small>${walkRange(g.other.map((x) => x.m || 0))}</small></span></div>`);
   }
   return out.join("");
 }
