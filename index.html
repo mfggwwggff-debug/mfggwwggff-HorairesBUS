@@ -722,7 +722,7 @@ body.p32cover .sheet { border-radius: 0; box-shadow: none; }
 #mb-sc > .scb28 { overflow: hidden; min-height: 0; }
 .more28 { display: block; text-align: right; font: 600 12px var(--font-body); color: var(--accent); padding: 8px 14px 2px; }
 /* départ : portes fermées, le véhicule repart vers la droite en accélérant */
-.sc28.go28 .mv28 { animation: go28 1.1s cubic-bezier(.55,0,.9,.45) .15s both !important; }
+.sc28.go28 .mv28 { animation: go28 2.1s cubic-bezier(.55,0,.9,.45) .2s both !important; }
 .sc28.go28 .dl, .sc28.go28 .dr { transform: none !important; transition: transform .25s; animation: none !important; }
 .sc28.go28 .l28, .sc28.go28 .ln28 { opacity: 0; transition: opacity .3s; }
 @keyframes go28 { from { transform: translateX(0); } to { transform: translateX(480px); } }
@@ -1567,6 +1567,8 @@ const FEATS = [
     ["bang", "Signal des nouvelles perturbations", "Un « ! » orange s'anime sur l'onglet Info trafic dès qu'une perturbation vient d'apparaître."],
     ["perturbe", "Alerte réseau perturbé", "En cas de neige, de grève ou de réseau suspendu, un message vous prévient dès l'ouverture de l'appli."],
     ["mesl", "Mes lignes d'abord", "Les lignes choisies dans « Mes lignes » apparaissent en premier dans Info trafic et dans Lignes & plans."]]],
+  ["Sons", [
+    ["sons", "Sons de l'appli", "De petits sons discrets accompagnent le trajet : votre bus arrive, préparez-vous, descendez ici, le tram entre en station et repart. Ils suivent le volume et le mode silencieux de votre téléphone."]]],
   ["Le soir", [
     ["nuit", "Message de fin de service", "Quand le dernier bus est passé, un message vous l'indique une fois par nuit, puis un petit bandeau reste en haut jusqu'au matin."]]]];
 const MY = { ft: store.get("myFeats") || {}, lines: store.get("myLines") || [], names: store.get("stopNames") || {}, al: Object.assign({ trafic: true, last: true, arrive: true, arriveMin: 5 }, store.get("myAlerts") || {}) };
@@ -1577,8 +1579,8 @@ const uName = (i) => MY.names[pName(i)] || pName(i); // nom donné par l'utilisa
 const tripKey = (a, b) => a + "|" + b;
 const isFavStop = (i) => i != null && fav.stops.includes(pName(i));
 const isFavTrip = (a, b) => a != null && b != null && !isPlace(a) && !isPlace(b) && fav.trips.some(([x, y]) => x === pName(a) && y === pName(b));
-function toggleFavStop(i) { const n = pName(i); fav.stops = isFavStop(i) ? fav.stops.filter((x) => x !== n) : [...fav.stops, n]; saveFav(); toast(isFavStop(i) ? `${n} ajouté à l'accueil` : `${n} retiré des favoris`); }
-function toggleFavTrip(a, b) { const A = pName(a), B = pName(b); fav.trips = isFavTrip(a, b) ? fav.trips.filter(([x, y]) => !(x === A && y === B)) : [...fav.trips, [A, B]]; saveFav(); toast(isFavTrip(a, b) ? "Trajet ajouté à l'accueil" : "Trajet retiré des favoris"); }
+function toggleFavStop(i) { const n = pName(i); if (!isFavStop(i)) SND("fav"); fav.stops = isFavStop(i) ? fav.stops.filter((x) => x !== n) : [...fav.stops, n]; saveFav(); toast(isFavStop(i) ? `${n} ajouté à l'accueil` : `${n} retiré des favoris`); }
+function toggleFavTrip(a, b) { const A = pName(a), B = pName(b); if (!isFavTrip(a, b)) SND("fav"); fav.trips = isFavTrip(a, b) ? fav.trips.filter(([x, y]) => !(x === A && y === B)) : [...fav.trips, [A, B]]; saveFav(); toast(isFavTrip(a, b) ? "Trajet ajouté à l'accueil" : "Trajet retiré des favoris"); }
 function setStar(btn, on) { btn.innerHTML = starSvg; btn.setAttribute("aria-pressed", on); }
 
 // ---------- position de l'utilisateur ----------
@@ -2210,7 +2212,8 @@ function boardAdjust(st, pi, k, dk) {
     const w = pts.filter((h) => now - h.t < 60000);
     if (w.length >= 4 && (w[w.length - 1].t - w[0].t) > 50000 && Math.abs(w[w.length - 1].d - w[0].d) < 25 && Math.min(...w.map((h) => h.off)) > 30) BOARD.on = false;
   }
-  if (!BOARD.on) return st;
+  if (!BOARD.on) { BOARD.snd = 0; return st; }
+  if (!BOARD.snd) { BOARD.snd = 1; SND("board"); }
   if (BOARD_LAST.key !== key || now - BOARD_LAST.at > 5000) { BOARD_LAST = { key, at: now }; try { sessionStorage.setItem("grm:board", JSON.stringify(BOARD_LAST)); } catch (e) {} }
   // le bus est là où je suis : position le long du parcours (en arrêts) et horaires suivants décalés d'autant
   const d = Math.max(sm[0], Math.min(sm[sm.length - 1], last.d));
@@ -2300,22 +2303,43 @@ function startFollow(pi, k, dk, fromStop, destStop) {
 const PINGED = new Set();
 let audioCtx = null, swReg = null;
 document.addEventListener("pointerdown", () => { try { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === "suspended") audioCtx.resume(); } catch (e) {} }, { passive: true });
-function beep() {
-  try {
-    if (!audioCtx) return;
-    [880, 1318].forEach((f, i) => {
-      const o = audioCtx.createOscillator(), g = audioCtx.createGain(), t = audioCtx.currentTime + i * 0.17;
-      o.frequency.value = f; o.connect(g); g.connect(audioCtx.destination);
-      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.22, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
-      o.start(t); o.stop(t + 0.18);
-    });
-  } catch (e) {}
-}
+// ---------- sound design (#38, validé le 9 nov.) : « Discret » partout, « Carillon » pour « votre bus arrive » et les perturbations ----------
+// Synthèse Web Audio, sans fichier. Le son ne joue qu'appli ouverte, après un premier toucher (règle de l'iPhone).
+const SND = (() => {
+  let master = null, noiseBuf = null;
+  const ok = () => { if (!feat("sons") || !audioCtx) return false; if (audioCtx.state === "suspended") audioCtx.resume(); if (!master) { master = audioCtx.createGain(); master.gain.value = .9; const comp = audioCtx.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 4; master.connect(comp); comp.connect(audioCtx.destination); } return true; };
+  const N = (n) => 440 * Math.pow(2, (n - 69) / 12);
+  const env = (g, t, a, peak, dec) => { g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(peak, t + a); g.gain.exponentialRampToValueAtTime(0.0001, t + a + dec); };
+  const osc = (type, f, t, a, peak, dec) => { const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.type = type; o.frequency.setValueAtTime(f, t); env(g, t, a, peak, dec); o.connect(g); g.connect(master); o.start(t); o.stop(t + a + dec + .05); };
+  const bell = (f, t, v = .35, dec = 1.4) => { [[1, 1, dec], [2, .38, dec * .7], [3, .18, dec * .45], [4.2, .12, dec * .3], [5.4, .06, dec * .2]].forEach(([m, a, d]) => osc("sine", f * m, t, .004, v * a, d)); };
+  const nb = () => { if (!noiseBuf) { noiseBuf = audioCtx.createBuffer(1, audioCtx.sampleRate * .5, audioCtx.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; } return noiseBuf; };
+  const noise = (t, dur, fc, q, v) => { const sr = audioCtx.createBufferSource(), b = audioCtx.createBiquadFilter(), g = audioCtx.createGain(); sr.buffer = nb(); b.type = "bandpass"; b.frequency.value = fc; b.Q.value = q; env(g, t, .002, v, dur); sr.connect(b); b.connect(g); g.connect(master); sr.start(t); sr.stop(t + dur + .05); };
+  const blip = (f, t, v = .32, dec = .16) => { const o = audioCtx.createOscillator(), lp = audioCtx.createBiquadFilter(), g = audioCtx.createGain(); o.type = "triangle"; o.frequency.setValueAtTime(f, t); lp.type = "lowpass"; lp.frequency.value = f * 2.2; env(g, t, .006, v, dec); o.connect(lp); lp.connect(g); g.connect(master); o.start(t); o.stop(t + dec + .05); };
+  const tick = (t, v = .2) => noise(t, .025, 3200, 2, v);
+  const ramp = (p, t, pts) => { p.setValueAtTime(pts[0][1], t); pts.slice(1).forEach(([dt, v]) => p.linearRampToValueAtTime(v, t + dt)); };
+  const sweep = (t, dur, f0, f1, gpts) => { const sr = audioCtx.createBufferSource(), bp = audioCtx.createBiquadFilter(), g = audioCtx.createGain(); sr.buffer = nb(); sr.loop = true; bp.type = "bandpass"; bp.Q.value = 1.4; bp.frequency.setValueAtTime(f0, t); bp.frequency.exponentialRampToValueAtTime(f1, t + dur); ramp(g.gain, t, gpts); sr.connect(bp); bp.connect(g); g.connect(master); sr.start(t); sr.stop(t + dur + .05); };
+  const glide = (t, dur, f0, f1, gpts) => { const o = audioCtx.createOscillator(), lp = audioCtx.createBiquadFilter(), g = audioCtx.createGain(); o.type = "sine"; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + dur); lp.type = "lowpass"; lp.frequency.value = 1800; ramp(g.gain, t, gpts); o.connect(lp); lp.connect(g); g.connect(master); o.start(t); o.stop(t + dur + .05); };
+  const S = {
+    pre: (t) => { blip(N(76), t); blip(N(79), t + .12); },                                                    // C · bientôt votre arrêt
+    off: (t) => { [0, .5].forEach((o) => { blip(N(79), t + o, .36); blip(N(84), t + o + .12, .36, .22); }); }, // C · descendez ici
+    come: (t) => { bell(N(72), t, .3); bell(N(76), t + .14, .3); bell(N(79), t + .28, .3, 1.8); },              // A · votre bus arrive
+    board: (t) => { blip(N(79), t, .28, .1); blip(N(86), t + .07, .28, .14); },                                // C · vous êtes à bord
+    warn: (t) => { bell(N(69), t, .32, 1.2); bell(N(65), t + .26, .32, 1.6); },                                // A · nouvelle perturbation
+    last: (t) => { blip(N(74), t, .3, .2); blip(N(71), t + .22, .3, .2); blip(N(67), t + .44, .3, .34); },     // C · dernier départ
+    fav: (t) => { tick(t, .22); blip(N(88), t + .01, .16, .08); },                                             // C · ajouté aux favoris
+    tin: (t) => { sweep(t, 1.9, 2400, 350, [[0, .0001], [.15, .16], [1.4, .08], [1.9, 0]]); glide(t, 1.9, 660, 260, [[0, .0001], [.1, .06], [1.9, 0]]); blip(N(67), t + 1.95, .24, .18); }, // C · entre en station
+    tout: (t) => { blip(N(67), t, .2, .12); sweep(t + .2, 1.9, 350, 2400, [[0, .0001], [.5, .08], [1.6, .16], [1.9, 0]]); glide(t + .2, 1.9, 260, 660, [[0, .0001], [.9, .06], [1.9, 0]]); }, // C · repart
+  };
+  let lastAt = 0;
+  return (id) => { try { if (!S[id] || !ok()) return; const now = audioCtx.currentTime; if (now - lastAt < .25 && id !== "fav") return; lastAt = now; S[id](now + .03); } catch (e) {} };
+})();
+// ancien double bip, gardé pour les alertes sans son attribué
+function beep() { SND("pre"); }
 function askNotify() { try { if ("Notification" in window && Notification.permission === "default") Notification.requestPermission(); } catch (e) {} }
-function ping(key, title, body, big) {
+function ping(key, title, body, big, snd) {
   if (PINGED.has(key)) return false;
   PINGED.add(key);
-  beep();
+  SND(snd || (big ? "off" : "pre"));
   try { navigator.vibrate && navigator.vibrate(big ? [260, 120, 260, 120, 260] : [200, 100, 200]); } catch (e) {}
   try { if (swReg && "Notification" in window && Notification.permission === "granted" && (document.hidden || big)) swReg.showNotification(title, { body, icon: "icon-192.png", badge: "icon-192.png", tag: "grm-" + key.split(":")[0], renotify: true, vibrate: [200, 100, 200] }); } catch (e) {}
   if (S.view !== "suivi") toast(title + (body ? " · " + body : ""), 6000);
@@ -2711,9 +2735,10 @@ function renderFollow() {
       // départ : le véhicule repart, puis l'encart remonte
       host.dataset.out = 1;
       const sc = $(".sc28", host); if (sc) sc.classList.add("go28");
-      setTimeout(() => $("#mb-hero").classList.remove("hid28"), 1100);
-      setTimeout(() => host.classList.remove("open"), 1100);
-      setTimeout(() => { host.innerHTML = ""; host.dataset.k = ""; host.dataset.out = ""; }, 1650);
+      SND("tout");
+      setTimeout(() => $("#mb-hero").classList.remove("hid28"), 2300);
+      setTimeout(() => host.classList.remove("open"), 2300);
+      setTimeout(() => { host.innerHTML = ""; host.dataset.k = ""; host.dataset.out = ""; }, 2850);
     } else if (scC && !host.dataset.out) {
       const yb = coYours(scC); scC.t = t;
       const list = `<div class="list28"><h4>${esc(qName(net.pats[scC.pi].stops[scC.i]))} · par où descendre</h4>${rows28(scC, yb)}<span class="more28">Toutes les correspondances ›</span></div>`;
@@ -2722,6 +2747,7 @@ function renderFollow() {
         host.dataset.k = sk; host.dataset.list = list; fit28(host);
         const cc = scC; host.onclick = () => openA28(cc);
         requestAnimationFrame(() => requestAnimationFrame(() => { host.classList.add("open"); $("#mb-hero").classList.add("hid28"); }));
+        setTimeout(() => SND("tin"), 1300); // freinage calé sur la fin de l'arrivée de l'animation (~3,3 s)
       } else if (host.dataset.list !== list) { $(".lsw28", host).innerHTML = list; host.dataset.list = list; }
     }
   } }
@@ -2739,25 +2765,25 @@ function renderFollow() {
     const dn = qName(p.stops[dest]);
     if (st.state !== "done" && st.atStop && st.i === dest || (st.state === "done" && dest === nS - 1)) {
       banner = `<div class="mbal hot">${bellSvg}<div><b>Vous êtes arrivé</b><span>${esc(dn)}</span></div></div>`;
-      if (!S.guide) ping(key + ":arr", "Vous êtes arrivé", dn);
+      if (!S.guide) ping(key + ":arr", "Vous êtes arrivé", dn, false, "board");
     } else if (next === dest && st.i < dest) {
       banner = `<div class="mbal hot">${bellSvg}<div><b>Descendez au prochain arrêt</b><span>${esc(dn)} · ${st.at(dest) - t < 0.6 ? "à l'approche" : "dans " + Math.round(st.at(dest) - t) + " min"}</span></div></div>`;
       const nx = S.guide ? guideNextInfo() : null;
-      if (ping(key + ":down", "Descendez au prochain arrêt", dn + (nx ? " · ensuite " + nx.txt : ""), true)) {
+      if (ping(key + ":down", "Descendez au prochain arrêt", dn + (nx ? " · ensuite " + nx.txt : ""), true, "off")) {
         const cs = connsAt(net.Q[p.stops[dest]][0], st.at(dest), p.r, 3);
         takeover({ kicker: "Prochain arrêt", title: "Descendez à " + dn, sub: `${badge(p.r, "sm", true)} ${st.at(dest) - t < 0.6 ? "à l'approche" : "dans " + Math.round(st.at(dest) - t) + " min"} · arrivée ${hm(st.at(dest))}`,
           next: nx ? nx.html : "", conns: nx ? "" : connCards(cs), connTitle: "Correspondances à " + dn });
       }
     } else if (next === dest - 1) {
       banner = `<div class="mbal">${bellSvg}<div><b>Préparez-vous à descendre</b><span>Plus que 2 arrêts avant ${esc(dn)}</span></div></div>`;
-      ping(key + ":prep", "Préparez-vous à descendre", "Plus que 2 arrêts avant " + dn);
+      ping(key + ":prep", "Préparez-vous à descendre", "Plus que 2 arrêts avant " + dn, false, "pre");
     }
   }
   // #11 « Mon bus arrive » : X min avant son passage à mon arrêt de montée (réglage dans Mon profil)
   if (MY.al.arrive && from != null && !S.guide && st.state !== "done" && (st.state === "before" || st.pos < from - 0.05)) {
     const w = st.at(from) - t;
     if (w > MY.al.arriveMin + 0.5) S.follow.comeArmed = true; // pas d'alerte si le bus était déjà tout près au lancement du suivi
-    else if (S.follow.comeArmed && w > 0) ping(key + ":come", `Votre ${R.s} arrive`, `${qName(p.stops[from])} · dans ${Math.max(1, Math.round(w))} min`, true);
+    else if (S.follow.comeArmed && w > 0) ping(key + ":come", `Votre ${R.s} arrive`, `${qName(p.stops[from])} · dans ${Math.max(1, Math.round(w))} min`, true, "come");
   }
   if ($("#mb-banner").dataset.html !== banner) { $("#mb-banner").innerHTML = banner; $("#mb-banner").dataset.html = banner; }
   // barre du bas
@@ -2841,7 +2867,7 @@ function guideTick() {
       <div class="gchain">${chain}</div><div class="gcard ok"><span class="tric ok">${okSvg}</span><div><b>Trajet terminé</b><span>Bonne journée !</span></div></div>
       <button type="button" class="btn primary" id="gd-end">Terminer le guidage</button>`;
     const fo = $("#fo"); if (fo.dataset.html !== html) { fo.innerHTML = html; fo.dataset.html = html; MB.key = ""; $("#gd-end").onclick = $("#gd-back").onclick = () => { S.guide = null; go("itineraire"); }; }
-    ping(G.id + ":fin", "Vous êtes arrivé", vName(G.to));
+    ping(G.id + ":fin", "Vous êtes arrivé", vName(G.to), false, "board");
     return;
   }
   $("#fo").dataset.html = "";
@@ -2862,7 +2888,7 @@ function guideTick() {
       const day = todayIdx();
       G.alt = day >= 0 && day < net.nd ? planDepart(net, missed.from, engPlace(G.to), day, Math.ceil(missed.ready - Math.max(1, missed.walk)), 3).filter((j) => j.legs.some((x) => x.type === "ride")).slice(0, 3) : [];
       const p2 = net.pats[s.nextR[0].pat];
-      ping(G.id + ":miss:" + mkey, "Correspondance compromise", `Votre ${net.R[p.r].s} arrive à ${hm(lt.arr)}, le ${net.R[p2.r].s} part à ${hm(missed.dep2)}. Touchez pour voir les solutions.`, true);
+      ping(G.id + ":miss:" + mkey, "Correspondance compromise", `Votre ${net.R[p.r].s} arrive à ${hm(lt.arr)}, le ${net.R[p2.r].s} part à ${hm(missed.dep2)}. Touchez pour voir les solutions.`, true, "warn");
     }
   } else if (!missed) { G.alt = null; G.altFor = null; }
   // carte d'étape
@@ -2877,8 +2903,8 @@ function guideTick() {
       <span>à <b>${esc(qName(p.stops[g.bi]))}</b> · ${w < 0.5 ? "<b>à l'arrêt</b>" : w < 59.5 ? `départ dans <b>${Math.round(w)} min</b>` : `départ à <b>${hm(lt.dep)}</b>`} · ${dot(lt.live)} <small>${lt.live ? delayTxt(lt.dep, lt.sdep) : "horaire théorique"}</small></span>
       ${walkTot ? `<span class="gw">${walkSvg} ${s.walks.length === 1 && s.walks[0].from >= 0 && net.Q[s.walks[0].from][0] === net.Q[s.walks[0].to][0] ? "Changez de quai" : "Marchez jusqu'à " + esc(qName(p.stops[g.bi]))} · ${walkTot} min</span>` : ""}
       ${away != null && away > 0 ? `<span class="gw">${busPicto("currentColor", p.r)} le ${modeOf(p.r) === "tram" ? "tram" : "bus"} est à ${away} arrêt${away > 1 ? "s" : ""}</span>` : ""}`;
-    if (s.prev) ping(G.id + ":corr:" + s.li, `Correspondance : ${net.R[p.r].s} → ${p.h}`, `à ${qName(p.stops[g.bi])}, départ ${w < 59.5 ? "dans " + Math.max(0, Math.round(w)) + " min" : "à " + hm(lt.dep)}`, true);
-    if (w <= 2.2 && w > 0) ping(G.id + ":soon:" + s.li, `Votre ${net.R[p.r].s} arrive`, `${qName(p.stops[g.bi])} · dans ${Math.max(1, Math.round(w))} min`);
+    if (s.prev) ping(G.id + ":corr:" + s.li, `Correspondance : ${net.R[p.r].s} → ${p.h}`, `à ${qName(p.stops[g.bi])}, départ ${w < 59.5 ? "dans " + Math.max(0, Math.round(w)) + " min" : "à " + hm(lt.dep)}`, true, "pre");
+    if (w <= 2.2 && w > 0) ping(G.id + ":soon:" + s.li, `Votre ${net.R[p.r].s} arrive`, `${qName(p.stops[g.bi])} · dans ${Math.max(1, Math.round(w))} min`, false, "come");
   } else {
     const nx = guideNextInfo();
     body = `<span class="k">${step} · Dans le ${net.R[p.r].m === 1 ? "tram" : "bus"}</span>
@@ -2970,7 +2996,7 @@ function alertMyLines() {
   if (first) return; // première fois : les infos déjà en cours sont dans Info trafic, on ne prévient que des nouvelles
   const L = [...new Set(hits.flatMap(trRoutes).filter((r) => MY.lines.includes(r)))].map((r) => net.R[r].s);
   const ls = L.slice(0, 4).join(", ") + (L.length > 4 ? ` et ${L.length - 4} autre${L.length > 5 ? "s" : ""}` : "");
-  ping("tr:" + hits.map((x) => x.id).join(","), hits.length > 1 ? `${hits.length} perturbations sur vos lignes` : `Info trafic · ligne${L.length > 1 ? "s" : ""} ${ls}`, hits.length > 1 ? "Lignes " + ls : hits[0].t);
+  ping("tr:" + hits.map((x) => x.id).join(","), hits.length > 1 ? `${hits.length} perturbations sur vos lignes` : `Info trafic · ligne${L.length > 1 ? "s" : ""} ${ls}`, hits.length > 1 ? "Lignes " + ls : hits[0].t, false, "warn");
 }
 // #11 « Dernier bus de mes trajets » : le soir, 30 min avant le dernier départ utile (une fois par trajet et par soir)
 const LASTC = new Map();
@@ -2991,7 +3017,7 @@ function alertLastBus() {
     const w = j.dep - n.minF;
     seen[k] = n.iso; store.set("alLast", seen);
     const nm = MY.names[k] || `${MY.names[A] || A} → ${MY.names[B] || B}`;
-    ping("last:" + k, `Dernier départ à ${hm(j.dep)}`, `${nm} · dans ${Math.round(w)} min`, true);
+    ping("last:" + k, `Dernier départ à ${hm(j.dep)}`, `${nm} · dans ${Math.round(w)} min`, true, "last");
   });
 }
 setInterval(alertLastBus, 60000); setTimeout(alertLastBus, 4000);
@@ -4378,6 +4404,12 @@ const UPD_0611 = [
 // ajouter une entrée en tête (1 à 4 volets de nouveautés + un volet « Corrections »), elle s'affiche une fois.
 const personSvg = (n) => `<svg width="${n}" height="${n}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.6 4.2-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/></svg>`;
 const UPD_LOG = [
+  { v: "2026-11-09.2", t: "Des sons pour vous guider", slides: [
+    { ico: icoSvg('<path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/>'), t: "Des sons pour vous guider",
+      b: "<p>De petits sons discrets vous accompagnent : votre bus arrive, préparez-vous, descendez ici, vous êtes à bord. Le tram et le BHNS ont leur son quand ils entrent en station et repartent.</p><p>Ils suivent le volume et le mode silencieux du téléphone, et se coupent dans Mon profil, « Sons de l'appli ».</p>" },
+    { ico: icoSvg('<rect x="3" y="7" width="18" height="10" rx="3"/><path d="M9 7v10M15 7v10M3 12h18"/><path d="M12 20v2M9 22h6"/>'), t: "L'animation à chaque station",
+      b: "<p>En plein écran, le tram et le BHNS montrent par où descendre à chaque station, même sans itinéraire. Quand vous êtes suivi par GPS, l'encart s'ouvre une dizaine de secondes avant l'arrivée et repart avec le véhicule.</p>" },
+  ] },
   { v: "2026-11-09", t: "Arrêts plus faciles à toucher, animation à chaque station", slides: [
     { ico: icoSvg('<rect x="3" y="7" width="18" height="10" rx="3"/><path d="M9 7v10M15 7v10M3 12h18"/><path d="M12 20v2M9 22h6"/>'), t: "L'animation à chaque station",
       b: "<p>En plein écran, le tram et le BHNS montrent par où descendre à chaque arrivée en station, même sans itinéraire. L'encart repart avec le véhicule et revient à la station suivante ; touchez-le pour voir toutes les correspondances.</p><p>Option à couper dans Mon profil, « Animation à chaque station ».</p>" },
