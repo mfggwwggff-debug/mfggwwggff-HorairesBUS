@@ -1,0 +1,13 @@
+# Service d'alertes de l'appli (#20). Mis en ligne par .github/workflows/notifs.yml (l'identifiant de la base y est complété).
+name = "grm-notifs"
+main = "worker.js"
+compatibility_date = "2026-10-01"
+workers_dev = true
+
+[triggers]
+crons = ["* * * * *"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "grm-notifs"
+database_id = "__D1_ID__"

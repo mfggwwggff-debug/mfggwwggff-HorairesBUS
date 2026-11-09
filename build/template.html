@@ -1150,7 +1150,7 @@ function toast(msg, ms = 3200) { const t = $("#toast"); t.textContent = msg; t.c
 
 // ---------- favoris ----------
 const fav = { stops: store.get("favStops") || [], trips: store.get("favTrips") || [] };
-const saveFav = () => { store.set("favStops", fav.stops); store.set("favTrips", fav.trips); };
+const saveFav = () => { store.set("favStops", fav.stops); store.set("favTrips", fav.trips); pushSoon(); };
 // #11 : fonctionnalités désactivables (toutes actives au départ)
 const FEATS = [
   ["Pendant le trajet", [
@@ -1179,7 +1179,10 @@ const FEATS = [
   ["Le soir", [
     ["nuit", "Message de fin de service", "Quand le dernier bus est passé, un message vous l'indique une fois par nuit, puis un petit bandeau reste en haut jusqu'au matin."]]]];
 const MY = { ft: store.get("myFeats") || {}, lines: store.get("myLines") || [], names: store.get("stopNames") || {}, al: Object.assign({ trafic: true, last: true, arrive: true, arriveMin: 5, scope: "mine", desc: true, quiet: false, qFrom: "22:30", qTo: "06:30", push: false, habit: true, hab: [] }, store.get("myAlerts") || {}) };
-const saveMy = () => { store.set("myFeats", MY.ft); store.set("myLines", MY.lines); store.set("stopNames", MY.names); store.set("myAlerts", MY.al); };
+const saveMy = () => { store.set("myFeats", MY.ft); store.set("myLines", MY.lines); store.set("stopNames", MY.names); store.set("myAlerts", MY.al); pushSoon(); };
+// #20 : abonnement au service d'alertes (voir plus bas, pushEnable)
+const PUSH = { url: null, id: store.get("pushId") || null, key: store.get("pushKey") || null, suivi: false, t: 0, syncAt: 0 };
+const pushOn = () => !!(MY.al.push && PUSH.id);
 const feat = (k) => MY.ft[k] !== false; // #11 : fonctionnalité active ? (toutes actives au départ)
 const myFirst = (ri) => feat("mesl") && MY.lines.includes(ri); // « Mes lignes d'abord »
 const uName = (i) => MY.names[pName(i)] || pName(i); // nom donné par l'utilisateur (Mon profil), sinon le vrai nom
@@ -1944,6 +1947,7 @@ const SND = (() => {
 function beep() { SND("pre"); }
 function askNotify() { try { if ("Notification" in window && Notification.permission === "default") Notification.requestPermission(); } catch (e) {} }
 function ping(key, title, body, big, snd) {
+  if (document.hidden && PUSH.suivi && /:(come|down|prep)$/.test(key)) return false; // #20 : le service s'en charge
   if (PINGED.has(key)) return false;
   PINGED.add(key);
   SND(snd || (big ? "off" : "pre"));
@@ -2402,6 +2406,16 @@ function renderFollow() {
     if (w > MY.al.arriveMin + 0.5) S.follow.comeArmed = true; // pas d'alerte si le bus était déjà tout près au lancement du suivi
     else if (S.follow.comeArmed && w > 0) ping(key + ":come", `Votre ${R.s} arrive`, `${qName(p.stops[from])} · dans ${Math.max(1, Math.round(w))} min`, true, "come");
   }
+  // #20 : ce que le service enverra si l'appli passe en arrière-plan pendant le suivi
+  { const ms = (m) => Date.now() + (m - t) * 60000, px = [];
+    if (MY.al.arrive && from != null && !S.guide && st.state !== "done" && (st.state === "before" || st.pos < from - 0.05) && st.at(from) - t > MY.al.arriveMin)
+      px.push({ at: ms(st.at(from) - MY.al.arriveMin), title: `Votre ${R.s} arrive`, body: `${qName(p.stops[from])} · dans ${MY.al.arriveMin} min`, tag: "come", url: "./#suivi" });
+    if (MY.al.desc !== false && dest != null && S.follow.alert && st.state !== "done") {
+      const dn = qName(p.stops[dest]), gone = (j) => st.state !== "before" && st.i >= j;
+      if (dest >= 2 && !gone(dest - 2)) px.push({ at: ms(st.at(dest - 2) + 0.3), title: "Préparez-vous à descendre", body: "Plus que 2 arrêts avant " + dn, tag: "desc", url: "./#suivi" });
+      if (dest >= 1 && !gone(dest - 1)) px.push({ at: ms(st.at(dest - 1) + 0.3), title: "Descendez au prochain arrêt", body: dn, tag: "desc", url: "./#suivi" });
+    }
+    S.follow.px = px; }
   if ($("#mb-banner").dataset.html !== banner) { $("#mb-banner").innerHTML = banner; $("#mb-banner").dataset.html = banner; }
   // barre du bas
   const bar = S.guide ? `<button type="button" class="btn small ghost" id="fo-stop">Arrêter le guidage</button>${S.followFree ? `<button type="button" class="btn small primary" id="fo-recenter">Recentrer</button>` : ""}`
@@ -2605,7 +2619,7 @@ function trIndex() {
 }
 // #11 « Perturbation sur mes lignes » : prévenu une fois par info, appli ouverte
 function alertMyLines() {
-  if (!MY.al.trafic || !MY.lines.length || !TR.ok) return;
+  if (!MY.al.trafic || !MY.lines.length || !TR.ok || pushOn()) return; // #20 : appli fermée, le service prévient
   const first = store.get("alTr") == null, seen = new Set(store.get("alTr") || []);
   const hits = trActive().filter((x) => trStatus(x) === "now" && !seen.has(x.id) && trRoutes(x).some((r) => MY.lines.includes(r)));
   if (!hits.length) return;
@@ -2618,7 +2632,7 @@ function alertMyLines() {
 // #11 « Dernier bus de mes trajets » : le soir, 30 min avant le dernier départ utile (une fois par trajet et par soir)
 const LASTC = new Map();
 function alertLastBus() {
-  if (!MY.al.last || !fav.trips.length) return;
+  if (!MY.al.last || !fav.trips.length || pushOn()) return;
   const n = parisNow(); if (n.minF < 19 * 60 || !inRange(n.iso)) return;
   const day = net.dayIndex(n.iso), seen = store.get("alLast") || {};
   fav.trips.forEach(([A, B]) => {
@@ -2825,10 +2839,119 @@ function trItem(x) {
 const grip = `<svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><circle cx="6.5" cy="4" r="1.4"/><circle cx="11.5" cy="4" r="1.4"/><circle cx="6.5" cy="9" r="1.4"/><circle cx="11.5" cy="9" r="1.4"/><circle cx="6.5" cy="14" r="1.4"/><circle cx="11.5" cy="14" r="1.4"/></svg>`;
 const penSvg = `<svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M13.5 3.5l3 3L7 16H4v-3z"/></svg>`;
 const xSvg = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>`;
-// #20 (maquette) : alertes appli fermée. ?p20=install|off|on|denied force l'état pour les captures.
+// #20 : alertes appli fermée. Service en ligne (notifs/worker.js, Cloudflare), adresse lue dans notifs.json.
+// ?p20=install|off|on|denied force l'état affiché (captures).
+async function pushBase() {
+  if (PUSH.url) return PUSH.url;
+  for (const f of ["notifs.json", "../notifs.json"]) {
+    try { const r = await fetch(f + "?v=" + Math.floor(Date.now() / 600000), { cache: "no-cache" }); if (r.ok) { const j = await r.json(); if (j && j.url) return (PUSH.url = j.url.replace(/\/+$/, "")); } } catch (e) {}
+  }
+  return null;
+}
+// text/plain : requête « simple », sans vérification préalable, et compatible avec keepalive
+async function pushPost(path, body, keepalive) {
+  const u = await pushBase(); if (!u) throw new Error("service");
+  const r = await fetch(u + path, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify(Object.assign({ id: PUSH.id, key: PUSH.key }, body)), keepalive: !!keepalive });
+  if (r.status === 403) { pushForget(); throw new Error("abonnement inconnu"); }
+  return r.json();
+}
+function pushForget() { PUSH.id = PUSH.key = null; store.set("pushId", null); store.set("pushKey", null); MY.al.push = false; store.set("myAlerts", MY.al); }
+const unb64u = (s) => { s = s.replace(/-/g, "+").replace(/_/g, "/"); while (s.length % 4) s += "="; return Uint8Array.from(atob(s), (c) => c.charCodeAt(0)); };
+const pushPrefs = () => ({ trafic: !!MY.al.trafic, scope: MY.al.scope === "all" ? "all" : "mine", lines: MY.lines.map((i) => net.R[i] && net.R[i].s).filter(Boolean), quiet: !!MY.al.quiet, qFrom: MY.al.qFrom, qTo: MY.al.qTo });
+async function pushEnable() {
+  let perm = "denied"; try { perm = await Notification.requestPermission(); } catch (e) {}
+  if (perm !== "granted") { renderProfile(); return; }
+  try {
+    const u = await pushBase(); if (!u) { toast("Le service d'alertes n'est pas encore en ligne. Réessayez un peu plus tard.", 5000); return; }
+    const { key } = await (await fetch(u + "/cle")).json();
+    const reg = await navigator.serviceWorker.ready;
+    const old = await reg.pushManager.getSubscription(); if (old) await old.unsubscribe().catch(() => {});
+    const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: unb64u(key) });
+    const j = await (await fetch(u + "/abonner", { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ sub: sub.toJSON(), prefs: pushPrefs() }) })).json();
+    if (!j.id) throw new Error(j.error || "abonnement refusé");
+    PUSH.id = j.id; PUSH.key = j.key; store.set("pushId", j.id); store.set("pushKey", j.key);
+    MY.al.push = true; store.set("myAlerts", MY.al);
+    await pushSync();
+    toast("Alertes activées sur ce téléphone");
+  } catch (e) { toast("Impossible d'activer les alertes : " + (e.message || e), 5000); }
+  if ($("#prof").classList.contains("on")) renderProfile();
+}
+async function pushDisable() {
+  try { await pushPost("/desabonner", {}); } catch (e) {}
+  try { const reg = await navigator.serviceWorker.ready; const s = await reg.pushManager.getSubscription(); if (s) await s.unsubscribe(); } catch (e) {}
+  pushForget(); renderProfile(); toast("Alertes appli fermée coupées");
+}
+// identifiant GTFS d'une course (pour relire son temps réel côté service)
+let TRIPID = null;
+function tripIdOf(pi, k) { if (!TRIPID) { TRIPID = new Map(); for (const [id, [a, b]] of net.tripIdx) TRIPID.set(a + ":" + b, id); } return TRIPID.get(pi + ":" + k) || null; }
+const tick = () => new Promise((r) => setTimeout(r, 0));
+async function lastBusJobs() {
+  const out = []; if (!MY.al.last) return out;
+  const base = net.dayIndex(parisNow().iso);
+  for (const [A, B] of fav.trips) {
+    const a = findStop(A), b = findStop(B); if (a < 0 || b < 0) continue;
+    const name = MY.names[tripKey(A, B)] || (MY.names[A] || A) + " → " + (MY.names[B] || B);
+    for (let d = 0; d < 7; d++) {
+      const day = base + d; if (day < 0 || day >= net.nd) continue;
+      await tick();
+      let x = planDepart(net, a, b, day, 19 * 60, 1)[0];
+      for (let it = 0; x && it < 60; it++) { const nx = planDepart(net, a, b, day, x.dep + 1, 1)[0]; if (!nx || nx.dep - x.dep >= 240) break; x = nx; }
+      if (!x) continue;
+      const at = (parisMidnightEpoch(day) + (x.dep - 30) * 60) * 1000; if (at < Date.now()) continue;
+      const rd = x.legs.find((l) => l.type === "ride"), pt = rd ? net.pats[rd.pat] : null;
+      out.push({ at, title: "Dernier bus · " + name, body: `${pt ? net.R[pt.r].s + " → " + pt.h + " " : ""}à ${hm(x.dep)}, dans 30 min. C'est le dernier de la soirée.`, url: "./?o=pa:" + encodeURIComponent(A) + "#passages", tag: "last" });
+    }
+  }
+  return out;
+}
+function habitJobs() {
+  const out = []; if (!MY.al.habit) return out;
+  const n = parisNow(), base = net.dayIndex(n.iso), wd0 = (new Date(n.iso + "T12:00:00Z").getUTCDay() + 6) % 7;
+  for (const h of MY.al.hab) {
+    const si = findStop(h.stop); if (si < 0 || h.t == null) continue;
+    for (let d = 0; d < 7; d++) {
+      const day = base + d; if (day < 0 || day >= net.nd || !h.days.includes((wd0 + d) % 7)) continue;
+      const x = departures(net, si, day, h.t - 30, 60).find((y) => net.pats[y.pat].r === h.r && net.pats[y.pat].dir === h.dir && y.st === h.t);
+      if (!x) continue;
+      const p = net.pats[x.pat], trip = tripIdOf(x.pat, x.k); if (!trip) continue;
+      const mid = parisMidnightEpoch(x.off === 0 ? day : day - 1), ids = [], sched = [];
+      for (let j = 0; j <= x.i; j++) { ids.push(net.D.QI[p.stops[j]]); sched.push(mid + p.D[x.k * p.nS + j] * 60); }
+      if (sched[x.i] * 1000 < Date.now() - 600000) continue;
+      out.push({ trip, ids, sched, min: h.min, freq: h.freq, title: `${net.R[h.r].s} → ${h.h}`, where: MY.names[h.stop] ? `${MY.names[h.stop]} (${h.stop})` : h.stop, url: "./?o=pa:" + encodeURIComponent(h.stop) + "#passages" });
+    }
+  }
+  return out;
+}
+// envoie au service réglages, derniers bus et bus habituels des 7 jours à venir (tout est remplacé côté service)
+async function pushSync() {
+  if (!pushOn()) return;
+  try { const [jobs, habits] = [await lastBusJobs(), habitJobs()]; await pushPost("/sync", { prefs: pushPrefs(), jobs, habits }); PUSH.syncAt = Date.now(); } catch (e) {}
+}
+function pushSoon() { if (!pushOn()) return; clearTimeout(PUSH.t); PUSH.t = setTimeout(pushSync, 2000); }
+// appli en arrière-plan pendant un suivi : le service prend le relais pour « Mon bus arrive » et « Descendez » ; au retour, on annule
+document.addEventListener("visibilitychange", () => {
+  if (!pushOn()) return;
+  if (document.hidden) {
+    const px = S.follow && S.follow.px; if (!px || !px.length) return;
+    PUSH.suivi = true; pushPost("/suivi", { jobs: px }, true).catch(() => {});
+  } else {
+    if (PUSH.suivi) { PUSH.suivi = false; pushPost("/annuler", {}, true).catch(() => {}); }
+    if (Date.now() - PUSH.syncAt > 6 * 3600e3) pushSoon();
+  }
+});
+// ouvre l'appli au bon endroit depuis une notification (?o=tr:<info> ou ?o=pa:<arrêt>)
+function openTarget(href) {
+  try {
+    const u = new URL(href, location.href), o = u.searchParams.get("o") || "";
+    if (o.startsWith("tr:")) { TR.open = o.slice(3); go("trafic"); return; }
+    if (o.startsWith("pa:")) { const i = findStop(o.slice(3)); if (i >= 0) { openPassages(i); return; } }
+    if (u.hash.length > 1) go(u.hash.slice(1));
+  } catch (e) {}
+}
+if ("serviceWorker" in navigator) navigator.serviceWorker.addEventListener("message", (e) => { if (e.data && e.data.type === "open") openTarget(e.data.url); });
 const alPushState = () => { const f = (/[?&]p20=(\w+)/.exec(location.search) || [])[1]; if (f) return f === "on" ? (MY.al.push ? "on" : "off") : f;
-  if (isIOS() && !isInstalled()) return "install"; if (!("PushManager" in window) || typeof Notification === "undefined") return "nosupport";
-  if (Notification.permission === "denied") return "denied"; return MY.al.push ? "on" : "off"; };
+  if (isIOS() && !isInstalled()) return "install"; if (!("PushManager" in window) || !("serviceWorker" in navigator) || typeof Notification === "undefined") return "nosupport";
+  if (Notification.permission === "denied") return "denied"; return pushOn() ? "on" : "off"; };
 const alPushOn = () => alPushState() === "on";
 const alBellSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg>`;
 const bellOffSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16.5V11a6 6 0 0 1 9.6-4.8M18 10.5v6l1.5 2H8"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0M4 4l16 16"/></svg>`;
@@ -2920,7 +3043,7 @@ function renderProfile(page) {
     </div>
     <div class="pcat">Heures calmes</div>
     <div class="pcard">
-      <div class="prow"><span class="pn"><b>Pas d'alerte la nuit</b><small>De <select class="psel" data-alq="qFrom">${qOpts(MY.al.qFrom, 20, 24)}</select> à <select class="psel" data-alq="qTo">${qOpts(MY.al.qTo, 5, 10)}</select></small><small style="display:block;margin-top:4px">Le dernier bus et le trajet en cours sont toujours signalés.</small></span>${tg("quiet")}</div>
+      <div class="prow"><span class="pn"><b>Pas d'alerte la nuit</b><small>De <select class="psel" data-alq="qFrom">${qOpts(MY.al.qFrom, 20, 24)}</select> à <select class="psel" data-alq="qTo">${qOpts(MY.al.qTo, 5, 10)}</select></small><small style="display:block;margin-top:4px">Les perturbations attendent le matin. Le dernier bus et vos bus sont toujours signalés.</small></span>${tg("quiet")}</div>
     </div>
     <p class="pnote">${alPushOn() ? "Pour vous prévenir appli fermée, un petit service garde un identifiant anonyme, vos lignes, vos heures de trajet et ces réglages. Pas de nom, pas de compte : tout est effacé si vous coupez les alertes." : "Sans activation, ces alertes ne marchent que lorsque l'appli est ouverte."}</p>
     <h3>Fonctionnalités</h3>
@@ -2935,10 +3058,10 @@ function renderProfile(page) {
   el.querySelectorAll("[data-hab]").forEach((b) => b.onclick = () => renderProfile("hab:" + b.dataset.hab));
   el.querySelectorAll("[data-alscope]").forEach((b) => b.onclick = () => { MY.al.scope = b.dataset.alscope; saveMy(); renderProfile(); });
   el.querySelectorAll("[data-alq]").forEach((x) => x.onchange = () => { MY.al[x.dataset.alq] = x.value; saveMy(); });
-  el.querySelectorAll("[data-push]").forEach((b) => b.onclick = () => { const a = b.dataset.push; // #20 maquette : le service n'est pas encore branché
-    if (a === "on") { MY.al.push = true; saveMy(); renderProfile(); toast("Alertes activées sur ce téléphone"); }
-    else if (a === "off") { MY.al.push = false; saveMy(); renderProfile(); toast("Alertes appli fermée coupées"); }
-    else if (a === "test") toast("Notification d'essai envoyée");
+  el.querySelectorAll("[data-push]").forEach((b) => b.onclick = () => { const a = b.dataset.push;
+    if (a === "on") pushEnable();
+    else if (a === "off") pushDisable();
+    else if (a === "test") { b.disabled = true; pushPost("/test", {}).then((j) => toast(j.ok ? "Notification d'essai envoyée" : "L'envoi a échoué : réactivez les alertes")).catch(() => toast("Service d'alertes injoignable pour le moment")).finally(() => { b.disabled = false; }); }
     else if (a === "inst") installPop("ios"); });
   // mes arrêts / mes trajets : renommer, supprimer, déplacer
   const keyOf = (list, row) => row.dataset.pk;
@@ -3261,6 +3384,14 @@ const UPD_0611 = [
 // ajouter une entrée en tête (1 à 4 volets de nouveautés + un volet « Corrections »), elle s'affiche une fois.
 const personSvg = (n) => `<svg width="${n}" height="${n}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.6 4.2-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/></svg>`;
 const UPD_LOG = [
+  { v: "2026-11-09.3", t: "Vos alertes, même appli fermée", slides: [
+    { ico: icoSvg('<path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/>'), t: "Vos alertes, même appli fermée",
+      b: "<p>Les alertes arrivent maintenant sur l'écran verrouillé, même quand l'appli est fermée : perturbations, dernier bus, votre bus qui arrive, descendez au bon arrêt.</p><p>Activez-les dans Mon profil, « Mes alertes ». Sur iPhone, l'appli doit être installée sur l'écran d'accueil.</p>" },
+    { ico: icoSvg('<rect x="5" y="3" width="14" height="15" rx="3"/><path d="M5 12h14M8 21l1.5-3M16 21l-1.5-3"/><circle cx="9" cy="15" r=".9" fill="currentColor"/><circle cx="15" cy="15" r=".9" fill="currentColor"/>'), t: "Mon bus habituel",
+      b: "<p>Choisissez votre bus du matin (arrêt, ligne, sens, départ, jours) : vous êtes prévenu de 1 à 30 min avant son passage, en tenant compte de son retard, puis la notification se met à jour.</p><p>Par étapes (10, 5, 2 min), chaque minute ou une seule fois.</p>" },
+    { ico: icoSvg('<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/>'), t: "Perturbations et heures calmes",
+      b: "<p>Les perturbations de vos lignes, ou de tout le réseau, arrivent quelques minutes après leur publication. Les infos qui touchent tout le réseau arrivent toujours.</p><p>Heures calmes réglables : les perturbations de la nuit attendent le matin. Un petit service garde pour cela un identifiant anonyme et vos réglages, rien d'autre ; tout est effacé si vous coupez les alertes.</p>" },
+  ] },
   { v: "2026-11-09.2", t: "Des sons pour vous guider", slides: [
     { ico: icoSvg('<path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/>'), t: "Des sons pour vous guider",
       b: "<p>De petits sons discrets vous accompagnent : votre bus arrive, préparez-vous, descendez ici, vous êtes à bord. Le tram et le BHNS ont leur son quand ils entrent en station et repartent.</p><p>Ils suivent le volume et le mode silencieux du téléphone, et se coupent dans Mon profil, « Sons de l'appli ».</p>" },
@@ -3412,6 +3543,9 @@ function runSplash() {
 
 // ---------- démarrage ----------
 window.addEventListener("hashchange", route);
+// #20 : ouverture depuis une notification, et mise à jour du service au lancement
+if (/[?&]o=/.test(location.search)) { const h = location.href; const q = new URLSearchParams(location.search); q.delete("o"); history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q : "") + location.hash); setTimeout(() => openTarget(h), 400); }
+setTimeout(() => { if (pushOn()) pushSync(); }, 4000);
 new ResizeObserver(resize).observe(cv);
 matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", drawMap);
 new MutationObserver(drawMap).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
