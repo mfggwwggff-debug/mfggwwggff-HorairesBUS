@@ -709,6 +709,9 @@ body.p32cover .sheet { border-radius: 0; box-shadow: none; }
 #mb-sc:empty { display: none; }
 #mb-sc { margin: 0 -16px; display: grid; grid-template-rows: 0fr; opacity: 0; transform: translateY(-10px); transition: grid-template-rows .5s cubic-bezier(.2,.7,.2,1), opacity .4s ease, transform .5s cubic-bezier(.2,.7,.2,1); cursor: pointer; }
 #mb-sc.open { grid-template-rows: 1fr; opacity: 1; transform: none; }
+/* pendant l'encart, la carte « Arrivée imminente / À l'arrêt » (redondante) se replie */
+#mb-hero > .mbh { max-height: 260px; transition: max-height .5s cubic-bezier(.2,.7,.2,1), opacity .3s ease, padding .5s ease, margin .5s ease; }
+#mb-hero.hid28 > .mbh { max-height: 0; opacity: 0; padding-top: 0; padding-bottom: 0; margin-top: 0; margin-bottom: 0; overflow: hidden; border-width: 0; }
 #mb-sc > .scb28 { overflow: hidden; min-height: 0; }
 .more28 { display: block; text-align: right; font: 600 12px var(--font-body); color: var(--accent); padding: 8px 14px 2px; }
 /* départ : portes fermées, le véhicule repart vers la droite en accélérant */
@@ -1802,7 +1805,11 @@ function boardAdjust(st, pi, k, dk) {
   const shift = st.t - tAt;
   const at = (j) => (j > pos ? st.at(j) + shift : st.at(j)), dp = (j) => (j > pos ? st.dp(j) + shift : st.dp(j));
   const next = atStop ? ci : i + 1;
-  return { ...st, gps: true, i: ci, pos, atStop, next, at, dp };
+  // distance jusqu'à l'arrêt suivant et vitesse réelle (dernières ~10 s) : pour l'animation à chaque station
+  const p0 = pts.filter((h) => last.t - h.t <= 10000)[0] || last, dtv = (last.t - p0.t) / 1000;
+  const speed = dtv >= 2 ? Math.max(0, (last.d - p0.d) / dtv) : null;
+  const toNext = Math.max(0, sm[Math.min(sm.length - 1, next)] - d), fromStop = Math.max(0, d - sm[ci]);
+  return { ...st, gps: true, i: ci, pos, atStop, next, at, dp, speed, toNext, fromStop };
 }
 
 // ---------- #07 : « Tu es dans un bus ? » (proposition quand je roule sur une ligne sans suivi) ----------
@@ -2268,9 +2275,17 @@ function renderFollow() {
   // qu'à l'approche de la station suivante. Toucher l'encart ouvre toutes les correspondances.
   let scC = null;
   if (feat("gares") && document.body.classList.contains("mbfull") && st.state === "running" && !isNA(pi, k, dk)) {
-    const atSt = st.atStop || (st.i > 0 && t - st.at(st.i) < 0.35);   // à quai (au moins ~20 s après l'arrivée)
-    if (atSt) scC = coAt(pi, st.i);
-    else if (st.at(next) - t <= 0.6) scC = coAt(pi, next);
+    if (st.gps) {
+      // calé sur ma position : à quai tant que je suis à moins de 20 m de l'arrêt ; départ dès que je m'en éloigne ;
+      // à l'approche, l'encart s'ouvre ~10 s avant l'arrivée (distance / vitesse réelle), ou à moins de 80 m
+      const eta = st.speed > 0.5 ? st.toNext / st.speed : Infinity;
+      if (st.atStop) scC = coAt(pi, st.i);
+      else if (eta <= 10 || st.toNext < 80) scC = coAt(pi, next);
+    } else {
+      const atSt = st.atStop || (st.i > 0 && t - st.at(st.i) < 0.35);   // à quai (au moins ~20 s après l'arrivée)
+      if (atSt) scC = coAt(pi, st.i);
+      else if (st.at(next) - t <= 0.6) scC = coAt(pi, next);
+    }
   }
   { const host = $("#mb-sc"); if (host) {
     const sk = scC ? scC.pi + ":" + scC.i : "";
@@ -2278,6 +2293,7 @@ function renderFollow() {
       // départ : le véhicule repart, puis l'encart remonte
       host.dataset.out = 1;
       const sc = $(".sc28", host); if (sc) sc.classList.add("go28");
+      setTimeout(() => $("#mb-hero").classList.remove("hid28"), 1100);
       setTimeout(() => host.classList.remove("open"), 1100);
       setTimeout(() => { host.innerHTML = ""; host.dataset.k = ""; host.dataset.out = ""; }, 1650);
     } else if (scC && !host.dataset.out) {
@@ -2287,7 +2303,7 @@ function renderFollow() {
         host.innerHTML = `<div class="scb28"><div class="scw28">${scene28(scC, yb, true)}</div><div class="lsw28">${list}</div></div>`;
         host.dataset.k = sk; host.dataset.list = list; fit28(host);
         const cc = scC; host.onclick = () => openA28(cc);
-        requestAnimationFrame(() => requestAnimationFrame(() => host.classList.add("open")));
+        requestAnimationFrame(() => requestAnimationFrame(() => { host.classList.add("open"); $("#mb-hero").classList.add("hid28"); }));
       } else if (host.dataset.list !== list) { $(".lsw28", host).innerHTML = list; host.dataset.list = list; }
     }
   } }
