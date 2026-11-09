@@ -417,6 +417,25 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
 #prof .tg[aria-pressed="true"]::after { left: 21px; }
 #prof .psel { border: 1px solid var(--rule); border-radius: 8px; padding: 3px 6px; background: var(--surface); color: inherit; font: inherit; font-size: 13px; }
 #prof .alseg { margin-top: 7px; }
+#prof .habs { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+#prof .hab { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; font: inherit; color: inherit; background: var(--sunk); border: 0; border-radius: 10px; padding: 9px 10px; }
+#prof .hab .pn small { display: block; }
+#prof .hab > svg { color: var(--muted); flex: none; }
+#prof .hadd { border: 0; background: none; color: var(--accent-strong); font: inherit; font-weight: 600; font-size: 14px; padding: 4px 0; text-align: left; }
+#prof .hsec { font-weight: 700; font-size: 14px; margin: 16px 2px 7px; }
+#prof .hsec small { font-weight: 400; color: var(--muted); }
+#prof .hchips { display: flex; flex-wrap: wrap; gap: 7px; }
+#prof .hchip { display: inline-flex; align-items: center; gap: 6px; border: 1.5px solid var(--rule); background: var(--surface); color: inherit; font: inherit; font-size: 14px; font-weight: 500; border-radius: 10px; padding: 7px 10px; min-height: 40px; }
+#prof .hchip[aria-pressed="true"] { border-color: var(--accent-strong); background: color-mix(in srgb, var(--accent) 12%, var(--surface)); font-weight: 700; }
+#prof .hdays { display: flex; gap: 6px; }
+#prof .hday { width: 42px; height: 42px; border-radius: 50%; border: 1.5px solid var(--rule); background: var(--surface); color: inherit; font: inherit; font-weight: 600; }
+#prof .hday[aria-pressed="true"] { background: var(--accent-strong); border-color: var(--accent-strong); color: #fff; }
+#prof .hstep { display: flex; align-items: center; gap: 14px; background: var(--surface); border: 1px solid var(--rule); border-radius: 14px; padding: 10px 12px; }
+#prof .hstep button { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--rule); background: var(--sunk); color: inherit; font-size: 22px; line-height: 1; }
+#prof .hstep b { font-size: 22px; min-width: 80px; text-align: center; }
+#prof .hstep span { color: var(--muted); font-size: 14px; flex: 1; }
+#prof .hbtns { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
+#prof .hbtns .btn { width: 100%; }
 #prof .alseg button { padding: 6px 11px; font-size: 13px; }
 #prof .ginst.alpush { margin: 0 0 8px; }
 #prof .ginst .gwarn { width: 34px; height: 34px; border-radius: 50%; background: color-mix(in srgb, var(--accent) 14%, var(--surface)); color: var(--accent-strong); display: grid; place-items: center; flex: none; }
@@ -1577,7 +1596,7 @@ const FEATS = [
     ["sons", "Sons de l'appli", "De petits sons discrets accompagnent le trajet : votre bus arrive, préparez-vous, descendez ici, le tram entre en station et repart. Ils suivent le volume et le mode silencieux de votre téléphone."]]],
   ["Le soir", [
     ["nuit", "Message de fin de service", "Quand le dernier bus est passé, un message vous l'indique une fois par nuit, puis un petit bandeau reste en haut jusqu'au matin."]]]];
-const MY = { ft: store.get("myFeats") || {}, lines: store.get("myLines") || [], names: store.get("stopNames") || {}, al: Object.assign({ trafic: true, last: true, arrive: true, arriveMin: 5, scope: "mine", desc: true, quiet: false, qFrom: "22:30", qTo: "06:30", push: false }, store.get("myAlerts") || {}) };
+const MY = { ft: store.get("myFeats") || {}, lines: store.get("myLines") || [], names: store.get("stopNames") || {}, al: Object.assign({ trafic: true, last: true, arrive: true, arriveMin: 5, scope: "mine", desc: true, quiet: false, qFrom: "22:30", qTo: "06:30", push: false, habit: true, hab: [] }, store.get("myAlerts") || {}) };
 const saveMy = () => { store.set("myFeats", MY.ft); store.set("myLines", MY.lines); store.set("stopNames", MY.names); store.set("myAlerts", MY.al); };
 const feat = (k) => MY.ft[k] !== false; // #11 : fonctionnalité active ? (toutes actives au départ)
 const myFirst = (ri) => feat("mesl") && MY.lines.includes(ri); // « Mes lignes d'abord »
@@ -2832,7 +2851,7 @@ function mbCenter(st, instant) {
   clearTimeout(MB.progT); MB.progT = setTimeout(() => { MB.progScroll = false; }, 800);
 }
 // plein écran de Mon bus : en tirant le panneau tout en haut, le plan, l'en-tête et les onglets s'effacent
-if (/[?&]simu=/.test(location.search)) window.__t = { startFollow: (...a) => startFollow(...a), tripState: (...a) => tripState(...a), setSheet: (x) => setSheet(x), todayIdx: () => todayIdx(), net: () => net, MB, shape: (pi) => shapeOfPat[pi], BOARD, ME, onPat: userOnPat, popStop: (i) => { const p = net.P[i]; const [sx, sy] = toS(PX(p[2]), PY(p[1])); clickMap(sx, sy); return [sx, sy]; }, openPa: (i) => openPassages(i), pName: (i) => pName(i), go: (v) => go(v) , showInBus: (c, dk) => showInBus(c, dk), a28: (pi, i) => openA28(coAt(pi, i)), coAt: (pi, i) => coAt(pi, i), startGuide: (j, to) => startGuide(j, to), A28, plan: (a, b, d, t, n) => planDepart(net, a, b, d, t, n), findStop: (s) => findStop(s), dayIdx: (iso) => net.dayIndex(iso) };
+if (/[?&]simu=/.test(location.search)) window.__t = { startFollow: (...a) => startFollow(...a), tripState: (...a) => tripState(...a), setSheet: (x) => setSheet(x), todayIdx: () => todayIdx(), net: () => net, MB, shape: (pi) => shapeOfPat[pi], BOARD, ME, onPat: userOnPat, popStop: (i) => { const p = net.P[i]; const [sx, sy] = toS(PX(p[2]), PY(p[1])); clickMap(sx, sy); return [sx, sy]; }, openPa: (i) => openPassages(i), pName: (i) => pName(i), go: (v) => go(v) , showInBus: (c, dk) => showInBus(c, dk), a28: (pi, i) => openA28(coAt(pi, i)), coAt: (pi, i) => coAt(pi, i), startGuide: (j, to) => startGuide(j, to), A28, plan: (a, b, d, t, n) => planDepart(net, a, b, d, t, n), findStop: (s) => findStop(s), dayIdx: (iso) => net.dayIndex(iso), deps: (p, d, t, h) => departures(net, p, d, t, h), lineDirs: (p) => [...stopLineDirs(net, p).values()].map((G) => ({ r: net.R[G.r].s, ri: G.r, h: G.h, dir: G.dir })) };
 function updMbFull() { document.body.classList.toggle("mbfull", feat("plein") && isMobile() && S.view === "suivi" && sheetState === "full"); }
 
 const renderFollowBg = () => renderFollow();
@@ -3232,6 +3251,56 @@ const alPushOn = () => alPushState() === "on";
 const alBellSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg>`;
 const bellOffSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16.5V11a6 6 0 0 1 9.6-4.8M18 10.5v6l1.5 2H8"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0M4 4l16 16"/></svg>`;
 const qOpts = (cur, h0, h1) => { const o = []; for (let h = h0; h < h1; h++) for (const m of ["00", "30"]) { const v = String(h % 24).padStart(2, "0") + ":" + m; o.push(`<option value="${v}"${v === cur ? " selected" : ""}>${v.replace(":", " h ")}</option>`); } return o.join(""); };
+const HFREQ = { steps: "par étapes", min: "chaque minute", once: "une fois" };
+const DAYL = ["L", "M", "M", "J", "V", "S", "D"], DAYN = ["lun.", "mar.", "mer.", "jeu.", "ven.", "sam.", "dim."], DAYF = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
+const daysTxt = (d) => d.join() === "0,1,2,3,4" ? "du lundi au vendredi" : d.length === 7 ? "tous les jours" : d.map((x) => DAYN[x]).join(", ");
+const hhmm = (t) => Math.floor(t / 60) + ":" + String(t % 60).padStart(2, "0");
+function habRow(h, k) {
+  const i = findStop(h.stop);
+  return `<button type="button" class="hab" data-hab="${k}">${badge(h.r, "sm", true)}<span class="pn"><b>→ ${esc(h.h)} · ${hhmm(h.t)}</b><small>${esc(MY.names[h.stop] ? MY.names[h.stop] + " (" + h.stop + ")" : h.stop)} · ${daysTxt(h.days)}</small><small>${h.min} min avant, ${HFREQ[h.freq]}</small></span>${chevR}</button>`;
+}
+// #20 (maquette) : réglage d'un « bus habituel »
+function renderHabit(el, k) {
+  const isNew = k === "new";
+  const H = isNew ? (renderHabit.draft || { stop: fav.stops[0] || "Strasbourg", r: null, dir: null, h: "", t: null, days: [0, 1, 2, 3, 4], min: 10, freq: "steps" }) : Object.assign({}, MY.al.hab[+k]);
+  renderHabit.draft = H;
+  const si = findStop(H.stop), dirs = si >= 0 ? [...stopLineDirs(net, si).values()].sort((a, b) => net.R[a.r].s.localeCompare(net.R[b.r].s, "fr", { numeric: true }) || a.dir - b.dir) : [];
+  if (H.r == null && dirs.length) { H.r = dirs[0].r; H.dir = dirs[0].dir; H.h = dirs[0].h; }
+  // départs de ce sens à cet arrêt, le prochain jour choisi, de 6 h à 10 h (ou autour de l'heure choisie)
+  const n = parisNow(), base = net.dayIndex(n.iso), wd = (new Date(n.iso + "T12:00:00").getDay() + 6) % 7;
+  let off = 0; while (off < 7 && !H.days.includes((wd + off) % 7)) off++;
+  const day = base + (off % 7), t0 = H.t != null ? Math.max(0, H.t - 45) : 6 * 60 + 30;
+  const deps = si >= 0 ? departures(net, si, day, t0, 120).filter((x) => net.pats[x.pat].r === H.r && net.pats[x.pat].dir === H.dir).slice(0, 8) : [];
+  if (H.t == null && deps.length) H.t = deps[Math.min(2, deps.length - 1)].st;
+  const stopLbl = MY.names[H.stop] ? `${esc(MY.names[H.stop])} <small>${esc(H.stop)}</small>` : esc(H.stop);
+  el.innerHTML = `<div class="ph"><button type="button" class="icon-btn" id="prof-back" aria-label="Retour">${backSvg}</button><h2>${isNew ? "Ajouter un bus" : "Mon bus habituel"}</h2><button type="button" class="icon-btn" id="prof-x" aria-label="Fermer">${closeSvg}</button></div>
+    <p class="psub">Vous êtes prévenu avant son passage à votre arrêt, en tenant compte de son retard.</p>
+    <div class="hsec">Arrêt</div>
+    <div class="pcard"><button type="button" class="prow plink" data-hstop><span class="pn"><b>${stopLbl}</b></span>${chevR}</button></div>
+    <div class="hsec">Ligne et sens</div>
+    <div class="hchips">${dirs.map((G) => `<button type="button" class="hchip" data-hdir="${G.r}|${G.dir}" aria-pressed="${G.r === H.r && G.dir === H.dir}">${badge(G.r, "sm", true)}→ ${esc(G.h)}</button>`).join("")}</div>
+    <div class="hsec">Départ <small>· horaires du ${DAYF[(wd + off) % 7]}</small></div>
+    <div class="hchips">${deps.map((x) => `<button type="button" class="hchip" data-ht="${x.st}" aria-pressed="${x.st === H.t}">${hhmm(x.st)}</button>`).join("") || `<small>Pas de départ à ces heures-là.</small>`}</div>
+    <div class="hsec">Jours</div>
+    <div class="hdays">${DAYL.map((d, i) => `<button type="button" class="hday" data-hday="${i}" aria-pressed="${H.days.includes(i)}" aria-label="${DAYN[i]}">${d}</button>`).join("")}</div>
+    <div class="hsec">Me prévenir</div>
+    <div class="hstep"><button type="button" data-hmin="-1" aria-label="Une minute de moins">−</button><b>${H.min} min</b><button type="button" data-hmin="1" aria-label="Une minute de plus">+</button><span>avant son passage</span></div>
+    <div class="hsec">Mises à jour de la notification</div>
+    <span class="seg alseg" style="margin-top:0">${Object.entries(HFREQ).map(([f, l]) => `<button type="button" data-hfreq="${f}" aria-pressed="${H.freq === f}">${l[0].toUpperCase() + l.slice(1)}</button>`).join("")}</span>
+    <p class="pnote">${H.freq === "steps" ? `À ${[...new Set([H.min, 5, 2].filter((m) => m <= H.min))].join(", ")} min, puis quand le bus arrive.` : H.freq === "min" ? `Toutes les minutes à partir de ${H.min} min. Sur iPhone, chaque mise à jour fait vibrer le téléphone.` : `Une seule notification, ${H.min} min avant.`}</p>
+    <div class="hbtns"><button type="button" class="btn accent" data-hsave>Enregistrer</button>${isNew ? "" : `<button type="button" class="btn ghost" data-hdel>Supprimer ce bus</button>`}</div>`;
+  const back = () => { renderHabit.draft = null; renderProfile(); };
+  $("#prof-back").onclick = back; $("#prof-x").onclick = () => el.classList.remove("on");
+  el.querySelectorAll("[data-hdir]").forEach((b) => b.onclick = () => { const [r, d] = b.dataset.hdir.split("|").map(Number); const G = dirs.find((g) => g.r === r && g.dir === d); Object.assign(H, { r, dir: d, h: G.h, t: null }); keep(); });
+  el.querySelectorAll("[data-ht]").forEach((b) => b.onclick = () => { H.t = +b.dataset.ht; keep(); });
+  el.querySelectorAll("[data-hday]").forEach((b) => b.onclick = () => { const i = +b.dataset.hday; H.days = H.days.includes(i) ? H.days.filter((x) => x !== i) : [...H.days, i].sort(); if (!H.days.length) H.days = [i]; keep(); });
+  el.querySelectorAll("[data-hmin]").forEach((b) => b.onclick = () => { H.min = Math.max(1, Math.min(30, H.min + +b.dataset.hmin)); keep(); });
+  el.querySelectorAll("[data-hfreq]").forEach((b) => b.onclick = () => { H.freq = b.dataset.hfreq; keep(); });
+  el.querySelector("[data-hstop]").onclick = () => toast("Maquette : ici, la recherche d'arrêt (vos arrêts en premier)");
+  el.querySelector("[data-hsave]").onclick = () => { if (isNew) MY.al.hab.push(H); else MY.al.hab[+k] = H; saveMy(); back(); toast("Bus enregistré"); };
+  const del = el.querySelector("[data-hdel]"); if (del) del.onclick = () => { MY.al.hab.splice(+k, 1); saveMy(); back(); };
+  function keep() { const sc = el.scrollTop; if (isNew) { renderHabit.draft = H; renderHabit(el, "new"); } else { const save = MY.al.hab[+k]; MY.al.hab[+k] = H; renderHabit(el, k); MY.al.hab[+k] = save; } el.scrollTop = sc; }
+}
 function alPushCard() {
   const st = alPushState();
   if (st === "on") return `<div class="ginst alpush"><span class="gok">${okSvg}</span><div><b>Alertes activées sur ce téléphone</b><small>Elles arrivent même appli fermée, sur l'écran verrouillé.</small></div><div class="gbtns"><button type="button" class="btn small ghost" data-push="test">Envoyer une notification d'essai</button><button type="button" class="btn small ghost" data-push="off">Couper</button></div></div>`;
@@ -3244,6 +3313,7 @@ function renderProfile(page) {
   const el = $("#prof");
   if (page === "guide") return renderGuide(el);
   if (page === "news") return renderNews(el);
+  if (page && page.startsWith("hab:")) return renderHabit(el, page.slice(4));
   const stops = fav.stops.map((n) => [n, findStop(n)]).filter(([, i]) => i >= 0);
   const groups = [["tram", (r) => r.m === 1], ["bhns", (r) => /^O\d/.test(r.s)], ["bus", (r) => r.m !== 1 && !/^[OE]/.test(r.s)], ["bus", (r) => /^E/.test(r.s)]];
   const tg = (k) => `<button type="button" class="tg" data-al="${k}" aria-pressed="${!!MY.al[k]}" aria-label="Activer"></button>`;
@@ -3260,7 +3330,8 @@ function renderProfile(page) {
     <h3>Mes alertes</h3>
     ${alPushCard()}
     <div class="pcard">
-      <div class="prow"><span class="pn"><b>Perturbations</b><small>Dès qu'une nouvelle info trafic est publiée</small><span class="seg alseg"><button type="button" data-alscope="mine" aria-pressed="${MY.al.scope !== "all"}">Mes lignes</button><button type="button" data-alscope="all" aria-pressed="${MY.al.scope === "all"}">Tout le réseau</button></span>${MY.al.scope !== "all" ? (MY.lines.length ? `<small style="display:flex;flex-wrap:wrap;gap:4px;margin-top:7px">${MY.lines.map((i) => badge(i, "sm", true)).join("")}</small>` : `<small style="display:block;margin-top:5px">Choisissez vos lignes juste au-dessus.</small>`) : ""}</span>${tg("trafic")}</div>
+      <div class="prow"><span class="pn"><b>Mon bus habituel</b><small>Un bus précis, à mon arrêt, les jours choisis : prévenu avant son passage, en tenant compte du temps réel</small><span class="habs">${MY.al.hab.map((h, k) => habRow(h, k)).join("")}<button type="button" class="hadd" data-hab="new">+ Ajouter un bus</button></span></span>${tg("habit")}</div>
+      <div class="prow"><span class="pn"><b>Perturbations</b><small>Dès qu'une nouvelle info trafic est publiée${MY.al.scope !== "all" ? ". Les infos de tout le réseau arrivent aussi" : ""}</small><span class="seg alseg"><button type="button" data-alscope="mine" aria-pressed="${MY.al.scope !== "all"}">Mes lignes</button><button type="button" data-alscope="all" aria-pressed="${MY.al.scope === "all"}">Tout le réseau</button></span>${MY.al.scope !== "all" ? (MY.lines.length ? `<small style="display:flex;flex-wrap:wrap;gap:4px;margin-top:7px">${MY.lines.map((i) => badge(i, "sm", true)).join("")}</small>` : `<small style="display:block;margin-top:5px">Choisissez vos lignes juste au-dessus.</small>`) : ""}</span>${tg("trafic")}</div>
       <div class="prow"><span class="pn"><b>Dernier bus de mes trajets</b><small>Le soir, 30 min avant le dernier départ utile</small></span>${tg("last")}</div>
       <div class="prow"><span class="pn"><b>Mon bus arrive</b><small>Pendant un suivi, <select class="psel" data-almin>${[3, 5, 10, 15].map((m) => `<option${m === MY.al.arriveMin ? " selected" : ""}>${m}</option>`).join("")}</select> min avant le passage à mon arrêt</small></span>${tg("arrive")}</div>
       <div class="prow"><span class="pn"><b>Descendez au bon arrêt</b><small>Pendant un trajet suivi : 2 arrêts avant, puis au moment de descendre</small></span>${tg("desc")}</div>
@@ -3279,6 +3350,7 @@ function renderProfile(page) {
   el.querySelectorAll("[data-ft]").forEach((b) => b.onclick = () => { const k = b.dataset.ft; MY.ft[k] = MY.ft[k] === false; saveMy(); b.setAttribute("aria-pressed", MY.ft[k] !== false); featChanged(k); });
   el.querySelectorAll("[data-al]").forEach((b) => b.onclick = () => { MY.al[b.dataset.al] = !MY.al[b.dataset.al]; saveMy(); b.setAttribute("aria-pressed", !!MY.al[b.dataset.al]); });
   const sel = el.querySelector("[data-almin]"); if (sel) sel.onchange = () => { MY.al.arriveMin = +sel.value; saveMy(); };
+  el.querySelectorAll("[data-hab]").forEach((b) => b.onclick = () => renderProfile("hab:" + b.dataset.hab));
   el.querySelectorAll("[data-alscope]").forEach((b) => b.onclick = () => { MY.al.scope = b.dataset.alscope; saveMy(); renderProfile(); });
   el.querySelectorAll("[data-alq]").forEach((x) => x.onchange = () => { MY.al[x.dataset.alq] = x.value; saveMy(); });
   el.querySelectorAll("[data-push]").forEach((b) => b.onclick = () => { const a = b.dataset.push; // #20 maquette : le service n'est pas encore branché
