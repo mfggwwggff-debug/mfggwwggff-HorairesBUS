@@ -190,8 +190,14 @@ for sheet in ("O1", "O2"):
             e["m"] = int(r[6])
         if r[4] and str(r[4]).strip():
             e["ou"] = OU[norm(r[4])]
+        # sur ce quai sans position notée : au milieu (choix de l'utilisateur, 9 nov.)
+        if "p" not in e and e.get("ou") == "ici":
+            e["p"] = "mi"
         lab = str(r[7]).strip()
         nl = norm(lab)
+        # tram à Gare Centre vu depuis le BHNS : 3 min à pied, pas « autre quai » (choix de l'utilisateur, 9 nov.)
+        if nl == "t1 et t2" and stop == "Gare de Reims - Centre":
+            e.pop("ou", None)
         if nl == "t1 et t2":
             for l, h in TRAM_DIR[norm(r[8] or "")]:
                 d["pos"].append({**e, "l": l, **({"h": h} if h else {})})

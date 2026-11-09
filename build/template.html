@@ -2107,7 +2107,7 @@ function coWalkTxt(ms, ici) {
   if (!ms.length) return ici ? "sur ce quai" : "";
   const a = Math.min(...ms), b = Math.max(...ms);
   if (b <= 20) return "sur place";
-  const lo = coWalk(a), hi = coWalk(b);
+  const lo = ici ? 0 : coWalk(a), hi = coWalk(b); // lignes sur ce quai et d'autres plus loin : « 0 à 3 min »
   return lo === hi ? lo + " min" : lo + " à " + hi + " min";
 }
 const coTitleWalk = (g) => coWalkTxt(g.m, g.ou.has("ici"));
