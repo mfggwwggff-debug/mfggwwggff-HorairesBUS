@@ -2593,6 +2593,7 @@ const connCards = (cs) => cs.slice(0, 3).map((G) => `<div class="tc">${badge(G.r
 const MB = { key: "", rows: 0, first: 0, lastNext: -1, userScrollAt: 0, progScroll: false };
 $("#scroll").addEventListener("scroll", () => { if (!MB.progScroll) MB.userScrollAt = Date.now(); }, { passive: true });
 const ROWH = 58;
+const SCT = { k: "", app: 0, stop: 0, done: new Set() }; // encart « animation à chaque station » : temps d'ouverture par station
 function renderFollow() {
   const el = $("#fo");
   if (S.guide) guideTick();
@@ -2715,18 +2716,27 @@ function renderFollow() {
   // en plein écran (option « Animation à chaque station ») : l'encart glisse vers le bas à l'approche d'une station
   // (le tram ou le BHNS arrive), reste pendant l'arrêt, puis le véhicule repart et l'encart remonte ; il ne revient
   // qu'à l'approche de la station suivante. Toucher l'encart ouvre toutes les correspondances.
+  // Durée bornée : l'encart s'ouvre ~10 s avant l'arrivée et se referme au départ, sans jamais rester jusqu'à la
+  // station suivante (au-delà de 12 s d'approche ou de 25 s à quai — 40 s si le GPS me voit encore à l'arrêt —,
+  // il se referme et ne revient pas pour cette station).
   let scC = null;
   if (feat("gares") && document.body.classList.contains("mbfull") && st.state === "running" && !isNA(pi, k, dk)) {
+    let cand = null, phase = "";
     if (st.gps) {
-      // calé sur ma position : à quai tant que je suis à moins de 20 m de l'arrêt ; départ dès que je m'en éloigne ;
-      // à l'approche, l'encart s'ouvre ~10 s avant l'arrivée (distance / vitesse réelle), ou à moins de 80 m
       const eta = st.speed > 0.5 ? st.toNext / st.speed : Infinity;
-      if (st.atStop) scC = coAt(pi, st.i);
-      else if (eta <= 10 || st.toNext < 80) scC = coAt(pi, next);
+      if (st.atStop) { cand = st.i; phase = "stop"; }
+      else if (eta <= 10 || st.toNext < 25) { cand = next; phase = "app"; }
     } else {
-      const atSt = st.atStop || (st.i > 0 && t - st.at(st.i) < 0.35);   // à quai (au moins ~20 s après l'arrivée)
-      if (atSt) scC = coAt(pi, st.i);
-      else if (st.at(next) - t <= 0.6) scC = coAt(pi, next);
+      if (st.atStop || (st.i > 0 && t - st.at(st.i) < 0.25)) { cand = st.i; phase = "stop"; }
+      else if (st.at(next) - t <= 10 / 60) { cand = next; phase = "app"; }
+    }
+    if (cand != null) {
+      const ck = [pi, k, dk, cand].join(":"), now = Date.now();
+      if (SCT.k !== ck) Object.assign(SCT, { k: ck, app: 0, stop: 0 });
+      if (phase === "app" && !SCT.app) SCT.app = now;
+      if (phase === "stop" && !SCT.stop) SCT.stop = now;
+      const over = SCT.done.has(ck) || (phase === "app" && now - SCT.app > 12000) || (phase === "stop" && now - SCT.stop > (st.gps ? 40000 : 25000));
+      if (over) SCT.done.add(ck); else scC = coAt(pi, cand);
     }
   }
   { const host = $("#mb-sc"); if (host) {
