@@ -262,11 +262,11 @@ async function minute(env, now) {
       if (rem <= 0.5) step = d.freq === "once" ? null : "arr";
       else if (d.freq === "once") step = "once";
       else if (d.freq === "min") step = "m" + Math.max(1, Math.round(rem));
-      else { const T = [...new Set([d.min, 5, 2])].filter((x) => x <= d.min).sort((a, b) => a - b); const th = T.find((x) => rem <= x + 0.5); step = th != null ? "s" + th : null; }
+      else { const T = [...new Set([d.min, 10, 5, 2])].filter((x) => x <= d.min).sort((a, b) => a - b); const th = T.find((x) => rem <= x + 0.5); step = th != null ? "s" + th : null; }
       if (d.freq === "once" && rem <= 0.5 && !sent.has("once")) step = "once";
       if (!step || sent.has(step)) continue;
       // « par étapes » : une étape déjà passée ne repart pas (ex. abonné tard)
-      if (step.startsWith("s")) for (const x of [...new Set([d.min, 5, 2])]) if (x >= +step.slice(1)) sent.add("s" + x);
+      if (step.startsWith("s")) for (const x of [...new Set([d.min, 10, 5, 2])]) if (x >= +step.slice(1)) sent.add("s" + x);
       sent.add(step);
       const m = habitMsg(d, step === "arr" ? 0 : rem, est); m.tag = "hab" + h.id;
       if (await push(h.sub, m, "h" + h.id)) upd.push(env.DB.prepare("UPDATE habits SET sent = ? WHERE id = ?").bind([...sent].join(","), h.id));

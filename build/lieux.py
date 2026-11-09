@@ -4,7 +4,7 @@
 143 communes de la communauté urbaine du Grand Reims (contours des communes relevés au même moment).
 
 Écrit lieux.json à la racine du site :
-  { "v": "AAAA-MM-JJ", "c": [communes], "k": [[libellé, groupe]], "l": [[nom, i_libellé, i_commune, lat, lon], ...] }
+  { "v": "AAAA-MM-JJ", "c": [communes], "k": [[libellé, groupe]], "l": [[nom, i_libellé, i_commune, lat, lon, rue?], ...] }
 Lancé par la tâche GitHub « Lieux (OSM) ». Données © les contributeurs d'OpenStreetMap (ODbL).
 """
 import datetime, json, math, os, sys, time, urllib.parse, urllib.request
@@ -139,7 +139,8 @@ def main():
         c = el.get("center") or (el if "lat" in el else None)
         if not c:
             continue
-        pois.append((t["name"].strip(), k, c["lat"], c["lon"]))
+        rue = " ".join(x for x in (t.get("addr:housenumber", ""), t.get("addr:street", "")) if x).strip()
+        pois.append((t["name"].strip(), k, c["lat"], c["lon"], rue))
     print(f"{len(communes)} communes, {len(pois)} lieux relevés", file=sys.stderr)
     if len(communes) < 130:
         raise SystemExit(f"Contours des communes incomplets ({len(communes)} / 143) : lieux.json laissé tel quel.")
@@ -147,7 +148,7 @@ def main():
     ci = {n: i for i, n in enumerate(cnames)}
     kinds, ki, out, seen = [], {}, [], {}
     KX = math.cos(math.radians(49.25))
-    for name, k, la, lo in pois:
+    for name, k, la, lo, rue in pois:
         com = next((c for c in communes if c.has(la, lo)), None)
         if not com:
             continue  # hors du Grand Reims
@@ -158,7 +159,7 @@ def main():
         seen.setdefault(key, []).append((la, lo))
         if k not in ki:
             ki[k] = len(kinds); kinds.append(list(k))
-        out.append([name, ki[k], ci[com.name], round(la, 5), round(lo, 5)])
+        out.append([name, ki[k], ci[com.name], round(la, 5), round(lo, 5)] + ([rue] if rue else []))
     out.sort(key=lambda x: (x[2], x[0].lower()))
     if len(out) < 500:
         raise SystemExit(f"Trop peu de lieux ({len(out)}) : lieux.json laissé tel quel.")

@@ -155,25 +155,55 @@ function nearOn(O, x, y) {
 // précédent et l'arrivée au suivant. Horaires temps réel si la course est suivie, théoriques sinon.
 let showBuses = store.get("buses") !== false;
 const VMEM = new Map(); // dernière position affichée de chaque course (#34)
-function posOf(pi, k, dk, t, today) {
+// #39 : horaires « pour placer le véhicule » (plan et Mon bus) :
+// - temps réel à la seconde près (au lieu de la minute) ;
+// - arrêts annoncés à la même minute étalés selon la distance (le GTFS est à la minute : 8,6 % des tronçons durent « 0 min ») ;
+// - temps d'arrêt à chaque arrêt : le tram s'arrête au moins 15 s, le bus 1,5 s (arrivée à l'heure, départ ensuite).
+const DWELL = { tram: 0.25, bus: 0.025 };
+const RTC = new Map();
+function runTimes(pi, k, dk) {
+  const p = net.pats[pi], live = isLive(net, p, k, dk), key = pi + ":" + k + ":" + dk + ":" + (live ? net.rtVer : 0);
+  if (RTC.has(key)) return RTC.get(key);
+  const n = p.nS, o = k * n, [A0, D0] = live && p.LAf ? [p.LAf, p.LDf] : [p.A, p.D];
+  const a = Float64Array.from(A0.subarray(o, o + n)), d = Float64Array.from(D0.subarray(o, o + n));
+  const g = typeof patGeo === "function" ? patGeo(pi) : null, so = (i) => g ? g.sOff[i] : i;
+  // arrêts « à la même minute » : étalés jusqu'au suivant (sans dépasser une minute), selon la distance
+  for (let s = 0; s < n - 1;) {
+    let e = s; while (e + 1 < n && a[e + 1] === d[s] && d[e + 1] === a[e + 1]) e++;
+    if (e > s) {
+      const v = d[s], w = e + 1 < n ? a[e + 1] : v + 0.5, span = Math.min(1, w - v), L = so(e + 1 < n ? e + 1 : e) - so(s);
+      for (let m = s + 1; m <= e; m++) { const f = L > 0 ? (so(m) - so(s)) / L : (m - s) / (e - s + 1); a[m] = d[m] = v + span * f; }
+    }
+    s = e + 1;
+  }
+  // temps d'arrêt (pas au départ du terminus, où le véhicule attend déjà son heure)
+  const dw = p.r != null && net.R[p.r].m === 1 ? DWELL.tram : DWELL.bus;
+  for (let i = 1; i < n - 1; i++) d[i] = Math.max(d[i], Math.min(a[i] + dw, a[i] + 0.6 * (a[i + 1] - a[i])));
+  const out = { a, d };
+  if (RTC.size > 3000) RTC.clear();
+  RTC.set(key, out); return out;
+}
+// position d'une course à l'instant t (minutes depuis minuit d'aujourd'hui)
+function posOf(pi, k, dk, t0, today) {
   const p = net.pats[pi], off = (dk - today) * 1440, o = k * p.nS;
   const [A, D] = arr(net, p, dk);
-  if (t < D[o] + off || t > A[o + p.nS - 1] + off) return null;
-  let i = 0; while (i < p.nS - 1 && A[o + i + 1] + off <= t) i++;
+  if (t0 < D[o] + off || t0 > A[o + p.nS - 1] + off) return null;
+  const live = isLive(net, p, k, dk);
+  // même avance que Mon bus pour les courses en temps réel (le flux a un peu de retard sur la réalité)
+  const t = t0 - off + (live && typeof RT_LEAD === "number" ? RT_LEAD : 0), R = runTimes(pi, k, dk), RA = R.a, RD = R.d;
+  let i = 0; while (i < p.nS - 1 && RA[i + 1] <= t) i++;
   const g = patGeo(pi);
   let d, nextI, atStop = false;
-  const ai = A[o + i] + off, di = D[o + i] + off;
-  if (t >= ai && t <= di) { d = g.sOff[i]; nextI = i; atStop = true; }
+  if (t <= RD[i] && t >= RA[i]) { d = g.sOff[i]; nextI = i; atStop = true; }
   else if (i >= p.nS - 1) { d = g.sOff[p.nS - 1]; nextI = p.nS - 1; atStop = true; }
-  else { const t0 = di, t1 = A[o + i + 1] + off, f = t1 > t0 ? (t - t0) / (t1 - t0) : 1; d = g.sOff[i] + Math.max(0, Math.min(1, f)) * (g.sOff[i + 1] - g.sOff[i]); nextI = i + 1; }
+  else { const t1 = RD[i], t2 = RA[i + 1], f = t2 > t1 ? (t - t1) / (t2 - t1) : 1; d = g.sOff[i] + Math.max(0, Math.min(1, f)) * (g.sOff[i + 1] - g.sOff[i]); nextI = i + 1; }
   // #34 : si le temps réel annonce soudain du retard (feu rouge, bouchon), le bus reste immobile
   // à sa dernière position affichée au lieu de reculer, jusqu'à ce que l'estimation le rattrape
   const key = pi + ":" + k + ":" + dk, prev = VMEM.get(key);
   if (prev && d < prev.d) { d = prev.d; nextI = prev.nextI; atStop = prev.atStop; }
-  VMEM.set(key, { d, nextI, atStop, t });
-  if (VMEM.size > 400) for (const [kk, v] of VMEM) if (Math.abs(t - v.t) > 10) VMEM.delete(kk);
+  VMEM.set(key, { d, nextI, atStop, t: t0 });
+  if (VMEM.size > 400) for (const [kk, v] of VMEM) if (Math.abs(t0 - v.t) > 10) VMEM.delete(kk);
   const [x, y, ang] = pointAt(g, d);
-  const live = isLive(net, p, k, dk);
   return { pi, k, dk, x, y, ang, live, nextI, atStop, next: A[o + nextI] + off, delay: live ? Math.round(A[o + nextI] - p.A[o + nextI]) : 0, r: p.r };
 }
 function vehicles() {

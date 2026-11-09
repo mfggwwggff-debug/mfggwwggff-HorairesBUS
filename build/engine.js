@@ -45,8 +45,8 @@ function isLive(net, p, k, svcDay) { return svcDay === net.liveDay && p.live && 
 
 // Applique un flux GTFS-RT décodé. dayStartEpoch(k) = epoch (s) de minuit du jour de service k.
 function applyRT(net, feed, liveDay, dayStartEpoch) {
-  net.pats.forEach((p) => { p.LA = null; p.LD = null; p.live = null; });
-  net.liveDay = liveDay;
+  net.pats.forEach((p) => { p.LA = null; p.LD = null; p.LAf = null; p.LDf = null; p.live = null; });
+  net.liveDay = liveDay; net.rtVer = (net.rtVer || 0) + 1;
   let matched = 0, total = 0;
   for (const e of feed.entity || []) {
     const tu = e.tu; if (!tu || !tu.trip || e.deleted) continue;
@@ -67,13 +67,14 @@ function applyRT(net, feed, liveDay, dayStartEpoch) {
       if (s.stop_id && net.qByStopId.has(s.stop_id)) { const q = net.qByStopId.get(s.stop_id); i = p.stops.indexOf(q); }
       if (i < 0 && s.seq) i = s.seq - 1;
       if (i < 0 || i >= p.nS) continue;
-      const ev = (x, sched) => !x ? null : (x.time ? Math.round((x.time - base) / 60) : (x.delay !== undefined ? sched + Math.round(x.delay / 60) : null));
+      // en minutes, à la seconde près (LAf / LDf, pour placer le véhicule) ; LA / LD restent arrondis à la minute pour l'affichage
+      const ev = (x, sched) => !x ? null : (x.time ? (x.time - base) / 60 : (x.delay !== undefined ? sched + x.delay / 60 : null));
       const a = ev(s.arr, p.A[k * p.nS + i]), d = ev(s.dep, p.D[k * p.nS + i]);
       if (a == null && d == null) continue;
       upd.set(i, [a ?? d, d ?? a]);
     }
     if (!upd.size) continue;
-    if (!p.LA) { p.LA = Int32Array.from(p.A); p.LD = Int32Array.from(p.D); p.live = new Uint8Array(p.nT); }
+    if (!p.LA) { p.LA = Int32Array.from(p.A); p.LD = Int32Array.from(p.D); p.LAf = Float64Array.from(p.A); p.LDf = Float64Array.from(p.D); p.live = new Uint8Array(p.nT); }
     const first = Math.min(...upd.keys());
     // arrêts sans prévision : un seul retard propagé (celui du départ du dernier arrêt connu),
     // sinon un écart arrivée/départ à un arrêt de régulation se recopiait en attente fictive à chaque arrêt
@@ -85,7 +86,7 @@ function applyRT(net, feed, liveDay, dayStartEpoch) {
       if (upd.has(i)) { [a, d] = upd.get(i); delay = d - p.D[o]; }
       else { a = p.A[o] + delay; d = p.D[o] + delay; }
       if (a < prev) a = prev; if (d < a) d = a; prev = d;
-      p.LA[o] = a; p.LD[o] = d;
+      p.LAf[o] = a; p.LDf[o] = d; p.LA[o] = Math.round(a); p.LD[o] = Math.max(p.LA[o], Math.round(d));
     }
     p.live[k] = 1; matched++;
   }
