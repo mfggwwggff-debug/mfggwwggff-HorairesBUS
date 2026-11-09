@@ -35,6 +35,9 @@ cf = os.path.join(here, "corres.json")
 co = json.dumps(json.load(open(cf, encoding="utf-8")), ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/") if os.path.exists(cf) else "null"
 t = t.replace("/*__CORRES__*/null", co, 1)
 t = t.replace("/*__MAP__*/", open(os.path.join(here, "map.js"), encoding="utf-8").read(), 1).replace("<!--__HEAD__-->", HEAD, 1).replace("__DATA__", d, 1).replace("/*__ENGINE__*/", e, 1)
+# #39 : feux tricolores (build/feux.json, relevés dans OpenStreetMap par build/feux.py)
+ff = os.path.join(here, "feux.json")
+t = t.replace("/*__FEUX__*/null", open(ff, encoding="utf-8").read().strip() if os.path.exists(ff) else "null", 1)
 out = os.path.join(root, "index.html")
 if test:
     # même page, servie depuis test/ : les fichiers partagés sont un dossier plus haut

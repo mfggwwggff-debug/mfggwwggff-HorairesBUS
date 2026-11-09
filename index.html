@@ -1101,7 +1101,7 @@ function isLive(net, p, k, svcDay) { return svcDay === net.liveDay && p.live && 
 
 // Applique un flux GTFS-RT décodé. dayStartEpoch(k) = epoch (s) de minuit du jour de service k.
 function applyRT(net, feed, liveDay, dayStartEpoch) {
-  net.pats.forEach((p) => { p.LA = null; p.LD = null; p.LAf = null; p.LDf = null; p.live = null; });
+  net.pats.forEach((p) => { p.LA = null; p.LD = null; p.LAf = null; p.LDf = null; p.live = null; p.conf = null; });
   net.liveDay = liveDay; net.rtVer = (net.rtVer || 0) + 1;
   let matched = 0, total = 0;
   for (const e of feed.entity || []) {
@@ -1130,7 +1130,7 @@ function applyRT(net, feed, liveDay, dayStartEpoch) {
       upd.set(i, [a ?? d, d ?? a]);
     }
     if (!upd.size) continue;
-    if (!p.LA) { p.LA = Int32Array.from(p.A); p.LD = Int32Array.from(p.D); p.LAf = Float64Array.from(p.A); p.LDf = Float64Array.from(p.D); p.live = new Uint8Array(p.nT); }
+    if (!p.LA) { p.LA = Int32Array.from(p.A); p.LD = Int32Array.from(p.D); p.LAf = Float64Array.from(p.A); p.LDf = Float64Array.from(p.D); p.live = new Uint8Array(p.nT); p.conf = new Int16Array(p.nT).fill(-1); }
     const first = Math.min(...upd.keys());
     // arrêts sans prévision : un seul retard propagé (celui du départ du dernier arrêt connu),
     // sinon un écart arrivée/départ à un arrêt de régulation se recopiait en attente fictive à chaque arrêt
@@ -1144,6 +1144,12 @@ function applyRT(net, feed, liveDay, dayStartEpoch) {
       if (a < prev) a = prev; if (d < a) d = a; prev = d;
       p.LAf[o] = a; p.LDf[o] = d; p.LA[o] = Math.round(a); p.LD[o] = Math.max(p.LA[o], Math.round(d));
     }
+    // #39 : dernier arrêt dont le passage est confirmé par le flux : arrêts déjà retirés de la prévision
+    // (avant le premier arrêt annoncé), ou heure de départ déjà passée au moment où le flux a été produit
+    const fts = tu.ts || (feed.header && feed.header.ts) || 0, tsMin = fts ? (fts - base) / 60 : null;
+    let conf = first - 1;
+    if (tsMin != null) for (const [i, [, d]] of upd) if (d <= tsMin + 0.05 && i > conf) conf = i;
+    p.conf[k] = conf;
     p.live[k] = 1; matched++;
   }
   return { matched, total };
@@ -2215,15 +2221,21 @@ function tripState(pi, k, dk) {
   // #39 : la position et l'arrêt atteint suivent les mêmes horaires que le plan (temps d'arrêt, temps réel à la seconde)
   const RT = typeof runTimes === "function" ? runTimes(pi, k, dk) : null;
   const ra = (i) => RT ? RT.a[i] + off : at(i), rd = (i) => RT ? RT.d[i] + off : dp(i);
+  // #39 : arrêt suivant pas encore confirmé par le flux : le bus l'attend (au plus 45 s)
+  const th = RT && typeof rtHold === "function" ? rtHold(p, k, RT, t - off, live) + off : t;
   let state = "running", i = 0;
   if (t < dp(0)) state = "before";
-  else if (t > at(p.nS - 1)) { state = "done"; i = p.nS - 1; }
-  else { while (i < p.nS - 1 && ra(i + 1) <= t) i++; }
-  const atStop = state === "running" && t >= ra(i) && t <= rd(i);
+  else if (th > at(p.nS - 1)) { state = "done"; i = p.nS - 1; }
+  else { while (i < p.nS - 1 && ra(i + 1) <= th) i++; }
+  const atStop = state === "running" && th >= ra(i) && th <= rd(i);
   // position continue le long de la ligne (en nombre d'arrêts), pour faire avancer le bus
+  // (#39 : même profil de vitesse que le plan, plus lent près des arrêts et des feux)
   let pos = i;
   if (state === "before") pos = -0.35;
-  else if (state === "running" && !atStop && i < p.nS - 1) pos = i + Math.max(0, Math.min(1, (t - rd(i)) / Math.max(0.05, ra(i + 1) - rd(i))));
+  else if (state === "running" && !atStop && i < p.nS - 1) {
+    const f = Math.max(0, Math.min(1, (th - rd(i)) / Math.max(0.05, ra(i + 1) - rd(i))));
+    if (typeof segAt === "function") { const g = patGeo(pi), L = g.sOff[i + 1] - g.sOff[i]; pos = i + (L > 0 ? (segAt(pi, i, f) - g.sOff[i]) / L : f); } else pos = i + f;
+  }
   const next = state === "before" ? 0 : state === "done" ? p.nS - 1 : atStop ? i : i + 1;
   return { p, live, at, dp, sched: (i) => p.A[o + i] + off, state, i, atStop, t, pos, next };
 }
@@ -2912,7 +2924,7 @@ function mbCenter(st, instant) {
   clearTimeout(MB.progT); MB.progT = setTimeout(() => { MB.progScroll = false; }, 800);
 }
 // plein écran de Mon bus : en tirant le panneau tout en haut, le plan, l'en-tête et les onglets s'effacent
-if (/[?&]simu=/.test(location.search)) window.__t = { startFollow: (...a) => startFollow(...a), tripState: (...a) => tripState(...a), setSheet: (x) => setSheet(x), todayIdx: () => todayIdx(), net: () => net, MB, shape: (pi) => shapeOfPat[pi], BOARD, ME, onPat: userOnPat, popStop: (i) => { const p = net.P[i]; const [sx, sy] = toS(PX(p[2]), PY(p[1])); clickMap(sx, sy); return [sx, sy]; }, openPa: (i) => openPassages(i), pName: (i) => pName(i), go: (v) => go(v) , showInBus: (c, dk) => showInBus(c, dk), a28: (pi, i) => openA28(coAt(pi, i)), coAt: (pi, i) => coAt(pi, i), startGuide: (j, to) => startGuide(j, to), A28, plan: (a, b, d, t, n) => planDepart(net, a, b, d, t, n), findStop: (s) => findStop(s), dayIdx: (iso) => net.dayIndex(iso), deps: (p, d, t, h) => departures(net, p, d, t, h), lineDirs: (p) => [...stopLineDirs(net, p).values()].map((G) => ({ r: net.R[G.r].s, ri: G.r, h: G.h, dir: G.dir })), vehicles: () => vehicles(), runTimes: (pi, k, dk) => runTimes(pi, k, dk), habitJobs: () => habitJobs(), lieuxFind: (q) => lieuxFind(q), lieuxLoad: (cb) => lieuxLoad(cb), LIEUX };
+if (/[?&]simu=/.test(location.search)) window.__t = { startFollow: (...a) => startFollow(...a), tripState: (...a) => tripState(...a), setSheet: (x) => setSheet(x), todayIdx: () => todayIdx(), net: () => net, MB, shape: (pi) => shapeOfPat[pi], BOARD, ME, onPat: userOnPat, popStop: (i) => { const p = net.P[i]; const [sx, sy] = toS(PX(p[2]), PY(p[1])); clickMap(sx, sy); return [sx, sy]; }, openPa: (i) => openPassages(i), pName: (i) => pName(i), go: (v) => go(v) , showInBus: (c, dk) => showInBus(c, dk), a28: (pi, i) => openA28(coAt(pi, i)), coAt: (pi, i) => coAt(pi, i), startGuide: (j, to) => startGuide(j, to), A28, plan: (a, b, d, t, n) => planDepart(net, a, b, d, t, n), findStop: (s) => findStop(s), dayIdx: (iso) => net.dayIndex(iso), deps: (p, d, t, h) => departures(net, p, d, t, h), lineDirs: (p) => [...stopLineDirs(net, p).values()].map((G) => ({ r: net.R[G.r].s, ri: G.r, h: G.h, dir: G.dir })), vehicles: () => vehicles(), runTimes: (pi, k, dk) => runTimes(pi, k, dk), habitJobs: () => habitJobs(), lieuxFind: (q) => lieuxFind(q), lieuxLoad: (cb) => lieuxLoad(cb), LIEUX, segProfile: (a, b) => segProfile(a, b), segAt: (a, b, c) => segAt(a, b, c), patGeo: (a) => patGeo(a), rtHold: (...a) => rtHold(...a), tripState: (...a) => tripState(...a) };
 function updMbFull() { document.body.classList.toggle("mbfull", feat("plein") && isMobile() && S.view === "suivi" && sheetState === "full"); }
 
 const renderFollowBg = () => renderFollow();
@@ -3230,16 +3242,28 @@ function trCancel() {
       const pole = poles.get(trKey(m[1])); if (pole == null) continue;
       const mins = [...m[2].matchAll(/(\d{1,2}) ?h ?(\d{2})?/g)].map((h) => +h[1] * 60 + (+h[2] || 0));
       const day = net.dayIndex(iso);
+      // #39 : l'heure de l'info trafic peut s'écarter de plusieurs minutes de l'horaire : pour chaque heure citée,
+      // la course de la ligne la plus proche à ± 5 min (départ du terminus en priorité), une seule fois chacune ;
+      // la course entière est retirée (tous ses arrêts)
+      const cand = [];
       for (const pi of net.pats.keys()) {
         const p = net.pats[pi]; if (!rs.includes(p.r)) continue;
         for (let i = 0; i < p.nS - 1; i++) {
           if (net.Q[p.stops[i]][0] !== pole) continue;
-          for (let k = 0; k < p.nT; k++) {
-            if (!net.svcOn(p.sv[k], day)) continue;
-            const dt = p.D[k * p.nS + i];
-            if (mins.some((mm) => Math.abs(mm - dt) <= 1)) { (p.na ||= new Set()).add(k + ":" + day); n++; }
-          }
+          for (let k = 0; k < p.nT; k++) if (net.svcOn(p.sv[k], day)) cand.push({ pi, k, i, dt: p.D[k * p.nS + i] });
         }
+      }
+      const used = new Set();
+      for (const mm of mins) {
+        let best = null;
+        for (const c of cand) {
+          const key = c.pi + ":" + c.k, d = Math.abs(c.dt - mm); if (d > 5 || used.has(key)) continue;
+          const sc = d * 2 + (c.i === 0 ? 0 : 1);
+          if (!best || sc < best.sc) best = { c, sc, key };
+        }
+        if (!best) continue;
+        used.add(best.key); const p = net.pats[best.c.pi];
+        (p.na ||= new Set()).add(best.c.k + ":" + day); n++;
       }
     }
     if (n) TR.na.set(x.id, n);
@@ -3964,6 +3988,67 @@ function runTimes(pi, k, dk) {
   if (RTC.size > 3000) RTC.clear();
   RTC.set(key, out); return out;
 }
+// #39 : arrêt confirmé par le temps réel. Une course en temps réel dont le flux confirme les passages
+// ne dépasse pas le premier arrêt non confirmé : elle y reste « à l'arrêt » jusqu'à la confirmation,
+// au plus HOLD minutes (le flux a ~30 s de retard : on ne veut pas non plus un bus trop en retard sur la réalité).
+const HOLD = 0.75;
+function rtHold(p, k, R, t, live) {
+  if (!live || !p.conf) return t;
+  const c = p.conf[k]; if (c < 0 || c + 1 >= p.nS) return t; // flux qui ne confirme rien pour cette course : estimation seule
+  const over = t - R.d[c + 1];
+  return over > 0 ? t - Math.min(over, HOLD) : t;
+}
+// #39 : le bus ralentit à l'approche des arrêts (et en repart doucement) et aux feux tricolores (FEUX, relevés dans OSM).
+// Le temps d'un tronçon est réparti selon un « coût » le long du chemin : plus élevé près des arrêts et des feux.
+const FEUX = null;
+let FEUX_GRID = null, M_U = 0;
+const SEGC = new Map();
+// feux à moins de r (unités du plan) d'un point, via une grille de cases de 150 m
+function feuxNear(x, y, r) {
+  if (!FEUX) return [];
+  const C = 150 / M_U;
+  if (!FEUX_GRID) { FEUX_GRID = new Map(); for (const [la, lo] of FEUX) { const fx = PX(lo), fy = PY(la), key = Math.floor(fx / C) + ":" + Math.floor(fy / C); if (!FEUX_GRID.has(key)) FEUX_GRID.set(key, []); FEUX_GRID.get(key).push([fx, fy]); } }
+  const gx = Math.floor(x / C), gy = Math.floor(y / C), n = Math.ceil(r / C), out = [];
+  for (let i = -n; i <= n; i++) for (let j = -n; j <= n; j++) for (const f of FEUX_GRID.get((gx + i) + ":" + (gy + j)) || []) if (Math.hypot(f[0] - x, f[1] - y) < r) out.push(f);
+  return out;
+}
+function segProfile(pi, i) {
+  const key = pi + ":" + i; if (SEGC.has(key)) return SEGC.get(key);
+  const g = patGeo(pi), d0 = g.sOff[i], d1 = g.sOff[i + 1], L = d1 - d0;
+  if (!M_U) M_U = distM(49.25, 4.03, 49.25, 4.04) / Math.abs(PX(4.04) - PX(4.03));
+  const Lm = L * M_U, N = 32, out = { d0, L, cum: [0] };
+  if (!(Lm > 30)) { out.lin = true; SEGC.set(key, out); return out; }
+  // feux à moins de 20 m du chemin, ramenés sur le tronçon (en mètres depuis l'arrêt de départ)
+  const sig = [];
+  if (FEUX && !g.pts.some((p) => p === undefined)) {
+    for (let s = 0; s < g.pts.length - 1; s++) {
+      if (g.cum[s + 1] < d0 || g.cum[s] > d1) continue;
+      const [ax, ay] = g.pts[s], [bx, by] = g.pts[s + 1], dx = bx - ax, dy = by - ay, L2 = dx * dx + dy * dy || 1e-18;
+      for (const [fx, fy] of feuxNear((ax + bx) / 2, (ay + by) / 2, Math.sqrt(L2) / 2 + 20 / M_U)) {
+        const u = Math.max(0, Math.min(1, ((fx - ax) * dx + (fy - ay) * dy) / L2));
+        if (Math.hypot(ax + u * dx - fx, ay + u * dy - fy) * M_U > 20) continue;
+        const at = (g.cum[s] + u * Math.sqrt(L2) - d0) * M_U;
+        if (at > 25 && at < Lm - 25 && !sig.some((v) => Math.abs(v - at) < 30)) sig.push(at);
+      }
+    }
+  }
+  const ramp = Math.min(80, Lm / 3), cost = (x) => {
+    let c = 1;
+    if (x < ramp) c += 1.4 * (1 - x / ramp); if (Lm - x < ramp) c += 1.4 * (1 - (Lm - x) / ramp); // départ et arrivée en douceur
+    for (const s of sig) { const e = Math.abs(x - s); if (e < 50) c += 1.6 * (1 - e / 50); }   // feu : ralentit, parfois s'arrête
+    return c;
+  };
+  for (let n = 1; n <= N; n++) { const xa = Lm * (n - 1) / N, xb = Lm * n / N; out.cum.push(out.cum[n - 1] + (cost(xa) + 4 * cost((xa + xb) / 2) + cost(xb)) / 6 * (xb - xa)); }
+  out.N = N; out.sig = sig.length; SEGC.set(key, out); return out;
+}
+// fraction du temps de trajet → distance (unités du plan) sur le tronçon i → i+1
+function segAt(pi, i, f) {
+  const P = segProfile(pi, i); f = Math.max(0, Math.min(1, f));
+  if (P.lin) return P.d0 + f * P.L;
+  const tgt = f * P.cum[P.N]; let n = 1; while (n < P.N && P.cum[n] < tgt) n++;
+  const u = (tgt - P.cum[n - 1]) / ((P.cum[n] - P.cum[n - 1]) || 1);
+  return P.d0 + P.L * (n - 1 + u) / P.N;
+}
 // position d'une course à l'instant t (minutes depuis minuit d'aujourd'hui)
 function posOf(pi, k, dk, t0, today) {
   const p = net.pats[pi], off = (dk - today) * 1440, o = k * p.nS;
@@ -3971,13 +4056,13 @@ function posOf(pi, k, dk, t0, today) {
   if (t0 < D[o] + off || t0 > A[o + p.nS - 1] + off) return null;
   const live = isLive(net, p, k, dk);
   // même avance que Mon bus pour les courses en temps réel (le flux a un peu de retard sur la réalité)
-  const t = t0 - off + (live && typeof RT_LEAD === "number" ? RT_LEAD : 0), R = runTimes(pi, k, dk), RA = R.a, RD = R.d;
+  const R = runTimes(pi, k, dk), RA = R.a, RD = R.d, t = rtHold(p, k, R, t0 - off + (live && typeof RT_LEAD === "number" ? RT_LEAD : 0), live);
   let i = 0; while (i < p.nS - 1 && RA[i + 1] <= t) i++;
   const g = patGeo(pi);
   let d, nextI, atStop = false;
   if (t <= RD[i] && t >= RA[i]) { d = g.sOff[i]; nextI = i; atStop = true; }
   else if (i >= p.nS - 1) { d = g.sOff[p.nS - 1]; nextI = p.nS - 1; atStop = true; }
-  else { const t1 = RD[i], t2 = RA[i + 1], f = t2 > t1 ? (t - t1) / (t2 - t1) : 1; d = g.sOff[i] + Math.max(0, Math.min(1, f)) * (g.sOff[i + 1] - g.sOff[i]); nextI = i + 1; }
+  else { const t1 = RD[i], t2 = RA[i + 1], f = t2 > t1 ? (t - t1) / (t2 - t1) : 1; d = segAt(pi, i, f); nextI = i + 1; }
   // #34 : si le temps réel annonce soudain du retard (feu rouge, bouchon), le bus reste immobile
   // à sa dernière position affichée au lieu de reculer, jusqu'à ce que l'estimation le rattrape
   const key = pi + ":" + k + ":" + dk, prev = VMEM.get(key);
@@ -4743,9 +4828,9 @@ const UPD_LOG = [
     { ico: icoSvg('<path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/>'), t: "Vos bus habituels",
       b: "<p>Chaque bus habituel a son interrupteur dans Mon profil : coupez les notifications d'un bus sans le supprimer.</p><p>Par étapes, une étape de plus à 10 min : par exemple 13, 10, 5 et 2 min, puis l'arrivée du bus.</p>" },
     { ico: icoSvg('<rect x="5" y="3" width="14" height="15" rx="3"/><path d="M5 12h14M8 21l1.5-3M16 21l-1.5-3"/><circle cx="9" cy="15" r=".9" fill="currentColor"/><circle cx="15" cy="15" r=".9" fill="currentColor"/>'), t: "Des bus mieux placés",
-      b: "<p>Sur le plan et dans Mon bus, le tram marque un arrêt d'au moins 15 secondes à chaque station, le bus un court arrêt à chaque arrêt.</p><p>Le temps réel est lu à la seconde près : Mon bus annonce moins tôt l'arrivée aux arrêts.</p>" },
+      b: "<p>Sur le plan et dans Mon bus, le tram marque un arrêt d'au moins 15 secondes à chaque station, le bus un court arrêt ; ils ralentissent à l'approche des arrêts et des feux.</p><p>Un arrêt n'est donné comme passé qu'une fois confirmé par le temps réel (ou après 45 secondes) : Mon bus n'annonce plus les arrêts trop tôt.</p>" },
     { ico: icoSvg('<path d="M20 6 9 17l-5-5"/>'), t: "Et quelques corrections",
-      b: "<ul><li>Info trafic : le plan fourni par le réseau s'appelle maintenant « Plan de report », pour ne plus le confondre avec « Voir sur le plan ».</li></ul>" },
+      b: "<ul><li>Info trafic : le plan fourni par le réseau s'appelle maintenant « Plan de report », pour ne plus le confondre avec « Voir sur le plan ».</li><li>Départs non assurés : l'heure annoncée dans l'info trafic est retrouvée même avec quelques minutes d'écart (jusqu'à 5 min), et la course est retirée sur toute la ligne.</li></ul>" },
   ] },
   { v: "2026-11-09.4", t: "Mon profil plus simple", slides: [
     { ico: icoSvg('<circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.6 4.2-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/>'), t: "Mon profil plus simple",

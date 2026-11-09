@@ -1796,15 +1796,21 @@ function tripState(pi, k, dk) {
   // #39 : la position et l'arrêt atteint suivent les mêmes horaires que le plan (temps d'arrêt, temps réel à la seconde)
   const RT = typeof runTimes === "function" ? runTimes(pi, k, dk) : null;
   const ra = (i) => RT ? RT.a[i] + off : at(i), rd = (i) => RT ? RT.d[i] + off : dp(i);
+  // #39 : arrêt suivant pas encore confirmé par le flux : le bus l'attend (au plus 45 s)
+  const th = RT && typeof rtHold === "function" ? rtHold(p, k, RT, t - off, live) + off : t;
   let state = "running", i = 0;
   if (t < dp(0)) state = "before";
-  else if (t > at(p.nS - 1)) { state = "done"; i = p.nS - 1; }
-  else { while (i < p.nS - 1 && ra(i + 1) <= t) i++; }
-  const atStop = state === "running" && t >= ra(i) && t <= rd(i);
+  else if (th > at(p.nS - 1)) { state = "done"; i = p.nS - 1; }
+  else { while (i < p.nS - 1 && ra(i + 1) <= th) i++; }
+  const atStop = state === "running" && th >= ra(i) && th <= rd(i);
   // position continue le long de la ligne (en nombre d'arrêts), pour faire avancer le bus
+  // (#39 : même profil de vitesse que le plan, plus lent près des arrêts et des feux)
   let pos = i;
   if (state === "before") pos = -0.35;
-  else if (state === "running" && !atStop && i < p.nS - 1) pos = i + Math.max(0, Math.min(1, (t - rd(i)) / Math.max(0.05, ra(i + 1) - rd(i))));
+  else if (state === "running" && !atStop && i < p.nS - 1) {
+    const f = Math.max(0, Math.min(1, (th - rd(i)) / Math.max(0.05, ra(i + 1) - rd(i))));
+    if (typeof segAt === "function") { const g = patGeo(pi), L = g.sOff[i + 1] - g.sOff[i]; pos = i + (L > 0 ? (segAt(pi, i, f) - g.sOff[i]) / L : f); } else pos = i + f;
+  }
   const next = state === "before" ? 0 : state === "done" ? p.nS - 1 : atStop ? i : i + 1;
   return { p, live, at, dp, sched: (i) => p.A[o + i] + off, state, i, atStop, t, pos, next };
 }
@@ -2493,7 +2499,7 @@ function mbCenter(st, instant) {
   clearTimeout(MB.progT); MB.progT = setTimeout(() => { MB.progScroll = false; }, 800);
 }
 // plein écran de Mon bus : en tirant le panneau tout en haut, le plan, l'en-tête et les onglets s'effacent
-if (/[?&]simu=/.test(location.search)) window.__t = { startFollow: (...a) => startFollow(...a), tripState: (...a) => tripState(...a), setSheet: (x) => setSheet(x), todayIdx: () => todayIdx(), net: () => net, MB, shape: (pi) => shapeOfPat[pi], BOARD, ME, onPat: userOnPat, popStop: (i) => { const p = net.P[i]; const [sx, sy] = toS(PX(p[2]), PY(p[1])); clickMap(sx, sy); return [sx, sy]; }, openPa: (i) => openPassages(i), pName: (i) => pName(i), go: (v) => go(v) , showInBus: (c, dk) => showInBus(c, dk), a28: (pi, i) => openA28(coAt(pi, i)), coAt: (pi, i) => coAt(pi, i), startGuide: (j, to) => startGuide(j, to), A28, plan: (a, b, d, t, n) => planDepart(net, a, b, d, t, n), findStop: (s) => findStop(s), dayIdx: (iso) => net.dayIndex(iso), deps: (p, d, t, h) => departures(net, p, d, t, h), lineDirs: (p) => [...stopLineDirs(net, p).values()].map((G) => ({ r: net.R[G.r].s, ri: G.r, h: G.h, dir: G.dir })), vehicles: () => vehicles(), runTimes: (pi, k, dk) => runTimes(pi, k, dk), habitJobs: () => habitJobs(), lieuxFind: (q) => lieuxFind(q), lieuxLoad: (cb) => lieuxLoad(cb), LIEUX };
+if (/[?&]simu=/.test(location.search)) window.__t = { startFollow: (...a) => startFollow(...a), tripState: (...a) => tripState(...a), setSheet: (x) => setSheet(x), todayIdx: () => todayIdx(), net: () => net, MB, shape: (pi) => shapeOfPat[pi], BOARD, ME, onPat: userOnPat, popStop: (i) => { const p = net.P[i]; const [sx, sy] = toS(PX(p[2]), PY(p[1])); clickMap(sx, sy); return [sx, sy]; }, openPa: (i) => openPassages(i), pName: (i) => pName(i), go: (v) => go(v) , showInBus: (c, dk) => showInBus(c, dk), a28: (pi, i) => openA28(coAt(pi, i)), coAt: (pi, i) => coAt(pi, i), startGuide: (j, to) => startGuide(j, to), A28, plan: (a, b, d, t, n) => planDepart(net, a, b, d, t, n), findStop: (s) => findStop(s), dayIdx: (iso) => net.dayIndex(iso), deps: (p, d, t, h) => departures(net, p, d, t, h), lineDirs: (p) => [...stopLineDirs(net, p).values()].map((G) => ({ r: net.R[G.r].s, ri: G.r, h: G.h, dir: G.dir })), vehicles: () => vehicles(), runTimes: (pi, k, dk) => runTimes(pi, k, dk), habitJobs: () => habitJobs(), lieuxFind: (q) => lieuxFind(q), lieuxLoad: (cb) => lieuxLoad(cb), LIEUX, segProfile: (a, b) => segProfile(a, b), segAt: (a, b, c) => segAt(a, b, c), patGeo: (a) => patGeo(a), rtHold: (...a) => rtHold(...a), tripState: (...a) => tripState(...a) };
 function updMbFull() { document.body.classList.toggle("mbfull", feat("plein") && isMobile() && S.view === "suivi" && sheetState === "full"); }
 
 const renderFollowBg = () => renderFollow();
@@ -2811,16 +2817,28 @@ function trCancel() {
       const pole = poles.get(trKey(m[1])); if (pole == null) continue;
       const mins = [...m[2].matchAll(/(\d{1,2}) ?h ?(\d{2})?/g)].map((h) => +h[1] * 60 + (+h[2] || 0));
       const day = net.dayIndex(iso);
+      // #39 : l'heure de l'info trafic peut s'écarter de plusieurs minutes de l'horaire : pour chaque heure citée,
+      // la course de la ligne la plus proche à ± 5 min (départ du terminus en priorité), une seule fois chacune ;
+      // la course entière est retirée (tous ses arrêts)
+      const cand = [];
       for (const pi of net.pats.keys()) {
         const p = net.pats[pi]; if (!rs.includes(p.r)) continue;
         for (let i = 0; i < p.nS - 1; i++) {
           if (net.Q[p.stops[i]][0] !== pole) continue;
-          for (let k = 0; k < p.nT; k++) {
-            if (!net.svcOn(p.sv[k], day)) continue;
-            const dt = p.D[k * p.nS + i];
-            if (mins.some((mm) => Math.abs(mm - dt) <= 1)) { (p.na ||= new Set()).add(k + ":" + day); n++; }
-          }
+          for (let k = 0; k < p.nT; k++) if (net.svcOn(p.sv[k], day)) cand.push({ pi, k, i, dt: p.D[k * p.nS + i] });
         }
+      }
+      const used = new Set();
+      for (const mm of mins) {
+        let best = null;
+        for (const c of cand) {
+          const key = c.pi + ":" + c.k, d = Math.abs(c.dt - mm); if (d > 5 || used.has(key)) continue;
+          const sc = d * 2 + (c.i === 0 ? 0 : 1);
+          if (!best || sc < best.sc) best = { c, sc, key };
+        }
+        if (!best) continue;
+        used.add(best.key); const p = net.pats[best.c.pi];
+        (p.na ||= new Set()).add(best.c.k + ":" + day); n++;
       }
     }
     if (n) TR.na.set(x.id, n);
@@ -3452,9 +3470,9 @@ const UPD_LOG = [
     { ico: icoSvg('<path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/>'), t: "Vos bus habituels",
       b: "<p>Chaque bus habituel a son interrupteur dans Mon profil : coupez les notifications d'un bus sans le supprimer.</p><p>Par étapes, une étape de plus à 10 min : par exemple 13, 10, 5 et 2 min, puis l'arrivée du bus.</p>" },
     { ico: icoSvg('<rect x="5" y="3" width="14" height="15" rx="3"/><path d="M5 12h14M8 21l1.5-3M16 21l-1.5-3"/><circle cx="9" cy="15" r=".9" fill="currentColor"/><circle cx="15" cy="15" r=".9" fill="currentColor"/>'), t: "Des bus mieux placés",
-      b: "<p>Sur le plan et dans Mon bus, le tram marque un arrêt d'au moins 15 secondes à chaque station, le bus un court arrêt à chaque arrêt.</p><p>Le temps réel est lu à la seconde près : Mon bus annonce moins tôt l'arrivée aux arrêts.</p>" },
+      b: "<p>Sur le plan et dans Mon bus, le tram marque un arrêt d'au moins 15 secondes à chaque station, le bus un court arrêt ; ils ralentissent à l'approche des arrêts et des feux.</p><p>Un arrêt n'est donné comme passé qu'une fois confirmé par le temps réel (ou après 45 secondes) : Mon bus n'annonce plus les arrêts trop tôt.</p>" },
     { ico: icoSvg('<path d="M20 6 9 17l-5-5"/>'), t: "Et quelques corrections",
-      b: "<ul><li>Info trafic : le plan fourni par le réseau s'appelle maintenant « Plan de report », pour ne plus le confondre avec « Voir sur le plan ».</li></ul>" },
+      b: "<ul><li>Info trafic : le plan fourni par le réseau s'appelle maintenant « Plan de report », pour ne plus le confondre avec « Voir sur le plan ».</li><li>Départs non assurés : l'heure annoncée dans l'info trafic est retrouvée même avec quelques minutes d'écart (jusqu'à 5 min), et la course est retirée sur toute la ligne.</li></ul>" },
   ] },
   { v: "2026-11-09.4", t: "Mon profil plus simple", slides: [
     { ico: icoSvg('<circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.6 4.2-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/>'), t: "Mon profil plus simple",

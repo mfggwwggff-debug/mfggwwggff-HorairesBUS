@@ -183,6 +183,67 @@ function runTimes(pi, k, dk) {
   if (RTC.size > 3000) RTC.clear();
   RTC.set(key, out); return out;
 }
+// #39 : arrêt confirmé par le temps réel. Une course en temps réel dont le flux confirme les passages
+// ne dépasse pas le premier arrêt non confirmé : elle y reste « à l'arrêt » jusqu'à la confirmation,
+// au plus HOLD minutes (le flux a ~30 s de retard : on ne veut pas non plus un bus trop en retard sur la réalité).
+const HOLD = 0.75;
+function rtHold(p, k, R, t, live) {
+  if (!live || !p.conf) return t;
+  const c = p.conf[k]; if (c < 0 || c + 1 >= p.nS) return t; // flux qui ne confirme rien pour cette course : estimation seule
+  const over = t - R.d[c + 1];
+  return over > 0 ? t - Math.min(over, HOLD) : t;
+}
+// #39 : le bus ralentit à l'approche des arrêts (et en repart doucement) et aux feux tricolores (FEUX, relevés dans OSM).
+// Le temps d'un tronçon est réparti selon un « coût » le long du chemin : plus élevé près des arrêts et des feux.
+const FEUX = /*__FEUX__*/null;
+let FEUX_GRID = null, M_U = 0;
+const SEGC = new Map();
+// feux à moins de r (unités du plan) d'un point, via une grille de cases de 150 m
+function feuxNear(x, y, r) {
+  if (!FEUX) return [];
+  const C = 150 / M_U;
+  if (!FEUX_GRID) { FEUX_GRID = new Map(); for (const [la, lo] of FEUX) { const fx = PX(lo), fy = PY(la), key = Math.floor(fx / C) + ":" + Math.floor(fy / C); if (!FEUX_GRID.has(key)) FEUX_GRID.set(key, []); FEUX_GRID.get(key).push([fx, fy]); } }
+  const gx = Math.floor(x / C), gy = Math.floor(y / C), n = Math.ceil(r / C), out = [];
+  for (let i = -n; i <= n; i++) for (let j = -n; j <= n; j++) for (const f of FEUX_GRID.get((gx + i) + ":" + (gy + j)) || []) if (Math.hypot(f[0] - x, f[1] - y) < r) out.push(f);
+  return out;
+}
+function segProfile(pi, i) {
+  const key = pi + ":" + i; if (SEGC.has(key)) return SEGC.get(key);
+  const g = patGeo(pi), d0 = g.sOff[i], d1 = g.sOff[i + 1], L = d1 - d0;
+  if (!M_U) M_U = distM(49.25, 4.03, 49.25, 4.04) / Math.abs(PX(4.04) - PX(4.03));
+  const Lm = L * M_U, N = 32, out = { d0, L, cum: [0] };
+  if (!(Lm > 30)) { out.lin = true; SEGC.set(key, out); return out; }
+  // feux à moins de 20 m du chemin, ramenés sur le tronçon (en mètres depuis l'arrêt de départ)
+  const sig = [];
+  if (FEUX && !g.pts.some((p) => p === undefined)) {
+    for (let s = 0; s < g.pts.length - 1; s++) {
+      if (g.cum[s + 1] < d0 || g.cum[s] > d1) continue;
+      const [ax, ay] = g.pts[s], [bx, by] = g.pts[s + 1], dx = bx - ax, dy = by - ay, L2 = dx * dx + dy * dy || 1e-18;
+      for (const [fx, fy] of feuxNear((ax + bx) / 2, (ay + by) / 2, Math.sqrt(L2) / 2 + 20 / M_U)) {
+        const u = Math.max(0, Math.min(1, ((fx - ax) * dx + (fy - ay) * dy) / L2));
+        if (Math.hypot(ax + u * dx - fx, ay + u * dy - fy) * M_U > 20) continue;
+        const at = (g.cum[s] + u * Math.sqrt(L2) - d0) * M_U;
+        if (at > 25 && at < Lm - 25 && !sig.some((v) => Math.abs(v - at) < 30)) sig.push(at);
+      }
+    }
+  }
+  const ramp = Math.min(80, Lm / 3), cost = (x) => {
+    let c = 1;
+    if (x < ramp) c += 1.4 * (1 - x / ramp); if (Lm - x < ramp) c += 1.4 * (1 - (Lm - x) / ramp); // départ et arrivée en douceur
+    for (const s of sig) { const e = Math.abs(x - s); if (e < 50) c += 1.6 * (1 - e / 50); }   // feu : ralentit, parfois s'arrête
+    return c;
+  };
+  for (let n = 1; n <= N; n++) { const xa = Lm * (n - 1) / N, xb = Lm * n / N; out.cum.push(out.cum[n - 1] + (cost(xa) + 4 * cost((xa + xb) / 2) + cost(xb)) / 6 * (xb - xa)); }
+  out.N = N; out.sig = sig.length; SEGC.set(key, out); return out;
+}
+// fraction du temps de trajet → distance (unités du plan) sur le tronçon i → i+1
+function segAt(pi, i, f) {
+  const P = segProfile(pi, i); f = Math.max(0, Math.min(1, f));
+  if (P.lin) return P.d0 + f * P.L;
+  const tgt = f * P.cum[P.N]; let n = 1; while (n < P.N && P.cum[n] < tgt) n++;
+  const u = (tgt - P.cum[n - 1]) / ((P.cum[n] - P.cum[n - 1]) || 1);
+  return P.d0 + P.L * (n - 1 + u) / P.N;
+}
 // position d'une course à l'instant t (minutes depuis minuit d'aujourd'hui)
 function posOf(pi, k, dk, t0, today) {
   const p = net.pats[pi], off = (dk - today) * 1440, o = k * p.nS;
@@ -190,13 +251,13 @@ function posOf(pi, k, dk, t0, today) {
   if (t0 < D[o] + off || t0 > A[o + p.nS - 1] + off) return null;
   const live = isLive(net, p, k, dk);
   // même avance que Mon bus pour les courses en temps réel (le flux a un peu de retard sur la réalité)
-  const t = t0 - off + (live && typeof RT_LEAD === "number" ? RT_LEAD : 0), R = runTimes(pi, k, dk), RA = R.a, RD = R.d;
+  const R = runTimes(pi, k, dk), RA = R.a, RD = R.d, t = rtHold(p, k, R, t0 - off + (live && typeof RT_LEAD === "number" ? RT_LEAD : 0), live);
   let i = 0; while (i < p.nS - 1 && RA[i + 1] <= t) i++;
   const g = patGeo(pi);
   let d, nextI, atStop = false;
   if (t <= RD[i] && t >= RA[i]) { d = g.sOff[i]; nextI = i; atStop = true; }
   else if (i >= p.nS - 1) { d = g.sOff[p.nS - 1]; nextI = p.nS - 1; atStop = true; }
-  else { const t1 = RD[i], t2 = RA[i + 1], f = t2 > t1 ? (t - t1) / (t2 - t1) : 1; d = g.sOff[i] + Math.max(0, Math.min(1, f)) * (g.sOff[i + 1] - g.sOff[i]); nextI = i + 1; }
+  else { const t1 = RD[i], t2 = RA[i + 1], f = t2 > t1 ? (t - t1) / (t2 - t1) : 1; d = segAt(pi, i, f); nextI = i + 1; }
   // #34 : si le temps réel annonce soudain du retard (feu rouge, bouchon), le bus reste immobile
   // à sa dernière position affichée au lieu de reculer, jusqu'à ce que l'estimation le rattrape
   const key = pi + ":" + k + ":" + dk, prev = VMEM.get(key);

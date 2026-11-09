@@ -45,7 +45,7 @@ function isLive(net, p, k, svcDay) { return svcDay === net.liveDay && p.live && 
 
 // Applique un flux GTFS-RT décodé. dayStartEpoch(k) = epoch (s) de minuit du jour de service k.
 function applyRT(net, feed, liveDay, dayStartEpoch) {
-  net.pats.forEach((p) => { p.LA = null; p.LD = null; p.LAf = null; p.LDf = null; p.live = null; });
+  net.pats.forEach((p) => { p.LA = null; p.LD = null; p.LAf = null; p.LDf = null; p.live = null; p.conf = null; });
   net.liveDay = liveDay; net.rtVer = (net.rtVer || 0) + 1;
   let matched = 0, total = 0;
   for (const e of feed.entity || []) {
@@ -74,7 +74,7 @@ function applyRT(net, feed, liveDay, dayStartEpoch) {
       upd.set(i, [a ?? d, d ?? a]);
     }
     if (!upd.size) continue;
-    if (!p.LA) { p.LA = Int32Array.from(p.A); p.LD = Int32Array.from(p.D); p.LAf = Float64Array.from(p.A); p.LDf = Float64Array.from(p.D); p.live = new Uint8Array(p.nT); }
+    if (!p.LA) { p.LA = Int32Array.from(p.A); p.LD = Int32Array.from(p.D); p.LAf = Float64Array.from(p.A); p.LDf = Float64Array.from(p.D); p.live = new Uint8Array(p.nT); p.conf = new Int16Array(p.nT).fill(-1); }
     const first = Math.min(...upd.keys());
     // arrêts sans prévision : un seul retard propagé (celui du départ du dernier arrêt connu),
     // sinon un écart arrivée/départ à un arrêt de régulation se recopiait en attente fictive à chaque arrêt
@@ -88,6 +88,12 @@ function applyRT(net, feed, liveDay, dayStartEpoch) {
       if (a < prev) a = prev; if (d < a) d = a; prev = d;
       p.LAf[o] = a; p.LDf[o] = d; p.LA[o] = Math.round(a); p.LD[o] = Math.max(p.LA[o], Math.round(d));
     }
+    // #39 : dernier arrêt dont le passage est confirmé par le flux : arrêts déjà retirés de la prévision
+    // (avant le premier arrêt annoncé), ou heure de départ déjà passée au moment où le flux a été produit
+    const fts = tu.ts || (feed.header && feed.header.ts) || 0, tsMin = fts ? (fts - base) / 60 : null;
+    let conf = first - 1;
+    if (tsMin != null) for (const [i, [, d]] of upd) if (d <= tsMin + 0.05 && i > conf) conf = i;
+    p.conf[k] = conf;
     p.live[k] = 1; matched++;
   }
   return { matched, total };
