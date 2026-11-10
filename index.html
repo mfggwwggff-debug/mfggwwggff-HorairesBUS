@@ -3249,13 +3249,31 @@ function trZoom(x, open = true) {
 // jamais proposées dans l'itinéraire, pas de bus sur le plan). La date vient de la ligne « Samedi 7 novembre 2026 : », sinon de l'info, sinon aujourd'hui.
 const MOIS = ["janvier", "fevrier", "mars", "avril", "mai", "juin", "juillet", "aout", "septembre", "octobre", "novembre", "decembre"];
 const trKey = (s) => trPlain(s).replace(/[^a-z0-9]+/g, " ").trim();
+// Le nom cité dans l'info trafic n'est pas toujours celui des horaires (« Départs de Parc des Expos non assurés »
+// pour l'arrêt « Parc Expositions ») : la ligne de l'info était alors ignorée en silence et ses départs restaient
+// dans l'appli. On cherche parmi les seuls arrêts desservis par les lignes de l'info : d'abord le nom exact, puis
+// mot à mot (petits mots ignorés, un mot cité peut être abrégé : « expos » → « expositions ») ; un seul arrêt doit convenir.
+const TR_PETITS = new Set(["de", "des", "du", "d", "la", "le", "les", "l", "et", "au", "aux", "a", "en", "sur", "sous", "lez"]);
+const trMots = (s) => trKey(s).split(" ").filter((w) => w && !TR_PETITS.has(w));
+function trPole(name, poleIds) {
+  const k = trKey(name);
+  for (const i of poleIds) if (trKey(net.P[i][0]) === k) return i;
+  const want = trMots(name); if (!want.length) return null;
+  const hits = [];
+  for (const i of poleIds) {
+    const have = trMots(net.P[i][0]);
+    if (want.every((w) => have.some((h) => h.startsWith(w) || w.startsWith(h)))) hits.push(i);
+  }
+  return hits.length === 1 ? hits[0] : null;
+}
 function trCancel() {
   net.pats.forEach((p) => { p.na = null; });
   TR.na = new Map(); // id de l'info → nombre de départs retirés
-  const poles = new Map(net.P.map((P, i) => [trKey(P[0]), i]));
   for (const x of TR.items) {
     if (!/non assur|pas assur/.test(trText(x))) continue;
     const rs = trRoutes(x); if (!rs.length) continue;
+    const poleIds = new Set();
+    for (const p of net.pats) if (rs.includes(p.r)) for (let i = 0; i < p.nS; i++) poleIds.add(net.Q[p.stops[i]][0]);
     let iso = x.start || parisNow().iso, n = 0;
     for (const b of x.b || []) {
       const t = trPlain((b.r || []).map((r) => r[0]).join(""));
@@ -3263,7 +3281,7 @@ function trCancel() {
       if (dm) { iso = `${dm[3]}-${String(MOIS.indexOf(dm[2]) + 1).padStart(2, "0")}-${dm[1].padStart(2, "0")}`; continue; }
       const m = t.match(/departs? (?:de |du |d')(.+?) (?:sont |ne sont pas |)(?:non|pas) assures? ?:? ?(.+)/);
       if (!m) continue;
-      const pole = poles.get(trKey(m[1])); if (pole == null) continue;
+      const pole = trPole(m[1], poleIds); if (pole == null) continue;
       const mins = [...m[2].matchAll(/(\d{1,2}) ?h ?(\d{2})?/g)].map((h) => +h[1] * 60 + (+h[2] || 0));
       const day = net.dayIndex(iso);
       // #39 : l'heure de l'info trafic peut s'écarter de plusieurs minutes de l'horaire : pour chaque heure citée,
@@ -4846,6 +4864,10 @@ const UPD_0611 = [
 // ajouter une entrée en tête (1 à 4 volets de nouveautés + un volet « Corrections »), elle s'affiche une fois.
 const personSvg = (n) => `<svg width="${n}" height="${n}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.6 4.2-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/></svg>`;
 const UPD_LOG = [
+  { v: "2026-11-10", t: "Quelques corrections", slides: [
+    { ico: icoSvg('<path d="M20 6 9 17l-5-5"/>'), t: "Et quelques corrections",
+      b: "<ul><li>Départs non assurés : quand une info trafic annonce des départs dans les deux sens de la ligne, les départs des deux terminus sont bien retirés des horaires et des itinéraires, même si le nom de l'arrêt est écrit autrement que dans les horaires.</li></ul>" },
+  ] },
   { v: "2026-11-09.5", t: "Lieux, bus habituels et position des bus", slides: [
     { ico: icoSvg('<path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/>'), t: "Des lieux dans l'itinéraire",
       b: "<p>Tapez le nom d'une école, d'un musée, d'un magasin ou d'un restaurant dans Départ ou Arrivée : il apparaît dans « Lieux », avec sa rue et sa commune.</p><p>Les adresses proposées sont maintenant celles des communes du Grand Reims seulement.</p>" },
