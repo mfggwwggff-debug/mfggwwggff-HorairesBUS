@@ -4,6 +4,8 @@ name: Service d'alertes
 # applique le schéma, déploie, puis publie l'adresse du service dans notifs.json (lu par l'appli)
 # et le journal de la mise en ligne dans notifs-deploy.log (secrets masqués).
 # Secrets du dépôt nécessaires : CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID.
+# Secret facultatif GRM_ADMIN_KEY (#40) : clé d'accès de la page admin/, recopiée dans le secret
+# ADMIN_KEY du Worker. Sans elle, l'outil d'envoi refuse tout (le reste du service marche).
 on:
   push:
     branches: [main]
@@ -26,6 +28,7 @@ jobs:
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      GRM_ADMIN_KEY: ${{ secrets.GRM_ADMIN_KEY }}
     steps:
       - uses: actions/checkout@v4
 
@@ -59,8 +62,14 @@ jobs:
           DC=$?
           URL=$(grep -o 'https://[A-Za-z0-9.-]*\.workers\.dev' out.txt | head -1)
           say "adresse : ${URL:-AUCUNE} (code $DC)"
+          say "-- clé de la page admin (#40)"
+          if [ -n "$GRM_ADMIN_KEY" ]; then
+            printf '%s' "$GRM_ADMIN_KEY" | wrangler secret put ADMIN_KEY > out.txt 2>&1 && say "clé ADMIN_KEY en place" || { cat out.txt >> $LOG; say "ERREUR : clé ADMIN_KEY non posée"; }
+          else
+            say "secret GRM_ADMIN_KEY absent : l'outil d'envoi restera fermé"
+          fi
           # masque les identifiants avant publication
-          for v in "$CLOUDFLARE_ACCOUNT_ID" "$CLOUDFLARE_API_TOKEN" "$ID"; do [ -n "$v" ] && sed -i "s/$v/***/g" $LOG; done
+          for v in "$CLOUDFLARE_ACCOUNT_ID" "$CLOUDFLARE_API_TOKEN" "$ID" "$GRM_ADMIN_KEY"; do [ -n "$v" ] && sed -i "s/$v/***/g" $LOG; done
           echo "url=$URL" >> "$GITHUB_OUTPUT"
 
       - name: Publier l'adresse et le journal

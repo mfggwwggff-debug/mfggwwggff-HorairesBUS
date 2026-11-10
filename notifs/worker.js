@@ -65,14 +65,38 @@ async function vapidHeader(env, endpoint) {
   JWTS.set(aud, { exp, h }); return h;
 }
 
-// Envoie une notification ; rend false si l'abonnement est mort (à effacer).
+// Envoie une notification. Rend { ok, dead, status } : ok = Apple / Google a pris le message,
+// dead = abonnement mort (à effacer). « Pris » ne veut pas dire « reçu » : la réception est signalée
+// par sw.js (#40, adresse /recu).
 async function sendPush(env, sub, msg, topic) {
   const body = await encryptPush(JSON.stringify(msg), sub.p256dh, sub.auth);
   const headers = { "Content-Encoding": "aes128gcm", "Content-Type": "application/octet-stream", TTL: "900", Urgency: "high", Authorization: await vapidHeader(env, sub.endpoint) };
   if (topic) headers.Topic = topic.replace(/[^A-Za-z0-9_-]/g, "").slice(0, 32);
   const r = await fetch(sub.endpoint, { method: "POST", headers, body });
-  if (r.status === 404 || r.status === 410) return false;
-  return true;
+  const dead = r.status === 404 || r.status === 410;
+  return { ok: r.status >= 200 && r.status < 300, dead, status: r.status };
+}
+
+// ---------- #40 : journal des envois et jeton de réception ----------
+// Chaque notification part avec son numéro d'envoi, l'identifiant du téléphone et un jeton signé ;
+// sw.js les renvoie à /recu (affichée) puis à /vu (touchée). Le jeton évite qu'on gonfle les compteurs.
+let RSEC = null;
+async function rsec(env) {
+  if (RSEC) return RSEC;
+  let row = await env.DB.prepare("SELECT v FROM kv WHERE k = 'rsec'").first();
+  if (!row) { await env.DB.prepare("INSERT OR IGNORE INTO kv (k, v) VALUES ('rsec', ?)").bind(b64u(rand(24))).run(); row = await env.DB.prepare("SELECT v FROM kv WHERE k = 'rsec'").first(); }
+  return (RSEC = unb64u(row.v));
+}
+const rtok = async (env, n, sub) => b64u(await hmac(await rsec(env), enc.encode(n + "|" + sub))).slice(0, 16);
+async function newEnvoi(env, kind, m, cible, nsub) {
+  const r = await env.DB.prepare("INSERT INTO envois (at, kind, title, body, cible, nsub, ok, fail) VALUES (?, ?, ?, ?, ?, ?, 0, 0)")
+    .bind(Date.now(), kind, clip(m.title, 80), clip(m.body, 240), clip(cible, 40), nsub || 1).run();
+  return r.meta.last_row_id;
+}
+const bumpStmt = (env, id, ok, fail) => env.DB.prepare("UPDATE envois SET ok = ok + ?, fail = fail + ? WHERE id = ?").bind(ok, fail, id);
+// Envoie en ajoutant de quoi signaler la réception.
+async function deliver(env, sub, m, envoi, topic) {
+  return sendPush(env, sub, Object.assign({}, m, { n: envoi, i: sub.id, k: await rtok(env, envoi, sub.id) }), topic);
 }
 
 // ---------- heure de Paris ----------
@@ -169,6 +193,105 @@ async function dropSub(env, id) {
 const clip = (s, n) => String(s == null ? "" : s).slice(0, n);
 const cleanMsg = (j) => ({ title: clip(j.title, 80), body: clip(j.body, 240), url: clip(j.url || "./", 200), tag: clip(j.tag || "", 40) });
 
+// ---------- #40 : outil d'envoi (page admin/) ----------
+const KIND_MAX = 40;         // envois immédiats par requête (offre gratuite : 50 requêtes sortantes)
+const ADM = new Map();       // essais ratés par adresse (mémoire de l'isolat)
+const eq = (a, b) => { // comparaison à temps constant
+  let d = a.length === b.length ? 0 : 1;
+  for (let i = 0; i < Math.max(a.length, b.length); i++) d |= (a.charCodeAt(i) || 0) ^ (b.charCodeAt(i) || 0);
+  return d === 0;
+};
+async function admin(req, env, b, now) {
+  const want = String(env.ADMIN_KEY || "");
+  if (!want) return json({ error: "Aucune clé d'accès n'est réglée sur le service (secret ADMIN_KEY)." }, 503);
+  const ip = req.headers.get("CF-Connecting-IP") || "?";
+  const f = ADM.get(ip);
+  if (f && f.n >= 5 && now - f.at < 3600e3) return json({ error: "Trop d'essais ratés : réessayez dans une heure." }, 429);
+  if (!eq(String(b.key || ""), want)) {
+    ADM.set(ip, { n: (f && now - f.at < 3600e3 ? f.n : 0) + 1, at: now });
+    await new Promise((r) => setTimeout(r, 700));
+    return json({ error: "Clé refusée." }, 401);
+  }
+  ADM.delete(ip);
+  const op = String(b.op || "");
+
+  if (op === "etat") {
+    const [subs, jobs, habits, tr] = await Promise.all([
+      env.DB.prepare("SELECT id, created, seen, prefs FROM subs ORDER BY created DESC LIMIT 200").all(),
+      env.DB.prepare("SELECT COUNT(*) n FROM jobs").first(),
+      env.DB.prepare("SELECT COUNT(*) n FROM habits WHERE at > ?").bind(now).first(),
+      env.DB.prepare("SELECT v FROM kv WHERE k = 'trAt'").first(),
+    ]);
+    const phones = (subs.results || []).map((s) => {
+      const p = JSON.parse(s.prefs || "{}");
+      return { id: s.id, created: s.created, seen: s.seen, lines: (p.lines || []).length, hab: (p.hab || []).length, trafic: !!p.trafic, quiet: !!p.quiet };
+    });
+    return json({ ok: true, phones, jobs: jobs.n, habits: habits.n, traficAt: tr ? +tr.v : 0, now });
+  }
+
+  if (op === "envoyer") {
+    const title = clip(b.titre, 60).trim(), body = clip(b.corps, 150).trim();
+    if (!title) return json({ error: "Il faut au moins un titre." }, 400);
+    let url = clip(b.url || "./", 120).trim() || "./";
+    if (!/^(\.\/|#)/.test(url)) return json({ error: "Le lien doit rester dans l'appli (./… ou #…)." }, 400);
+    const one = b.sub ? clip(b.sub, 24) : null;
+    const subs = (one
+      ? await env.DB.prepare("SELECT * FROM subs WHERE id = ?").bind(one).all()
+      : await env.DB.prepare("SELECT * FROM subs ORDER BY created").all()).results || [];
+    if (!subs.length) return json({ error: one ? "Ce téléphone n'est plus abonné." : "Aucun téléphone n'est abonné aux alertes." }, 400);
+    const envoi = await newEnvoi(env, "msg", { title, body }, one || "tous", subs.length);
+    const m = { title, body, url, tag: "msg" + envoi };
+    let ok = 0, fail = 0, plus = 0, imm = 0;
+    const st = [], dead = [];
+    for (const s of subs) {
+      const p = JSON.parse(s.prefs || "{}");
+      const at = b.urgent ? 0 : quietUntil(p, now);
+      if (at || imm >= KIND_MAX) {
+        // heures calmes, ou file d'attente si beaucoup de téléphones : repris par le déclencheur
+        st.push(env.DB.prepare("INSERT INTO jobs (sub, kind, at, msg) VALUES (?, 'msg', ?, ?)").bind(s.id, at || now, JSON.stringify(Object.assign({ n: envoi }, m))));
+        plus++; continue;
+      }
+      imm++;
+      try {
+        const r = await deliver(env, s, m, envoi, "m" + envoi);
+        if (r.ok) ok++; else { fail++; if (r.dead) dead.push(s.id); }
+      } catch (e) { fail++; }
+    }
+    if (ok || fail) st.push(bumpStmt(env, envoi, ok, fail));
+    if (st.length) await env.DB.batch(st);
+    for (const id of dead) await dropSub(env, id);
+    return json({ ok: true, n: envoi, total: subs.length, envoyes: ok, echecs: fail, differes: plus });
+  }
+
+  if (op === "envois") {
+    const r = await env.DB.prepare(`SELECT e.id, e.at, e.kind, e.title, e.body, e.cible, e.nsub, e.ok, e.fail,
+      (SELECT COUNT(*) FROM recus r WHERE r.envoi = e.id) recus,
+      (SELECT COUNT(*) FROM recus r WHERE r.envoi = e.id AND r.vu IS NOT NULL) vus
+      FROM envois e ORDER BY e.id DESC LIMIT ?`).bind(Math.min(60, Math.max(1, +b.limit || 30))).all();
+    return json({ ok: true, envois: r.results || [] });
+  }
+
+  if (op === "detail") {
+    const n = Math.round(+b.n) || 0;
+    const r = await env.DB.prepare("SELECT sub, at, vu FROM recus WHERE envoi = ? ORDER BY at LIMIT 100").bind(n).all();
+    return json({ ok: true, recus: r.results || [] });
+  }
+
+  if (op === "stats") {
+    const since = now - 7 * 864e5;
+    const [a, c] = await Promise.all([
+      env.DB.prepare("SELECT kind, COUNT(*) envois, SUM(ok) ok, SUM(fail) fail FROM envois WHERE at > ? GROUP BY kind").bind(since).all(),
+      env.DB.prepare("SELECT e.kind kind, COUNT(r.sub) recus, SUM(CASE WHEN r.vu IS NOT NULL THEN 1 ELSE 0 END) vus FROM envois e JOIN recus r ON r.envoi = e.id WHERE e.at > ? GROUP BY e.kind").bind(since).all(),
+    ]);
+    const by = {};
+    for (const x of a.results || []) by[x.kind] = { kind: x.kind, envois: x.envois, ok: x.ok || 0, fail: x.fail || 0, recus: 0, vus: 0 };
+    for (const x of c.results || []) if (by[x.kind]) { by[x.kind].recus = x.recus || 0; by[x.kind].vus = x.vus || 0; }
+    return json({ ok: true, stats: Object.values(by), since });
+  }
+
+  return json({ error: "Opération inconnue." }, 400);
+}
+
 // ---------- adresses ----------
 async function handle(req, env) {
   const url = new URL(req.url), path = url.pathname.replace(/\/+$/, "") || "/";
@@ -178,6 +301,17 @@ async function handle(req, env) {
   const raw = await req.text(); if (raw.length > 200000) return json({ error: "trop gros" }, 413);
   let b; try { b = JSON.parse(raw); } catch { return json({ error: "json" }, 400); }
   const now = Date.now();
+
+  // #40 : réception et ouverture signalées par sw.js (jeton signé, pas besoin de la clé du téléphone)
+  if (path === "/recu" || path === "/vu") {
+    const n = Math.round(+b.n) || 0, i = clip(b.i, 24), k = clip(b.k, 24);
+    if (!n || !i || !k || k !== await rtok(env, n, i)) return json({ error: "jeton" }, 403);
+    const ins = env.DB.prepare("INSERT OR IGNORE INTO recus (envoi, sub, at) VALUES (?, ?, ?)").bind(n, i, now);
+    if (path === "/recu") await ins.run();
+    else await env.DB.batch([ins, env.DB.prepare("UPDATE recus SET vu = COALESCE(vu, ?) WHERE envoi = ? AND sub = ?").bind(now, n, i)]);
+    return json({ ok: true });
+  }
+  if (path === "/admin") return admin(req, env, b, now);
 
   if (path === "/abonner") {
     const s = b.sub; if (!s || !s.endpoint || !s.keys || !s.keys.p256dh || !s.keys.auth || !/^https:\/\//.test(s.endpoint)) return json({ error: "abonnement" }, 400);
@@ -192,9 +326,12 @@ async function handle(req, env) {
 
   if (path === "/desabonner") { await dropSub(env, sub.id); return json({ ok: true }); }
   if (path === "/test") {
-    const ok = await sendPush(env, sub, { title: "Les alertes marchent", body: "Vous recevrez vos alertes ici, même appli fermée.", url: "./", tag: "test" });
-    if (!ok) await dropSub(env, sub.id);
-    return json({ ok });
+    const m = { title: "Les alertes marchent", body: "Vous recevrez vos alertes ici, même appli fermée.", url: "./", tag: "test" };
+    const n = await newEnvoi(env, "test", m, sub.id, 1);
+    const r = await deliver(env, sub, m, n, "test");
+    await bumpStmt(env, n, r.ok ? 1 : 0, r.ok ? 0 : 1).run();
+    if (r.dead) await dropSub(env, sub.id);
+    return json({ ok: r.ok, n });
   }
   if (path === "/sync") {
     // réglages + envois programmés (dernier bus) + bus habituels des 7 jours à venir : tout est remplacé
@@ -238,11 +375,19 @@ function habitMsg(d, rem, est) {
   return { title: `${d.title} dans ${Math.max(1, Math.round(rem))} min`, body: `${d.where}${late}`, url: d.url, tag: "hab" };
 }
 async function minute(env, now) {
-  let sends = 0; const dead = new Set();
+  let sends = 0; const dead = new Set(), cnt = [];
   const subCache = new Map(); const getSub = async (id) => { if (!subCache.has(id)) subCache.set(id, await env.DB.prepare("SELECT * FROM subs WHERE id = ?").bind(id).first()); return subCache.get(id); };
-  const push = async (subId, m, topic) => {
+  // #40 : chaque envoi est journalisé (numéro réutilisé si le message en porte déjà un, cas d'un message différé)
+  const push = async (subId, m, topic, kind) => {
     if (dead.has(subId)) return true; const s = await getSub(subId); if (!s) return true;
-    sends++; try { if (!(await sendPush(env, s, m, topic))) dead.add(subId); } catch (e) { return false; }
+    sends++;
+    let n = Math.round(+m.n) || 0;
+    try { if (!n) n = await newEnvoi(env, kind, m, subId, 1); } catch (e) { return false; }
+    try {
+      const r = await deliver(env, s, m, n, topic);
+      cnt.push(bumpStmt(env, n, r.ok ? 1 : 0, r.ok ? 0 : 1));
+      if (r.dead) dead.add(subId);
+    } catch (e) { cnt.push(bumpStmt(env, n, 0, 1)); return false; }
     return true;
   };
 
@@ -269,7 +414,7 @@ async function minute(env, now) {
       if (step.startsWith("s")) for (const x of [...new Set([d.min, 10, 5, 2])]) if (x >= +step.slice(1)) sent.add("s" + x);
       sent.add(step);
       const m = habitMsg(d, step === "arr" ? 0 : rem, est); m.tag = "hab" + h.id;
-      if (await push(h.sub, m, "h" + h.id)) upd.push(env.DB.prepare("UPDATE habits SET sent = ? WHERE id = ?").bind([...sent].join(","), h.id));
+      if (await push(h.sub, m, "h" + h.id, "hab")) upd.push(env.DB.prepare("UPDATE habits SET sent = ? WHERE id = ?").bind([...sent].join(","), h.id));
     }
     if (upd.length) await env.DB.batch(upd);
   }
@@ -281,10 +426,11 @@ async function minute(env, now) {
     for (const j of js) {
       if (now - j.at > 30 * 60000) { del.push(j.id); continue; } // trop vieux (service arrêté) : on laisse tomber
       const m = JSON.parse(j.msg);
-      if (await push(j.sub, m, m.tag || ("j" + j.id))) del.push(j.id);
+      if (await push(j.sub, m, m.tag || ("j" + j.id), j.kind)) del.push(j.id);
     }
     if (del.length) await env.DB.prepare(`DELETE FROM jobs WHERE id IN (${del.map(() => "?").join(",")})`).bind(...del).run();
   }
+  if (cnt.length) await env.DB.batch(cnt);
   for (const id of dead) await dropSub(env, id);
 }
 
@@ -292,6 +438,7 @@ async function minute(env, now) {
 async function trafic(env, now) {
   let page;
   try { const r = await fetch(TRAFIC_URL, { headers: { "User-Agent": "Mozilla/5.0 (compatible; horaires-grand-reims-alertes; +" + CONTACT + ")", "Accept-Language": "fr" } }); if (!r.ok) return; page = await r.text(); } catch (e) { return; }
+  await env.DB.prepare("INSERT OR REPLACE INTO kv (k, v) VALUES ('trAt', ?)").bind(String(now)).run(); // #40 : dernier relevé, affiché dans la page admin
   const h = (await sha1hex(page.replace(/\s+/g, " ").replace(/name="[^"]*token[^"]*"\s+value="[^"]*"/gi, ""))).slice(0, 16);
   const last = await env.DB.prepare("SELECT v FROM kv WHERE k = 'trHash'").first();
   if (last && last.v === h) return;
@@ -329,10 +476,15 @@ export default {
     const now = ev.scheduledTime || Date.now();
     if (new Date(now).getUTCMinutes() % 5 === 0) await trafic(env, now).catch(() => {});
     await minute(env, Date.now());
-    // ménage : abonnements jamais revus depuis 60 jours
+    // ménage : abonnements jamais revus depuis 60 jours, journal des envois au-delà de 30 jours (#40)
     if (new Date(now).getUTCHours() === 3 && new Date(now).getUTCMinutes() === 7) {
       const old = (await env.DB.prepare("SELECT id FROM subs WHERE seen < ?").bind(now - 60 * 864e5).all()).results || [];
       for (const s of old) await dropSub(env, s.id);
+      const cut = now - 30 * 864e5;
+      await env.DB.batch([
+        env.DB.prepare("DELETE FROM recus WHERE envoi IN (SELECT id FROM envois WHERE at < ?)").bind(cut),
+        env.DB.prepare("DELETE FROM envois WHERE at < ?").bind(cut),
+      ]);
     }
   },
 };

@@ -3573,7 +3573,7 @@ function renderProfile(page) {
     <div class="pcard">
       <div class="prow"><span class="pn"><b>Pas d'alerte la nuit</b><small>De <select class="psel" data-alq="qFrom">${qOpts(MY.al.qFrom, 20, 24)}</select> à <select class="psel" data-alq="qTo">${qOpts(MY.al.qTo, 5, 10)}</select></small><small style="display:block;margin-top:4px">Sauf dernier bus et vos bus</small></span>${tg("quiet")}</div>
     </div>
-    <p class="pnote">${alPushOn() ? "Un service garde un identifiant anonyme et ces réglages, effacés si vous coupez." : "Sans activation : appli ouverte seulement."}</p>
+    <p class="pnote">${alPushOn() ? "Un service garde un identifiant anonyme, ces réglages et, quelques semaines, le fait qu'une alerte a bien été reçue ; tout est effacé si vous coupez." : "Sans activation : appli ouverte seulement."}</p>
     <h3>Fonctionnalités</h3>
     ${FEATS.map(([cat, list]) => `<div class="pcat">${cat}</div><div class="pcard">${list.map(([k, t, d]) => `<div class="prow"><span class="pn"><b>${t}</b><small>${d}</small></span><button type="button" class="tg" data-ft="${k}" aria-pressed="${MY.ft[k] !== false}" aria-label="Activer"></button></div>`).join("")}</div>`).join("")}
     <p class="pnote">Toutes actives au départ.</p>`;
@@ -4866,7 +4866,7 @@ const UPD_LOG = [
     { ico: icoSvg('<rect x="5" y="3" width="14" height="15" rx="3"/><path d="M5 12h14M8 21l1.5-3M16 21l-1.5-3"/><circle cx="9" cy="15" r=".9" fill="currentColor"/><circle cx="15" cy="15" r=".9" fill="currentColor"/>'), t: "Mon bus habituel",
       b: "<p>Choisissez votre bus du matin (arrêt, ligne, sens, départ, jours) : vous êtes prévenu de 1 à 30 min avant son passage, en tenant compte de son retard, puis la notification se met à jour.</p><p>Par étapes (10, 5, 2 min), chaque minute ou une seule fois.</p>" },
     { ico: icoSvg('<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/>'), t: "Perturbations et heures calmes",
-      b: "<p>Les perturbations de vos lignes, ou de tout le réseau, arrivent quelques minutes après leur publication. Les infos qui touchent tout le réseau arrivent toujours.</p><p>Heures calmes réglables : les perturbations de la nuit attendent le matin. Un petit service garde pour cela un identifiant anonyme et vos réglages, rien d'autre ; tout est effacé si vous coupez les alertes.</p>" },
+      b: "<p>Les perturbations de vos lignes, ou de tout le réseau, arrivent quelques minutes après leur publication. Les infos qui touchent tout le réseau arrivent toujours.</p><p>Heures calmes réglables : les perturbations de la nuit attendent le matin. Un petit service garde pour cela un identifiant anonyme et vos réglages, rien d'autre ; il note aussi, pendant quelques semaines, qu'une alerte a bien été reçue sur ce téléphone, pour vérifier qu'elles arrivent. Tout est effacé si vous coupez les alertes.</p>" },
   ] },
   { v: "2026-11-09.2", t: "Des sons pour vous guider", slides: [
     { ico: icoSvg('<path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/>'), t: "Des sons pour vous guider",

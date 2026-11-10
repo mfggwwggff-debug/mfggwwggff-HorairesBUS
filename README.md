@@ -6,7 +6,7 @@ Outil web pour le réseau Grand Reims Mobilités, pensé pour le téléphone : a
 - **Temps réel** : flux GTFS-RT du réseau, relu toutes les 30 secondes par le navigateur.
 - **Info trafic** : relevée sur grandreims-mobilites.fr toutes les 15 minutes environ par GitHub Actions, dans `info-trafic.json`.
 - **Fond de carte** : tuiles OpenStreetMap, adoucies en gris.
-- Tout tourne dans le navigateur : pas de serveur, pas de compte, aucune donnée collectée.
+- Tout tourne dans le navigateur : pas de compte, rien n'est collecté — sauf pour qui active les **alertes appli fermée** (#20), où un petit service garde un identifiant anonyme, ses réglages et le suivi des notifications reçues.
 
 ## Fichiers
 
@@ -23,13 +23,16 @@ Outil web pour le réseau Grand Reims Mobilités, pensé pour le téléphone : a
 | `build/assets.js` | Logo Grand Reims Mobilités (vectoriel) et logos des lignes. |
 | `build/infotrafic.py` | Relève l'info trafic du site du réseau. |
 | `build/plans.py` | Télécharge les plans PDF du réseau et les convertit en images (`plans/`). |
-| `sw.js` | Service worker minimal pour les notifications (alertes de descente, correspondances). |
+| `sw.js` | Service worker minimal : notifications de l'appli et du service d'alertes ; signale au service qu'une notification a été reçue puis touchée (#40). |
+| `notifs/` | Service d'alertes appli fermée (#20) : Cloudflare Worker + base D1, envoi web push, relevé de l'info trafic, journal des envois. Essais hors ligne : `node notifs/test.mjs` et `node notifs/test-envois.mjs`. |
+| `admin/index.html` | Outil d'envoi des notifications et comptage des réceptions (#40). Page à part, liée depuis nulle part, ouverte avec la clé d'accès du service (secret `ADMIN_KEY` du Worker, posé depuis le secret `GRM_ADMIN_KEY` du dépôt). |
 | `info-trafic.json` | Info trafic relevée (générée, ne pas modifier à la main). |
 | `build/make.py` | Reconstruit `index.html` : `python build/make.py gtfs.zip` (ou `--data` pour réutiliser `build/data.json`) |
 | `test/index.html` | Version d'essai d'une nouveauté avant mise en ligne : `python build/make.py --data --test`. Ajouter `?simu=AAAA-MM-JJTHH:MM` à l'adresse pour simuler une heure (temps réel coupé). |
 | `.github/workflows/mise-a-jour-horaires.yml` | Mise à jour automatique deux fois par semaine. |
 | `.github/workflows/info-trafic.yml` | Relevé de l'info trafic toutes les 15 minutes. |
 | `.github/workflows/plans.yml` | Plans du réseau, chaque semaine. |
+| `.github/workflows/notifs.yml` | Mise en ligne du service d'alertes à chaque changement dans `notifs/`. |
 
 ## Mise à jour
 
