@@ -2834,17 +2834,14 @@ function renderFollow() {
   // Durée bornée : l'encart s'ouvre ~10 s avant l'arrivée et se referme au départ, sans jamais rester jusqu'à la
   // station suivante (au-delà de 12 s d'approche ou de 25 s à quai — 40 s si le GPS me voit encore à l'arrêt —,
   // il se referme et ne revient pas pour cette station).
+  // Animations seulement à bord (suivi GPS « je suis dans le bus », choix de l'utilisateur, 10 nov.) :
+  // inutiles quand on suit à distance, et calées sur la vraie position du véhicule.
   let scC = null;
-  if (feat("gares") && document.body.classList.contains("mbfull") && st.state === "running" && !isNA(pi, k, dk)) {
+  if (feat("gares") && document.body.classList.contains("mbfull") && st.state === "running" && st.gps && !isNA(pi, k, dk)) {
     let cand = null, phase = "";
-    if (st.gps) {
-      const eta = st.speed > 0.5 ? st.toNext / st.speed : Infinity;
-      if (st.atStop) { cand = st.i; phase = "stop"; }
-      else if (eta <= 10 || st.toNext < 25) { cand = next; phase = "app"; }
-    } else {
-      if (st.atStop || (st.i > 0 && t - st.at(st.i) < 0.25)) { cand = st.i; phase = "stop"; }
-      else if (st.at(next) - t <= 10 / 60) { cand = next; phase = "app"; }
-    }
+    const eta = st.speed > 0.5 ? st.toNext / st.speed : Infinity;
+    if (st.atStop) { cand = st.i; phase = "stop"; }
+    else if (eta <= 10 || st.toNext < 25) { cand = next; phase = "app"; }
     if (cand != null) {
       const ck = [pi, k, dk, cand].join(":"), now = Date.now();
       if (SCT.k !== ck) Object.assign(SCT, { k: ck, app: 0, stop: 0 });
@@ -2877,7 +2874,7 @@ function renderFollow() {
     }
   } }
   { const c = st.state === "running" && !scC ? coAt(pi, next) : null, h28 = c && !isNA(pi, k, dk) ? pd28Html(c) : "", e28 = $("#mb-pd"); if (e28 && e28.dataset.html !== h28) { e28.innerHTML = h28; e28.dataset.html = h28; } }
-  if (dest != null && !isNA(pi, k, dk) && ((st.state === "running" && next === dest && !st.atStop && st.at(dest) - t <= 1.1) || (st.atStop && st.i === dest))) {
+  if (dest != null && st.gps && !isNA(pi, k, dk) && ((st.state === "running" && next === dest && !st.atStop && st.at(dest) - t <= 1.1) || (st.atStop && st.i === dest))) {
     const k28 = [pi, k, dk, dest].join(":"), c = !A28.seen.has(k28) && !(scC && scC.i === dest) ? coAt(pi, dest) : null; // déjà montré dans la page en plein écran
     if (c) { A28.seen.add(k28); openA28(c, true); }
   }
