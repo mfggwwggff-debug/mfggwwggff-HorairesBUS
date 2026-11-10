@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-10T12:12:33Z",
+ "at": "2026-11-10T14:16:28Z",
  "items": [
   {
    "id": "20acd05e39",
@@ -436,6 +436,56 @@
    "sec": "par ligne"
   },
   {
+   "id": "16eb3530f2",
+   "t": "En raison de contraintes d'exploitation, certains départs ne sont pas assurés aujourd'hui :",
+   "lines": [
+    "U20"
+   ],
+   "p": "",
+   "start": null,
+   "end": null,
+   "b": [
+    {
+     "r": [
+      [
+       "Mardi 10 novembre:",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Départs de Gare Clairmarais non asssurés: 15h42-16h54-18h08-19h22",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Départs de Fac des Sciences non assurés: 16h21-17h34-18h47-20h",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Conseil déplacement",
+       1
+      ],
+      [
+       " : nous vous invitons à anticiper votre trajet ou à privilégier les lignes à proximité ( https://grandreims-mobilites.fr/fr/3RW-Itineraire.html)",
+       0
+      ]
+     ]
+    }
+   ],
+   "rt": true,
+   "sec": "temps reel"
+  },
+  {
    "id": "e1166714f6",
    "t": "Nouveaux arrêts ESI ligne U5",
    "lines": [
@@ -496,6 +546,255 @@
    ],
    "rt": true,
    "sec": "temps reel"
+  },
+  {
+   "id": "2f036d5c93",
+   "t": "Travaux rue Pierre Maître et rue de Courcelles",
+   "lines": [
+    "U7"
+   ],
+   "p": "A partir du lundi 19 octobre 2026 jusqu'au dimanche 21 février 2027",
+   "start": "2026-10-19",
+   "end": "2027-02-21",
+   "b": [
+    {
+     "l": "U7",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "VERRERIES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "HOPITAL DEBRE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt VERRERIES de la ligne U7 vers BOUTREAUX",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U7",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "PONT ST BRICE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "HOPITAL DEBRE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt VERRERIES de la ligne U7 vers BOUTREAUX",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U7",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "PONT ST BRICE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "BOUTREAUX",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "au 14 rue Pierre Maitre",
+       1
+      ]
+     ],
+     "geo": {
+      "lat": 49.262776,
+      "lon": 4.005758,
+      "a": "14 rue Pierre Maitre"
+     }
+    },
+    {
+     "img": "https://prod.deviations.info/carte/grandreims/public/img/86603.jpg"
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne"
+  },
+  {
+   "id": "7f0499f1fe",
+   "t": "Report de l'arrêt Folle Peine",
+   "lines": [
+    "E5",
+    "O2"
+   ],
+   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 18 décembre 2026",
+   "start": "2026-10-19",
+   "end": "2026-12-18",
+   "b": [
+    {
+     "l": "E5",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "FOLLE PEINE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "CATHEDRALE",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "60 mètres avant l'arrêt, au niveau du 86 rue de Venise",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "O2",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "FOLLE PEINE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "GARE CENTRE",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "60 mètres avant l'arrêt, au niveau du 86 rue de Venise",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne"
+  },
+  {
+   "id": "25a156ef9e",
+   "t": "Report de l'arrêt Tinqueux Mairie vers P+R Thillois",
+   "lines": [
+    "U1"
+   ],
+   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 18 décembre 2026",
+   "start": "2026-10-19",
+   "end": "2026-12-18",
+   "b": [
+    {
+     "l": "U1",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "TINQUEUX MAIRIE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "P+R THILLOIS",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "50 mètres avant l'arrêt",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne"
   },
   {
    "id": "1539d33ccb",
@@ -674,255 +973,6 @@
        1
       ]
      ]
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne"
-  },
-  {
-   "id": "25a156ef9e",
-   "t": "Report de l'arrêt Tinqueux Mairie vers P+R Thillois",
-   "lines": [
-    "U1"
-   ],
-   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 18 décembre 2026",
-   "start": "2026-10-19",
-   "end": "2026-12-18",
-   "b": [
-    {
-     "l": "U1",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "TINQUEUX MAIRIE",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "P+R THILLOIS",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "50 mètres avant l'arrêt",
-       1
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne"
-  },
-  {
-   "id": "7f0499f1fe",
-   "t": "Report de l'arrêt Folle Peine",
-   "lines": [
-    "E5",
-    "O2"
-   ],
-   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 18 décembre 2026",
-   "start": "2026-10-19",
-   "end": "2026-12-18",
-   "b": [
-    {
-     "l": "E5",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "FOLLE PEINE",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "CATHEDRALE",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "60 mètres avant l'arrêt, au niveau du 86 rue de Venise",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "O2",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "FOLLE PEINE",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "GARE CENTRE",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "60 mètres avant l'arrêt, au niveau du 86 rue de Venise",
-       1
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne"
-  },
-  {
-   "id": "2f036d5c93",
-   "t": "Travaux rue Pierre Maître et rue de Courcelles",
-   "lines": [
-    "U7"
-   ],
-   "p": "A partir du lundi 19 octobre 2026 jusqu'au dimanche 21 février 2027",
-   "start": "2026-10-19",
-   "end": "2027-02-21",
-   "b": [
-    {
-     "l": "U7",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "VERRERIES",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "HOPITAL DEBRE",
-       1
-      ],
-      [
-       " est reporté à l'",
-       0
-      ],
-      [
-       "arrêt VERRERIES de la ligne U7 vers BOUTREAUX",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "U7",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "PONT ST BRICE",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "HOPITAL DEBRE",
-       1
-      ],
-      [
-       " est reporté à l'",
-       0
-      ],
-      [
-       "arrêt VERRERIES de la ligne U7 vers BOUTREAUX",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "U7",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "PONT ST BRICE",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "BOUTREAUX",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "au 14 rue Pierre Maitre",
-       1
-      ]
-     ],
-     "geo": {
-      "lat": 49.262776,
-      "lon": 4.005758,
-      "a": "14 rue Pierre Maitre"
-     }
-    },
-    {
-     "img": "https://prod.deviations.info/carte/grandreims/public/img/86603.jpg"
     },
     {
      "r": [
