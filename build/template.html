@@ -307,15 +307,16 @@ table.tt th.na { color: var(--na); }
 .lgrid { display: flex; flex-wrap: wrap; gap: 8px; }
 .lgrid button { border: 0; padding: 0; background: none; border-radius: 8px; }
 .lgrid button[aria-pressed="true"] { outline: 2px solid var(--ink); outline-offset: 2px; }
-/* #48 : état du trafic de la ligne, encadré autour du logo */
-.tl { --tlc: #1f9d55; }
-.tl1 { --tlc: #d8a200; }
-.tl2 { --tlc: var(--alert); }
-.tl3 { --tlc: var(--na); }
-.lgrid button.tl { box-shadow: 0 0 0 2.5px var(--tlc); }
-.tlleg { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 12px 0 2px; color: var(--muted); font-size: 12px; }
-.tlleg span { display: inline-flex; align-items: center; gap: 6px; }
-.tlleg i { width: 11px; height: 11px; border-radius: 4px; box-shadow: 0 0 0 2.5px var(--tlc); }
+/* #48 : état du trafic de la ligne, encadré autour du logo. Nom de classe distinct de `.tl` (détail d'un
+   trajet d'itinéraire, en display:none) : la réutiliser masquait toutes les lignes de la grille. */
+.trlv { --tlc: #1f9d55; }
+.trlv1 { --tlc: #d8a200; }
+.trlv2 { --tlc: var(--alert); }
+.trlv3 { --tlc: var(--na); }
+.lgrid button.trlv { box-shadow: 0 0 0 2.5px var(--tlc); }
+.trleg { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 12px 0 2px; color: var(--muted); font-size: 12px; }
+.trleg span { display: inline-flex; align-items: center; gap: 6px; }
+.trleg i { width: 11px; height: 11px; border-radius: 4px; box-shadow: 0 0 0 2.5px var(--tlc); }
 .lgroup { display: flex; flex-direction: column; gap: 8px; }
 .lhead { display: flex; gap: 10px; align-items: center; }
 .lhead h2 { font-size: 19px; font-weight: 600; }
@@ -1779,8 +1780,8 @@ function subBarCheck() {
 setupDT($("#li-date"), $("#li-time"), () => runLi());
 function buildGrid() {
   const groups = [["Mes lignes", (r) => myFirst(net.R.indexOf(r)), "star"], ["Tram", (r) => r.m === 1, 1], ["BHNS", (r) => /^O\d/.test(r.s), "bhns"], ["Urbaines", (r) => /^U/.test(r.s), 3], ["Centre et scolaires", (r) => /^[CS]/.test(r.s), 3], ["Express", (r) => /^E/.test(r.s), 3]];
-  $("#li-grid").innerHTML = groups.map(([n, f, m]) => { const ids = net.R.map((r, i) => [r, i]).filter(([r, i]) => f(r) && shownR(i)).map(([, i]) => i); return ids.length ? `<div class="lbl withico">${m === "star" ? `<span class="mode" style="color:var(--accent-strong,#C4430F)">${starSvg}</span>` : modeIcon(m)}${n}</div><div class="lgrid">${ids.map((i) => { const n = TR.ok ? (TR.lvl.get(i) || 0) : -1; return `<button type="button" data-r="${i}" aria-pressed="${i === S.line}" aria-label="Ligne ${esc(net.R[i].s)}${n > 0 ? " · " + TR_NIV[n] : ""}"${n >= 0 ? ` class="tl tl${n}" title="Ligne ${esc(net.R[i].s)} · ${TR_NIV[n]}"` : ""}>${badge(i, "lg")}</button>`; }).join("")}</div>` : ""; }).join("");
-  if (TR.ok) $("#li-grid").insertAdjacentHTML("beforeend", `<div class="tlleg">${TR_NIV.map((t, n) => `<span><i class="tl tl${n}"></i>${t}</span>`).join("")}</div>`);
+  $("#li-grid").innerHTML = groups.map(([n, f, m]) => { const ids = net.R.map((r, i) => [r, i]).filter(([r, i]) => f(r) && shownR(i)).map(([, i]) => i); return ids.length ? `<div class="lbl withico">${m === "star" ? `<span class="mode" style="color:var(--accent-strong,#C4430F)">${starSvg}</span>` : modeIcon(m)}${n}</div><div class="lgrid">${ids.map((i) => { const n = TR.ok ? (TR.lvl.get(i) || 0) : -1; return `<button type="button" data-r="${i}" aria-pressed="${i === S.line}" aria-label="Ligne ${esc(net.R[i].s)}${n > 0 ? " · " + TR_NIV[n] : ""}"${n >= 0 ? ` class="trlv trlv${n}" title="Ligne ${esc(net.R[i].s)} · ${TR_NIV[n]}"` : ""}>${badge(i, "lg")}</button>`; }).join("")}</div>` : ""; }).join("");
+  if (TR.ok) $("#li-grid").insertAdjacentHTML("beforeend", `<div class="trleg">${TR_NIV.map((t, n) => `<span><i class="trlv trlv${n}"></i>${t}</span>`).join("")}</div>`);
 }
 buildGrid();
 $("#li-grid").addEventListener("click", (e) => { const b = e.target.closest("button[data-r]"); if (!b) return; S.line = +b.dataset.r; S.dir = 0; runLi(); fitLine(S.line); });
