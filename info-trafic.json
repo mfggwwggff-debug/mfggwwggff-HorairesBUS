@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-11T13:51:22Z",
+ "at": "2026-11-11T21:16:05Z",
  "items": [
   {
    "id": "e7810d9a3b",
@@ -51,7 +51,8 @@
     }
    ],
    "rt": false,
-   "sec": "par ligne"
+   "sec": "par ligne",
+   "since": "2026-11-11"
   },
   {
    "id": "16eb3530f2",
@@ -101,7 +102,8 @@
     }
    ],
    "rt": true,
-   "sec": "temps reel"
+   "sec": "temps reel",
+   "since": "2026-11-11"
   },
   {
    "id": "16eb3530f2",
@@ -151,7 +153,8 @@
     }
    ],
    "rt": true,
-   "sec": "temps reel"
+   "sec": "temps reel",
+   "since": "2026-11-11"
   },
   {
    "id": "16eb3530f2",
@@ -201,7 +204,8 @@
     }
    ],
    "rt": true,
-   "sec": "temps reel"
+   "sec": "temps reel",
+   "since": "2026-11-11"
   },
   {
    "id": "bcf248c5c4",
@@ -291,7 +295,8 @@
     }
    ],
    "rt": false,
-   "sec": "par ligne"
+   "sec": "par ligne",
+   "since": "2026-11-11"
   },
   {
    "id": "e1166714f6",
@@ -333,7 +338,8 @@
     }
    ],
    "rt": false,
-   "sec": "par ligne"
+   "sec": "par ligne",
+   "since": "2026-11-11"
   },
   {
    "id": "f8feabe17f",
@@ -353,7 +359,8 @@
     }
    ],
    "rt": true,
-   "sec": "temps reel"
+   "sec": "temps reel",
+   "since": "2026-11-11"
   },
   {
    "id": "391d31b0d6",
@@ -491,7 +498,8 @@
     }
    ],
    "rt": false,
-   "sec": "par ligne"
+   "sec": "par ligne",
+   "since": "2026-11-11"
   },
   {
    "id": "25a156ef9e",
@@ -542,7 +550,8 @@
     }
    ],
    "rt": false,
-   "sec": "par ligne"
+   "sec": "par ligne",
+   "since": "2026-11-11"
   },
   {
    "id": "1539d33ccb",
@@ -594,7 +603,8 @@
     }
    ],
    "rt": false,
-   "sec": "par ligne"
+   "sec": "par ligne",
+   "since": "2026-11-11"
   },
   {
    "id": "7f0499f1fe",
@@ -675,7 +685,8 @@
     }
    ],
    "rt": false,
-   "sec": "par ligne"
+   "sec": "par ligne",
+   "since": "2026-11-11"
   },
   {
    "id": "2f036d5c93",
@@ -792,7 +803,8 @@
     }
    ],
    "rt": false,
-   "sec": "par ligne"
+   "sec": "par ligne",
+   "since": "2026-11-11"
   },
   {
    "id": "b7890436b6",
@@ -843,7 +855,8 @@
     }
    ],
    "rt": false,
-   "sec": "par ligne"
+   "sec": "par ligne",
+   "since": "2026-11-11"
   },
   {
    "id": "2ea8abe072",
@@ -1178,7 +1191,8 @@
     }
    ],
    "rt": false,
-   "sec": "par ligne"
+   "sec": "par ligne",
+   "since": "2026-11-11"
   },
   {
    "id": "f9f6989857",
@@ -1455,7 +1469,8 @@
     }
    ],
    "rt": false,
-   "sec": "par ligne"
+   "sec": "par ligne",
+   "since": "2026-11-11"
   },
   {
    "id": "f168938f84",
@@ -1545,7 +1560,8 @@
     }
    ],
    "rt": false,
-   "sec": "par ligne"
+   "sec": "par ligne",
+   "since": "2026-11-11"
   },
   {
    "id": "f118b20ae9",
@@ -1626,7 +1642,8 @@
     }
    ],
    "rt": false,
-   "sec": "par ligne"
+   "sec": "par ligne",
+   "since": "2026-11-11"
   },
   {
    "id": "34f3c220d0",
@@ -1677,7 +1694,8 @@
     }
    ],
    "rt": false,
-   "sec": "par ligne"
+   "sec": "par ligne",
+   "since": "2026-11-11"
   },
   {
    "id": "ed1db1ef0e",
@@ -1760,7 +1778,8 @@
     }
    ],
    "rt": false,
-   "sec": "par ligne"
+   "sec": "par ligne",
+   "since": "2026-11-11"
   },
   {
    "id": "10b804cffd",
@@ -1786,7 +1805,8 @@
     }
    ],
    "rt": false,
-   "sec": "par ligne"
+   "sec": "par ligne",
+   "since": "2026-11-11"
   },
   {
    "id": "cb96a7d272",
@@ -1874,7 +1894,8 @@
     }
    ],
    "rt": false,
-   "sec": "par ligne"
+   "sec": "par ligne",
+   "since": "2026-11-11"
   },
   {
    "id": "e29d74191b",
@@ -1983,7 +2004,8 @@
     }
    ],
    "rt": false,
-   "sec": "par ligne"
+   "sec": "par ligne",
+   "since": "2026-11-11"
   },
   {
    "id": "92830cbe2a",
@@ -2037,7 +2059,8 @@
     }
    ],
    "rt": false,
-   "sec": "par ligne"
+   "sec": "par ligne",
+   "since": "2026-11-11"
   },
   {
    "id": "b04f0f8730",
@@ -2156,7 +2179,8 @@
     }
    ],
    "rt": false,
-   "sec": "par ligne"
+   "sec": "par ligne",
+   "since": "2026-11-11"
   },
   {
    "id": "0a42915a79",
@@ -2326,7 +2350,8 @@
     }
    ],
    "rt": false,
-   "sec": "par ligne"
+   "sec": "par ligne",
+   "since": "2026-11-11"
   },
   {
    "id": "23d9c88ab7",
@@ -2565,7 +2590,8 @@
     }
    ],
    "rt": false,
-   "sec": "par ligne"
+   "sec": "par ligne",
+   "since": "2026-11-11"
   }
  ]
 }
