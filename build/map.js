@@ -797,10 +797,18 @@ function hitTest(sx, sy) {
   return sb || best;
 }
 const ptrs = new Map(); let moved = false, pinch0 = null, downAt = null;
+let lpT = 0, lpDone = false; // #46 : appui long → adresse du point touché
 const pos = (e) => { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
 cv.addEventListener("pointerdown", (e) => {
   cv.setPointerCapture(e.pointerId); cancelAnimationFrame(anim); animating = false;
   ptrs.set(e.pointerId, pos(e)); moved = false; downAt = pos(e);
+  clearTimeout(lpT); lpDone = false;
+  if (ptrs.size === 1) lpT = setTimeout(() => { // #46 : 0,5 s sans bouger, hors arrêt et hors bus → l'adresse du point
+    if (moved || ptrs.size !== 1 || !downAt) return;
+    const [px, py] = downAt;
+    if (hitTest(px, py)) return;
+    if (ptPopup(px, py)) { lpDone = true; navigator.vibrate?.(12); }
+  }, 500);
   if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinch0 = { d: Math.hypot(a[0] - b[0], a[1] - b[1]) || 1, s: view.s, m: fromS((a[0] + b[0]) / 2, (a[1] + b[1]) / 2) }; }
 });
 function userMoved() { if (S.view === "suivi" && !S.followFree) { S.followFree = true; renderFollow(); } }
@@ -813,20 +821,21 @@ cv.addEventListener("pointermove", (e) => {
   const [ox, oy] = ptrs.get(e.pointerId); ptrs.set(e.pointerId, [px, py]);
   if (ptrs.size === 1) {
     if (!moved && Math.hypot(px - downAt[0], py - downAt[1]) < (e.pointerType === "mouse" ? 6 : 12)) return; // un doigt bouge un peu en touchant
-    if (!moved) { moved = true; cv.classList.add("drag"); userMoved(); }
+    if (!moved) { moved = true; clearTimeout(lpT); cv.classList.add("drag"); userMoved(); }
     view.cx -= (px - ox) / view.s; view.cy += (py - oy) / view.s; drawMap();
   } else if (ptrs.size === 2 && pinch0) {
     if (!moved) userMoved();
-    moved = true;
+    moved = true; clearTimeout(lpT);
     const [a, b] = [...ptrs.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]);
     view.s = Math.max(ZMIN, Math.min(ZMAX, pinch0.s * d / pinch0.d));
     const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2;
     view.cx = pinch0.m[0] - (mx - W / 2) / view.s; view.cy = pinch0.m[1] + (my - H / 2) / view.s; drawMap();
   }
 });
-const up = (e) => { ptrs.delete(e.pointerId); if (ptrs.size < 2) pinch0 = null; if (ptrs.size === 1) { const [k] = ptrs.keys(); downAt = ptrs.get(k); } if (!ptrs.size) cv.classList.remove("drag"); };
-cv.addEventListener("pointerup", (e) => { const wasMoved = moved; const single = ptrs.size === 1; up(e); if (!wasMoved && single) { const [px, py] = pos(e); clickMap(px, py); } });
+const up = (e) => { clearTimeout(lpT); ptrs.delete(e.pointerId); if (ptrs.size < 2) pinch0 = null; if (ptrs.size === 1) { const [k] = ptrs.keys(); downAt = ptrs.get(k); } if (!ptrs.size) cv.classList.remove("drag"); };
+cv.addEventListener("pointerup", (e) => { const wasMoved = moved, single = ptrs.size === 1, lp = lpDone; up(e); if (!wasMoved && single && !lp) { const [px, py] = pos(e); clickMap(px, py); } });
 cv.addEventListener("pointercancel", up);
+cv.addEventListener("contextmenu", (e) => e.preventDefault()); // #46 : pas de menu du navigateur sur l'appui long
 cv.addEventListener("pointerleave", () => { if (hover) { hover = null; drawMap(); } });
 cv.addEventListener("dblclick", (e) => { e.preventDefault(); const [px, py] = pos(e); zoomAt(px, py, 2, true); });
 cv.addEventListener("wheel", (e) => {
@@ -907,18 +916,25 @@ pop.addEventListener("click", (e) => {
   if (a === "from") { S.from = best; fromP.set(best); } else { S.to = best; toP.set(best); }
   itFollowNow = true; go("itineraire");
 });
-function clickMap(sx, sy) {
-  const h = hitTest(sx, sy);
-  if (!h) {
-    // #21 : point touché sur le plan (sans arrêt dessous) → partir d'ici / y aller
-    if (S.view !== "itineraire" && S.view !== "accueil") { hidePop(); return; }
-    const [mx, my] = fromS(sx, sy), lon = IX(mx), lat = IY(my);
-    const pt = { kind: "pt", label: "Point sur le plan", sub: "", lat, lon };
+// #21 : point du plan (sans arrêt dessous) → son adresse, partir d'ici / y aller.
+// #46 : sur appui long seulement. Au simple toucher, l'adresse s'affichait dès qu'on manquait un arrêt.
+function ptPopup(sx, sy) {
+  if (S.view !== "itineraire" && S.view !== "accueil") return false;
+  const [mx, my] = fromS(sx, sy), lon = IX(mx), lat = IY(my);
+  const pt = { kind: "pt", label: "Point sur le plan", sub: "", lat, lon };
     pop.dataset.html = "";
     const fill = () => { pop.innerHTML = `<button type="button" class="x" aria-label="Fermer">×</button><div class="ptpop"><span class="pic">${geoIco.pt}</span><div><h3>${esc(pt.label)}</h3><div class="sub">${esc(pt.sub || "Recherche de l'adresse…")}</div></div></div>
       <div class="acts"><button type="button" class="btn small primary" data-a="ptfrom">Partir d'ici</button><button type="button" class="btn small" data-a="ptto">Y aller</button></div>`; };
     fill(); popAt = { x: mx, y: my, pt }; PTMARK = pt; pop.classList.add("on"); placePop(); drawMap();
     geoReverse(lat, lon).then((r) => { if (popAt?.pt !== pt) return; if (r) { pt.label = r.label; pt.sub = r.sub; } else pt.sub = `${lat.toFixed(5)}, ${lon.toFixed(5)}`; fill(); placePop(); drawMap(); });
+  return true;
+}
+let ptHint = false;
+function clickMap(sx, sy) {
+  const h = hitTest(sx, sy);
+  if (!h) {
+    hidePop();
+    if (!ptHint && (S.view === "itineraire" || S.view === "accueil")) { ptHint = true; toast("Appui long sur le plan pour l'adresse d'un point", 2600); }
     return;
   }
   if (h.kind === "veh") { pop.dataset.html = ""; popAt = { veh: { pi: h.v.pi, k: h.v.k, dk: h.v.dk } }; fillVehPop(h.v); pop.classList.add("on"); placePop(); return; }

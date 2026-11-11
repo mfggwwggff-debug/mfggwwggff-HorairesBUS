@@ -159,7 +159,7 @@ details.when .whenbody { padding: 4px 12px 12px; display: flex; flex-direction: 
 .picker .dot { position: absolute; left: 13px; top: 50%; width: 11px; height: 11px; border-radius: 50%; transform: translateY(-50%); border: 2.5px solid var(--ink); background: var(--surface); pointer-events: none; }
 .picker.to .dot { background: var(--ink); border-radius: 3px; }
 .picker .inp { padding-left: 34px; }
-.sugg { position: absolute; z-index: 30; left: 0; right: 0; top: calc(100% + 4px); background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; box-shadow: 0 12px 34px rgb(0 0 0 / .18); max-height: min(340px, 50vh); overflow: auto; display: none; padding: 4px; }
+.sugg { position: absolute; z-index: 30; left: 0; right: 0; top: calc(100% + 4px); background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; box-shadow: 0 12px 34px rgb(0 0 0 / .18); max-height: max(132px, min(340px, calc(100vh - var(--kb, 0px) - 164px))); overflow: auto; display: none; padding: 4px; }
 .sugg.on { display: block; }
 .sugg .sg-h { padding: 8px 10px 4px; }
 .sugg button { display: flex; width: 100%; gap: 8px; align-items: center; justify-content: space-between; min-height: 44px; padding: 6px 10px; border: 0; background: none; text-align: left; border-radius: 8px; }
@@ -378,7 +378,7 @@ table.tt td.live.late { color: var(--late); }
 
 /* carte */
 canvas#tiles { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-canvas#map { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: grab; }
+canvas#map { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 canvas#map.drag { cursor: grabbing; }
 canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
 .profbtn { position: absolute; left: 12px; top: 12px; z-index: 4; width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--surface); color: var(--ink); box-shadow: 0 2px 10px rgba(0,0,0,.18); display: grid; place-items: center; }
@@ -1178,8 +1178,11 @@ const FEATS = [
     ["sons", "Sons de l'appli", "Suivent le volume du téléphone."]]]];
 // toujours actives (choix du 9 nov.) : plus d'interrupteur
 const FEAT_ON = new Set(["gps", "dedans", "retour", "plein", "centre", "parmode", "pliage", "plus", "nuit"]);
-const MY = { ft: store.get("myFeats") || {}, lines: store.get("myLines") || [], names: store.get("stopNames") || {}, al: Object.assign({ trafic: true, last: true, arrive: true, arriveMin: 5, scope: "mine", desc: true, quiet: false, qFrom: "22:30", qTo: "06:30", push: false, habit: true, hab: [] }, store.get("myAlerts") || {}) };
-const saveMy = () => { store.set("myFeats", MY.ft); store.set("myLines", MY.lines); store.set("stopNames", MY.names); store.set("myAlerts", MY.al); pushSoon(); };
+const MY = { ft: store.get("myFeats") || {}, lines: store.get("myLines") || [], names: store.get("stopNames") || {}, walk: store.get("myWalk") || "normal", al:Object.assign({ trafic: true, last: true, arrive: true, arriveMin: 5, scope: "mine", desc: true, quiet: false, qFrom: "22:30", qTo: "06:30", push: false, habit: true, hab: [] }, store.get("myAlerts") || {}) };
+const saveMy = () => { store.set("myFeats", MY.ft); store.set("myLines", MY.lines); store.set("stopNames", MY.names); store.set("myWalk", MY.walk); store.set("myAlerts", MY.al); pushSoon(); };
+// #45 : réglage « Marche » (WALKPREF dans engine.js)
+const WALK_SEG = [["court", "Le moins possible"], ["normal", "Normal"], ["long", "Peu importe"]];
+const WALK_TXT = { court: "Jusqu'à 10 min de marche en tout, et des arrêts à moins de 900 m", normal: "Jusqu'à 20 min de marche en tout", long: "La marche n'est pas limitée" };
 // #20 : abonnement au service d'alertes (voir plus bas, pushEnable)
 const PUSH = { url: null, id: store.get("pushId") || null, key: store.get("pushKey") || null, suivi: false, t: 0, syncAt: 0 };
 const pushOn = () => !!(MY.al.push && PUSH.id);
@@ -1230,7 +1233,10 @@ const GEO = "https://data.geopf.fr/geocodage"; // ex-api-adresse.data.gouv.fr (f
 // quais à moins de 700 m (au moins les 3 plus proches), avec le temps à pied
 function placeQ(lat, lon) {
   const L = net.Q.map((Q, q) => [q, distM(lat, lon, Q[1], Q[2])]).filter(([q]) => net.qp[q].length && net.pRoutes[net.Q[q][0]].length).sort((a, b) => a[1] - b[1]);
-  return L.filter(([, d], i) => d <= 700 || i < 3).slice(0, 16).map(([q, d]) => [q, Math.max(1, Math.ceil(d * 1.25 / 75))]);
+  // #45 : les 3 arrêts les plus proches étaient gardés quelle que soit la distance : depuis une adresse mal
+  // desservie, un accès de 2 km (une demi-heure de marche) entrait dans le calcul au même titre que les autres.
+  const sel = L.filter(([, d], i) => d <= 700 || (i < 3 && d <= walkPref().acc));
+  return (sel.length ? sel : L.slice(0, 1)).slice(0, 16).map(([q, d]) => [q, Math.max(1, Math.ceil(d * 1.25 / 75))]);
 }
 // deux marches à la suite (changement de quai puis marche jusqu'au lieu) → une seule marche directe
 function mergeWalks(j) {
@@ -1359,7 +1365,9 @@ function picker(root, onPick, opts = {}) {
   };
   const set = (i) => { value = i; inp.value = i == null ? "" : vName(i); inp.classList.toggle("isplace", isPlace(i)); box.classList.remove("on"); };
   inp.addEventListener("input", render);
-  inp.addEventListener("focus", () => { inp.select(); if (isMobile()) setSheet("full"); render(); });
+  // #44 : en « cover » (liste plein écran) le volet est déjà en haut : le déplacer pendant que le clavier
+  // s'ouvre faisait calculer à iOS son défilement sur la position d'avant l'animation.
+  inp.addEventListener("focus", () => { inp.select(); if (isMobile() && sheetState !== "cover" && sheetState !== "full") setSheet("full"); render(); });
   inp.addEventListener("keydown", (e) => {
     if (!box.classList.contains("on")) return;
     if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); sel = Math.max(0, Math.min(items.length - 1, sel + (e.key === "ArrowDown" ? 1 : -1))); box.querySelectorAll("button").forEach((b, k) => { b.setAttribute("aria-selected", k === sel); if (k === sel) b.scrollIntoView({ block: "nearest" }); }); }
@@ -1413,6 +1421,30 @@ let sheetDragBind = () => {};
   sheetDragBind = (el) => bind(el, false);
   $("#grab").addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSheet(sheetState === "full" ? "half" : "full"); } });
   window.addEventListener("resize", () => { if (isMobile()) setSheet(sheetState, true); else sheet.style.top = ""; });
+})();
+
+// #44 : clavier du téléphone. `html, body` sont en `overflow: hidden` et `height: 100%`, donc figés sur la
+// hauteur de l'écran clavier fermé. À l'ouverture du clavier, iOS fait défiler la page entière pour dégager la
+// saisie et ce décalage ne se rattrape pas : toute l'interface remonte et la zone de saisie sort du cadre. On
+// cale l'app sur le viewport visible, on remet le défilement à zéro, et `--kb` sert à borner la liste de
+// suggestions pour qu'elle ne passe pas sous le clavier.
+(function clavier() {
+  const vv = window.visualViewport; if (!vv) return;
+  const app = $("#app");
+  const apply = () => {
+    if (window.scrollY || window.scrollX) window.scrollTo(0, 0);
+    if (document.scrollingElement && document.scrollingElement.scrollTop) document.scrollingElement.scrollTop = 0;
+    const kb = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
+    document.documentElement.style.setProperty("--kb", kb + "px");
+    const open = isMobile() && kb > 80;
+    app.style.height = open ? Math.round(vv.height) + "px" : "";
+    if (isMobile()) setSheet(sheetState, true);
+    if (open) drawMap();
+  };
+  vv.addEventListener("resize", apply);
+  vv.addEventListener("scroll", apply);
+  document.addEventListener("focusin", (e) => { if (e.target.matches("input, textarea, select")) setTimeout(apply, 60); });
+  document.addEventListener("focusout", () => setTimeout(apply, 120));
 })();
 
 // ---------- Accueil ----------
@@ -2841,6 +2873,30 @@ function trPole(name, poleIds) {
   }
   return hits.length === 1 ? hits[0] : null;
 }
+// #43 : journées visées par une info « départs non assurés ». Le réseau écrit « Mardi 10 novembre: »,
+// « Mardi 10 novembre et jeudi 12 novembre: », « les 10, 12 et 14 novembre », « du 28 octobre au 2 novembre » —
+// l'année est presque toujours absente. L'expression l'exigeait (`(\d{4})`) : aucune date n'était donc reconnue
+// et la suppression s'appliquait à aujourd'hui, tous les jours, tant que le message restait sur le site.
+const MOIS_RE = "janvier|fevrier|mars|avril|mai|juin|juillet|aout|septembre|octobre|novembre|decembre";
+const trYearOf = (mo, y0, m0) => { const d = mo - m0; return d < -6 ? y0 + 1 : d > 6 ? y0 - 1 : y0; }; // décembre lu en janvier, et l'inverse
+function trDayList(t) {
+  const now = parisNow().iso, y0 = +now.slice(0, 4), m0 = +now.slice(5, 7) - 1, out = [];
+  const iso = (y, mo, d) => `${y}-${String(mo + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+  const inter = t.match(new RegExp(`\\bdu (\\d{1,2})(?:er)?(?: (${MOIS_RE}))?(?: (\\d{4}))? (?:au|jusqu'au) (\\d{1,2})(?:er)? (${MOIS_RE})(?: (\\d{4}))?`));
+  if (inter) { // « du 28 octobre au 2 novembre » : toutes les journées de l'intervalle
+    const m2 = MOIS.indexOf(inter[5]), y2 = inter[6] ? +inter[6] : trYearOf(m2, y0, m0);
+    const m1 = inter[2] ? MOIS.indexOf(inter[2]) : m2, y1 = inter[3] ? +inter[3] : trYearOf(m1, y0, m0);
+    const a = Date.UTC(y1, m1, +inter[1]), b = Date.UTC(y2, m2, +inter[4]);
+    for (let i = 0; i <= 62 && a + i * 864e5 <= b; i++) out.push(new Date(a + i * 864e5).toISOString().slice(0, 10));
+    return out;
+  }
+  // « mardi 10 novembre et jeudi 12 novembre », « les 10, 12 et 14 novembre » : chaque journée citée
+  for (const m of t.matchAll(new RegExp(`(\\d{1,2}(?:\\s*(?:,|et|&|\\/)\\s*\\d{1,2})*)(?:er)? (${MOIS_RE})(?: (\\d{4}))?`, "g"))) {
+    const mo = MOIS.indexOf(m[2]), y = m[3] ? +m[3] : trYearOf(mo, y0, m0);
+    for (const d of m[1].split(/\s*(?:,|et|&|\/)\s*/)) { const j = +d; if (j >= 1 && j <= 31) out.push(iso(y, mo, j)); }
+  }
+  return [...new Set(out)];
+}
 function trCancel() {
   net.pats.forEach((p) => { p.na = null; });
   TR.na = new Map(); // id de l'info → nombre de départs retirés
@@ -2849,38 +2905,45 @@ function trCancel() {
     const rs = trRoutes(x); if (!rs.length) continue;
     const poleIds = new Set();
     for (const p of net.pats) if (rs.includes(p.r)) for (let i = 0; i < p.nS; i++) poleIds.add(net.Q[p.stops[i]][0]);
-    let iso = x.start || parisNow().iso, n = 0;
+    const now = parisNow().iso;
+    let days = null, n = 0;
     for (const b of x.b || []) {
       const t = trPlain((b.r || []).map((r) => r[0]).join(""));
-      const dm = t.match(/(\d{1,2})(?:er)? (janvier|fevrier|mars|avril|mai|juin|juillet|aout|septembre|octobre|novembre|decembre) (\d{4})/);
-      if (dm) { iso = `${dm[3]}-${String(MOIS.indexOf(dm[2]) + 1).padStart(2, "0")}-${dm[1].padStart(2, "0")}`; continue; }
+      const dl = trDayList(t);
       const m = t.match(/departs? (?:de |du |d')(.+?) (?:sont |ne sont pas |)(?:non|pas) assures? ?:? ?(.+)/);
-      if (!m) continue;
+      if (!m) { if (dl.length) days = dl; continue; } // ligne de date seule
+      if (dl.length) days = dl;                       // date et départs sur la même ligne
       const pole = trPole(m[1], poleIds); if (pole == null) continue;
       const mins = [...m[2].matchAll(/(\d{1,2}) ?h ?(\d{2})?/g)].map((h) => +h[1] * 60 + (+h[2] || 0));
-      const day = net.dayIndex(iso);
-      // #39 : l'heure de l'info trafic peut s'écarter de plusieurs minutes de l'horaire : pour chaque heure citée,
-      // la course de la ligne la plus proche à ± 5 min (départ du terminus en priorité), une seule fois chacune ;
-      // la course entière est retirée (tous ses arrêts)
-      const cand = [];
-      for (const pi of net.pats.keys()) {
-        const p = net.pats[pi]; if (!rs.includes(p.r)) continue;
-        for (let i = 0; i < p.nS - 1; i++) {
-          if (net.Q[p.stops[i]][0] !== pole) continue;
-          for (let k = 0; k < p.nT; k++) if (net.svcOn(p.sv[k], day)) cand.push({ pi, k, i, dt: p.D[k * p.nS + i] });
+      // #43 : l'info ne vaut que pour les journées qu'elle cite ; sans date citée, pour le seul jour où elle est
+      // apparue sur le site du réseau (`since`, ajouté par build/infotrafic.py). Une journée déjà passée ne
+      // retire plus rien : un message laissé en ligne n'annule plus des courses qui circulent le lendemain.
+      for (const iso of days && days.length ? days : [x.since || x.start || now]) {
+        if (iso < now) continue;
+        const day = net.dayIndex(iso); if (day < 0 || day >= net.nd) continue;
+        // #39 : l'heure de l'info trafic peut s'écarter de plusieurs minutes de l'horaire : pour chaque heure citée,
+        // la course de la ligne la plus proche à ± 5 min (départ du terminus en priorité), une seule fois chacune ;
+        // la course entière est retirée (tous ses arrêts)
+        const cand = [];
+        for (const pi of net.pats.keys()) {
+          const p = net.pats[pi]; if (!rs.includes(p.r)) continue;
+          for (let i = 0; i < p.nS - 1; i++) {
+            if (net.Q[p.stops[i]][0] !== pole) continue;
+            for (let k = 0; k < p.nT; k++) if (net.svcOn(p.sv[k], day)) cand.push({ pi, k, i, dt: p.D[k * p.nS + i] });
+          }
         }
-      }
-      const used = new Set();
-      for (const mm of mins) {
-        let best = null;
-        for (const c of cand) {
-          const key = c.pi + ":" + c.k, d = Math.abs(c.dt - mm); if (d > 5 || used.has(key)) continue;
-          const sc = d * 2 + (c.i === 0 ? 0 : 1);
-          if (!best || sc < best.sc) best = { c, sc, key };
+        const used = new Set();
+        for (const mm of mins) {
+          let best = null;
+          for (const c of cand) {
+            const key = c.pi + ":" + c.k, d = Math.abs(c.dt - mm); if (d > 5 || used.has(key)) continue;
+            const sc = d * 2 + (c.i === 0 ? 0 : 1);
+            if (!best || sc < best.sc) best = { c, sc, key };
+          }
+          if (!best) continue;
+          used.add(best.key); const p = net.pats[best.c.pi];
+          (p.na ||= new Set()).add(best.c.k + ":" + day); n++;
         }
-        if (!best) continue;
-        used.add(best.key); const p = net.pats[best.c.pi];
-        (p.na ||= new Set()).add(best.c.k + ":" + day); n++;
       }
     }
     if (n) TR.na.set(x.id, n);
@@ -2937,8 +3000,7 @@ function trItem(x) {
   const rt = trRT(x) && st === "now";
   const zoomable = !!trTargets(x) || trRoutes(x).length === 1;
   const zb = zoomable ? `<button type="button" class="linkbtn trzoom" data-zoom="${esc(x.id)}">Voir sur le plan ${chevR}</button>` : "";
-  const nna = TR.na && TR.na.get(x.id); // #24
-  const nab = nna ? `<div class="trna">${nna > 1 ? nna + " départs barrés" : "1 départ barré"} dans les horaires de l'appli et retirés des itinéraires.</div>` : "";
+  const nab = ""; // #43 : plus de « N départs barrés » dans l'info trafic (TR.na reste tenu à jour)
   return `<details class="tritem${rt ? " trlive" : ""}" data-id="${esc(x.id)}"${TR.open === x.id ? " open" : ""}><summary><span class="tt2">${esc(x.t)}</span><svg class="chev" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 5 4 4 4-4"/></svg>${x.p ? `<span class="pp">${esc(x.p)}</span>` : ""}<span class="bs"><span class="tag ${rt ? "live" : st === "now" ? "now" : "soon"}">${rt ? "En direct" : st === "now" ? (trRecur(x) ? "Aujourd'hui" : "En cours") : st === "recur" ? "Chaque " + trRecur(x).name : st === "info" ? "Info" : "À venir"}</span>${trRoutes(x).map((r) => badge(r, "sm")).join("")}</span></summary>${body || zb || nab ? `<div class="body">${body}${nab}${zb}</div>` : ""}</details>`;
 }
 // ---------- #11 Mon profil ----------
@@ -3153,6 +3215,11 @@ function renderProfile(page) {
     <h3>Mes lignes</h3>
     <div class="pcard plines">${groups.map(([m, f]) => { const ids = net.R.map((r, i) => [r, i]).filter(([r, i]) => f(r) && shownR(i)).map(([, i]) => i); return `<div class="plg">${modeIcon(m)}${ids.map((i) => `<button type="button" class="plb" data-myl="${i}" aria-pressed="${MY.lines.includes(i)}">${badge(i, "sm", true)}</button>`).join("")}</div>`; }).join("")}</div>
     <p class="pnote">En premier dans Info trafic et Lignes & plans.</p>
+    <h3>Itinéraires</h3>
+    <div class="pcard">
+      <div class="prow"><span class="pn"><b>Marche</b><small>${WALK_TXT[MY.walk] || WALK_TXT.normal}</small><span class="seg alseg">${WALK_SEG.map(([k, t]) => `<button type="button" data-walk="${k}" aria-pressed="${(MY.walk || "normal") === k}">${t}</button>`).join("")}</span></span></div>
+    </div>
+    <p class="pnote">« Le moins possible » écarte les trajets qui marchent beaucoup pour gagner une minute.</p>
     <h3>Mes alertes</h3>
     ${alPushCard()}
     <div class="pcard">
@@ -3179,6 +3246,7 @@ function renderProfile(page) {
   el.querySelectorAll("[data-hab]").forEach((b) => b.onclick = () => renderProfile("hab:" + b.dataset.hab));
   el.querySelectorAll("[data-habon]").forEach((b) => b.onclick = () => { const h = MY.al.hab[+b.dataset.habon]; if (!h) return; h.off = !h.off; if (!h.off) delete h.off; saveMy(); const sc = el.scrollTop; renderProfile(); el.scrollTop = sc; });
   el.querySelectorAll("[data-alscope]").forEach((b) => b.onclick = () => { MY.al.scope = b.dataset.alscope; saveMy(); renderProfile(); });
+  el.querySelectorAll("[data-walk]").forEach((b) => b.onclick = () => { MY.walk = b.dataset.walk; saveMy(); const sc = el.scrollTop; renderProfile(); el.scrollTop = sc; if (S.view === "itineraire") runIt(); });
   el.querySelectorAll("[data-alq]").forEach((x) => x.onchange = () => { MY.al[x.dataset.alq] = x.value; saveMy(); });
   el.querySelectorAll("[data-push]").forEach((b) => b.onclick = () => { const a = b.dataset.push;
     if (a === "on") pushEnable();
@@ -3506,6 +3574,14 @@ const UPD_0611 = [
 // ajouter une entrée en tête (1 à 4 volets de nouveautés + un volet « Corrections »), elle s'affiche une fois.
 const personSvg = (n) => `<svg width="${n}" height="${n}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.6 4.2-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/></svg>`;
 const UPD_LOG = [
+  { v: "2026-11-11", t: "Marche, adresses et courses annulées", slides: [
+    { ico: icoSvg('<path d="M13.5 4.2a1.6 1.6 0 1 0 0-.1"/><path d="M11 8.5 9 13l2.5 1.5.7 5.5"/><path d="M11 8.5l3.2 1.2 1.6 3.3"/><path d="M9 13 7 20"/>'), t: "La marche, à votre main",
+      b: "Les itinéraires tenaient compte de l'heure d'arrivée et du nombre de changements, mais pas du tout de la marche : un trajet qui vous faisait marcher vingt minutes passait devant un autre qui n'en demandait que quatre, pour une minute gagnée. C'est corrigé, et <b>Mon profil › Itinéraires › Marche</b> vous laisse choisir : <i>Le moins possible</i>, <i>Normal</i> ou <i>Peu importe</i>." },
+    { ico: icoSvg('<path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/>'), t: "L'adresse d'un point du plan",
+      b: "L'adresse d'un endroit du plan s'affichait au moindre toucher, même quand vous visiez un arrêt. Elle demande maintenant un <b>appui long</b> sur le plan." },
+    { ico: icoSvg('<path d="M20 6 9 17l-5-5"/>'), t: "Et quelques corrections",
+      b: "<ul><li>Courses annulées : une info trafic ne retire plus de départs que les journées qu'elle annonce. Quand le réseau laisse son message en ligne, l'appli ne barre plus le lendemain des bus qui circulent.</li><li>Recherche d'itinéraire : à l'ouverture du clavier, la liste des adresses ne fait plus remonter l'écran et la zone de saisie reste visible.</li><li>Les arrêts reportés par une info trafic sont de nouveau placés sur le plan.</li></ul>" },
+  ] },
   { v: "2026-11-10", t: "Quelques corrections", slides: [
     { ico: icoSvg('<path d="M20 6 9 17l-5-5"/>'), t: "Et quelques corrections",
       b: "<ul><li>Départs non assurés : quand une info trafic annonce des départs dans les deux sens de la ligne, les départs des deux terminus sont bien retirés des horaires et des itinéraires, même si le nom de l'arrêt est écrit autrement que dans les horaires.</li></ul>" },

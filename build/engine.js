@@ -1,4 +1,10 @@
 // Moteur horaires + calcul d'itinéraire (RAPTOR) pour un GTFS compacté, avec surcouche temps réel.
+
+// #45 : réglage « Marche » de Mon profil. `max` = marche totale acceptée (min), `acc` = jusqu'où aller
+// chercher un arrêt à pied depuis une adresse (m). Lu à l'appel : MY est défini plus bas dans la page.
+const WALKPREF = { court: { max: 10, acc: 900 }, normal: { max: 20, acc: 1500 }, long: { max: 999, acc: 1e9 } };
+const walkPref = () => (typeof MY !== "undefined" && WALKPREF[MY.walk]) || WALKPREF.normal;
+const walkMin = (j) => j.walk != null ? j.walk : (j.walk = j.legs.reduce((a, l) => a + (l.type === "walk" ? l.dur : 0), 0));
 function makeNet(D) {
   const net = { D, P: D.P, Q: D.Q, R: D.R, nQ: D.Q.length };
   const y = +D.d0.slice(0, 4), m = +D.d0.slice(4, 6) - 1, d = +D.d0.slice(6, 8);
@@ -242,10 +248,20 @@ function planArrive(net, o, dst, day, deadline, want = 3) {
 }
 
 function prune(list) {
+  // #45 : la marche entre dans la comparaison. Sans elle, le trajet qui marche 20 min était « meilleur » dès
+  // qu'il arrivait une minute plus tôt, et celui qui marche 4 min disparaissait avant toute autre vérification.
   const dom = (b, a) => b !== a && (
-    (b.dep >= a.dep && b.arr <= a.arr && b.rides <= a.rides && (b.dep > a.dep || b.arr < a.arr || b.rides < a.rides)) ||
-    (b.rides < a.rides && b.dep >= a.dep - 5 && b.arr <= a.arr + 5 && (b.arr - b.dep) <= (a.arr - a.dep) + 5));
-  const keep = list.filter((a) => !list.some((b) => dom(b, a)));
+    (b.dep >= a.dep && b.arr <= a.arr && b.rides <= a.rides && walkMin(b) <= walkMin(a) + 3 && (b.dep > a.dep || b.arr < a.arr || b.rides < a.rides)) ||
+    (b.rides < a.rides && b.dep >= a.dep - 5 && b.arr <= a.arr + 5 && (b.arr - b.dep) <= (a.arr - a.dep) + 5 && walkMin(b) <= walkMin(a) + 5));
+  let keep = list.filter((a) => !list.some((b) => dom(b, a)));
+  // #45 : la marche n'était comparée nulle part (ni dans `dom`, ni dans le tri) : un trajet qui marche 20 min
+  // pour arriver une minute plus tôt n'était jamais écarté par celui qui marche 4 min. Passe à part pour ne
+  // pas risquer deux trajets qui s'éliminent l'un l'autre, et `max` vient du réglage « Marche ».
+  const better = (b, a) => b !== a && walkMin(b) + 3 <= walkMin(a) && b.rides <= a.rides && b.dep >= a.dep - 3 && b.arr <= a.arr + 3;
+  const less = keep.filter((a) => !keep.some((b) => better(b, a)));
+  if (less.length) keep = less;
+  const sous = keep.filter((j) => walkMin(j) <= walkPref().max);
+  if (sous.length) keep = sous; // s'il ne reste rien sous le plafond, on garde quand même une proposition
   keep.sort((a, b) => a.dep - b.dep || a.arr - b.arr);
   return keep;
 }
