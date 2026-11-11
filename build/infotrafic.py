@@ -173,9 +173,11 @@ def stops_index():
 
 
 def geocode(addr, near):
-    q = {"q": addr, "limit": 1}
+    # géocodage de l'IGN (data.geopf.fr) : l'API Adresse (api-adresse.data.gouv.fr) est fermée depuis fin
+    # janvier 2026. Mêmes paramètres (q, limit, lat, lon) et même réponse GeoJSON avec properties.score.
+    q = {"q": addr, "limit": 1, "index": "address"}
     if near: q.update(lat=near[0], lon=near[1])
-    req = urllib.request.Request("https://api-adresse.data.gouv.fr/search/?" + urllib.parse.urlencode(q), headers={"User-Agent": "horaires-grand-reims"})
+    req = urllib.request.Request("https://data.geopf.fr/geocodage/search?" + urllib.parse.urlencode(q), headers={"User-Agent": "horaires-grand-reims"})
     with urllib.request.urlopen(req, timeout=10) as r:
         f = json.load(r)["features"]
     if not f or f[0]["properties"].get("score", 0) < 0.45: return None
@@ -219,9 +221,37 @@ def old_cache():
     return c
 
 
+def paris_today():
+    try:
+        from zoneinfo import ZoneInfo
+        return dt.datetime.now(ZoneInfo("Europe/Paris")).date().isoformat()
+    except Exception:
+        return (dt.datetime.now(dt.timezone.utc) + dt.timedelta(hours=1)).date().isoformat()
+
+
+def item_key(it):
+    # le même id peut couvrir plusieurs infos (même titre, lignes différentes) : on ajoute les lignes
+    return it["id"] + "|" + ",".join(it.get("lines") or [])
+
+
+def old_since():
+    """Date de première apparition de chaque info, reprise du fichier précédent.
+
+    Les messages « départs non assurés » ne citent pas toujours la journée visée : sans date de première
+    apparition, l'appli les appliquait à tous les jours et barrait des courses qui circulent.
+    """
+    try:
+        prev = json.load(open(os.path.join(HERE, "..", "info-trafic.json"), encoding="utf-8"))
+        return {item_key(it): it["since"] for it in prev.get("items", []) if it.get("since")}
+    except Exception:
+        return {}
+
+
 def main():
     page = open(sys.argv[1], encoding="utf-8").read() if len(sys.argv) > 1 else fetch()
     items = parse(page)
+    seen, today = old_since(), paris_today()
+    for it in items: it["since"] = seen.get(item_key(it), today)
     if "--sans-adresses" not in sys.argv: add_geo(items, old_cache())
     if not items and "tetinfotraf" not in page:
         sys.exit("structure de la page inattendue : rien écrit")
