@@ -307,6 +307,15 @@ table.tt th.na { color: var(--na); }
 .lgrid { display: flex; flex-wrap: wrap; gap: 8px; }
 .lgrid button { border: 0; padding: 0; background: none; border-radius: 8px; }
 .lgrid button[aria-pressed="true"] { outline: 2px solid var(--ink); outline-offset: 2px; }
+/* #48 : état du trafic de la ligne, encadré autour du logo */
+.tl { --tlc: #1f9d55; }
+.tl1 { --tlc: #d8a200; }
+.tl2 { --tlc: var(--alert); }
+.tl3 { --tlc: var(--na); }
+.lgrid button.tl { box-shadow: 0 0 0 2.5px var(--tlc); }
+.tlleg { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 12px 0 2px; color: var(--muted); font-size: 12px; }
+.tlleg span { display: inline-flex; align-items: center; gap: 6px; }
+.tlleg i { width: 11px; height: 11px; border-radius: 4px; box-shadow: 0 0 0 2.5px var(--tlc); }
 .lgroup { display: flex; flex-direction: column; gap: 8px; }
 .lhead { display: flex; gap: 10px; align-items: center; }
 .lhead h2 { font-size: 19px; font-weight: 600; }
@@ -1069,7 +1078,7 @@ const store = { get(k) { try { return JSON.parse(localStorage.getItem("grm:" + k
 // pastilles de ligne : logos officiels, déclarés une seule fois dans une feuille de style
 const logoCls = (s) => "ln-" + s.replace(/[^A-Za-z0-9]/g, "");
 (function () { const st = document.createElement("style"); st.textContent = Object.entries(LINE_LOGOS).map(([k, [src, ar]]) => `.${logoCls(k)}{background-image:url(${src});--ar:${ar.toFixed(3)}}`).join("\n"); document.head.appendChild(st); })();
-const TR = { ok: false, items: [], at: null, src: "", byRoute: new Map(), alert: new Set(), filter: null, open: null, zoom: null };
+const TR = { ok: false, items: [], at: null, src: "", byRoute: new Map(), alert: new Set(), lvl: new Map(), filter: null, open: null, zoom: null };
 const badge = (ri, size, noAlert) => {
   const r = net.R[ri], al = !noAlert && TR.alert.has(ri) ? " al" : "";
   const t = esc(r.s + " · " + r.l + (al ? " · info trafic en cours" : ""));
@@ -1770,7 +1779,8 @@ function subBarCheck() {
 setupDT($("#li-date"), $("#li-time"), () => runLi());
 function buildGrid() {
   const groups = [["Mes lignes", (r) => myFirst(net.R.indexOf(r)), "star"], ["Tram", (r) => r.m === 1, 1], ["BHNS", (r) => /^O\d/.test(r.s), "bhns"], ["Urbaines", (r) => /^U/.test(r.s), 3], ["Centre et scolaires", (r) => /^[CS]/.test(r.s), 3], ["Express", (r) => /^E/.test(r.s), 3]];
-  $("#li-grid").innerHTML = groups.map(([n, f, m]) => { const ids = net.R.map((r, i) => [r, i]).filter(([r, i]) => f(r) && shownR(i)).map(([, i]) => i); return ids.length ? `<div class="lbl withico">${m === "star" ? `<span class="mode" style="color:var(--accent-strong,#C4430F)">${starSvg}</span>` : modeIcon(m)}${n}</div><div class="lgrid">${ids.map((i) => `<button type="button" data-r="${i}" aria-pressed="${i === S.line}" aria-label="Ligne ${esc(net.R[i].s)}">${badge(i, "lg")}</button>`).join("")}</div>` : ""; }).join("");
+  $("#li-grid").innerHTML = groups.map(([n, f, m]) => { const ids = net.R.map((r, i) => [r, i]).filter(([r, i]) => f(r) && shownR(i)).map(([, i]) => i); return ids.length ? `<div class="lbl withico">${m === "star" ? `<span class="mode" style="color:var(--accent-strong,#C4430F)">${starSvg}</span>` : modeIcon(m)}${n}</div><div class="lgrid">${ids.map((i) => { const n = TR.ok ? (TR.lvl.get(i) || 0) : -1; return `<button type="button" data-r="${i}" aria-pressed="${i === S.line}" aria-label="Ligne ${esc(net.R[i].s)}${n > 0 ? " · " + TR_NIV[n] : ""}"${n >= 0 ? ` class="tl tl${n}" title="Ligne ${esc(net.R[i].s)} · ${TR_NIV[n]}"` : ""}>${badge(i, "lg")}</button>`; }).join("")}</div>` : ""; }).join("");
+  if (TR.ok) $("#li-grid").insertAdjacentHTML("beforeend", `<div class="tlleg">${TR_NIV.map((t, n) => `<span><i class="tl tl${n}"></i>${t}</span>`).join("")}</div>`);
 }
 buildGrid();
 $("#li-grid").addEventListener("click", (e) => { const b = e.target.closest("button[data-r]"); if (!b) return; S.line = +b.dataset.r; S.dir = 0; runLi(); fitLine(S.line); });
@@ -2679,7 +2689,18 @@ function followCam(force) {
 
 // ---------- Info trafic ----------
 // Relevée sur grandreims-mobilites.fr par une tâche GitHub (toutes les 15 min environ) dans info-trafic.json.
-const trActive = () => { const t = parisNow().iso; return TR.items.filter((x) => !x.end || x.end >= t); };
+// #47 : journées citées par une info sans période (« Mardi 10 novembre et jeudi 12 novembre »). Le réseau laisse
+// ses messages en ligne après coup : sans ça, une info du 10 s'affichait encore « En cours » le 11 et les jours
+// suivants. Une info qui annonce une période (`start` / `end`) garde son comportement d'avant.
+function trDays(x) {
+  if (x._d) return x._d;
+  if (x.start || x.end) return (x._d = []);
+  const out = [];
+  for (const b of x.b || []) out.push(...trDayList(trPlain((b.r || []).map((r) => r[0]).join(""))));
+  return (x._d = [...new Set(out)].sort());
+}
+const trPast = (x) => { const d = trDays(x), t = parisNow().iso; return d.length > 0 && !d.some((v) => v >= t); };
+const trActive = () => { const t = parisNow().iso; return TR.items.filter((x) => (!x.end || x.end >= t) && !trPast(x)); };
 // info qui revient un jour de la semaine (« tous les dimanches jusqu'à 15h00 » : marchés) : perturbation ce jour-là seulement
 const TR_DAYS = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
 function trRecur(x) {
@@ -2693,7 +2714,13 @@ const trRecurOn = (r) => { const n = parisNow(); const d = new Date(n.iso + "T12
 // simple information (nouvel arrêt, arrêt desservi désormais) : ni perturbation ni pastille
 const TR_INFO = /nouvel(le)?s? arret|nouveaux arrets|sont (desormais )?desservis par|est (desormais )?desservi par|mise en service|ouverture de la ligne/;
 const trInfo = (x) => { const t = trText(x); return TR_INFO.test(t) && !TR_GENE.test(t); };
-const trStatus = (x) => { if (x.start && x.start > parisNow().iso) return "soon"; const r = trRecur(x); if (r && !trRecurOn(r)) return "recur"; return trInfo(x) ? "info" : "now"; };
+const trStatus = (x) => {
+  const t = parisNow().iso, d = trDays(x); // #47 : journées citées par l'info
+  if (d.length && !d.includes(t)) return "soon"; // elle vise d'autres jours (les jours passés sont déjà écartés)
+  if (x.start && x.start > t) return "soon";
+  const r = trRecur(x); if (r && !trRecurOn(r)) return "recur";
+  return trInfo(x) ? "info" : "now";
+};
 const trRoutes = (x) => x.lines.map((s) => net.R.findIndex((r) => r.s === s)).filter((i) => i >= 0);
 // --- tri des infos ---
 const trPlain = (s) => (s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -2720,9 +2747,27 @@ function trNetwork(x) {
   if (/\btram/.test(t) && !/bus|reseau|lignes/.test(t)) return false;
   return TR_NET.test(t);
 }
+// #48 : état du trafic d'une ligne, montré par un encadré autour de son logo dans Lignes & plans.
+// 0 vert (rien aujourd'hui) · 1 jaune (déviation, arrêt reporté ou non desservi) · 2 orange (perturbation
+// gênante : bus bloqué, en retard ou supprimé) · 3 rouge (ligne interrompue). On garde le plus grave.
+const TR_ROUGE = /interrompue?|interruption|suspendue?|ne circule (plus|pas)|ne circulent (plus|pas)|ligne (fermee|coupee)|service (arrete|annule)/;
+const TR_ORANGE = /non assure|pas assure|supprime|bloque|fige|forte perturbation|perturbation sur les horaires|retard|accident|incident|manifestation|greve|neige|verglas|intemperie/;
+const TR_JAUNE = /devi|non desservi|pas desservi|report|deplace|travaux|nouvel(le)?s? arret|transfer/;
+const TR_NIV = ["Trafic normal", "Déviation en cours", "Perturbation gênante", "Ligne interrompue"];
+function trLevel(x) {
+  const t = trText(x);
+  if (TR_ROUGE.test(t)) return 3;
+  if (TR_ORANGE.test(t)) return 2;
+  if (TR_JAUNE.test(t)) return 1;
+  return 1; // info en cours sans mot-clé reconnu : au moins une gêne légère
+}
 function trIndex() {
-  TR.byRoute = new Map(); TR.alert = new Set();
-  trActive().forEach((x) => { if (trStatus(x) !== "now") return; const g = trGene(x); trRoutes(x).forEach((ri) => { if (!TR.byRoute.has(ri)) TR.byRoute.set(ri, []); TR.byRoute.get(ri).push(x); if (g) TR.alert.add(ri); }); });
+  TR.byRoute = new Map(); TR.alert = new Set(); TR.lvl = new Map();
+  const up = (ri, n) => TR.lvl.set(ri, Math.max(n, TR.lvl.get(ri) || 0));
+  trActive().forEach((x) => { if (trStatus(x) !== "now") return; const g = trGene(x), n = trLevel(x); trRoutes(x).forEach((ri) => { if (!TR.byRoute.has(ri)) TR.byRoute.set(ri, []); TR.byRoute.get(ri).push(x); if (g) TR.alert.add(ri); up(ri, n); }); });
+  // départs supprimés aujourd'hui (#24 / #43) : on le sait exactement, c'est au moins orange
+  const dk = net.dayIndex(parisNow().iso);
+  if (dk >= 0) for (const p of net.pats) if (p.na) { for (const k of p.na) if (+k.split(":")[1] === dk) { up(p.r, 2); break; } }
   trBang(); trNetCheck(); subBarCheck(); alertMyLines();
 }
 // #11 « Perturbation sur mes lignes » : prévenu une fois par info, appli ouverte
@@ -3574,6 +3619,12 @@ const UPD_0611 = [
 // ajouter une entrée en tête (1 à 4 volets de nouveautés + un volet « Corrections »), elle s'affiche une fois.
 const personSvg = (n) => `<svg width="${n}" height="${n}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.6 4.2-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/></svg>`;
 const UPD_LOG = [
+  { v: "2026-11-11.2", t: "L'état de chaque ligne en un coup d'œil", slides: [
+    { ico: icoSvg('<circle cx="12" cy="12" r="8.6"/><path d="M12 7.8v5.4"/><circle cx="12" cy="16.4" r=".9" fill="currentColor" stroke="none"/>'), t: "Un encadré par ligne",
+      b: "Dans <b>Lignes & plans</b>, le logo de chaque ligne porte maintenant un encadré de couleur : <b>vert</b> quand tout va bien, <b>jaune</b> pour une déviation en cours, <b>orange</b> pour une perturbation gênante (bus bloqué, en retard ou supprimé), <b>rouge</b> quand la ligne est interrompue. La légende est sous les lignes." },
+    { ico: icoSvg('<path d="M20 6 9 17l-5-5"/>'), t: "Et quelques corrections",
+      b: "<ul><li>Info trafic : un message que le réseau laisse en ligne après la journée annoncée n'apparaît plus comme en cours. S'il annonce aussi une autre journée, il passe simplement « À venir ».</li></ul>" },
+  ] },
   { v: "2026-11-11", t: "Marche, adresses et courses annulées", slides: [
     { ico: icoSvg('<path d="M13.5 4.2a1.6 1.6 0 1 0 0-.1"/><path d="M11 8.5 9 13l2.5 1.5.7 5.5"/><path d="M11 8.5l3.2 1.2 1.6 3.3"/><path d="M9 13 7 20"/>'), t: "La marche, à votre main",
       b: "Les itinéraires tenaient compte de l'heure d'arrivée et du nombre de changements, mais pas du tout de la marche : un trajet qui vous faisait marcher vingt minutes passait devant un autre qui n'en demandait que quatre, pour une minute gagnée. C'est corrigé, et <b>Mon profil › Itinéraires › Marche</b> vous laisse choisir : <i>Le moins possible</i>, <i>Normal</i> ou <i>Peu importe</i>." },
