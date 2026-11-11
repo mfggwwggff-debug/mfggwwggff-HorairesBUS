@@ -317,6 +317,11 @@ table.tt th.na { color: var(--na); }
 .lgrid button.trlv { position: relative; padding: 3px; border: 2px solid var(--tlc); border-radius: 11px; background: var(--surface); }
 .trp { position: absolute; right: -5px; bottom: -5px; width: 15px; height: 15px; border-radius: 5px; background: var(--surface); color: var(--tlc); box-shadow: 0 0 0 1.6px var(--tlc); display: grid; place-items: center; }
 .trp svg { width: 11px; height: 11px; }
+/* même encadré autour d'un logo seul (info trafic : filtres et lignes de chaque info) */
+.trlvw { position: relative; display: inline-flex; flex: none; padding: 3px; border: 2px solid var(--tlc); border-radius: 11px; background: var(--surface); }
+.trlvw.sm { padding: 2px; border-width: 1.5px; border-radius: 8px; }
+.trlvw.sm .trp { right: -4px; bottom: -4px; width: 12px; height: 12px; border-radius: 4px; box-shadow: 0 0 0 1.4px var(--tlc); }
+.trlvw.sm .trp svg { width: 9px; height: 9px; }
 .lgroup { display: flex; flex-direction: column; gap: 8px; }
 .lhead { display: flex; gap: 10px; align-items: center; }
 .lhead h2 { font-size: 19px; font-weight: 600; }
@@ -1086,6 +1091,14 @@ const badge = (ri, size, noAlert) => {
   return LINE_LOGOS[r.s] ? `<span class="bdi ${logoCls(r.s)}${size ? " " + size : ""}${al}" role="img" aria-label="Ligne ${esc(r.s)}" title="${t}"></span>`
     : `<span class="bd${r.m === 1 ? " tram" : ""}${size ? " " + size : ""}${al}" style="background:${r.c};color:${r.t}" title="${t}">${esc(r.s)}</span>`;
 };
+// #48 : logo de ligne entouré de son état de trafic (vert / jaune / orange / rouge) avec le mini picto.
+// Même lecture que la grille de Lignes & plans ; la pastille « ! » du logo est masquée, elle ferait doublon.
+const lineLv = (ri) => TR.ok ? (TR.lvl.get(ri) || 0) : -1;
+function badgeLv(ri, size) {
+  const n = lineLv(ri);
+  if (n < 0) return badge(ri, size);
+  return `<span class="trlv trlv${n} trlvw${size === "sm" ? " sm" : ""}" title="Ligne ${esc(net.R[ri].s)} · ${TR_NIV[n]}">${badge(ri, size, true)}${n > 0 ? `<i class="trp">${TR_PICTO[n]}</i>` : ""}</span>`;
+}
 // pictos des modes (DA validée : forme pleine, détails en creux, version encadrée)
 const MODE_SVG = {
   tram: `<path d="M18 2.5H30M21 7.5 26 5 22 2.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path fill="currentColor" fill-rule="evenodd" d="M13 7.5H35Q39.5 7.5 39 12L36.2 32.5C35.4 38.5 32.5 42 28 42.5H20C15.5 42 12.6 38.5 11.8 32.5L9 12Q8.5 7.5 13 7.5ZM13.6 10H34.4Q34.9 10 34.9 10.5V12Q34.9 12.5 34.4 12.5H13.6Q13.1 12.5 13.1 12V10.5Q13.1 10 13.6 10ZM12.8 15H35.2L33.6 27.5C33.1 31.5 30.6 33.6 27 33.6H21C17.4 33.6 14.9 31.5 14.4 27.5ZM21.3 38A1.3 1.3 0 1 0 21.3 37.99ZM26.7 38A1.3 1.3 0 1 0 26.7 37.99Z"/><path d="M10 46H38" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>`,
@@ -3051,7 +3064,7 @@ function trItem(x) {
   const zoomable = !!trTargets(x) || trRoutes(x).length === 1;
   const zb = zoomable ? `<button type="button" class="linkbtn trzoom" data-zoom="${esc(x.id)}">Voir sur le plan ${chevR}</button>` : "";
   const nab = ""; // #43 : plus de « N départs barrés » dans l'info trafic (TR.na reste tenu à jour)
-  return `<details class="tritem${rt ? " trlive" : ""}" data-id="${esc(x.id)}"${TR.open === x.id ? " open" : ""}><summary><span class="tt2">${esc(x.t)}</span><svg class="chev" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 5 4 4 4-4"/></svg>${x.p ? `<span class="pp">${esc(x.p)}</span>` : ""}<span class="bs"><span class="tag ${rt ? "live" : st === "now" ? "now" : "soon"}">${rt ? "En direct" : st === "now" ? (trRecur(x) ? "Aujourd'hui" : "En cours") : st === "recur" ? "Chaque " + trRecur(x).name : st === "info" ? "Info" : "À venir"}</span>${trRoutes(x).map((r) => badge(r, "sm")).join("")}</span></summary>${body || zb || nab ? `<div class="body">${body}${nab}${zb}</div>` : ""}</details>`;
+  return `<details class="tritem${rt ? " trlive" : ""}" data-id="${esc(x.id)}"${TR.open === x.id ? " open" : ""}><summary><span class="tt2">${esc(x.t)}</span><svg class="chev" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 5 4 4 4-4"/></svg>${x.p ? `<span class="pp">${esc(x.p)}</span>` : ""}<span class="bs"><span class="tag ${rt ? "live" : st === "now" ? "now" : "soon"}">${rt ? "En direct" : st === "now" ? (trRecur(x) ? "Aujourd'hui" : "En cours") : st === "recur" ? "Chaque " + trRecur(x).name : st === "info" ? "Info" : "À venir"}</span>${trRoutes(x).map((r) => badgeLv(r, "sm")).join("")}</span></summary>${body || zb || nab ? `<div class="body">${body}${nab}${zb}</div>` : ""}</details>`;
 }
 // ---------- #11 Mon profil ----------
 const grip = `<svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><circle cx="6.5" cy="4" r="1.4"/><circle cx="11.5" cy="4" r="1.4"/><circle cx="6.5" cy="9" r="1.4"/><circle cx="11.5" cy="9" r="1.4"/><circle cx="6.5" cy="14" r="1.4"/><circle cx="11.5" cy="14" r="1.4"/></svg>`;
@@ -3418,7 +3431,7 @@ function renderTrafic() {
   } else {
     const act = trActive(), f = TR.filter;
     const lines = [...new Set(act.flatMap(trRoutes))].sort((a, b) => myFirst(b) - myFirst(a) || a - b);
-    h += `<div class="trf" role="group" aria-label="Filtrer par ligne" style="margin-top:12px"><button type="button" data-f="" aria-pressed="${!f}">Toutes</button>${lines.map((r) => `<button type="button" data-f="${r}" aria-pressed="${!!f && f.length === 1 && f[0] === r}" aria-label="Ligne ${esc(net.R[r].s)}">${badge(r, "sm", true)}</button>`).join("")}</div>`;
+    h += `<div class="trf" role="group" aria-label="Filtrer par ligne" style="margin-top:12px"><button type="button" data-f="" aria-pressed="${!f}">Toutes</button>${lines.map((r) => `<button type="button" data-f="${r}" aria-pressed="${!!f && f.length === 1 && f[0] === r}" aria-label="Ligne ${esc(net.R[r].s)}">${badgeLv(r, "sm")}</button>`).join("")}</div>`;
     head.innerHTML = h;
     const onMy = (x) => trRoutes(x).some(myFirst);
     const list = (f ? act.filter((x) => trRoutes(x).some((r) => f.includes(r))) : act).slice().sort((a, b) => onMy(b) - onMy(a) || (trStatus(a) === "soon") - (trStatus(b) === "soon"));
