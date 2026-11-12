@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-12T08:42:18Z",
+ "at": "2026-11-12T09:35:29Z",
  "items": [
   {
    "id": "e7810d9a3b",
@@ -55,8 +55,8 @@
    "since": "2026-11-11"
   },
   {
-   "id": "7ae8b1c06f",
-   "t": "Perturbation du trafic tramway.",
+   "id": "f23597d847",
+   "t": "REPRISE DU TRAFIC TRAMWAY",
    "lines": [
     "T1",
     "T2"
@@ -68,7 +68,7 @@
     {
      "r": [
       [
-       "Perturbation du trafic tramway.",
+       "REPRISE DU TRAFIC TRAMWAY",
        0
       ]
      ]
@@ -76,20 +76,8 @@
     {
      "r": [
       [
-       "Suite à un accident, la circulation est actuellement perturbée.",
+       "La circulation des tramways a repris sur l'ensemble du réseau. Le trafic est de nouveau normal.",
        0
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Les tramways circulent uniquement entre ",
-       0
-      ],
-      [
-       "Gare Centre et Hôpital Debré/Gare Champagne TGV.",
-       1
       ]
      ]
     },
