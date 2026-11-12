@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-11T21:16:05Z",
+ "at": "2026-11-12T06:25:50Z",
  "items": [
   {
    "id": "e7810d9a3b",
@@ -67,7 +67,7 @@
     {
      "r": [
       [
-       "Mardi 10 novembre et jeudi 12 novembre:",
+       "En raison de contraintes d'exploitation, certains départs ne sont pas assurés aujourd'hui :",
        0
       ]
      ]
@@ -75,7 +75,7 @@
     {
      "r": [
       [
-       "Départs de Gare Clairmarais non asssurés: 15h42-16h54-18h08-19h22",
+       "Mardi 10 novembre et jeudi 12 novembre :",
        0
       ]
      ]
@@ -83,7 +83,7 @@
     {
      "r": [
       [
-       "Départs de Fac des Sciences non assurés: 16h21-17h34-18h47-20h",
+       "Départs de Gare Clairmarais non assurés : 15h42-16h54-18h08-19h22",
        0
       ]
      ]
@@ -91,34 +91,7 @@
     {
      "r": [
       [
-       "Conseil déplacement",
-       1
-      ],
-      [
-       " : nous vous invitons à anticiper votre trajet ou à privilégier les lignes à proximité ( https://grandreims-mobilites.fr/fr/3RW-Itineraire.html)",
-       0
-      ]
-     ]
-    }
-   ],
-   "rt": true,
-   "sec": "temps reel",
-   "since": "2026-11-11"
-  },
-  {
-   "id": "16eb3530f2",
-   "t": "En raison de contraintes d'exploitation, certains départs ne sont pas assurés aujourd'hui :",
-   "lines": [
-    "U2"
-   ],
-   "p": "",
-   "start": null,
-   "end": null,
-   "b": [
-    {
-     "r": [
-      [
-       "Mardi 10 novembre:",
+       "Départs de Fac des Sciences non assurés : 16h21-17h34-18h47-20h",
        0
       ]
      ]
@@ -126,78 +99,7 @@
     {
      "r": [
       [
-       "Départs de Route de Witry non assurés: 16h11-18h03-19h44",
-       0
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Départs de C.c Champfleury non assurés: 17h07-18h55-20h32",
-       0
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Conseil déplacement",
-       1
-      ],
-      [
-       ": nous vous invitons à anticiper votre trajet ou à privilégier les lignes à proximité ( https://grandreims-mobilites.fr/fr/3RW-Itineraire.html)",
-       0
-      ]
-     ]
-    }
-   ],
-   "rt": true,
-   "sec": "temps reel",
-   "since": "2026-11-11"
-  },
-  {
-   "id": "16eb3530f2",
-   "t": "En raison de contraintes d'exploitation, certains départs ne sont pas assurés aujourd'hui :",
-   "lines": [
-    "U5"
-   ],
-   "p": "",
-   "start": null,
-   "end": null,
-   "b": [
-    {
-     "r": [
-      [
-       "Mardi 10 novembre:",
-       0
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Départs de Croix du Sud non assurés: 15h01-17h02-19h-20h42",
-       0
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Départs de Parc des Expos non assurés: 14h05-16h03-18h04-19h55",
-       0
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Conseil déplacement",
-       1
-      ],
-      [
-       " : nous vous invitons à anticiper votre trajet ou à privilégier les lignes à proximité ( https://grandreims-mobilites.fr/fr/3RW-Itineraire.html)",
+       "Conseil déplacement : nous vous invitons à anticiper votre trajet ou à privilégier les lignes à proximité ( https://grandreims-mobilites.fr/fr/3RW-Itineraire.html)",
        0
       ]
      ]
@@ -360,6 +262,59 @@
    ],
    "rt": true,
    "sec": "temps reel",
+   "since": "2026-11-11"
+  },
+  {
+   "id": "1539d33ccb",
+   "t": "Travaux de voirie à Treslon",
+   "lines": [
+    "E6"
+   ],
+   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 16 avril 2027",
+   "start": "2026-10-19",
+   "end": "2027-04-16",
+   "b": [
+    {
+     "l": "",
+     "r": [
+      [
+       "Forte perturbation sur les horaires de la ligne durant cette période",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "E6",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "TRESLON",
+       1
+      ],
+      [
+       " dans les deux sens est non desservi par la ligne, mais reste desservi par le",
+       0
+      ],
+      [
+       "Transport A la Demande",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne",
    "since": "2026-11-11"
   },
   {
@@ -536,59 +491,6 @@
       ],
       [
        "50 mètres avant l'arrêt",
-       1
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne",
-   "since": "2026-11-11"
-  },
-  {
-   "id": "1539d33ccb",
-   "t": "Travaux de voirie à Treslon",
-   "lines": [
-    "E6"
-   ],
-   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 16 avril 2027",
-   "start": "2026-10-19",
-   "end": "2027-04-16",
-   "b": [
-    {
-     "l": "",
-     "r": [
-      [
-       "Forte perturbation sur les horaires de la ligne durant cette période",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "E6",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "TRESLON",
-       1
-      ],
-      [
-       " dans les deux sens est non desservi par la ligne, mais reste desservi par le",
-       0
-      ],
-      [
-       "Transport A la Demande",
        1
       ]
      ]
@@ -1473,6 +1375,88 @@
    "since": "2026-11-11"
   },
   {
+   "id": "f118b20ae9",
+   "t": "Report de l'arrêt D'Orves vers C.C Cormontreuil",
+   "lines": [
+    "O2",
+    "U5"
+   ],
+   "p": "A partir du lundi 28 septembre 2026 jusqu'au jeudi 31 décembre 2026",
+   "start": "2026-09-28",
+   "end": "2026-12-31",
+   "b": [
+    {
+     "l": "O2",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "D'ORVES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "C.C. CORMONTREUIL",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "200 mètres avant, face au 61 Bld du Président Wilson (ancien arrêt de la ligne 2)",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U5",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "D'ORVES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "PARC DES EXPOSITIONS",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "200 mètres avant, face au 61 Bld du Président Wilson (ancien arrêt de la ligne 2)",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne",
+   "since": "2026-11-11"
+  },
+  {
    "id": "f168938f84",
    "t": "Report des arrêts Alexandre 1er",
    "lines": [
@@ -1549,88 +1533,6 @@
       "lon": 4.030819,
       "a": "18 boulevard Louis Barthou"
      }
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne",
-   "since": "2026-11-11"
-  },
-  {
-   "id": "f118b20ae9",
-   "t": "Report de l'arrêt D'Orves vers C.C Cormontreuil",
-   "lines": [
-    "O2",
-    "U5"
-   ],
-   "p": "A partir du lundi 28 septembre 2026 jusqu'au jeudi 31 décembre 2026",
-   "start": "2026-09-28",
-   "end": "2026-12-31",
-   "b": [
-    {
-     "l": "O2",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "D'ORVES",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "C.C. CORMONTREUIL",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "200 mètres avant, face au 61 Bld du Président Wilson (ancien arrêt de la ligne 2)",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "U5",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "D'ORVES",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "PARC DES EXPOSITIONS",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "200 mètres avant, face au 61 Bld du Président Wilson (ancien arrêt de la ligne 2)",
-       1
-      ]
-     ]
     },
     {
      "r": [
