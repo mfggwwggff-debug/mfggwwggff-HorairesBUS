@@ -1,7 +1,405 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-12T13:52:43Z",
+ "at": "2026-11-12T23:06:43Z",
  "items": [
+  {
+   "id": "aba75f03db",
+   "t": "Corrida de Cormontreuil",
+   "lines": [
+    "U4"
+   ],
+   "p": "Le samedi 21 novembre 2026 à partir de 16h00",
+   "start": "2026-11-21",
+   "end": "2026-11-21",
+   "b": [
+    {
+     "l": "U4",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "SALENGRO",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "BLANCS MONTS",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "au 18 rue Aristide Briand (ancien arrêt Moulin à Vent)",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U4",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "SALENGRO",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "ORGEVAL",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "face au 20 rue Aristide Briand (ancien arrêt Moulin à Vent)",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U4",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "PERI",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "BLANCS MONTS",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "au 18 rue Aristide Briand (ancien arrêt Moulin à Vent)",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U4",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "PERI",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "ORGEVAL",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "face au 20 rue Aristide Briand (ancien arrêt Moulin à Vent)",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U4",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "ALLENDE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "BLANCS MONTS",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt ROUTE DE TAISSY",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U4",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "ALLENDE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "ORGEVAL",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "Voie Verte au niveau u rond point Route de Taissy",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U4",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "CHAMP BERDIN",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "BLANCS MONTS",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt ROUTE DE TAISSY",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U4",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "CHAMP BERDIN",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "ORGEVAL",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "Voie Verte au niveau u rond point Route de Taissy",
+       1
+      ]
+     ]
+    },
+    {
+     "img": "https://prod.deviations.info/carte/grandreims/public/img/86783.jpg"
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne",
+   "since": "2026-11-13"
+  },
+  {
+   "id": "9d7156791c",
+   "t": "Report des arrêts Tourangeaux",
+   "lines": [
+    "U24",
+    "U5"
+   ],
+   "p": "A partir du jeudi 19 novembre 2026 jusqu'au vendredi 26 février 2027",
+   "start": "2026-11-19",
+   "end": "2027-02-26",
+   "b": [
+    {
+     "l": "U24",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "TOURANGEAUX",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "RENAULT",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "150 mètres après l'arrêt, au niveau de l'entrée principale des jardins",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U5",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "TOURANGEAUX",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "CROIX DU SUD",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "150 mètres après l'arrêt, au niveau de l'entrée principale des jardins",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U24",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "TOURANGEAUX",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "SAINT-BRICE MAIRIE",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "100 mètres avant l'arrêt",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U5",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "TOURANGEAUX",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "PARC DES EXPOSITIONS",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "100 mètres avant l'arrêt",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne",
+   "since": "2026-11-13"
+  },
   {
    "id": "e7810d9a3b",
    "t": "Report de l'arrêt Stade de Muire vers P+R Thillois",
@@ -265,44 +663,109 @@
    "since": "2026-11-11"
   },
   {
-   "id": "1539d33ccb",
-   "t": "Travaux de voirie à Treslon",
+   "id": "2f036d5c93",
+   "t": "Travaux rue Pierre Maître et rue de Courcelles",
    "lines": [
-    "E6"
+    "U7"
    ],
-   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 16 avril 2027",
+   "p": "A partir du lundi 19 octobre 2026 jusqu'au dimanche 21 février 2027",
    "start": "2026-10-19",
-   "end": "2027-04-16",
+   "end": "2027-02-21",
    "b": [
     {
-     "l": "",
-     "r": [
-      [
-       "Forte perturbation sur les horaires de la ligne durant cette période",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "E6",
+     "l": "U7",
      "r": [
       [
        "L'arrêt ",
        0
       ],
       [
-       "TRESLON",
+       "VERRERIES",
        1
       ],
       [
-       " dans les deux sens est non desservi par la ligne, mais reste desservi par le",
+       " dans le sens ",
        0
       ],
       [
-       "Transport A la Demande",
+       "HOPITAL DEBRE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt VERRERIES de la ligne U7 vers BOUTREAUX",
        1
       ]
      ]
+    },
+    {
+     "l": "U7",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "PONT ST BRICE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "HOPITAL DEBRE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt VERRERIES de la ligne U7 vers BOUTREAUX",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U7",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "PONT ST BRICE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "BOUTREAUX",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "au 14 rue Pierre Maitre",
+       1
+      ]
+     ],
+     "geo": {
+      "lat": 49.262776,
+      "lon": 4.005758,
+      "a": "14 rue Pierre Maitre"
+     }
+    },
+    {
+     "img": "https://prod.deviations.info/carte/grandreims/public/img/86603.jpg"
     },
     {
      "r": [
@@ -591,109 +1054,44 @@
    "since": "2026-11-11"
   },
   {
-   "id": "2f036d5c93",
-   "t": "Travaux rue Pierre Maître et rue de Courcelles",
+   "id": "1539d33ccb",
+   "t": "Travaux de voirie à Treslon",
    "lines": [
-    "U7"
+    "E6"
    ],
-   "p": "A partir du lundi 19 octobre 2026 jusqu'au dimanche 21 février 2027",
+   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 16 avril 2027",
    "start": "2026-10-19",
-   "end": "2027-02-21",
+   "end": "2027-04-16",
    "b": [
     {
-     "l": "U7",
+     "l": "",
      "r": [
       [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "VERRERIES",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "HOPITAL DEBRE",
-       1
-      ],
-      [
-       " est reporté à l'",
-       0
-      ],
-      [
-       "arrêt VERRERIES de la ligne U7 vers BOUTREAUX",
+       "Forte perturbation sur les horaires de la ligne durant cette période",
        1
       ]
      ]
     },
     {
-     "l": "U7",
+     "l": "E6",
      "r": [
       [
        "L'arrêt ",
        0
       ],
       [
-       "PONT ST BRICE",
+       "TRESLON",
        1
       ],
       [
-       " dans le sens ",
+       " dans les deux sens est non desservi par la ligne, mais reste desservi par le",
        0
       ],
       [
-       "HOPITAL DEBRE",
-       1
-      ],
-      [
-       " est reporté à l'",
-       0
-      ],
-      [
-       "arrêt VERRERIES de la ligne U7 vers BOUTREAUX",
+       "Transport A la Demande",
        1
       ]
      ]
-    },
-    {
-     "l": "U7",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "PONT ST BRICE",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "BOUTREAUX",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "au 14 rue Pierre Maitre",
-       1
-      ]
-     ],
-     "geo": {
-      "lat": 49.262776,
-      "lon": 4.005758,
-      "a": "14 rue Pierre Maitre"
-     }
-    },
-    {
-     "img": "https://prod.deviations.info/carte/grandreims/public/img/86603.jpg"
     },
     {
      "r": [
@@ -1375,88 +1773,6 @@
    "since": "2026-11-11"
   },
   {
-   "id": "f118b20ae9",
-   "t": "Report de l'arrêt D'Orves vers C.C Cormontreuil",
-   "lines": [
-    "O2",
-    "U5"
-   ],
-   "p": "A partir du lundi 28 septembre 2026 jusqu'au jeudi 31 décembre 2026",
-   "start": "2026-09-28",
-   "end": "2026-12-31",
-   "b": [
-    {
-     "l": "O2",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "D'ORVES",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "C.C. CORMONTREUIL",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "200 mètres avant, face au 61 Bld du Président Wilson (ancien arrêt de la ligne 2)",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "U5",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "D'ORVES",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "PARC DES EXPOSITIONS",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "200 mètres avant, face au 61 Bld du Président Wilson (ancien arrêt de la ligne 2)",
-       1
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne",
-   "since": "2026-11-11"
-  },
-  {
    "id": "f168938f84",
    "t": "Report des arrêts Alexandre 1er",
    "lines": [
@@ -1533,6 +1849,88 @@
       "lon": 4.030819,
       "a": "18 boulevard Louis Barthou"
      }
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne",
+   "since": "2026-11-11"
+  },
+  {
+   "id": "f118b20ae9",
+   "t": "Report de l'arrêt D'Orves vers C.C Cormontreuil",
+   "lines": [
+    "O2",
+    "U5"
+   ],
+   "p": "A partir du lundi 28 septembre 2026 jusqu'au jeudi 31 décembre 2026",
+   "start": "2026-09-28",
+   "end": "2026-12-31",
+   "b": [
+    {
+     "l": "O2",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "D'ORVES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "C.C. CORMONTREUIL",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "200 mètres avant, face au 61 Bld du Président Wilson (ancien arrêt de la ligne 2)",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U5",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "D'ORVES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "PARC DES EXPOSITIONS",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "200 mètres avant, face au 61 Bld du Président Wilson (ancien arrêt de la ligne 2)",
+       1
+      ]
+     ]
     },
     {
      "r": [
