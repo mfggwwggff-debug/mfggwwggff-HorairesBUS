@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-13T17:02:08Z",
+ "at": "2026-11-13T17:55:10Z",
  "items": [
   {
    "id": "aba75f03db",
@@ -555,6 +555,57 @@
    "since": "2026-11-13"
   },
   {
+   "id": "16eb3530f2",
+   "t": "En raison de contraintes d'exploitation, certains départs ne sont pas assurés aujourd'hui :",
+   "lines": [
+    "O1"
+   ],
+   "p": "",
+   "start": null,
+   "end": null,
+   "b": [
+    {
+     "r": [
+      [
+       "Vendredi 13 novembre:",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Départs de Danemark non assurés: 19h20-20h20-21h20-22h20-23h20-00h20",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Départs de Moulin de la Housse non assurés: 19h50-20h50-21h50-22h50-23h50",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Conseil déplacement",
+       1
+      ],
+      [
+       ": nous vous invitons à anticiper votre trajet ou à privilégier les lignes à proximité ( https://grandreims-mobilites.fr/fr/3RW-Itineraire.html)",
+       0
+      ]
+     ]
+    }
+   ],
+   "rt": true,
+   "sec": "temps reel",
+   "since": "2026-11-13"
+  },
+  {
    "id": "bcf248c5c4",
    "t": "Reports des arrêts Rethel et Thierot vers Cormontreuil Blancs Monts",
    "lines": [
@@ -849,58 +900,6 @@
    "since": "2026-11-11"
   },
   {
-   "id": "25a156ef9e",
-   "t": "Report de l'arrêt Tinqueux Mairie vers P+R Thillois",
-   "lines": [
-    "U1"
-   ],
-   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 18 décembre 2026",
-   "start": "2026-10-19",
-   "end": "2026-12-18",
-   "b": [
-    {
-     "l": "U1",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "TINQUEUX MAIRIE",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "P+R THILLOIS",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "50 mètres avant l'arrêt",
-       1
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne",
-   "since": "2026-11-11"
-  },
-  {
    "id": "2f036d5c93",
    "t": "Travaux rue Pierre Maître et rue de Courcelles",
    "lines": [
@@ -1136,6 +1135,58 @@
       ],
       [
        "60 mètres avant l'arrêt, au niveau du 86 rue de Venise",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne",
+   "since": "2026-11-11"
+  },
+  {
+   "id": "25a156ef9e",
+   "t": "Report de l'arrêt Tinqueux Mairie vers P+R Thillois",
+   "lines": [
+    "U1"
+   ],
+   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 18 décembre 2026",
+   "start": "2026-10-19",
+   "end": "2026-12-18",
+   "b": [
+    {
+     "l": "U1",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "TINQUEUX MAIRIE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "P+R THILLOIS",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "50 mètres avant l'arrêt",
        1
       ]
      ]
