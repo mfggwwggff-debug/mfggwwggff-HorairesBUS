@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-14T13:32:02Z",
+ "at": "2026-11-14T14:23:43Z",
  "items": [
   {
    "id": "aba75f03db",
@@ -456,8 +456,12 @@
    "id": "8702d4d0ce",
    "t": "Manifestation en cours",
    "lines": [
-    "C",
-    "U1"
+    "O1",
+    "U1",
+    "U2",
+    "U3",
+    "U5",
+    "U6"
    ],
    "p": "",
    "start": null,
@@ -466,7 +470,47 @@
     {
      "r": [
       [
-       "Secteur Boulevard de la paix fermé dans les 2 sens",
+       "U1 ne dessert pas de Pont d'Epernay à Ferry",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "U2 ne dessert pas de Gobelins à Colomb",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "U3 fait son terminus à Romain en venant de Marenciennes",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "U5 fait son terminus à Colomb",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "U6 fait son terminus à Fac des Sciences",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "O1 fait son terminus à Opéra en venant de Danemark",
        0
       ]
      ]
