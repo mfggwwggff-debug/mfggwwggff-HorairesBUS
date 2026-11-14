@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-14T15:01:02Z",
+ "at": "2026-11-14T15:43:35Z",
  "items": [
   {
    "id": "aba75f03db",
@@ -456,12 +456,15 @@
    "id": "8702d4d0ce",
    "t": "Manifestation en cours",
    "lines": [
+    "T1",
+    "T2",
     "U1",
     "U2",
     "U20",
-    "U21",
+    "U22",
     "U3",
-    "U5"
+    "U4",
+    "U8"
    ],
    "p": "",
    "start": null,
@@ -486,7 +489,7 @@
     {
      "r": [
       [
-       "U3 fait son terminus à Romain en venant de Maurenciennes, ne dessert pas Centre Commercial Cernay",
+       "U3 fait son terminus à l'arrêt Romain, ne dessert pas Centre Commercial Cernay",
        0
       ]
      ]
@@ -494,7 +497,7 @@
     {
      "r": [
       [
-       "U5 fait son terminus à Colomb",
+       "U8 est déviée de l'arrêt Gare Centre à l'arrêt Maryse Bastié dans les 2 sens",
        0
       ]
      ]
@@ -502,7 +505,15 @@
     {
      "r": [
       [
-       "U20 fait son terminus à C.C Cernay en venant de Gare Clairmarais",
+       "U22 fait son terminus à Sébastopole, non pas à Royale",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "U4 U20 SUB déviées dans le secteur République",
        0
       ]
      ]
