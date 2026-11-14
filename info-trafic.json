@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-14T14:23:43Z",
+ "at": "2026-11-14T15:01:02Z",
  "items": [
   {
    "id": "aba75f03db",
@@ -456,12 +456,12 @@
    "id": "8702d4d0ce",
    "t": "Manifestation en cours",
    "lines": [
-    "O1",
     "U1",
     "U2",
+    "U20",
+    "U21",
     "U3",
-    "U5",
-    "U6"
+    "U5"
    ],
    "p": "",
    "start": null,
@@ -470,7 +470,7 @@
     {
      "r": [
       [
-       "U1 ne dessert pas de Pont d'Epernay à Ferry",
+       "U1 fait son terminus à Pont d'Epernay en venant de Thillois, ne dessert pas Centre Commercial Cernay",
        0
       ]
      ]
@@ -486,7 +486,7 @@
     {
      "r": [
       [
-       "U3 fait son terminus à Romain en venant de Marenciennes",
+       "U3 fait son terminus à Romain en venant de Maurenciennes, ne dessert pas Centre Commercial Cernay",
        0
       ]
      ]
@@ -502,15 +502,7 @@
     {
      "r": [
       [
-       "U6 fait son terminus à Fac des Sciences",
-       0
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "O1 fait son terminus à Opéra en venant de Danemark",
+       "U20 fait son terminus à C.C Cernay en venant de Gare Clairmarais",
        0
       ]
      ]
