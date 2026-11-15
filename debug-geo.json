@@ -1,0 +1,126 @@
+[
+ [
+  "18 rue Aristide Briand",
+  [
+   [
+    "18 Rue Aristide Briand 59240 Dunkerque",
+    0.8970158333333333,
+    "housenumber",
+    [
+     2.401846,
+     51.038189
+    ]
+   ],
+   [
+    "18 Rue Aristide Briand 50100 Cherbourg-en-Cotentin",
+    0.896295,
+    "housenumber",
+    [
+     -1.655306,
+     49.646506
+    ]
+   ],
+   [
+    "18 Rue Aristide Briand 92300 Levallois-Perret",
+    0.8961666666666667,
+    "housenumber",
+    [
+     2.282776,
+     48.889968
+    ]
+   ]
+  ]
+ ],
+ [
+  "18 rue Aristide Briand Cormontreuil",
+  [
+   [
+    "18 Rue Aristide Briand 51350 Cormontreuil",
+    0.9644570929088994,
+    "housenumber",
+    [
+     4.050515,
+     49.219778
+    ]
+   ]
+  ]
+ ],
+ [
+  "20 rue Aristide Briand",
+  [
+   [
+    "20 Rue Aristide Briand 59240 Dunkerque",
+    0.8970158333333333,
+    "housenumber",
+    [
+     2.401888,
+     51.038131
+    ]
+   ],
+   [
+    "20 Rue Aristide Briand 92300 Levallois-Perret",
+    0.8961666666666667,
+    "housenumber",
+    [
+     2.282915,
+     48.89003
+    ]
+   ],
+   [
+    "20 Rue Aristide Briand 02700 Tergnier",
+    0.8959189893488986,
+    "housenumber",
+    [
+     3.287914,
+     49.653688
+    ]
+   ]
+  ]
+ ],
+ [
+  "rond point Route de Taissy Cormontreuil",
+  [
+   [
+    "Route de Taissy 51350 Cormontreuil",
+    0.6335815311004784,
+    "street",
+    [
+     4.063118,
+     49.220357
+    ]
+   ]
+  ]
+ ],
+ [
+  "Voie Verte Route de Taissy Cormontreuil",
+  [
+   [
+    "Route de Taissy 51350 Cormontreuil",
+    0.6335815311004784,
+    "street",
+    [
+     4.063118,
+     49.220357
+    ]
+   ],
+   [
+    "Voie Verte 27100 Val-de-Reuil",
+    0.40620207792207785,
+    "street",
+    [
+     1.214653,
+     49.275713
+    ]
+   ],
+   [
+    "Route de la Voie Verte 34220 Saint-Pons-de-Thomières",
+    0.36885519480519485,
+    "street",
+    [
+     2.775483,
+     43.485986
+    ]
+   ]
+  ]
+ ]
+]
