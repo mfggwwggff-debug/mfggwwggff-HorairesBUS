@@ -218,6 +218,8 @@ def geocode(addr, near, rue_seule=False):
             if near and d > (0.8 if rue_seule else 2.0) ** 2: continue   # plus loin : sans doute une autre rue du même nom (rue entière : 800 m)
             if best is None or d < best[0]: best = (d, [round(lat, 6), round(lon, 6)])
         if best: return best[1]
+    if not rue_seule and re.match(r"\d", addr):   # numéro inconnu de la base (« face au 20 … ») : la rue, près de l'arrêt
+        return geocode(re.sub(r"^\d+\s*(?:bis|ter)?\s+", "", addr), near, True)
     return None
 
 
