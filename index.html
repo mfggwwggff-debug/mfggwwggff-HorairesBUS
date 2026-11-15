@@ -315,6 +315,8 @@ table.tt th.na { color: var(--na); }
 .lgrid { display: flex; flex-wrap: wrap; gap: 8px; }
 .lgrid button { border: 0; padding: 0; background: none; border-radius: 8px; }
 .lgrid button[aria-pressed="true"] { outline: 2px solid var(--ink); outline-offset: 2px; }
+/* ligne choisie : les autres s'estompent (15 nov.) */
+#li-grid:has(button[aria-pressed="true"]) button:not([aria-pressed="true"]) { opacity: .38; transition: opacity .2s; }
 /* #51 : ligne choisie avec un encadré d'état : pas de contour noir, le logo grandit jusqu'à l'encadré */
 .lgrid button.trlv[aria-pressed="true"] { outline: none; padding: 0; }
 .lgrid button.trlv[aria-pressed="true"] > .bd { height: calc(var(--bdh, 30px) + 6px); min-width: calc(var(--bdw, 40px) + 6px); padding: 0 9px; border-radius: 9px; font-size: 17.5px; }
@@ -2276,8 +2278,9 @@ function subBarCheck() {
 // ---------- Lignes ----------
 setupDT($("#li-date"), $("#li-time"), () => runLi());
 function buildGrid() {
-  const groups = [["Mes lignes", (r) => myFirst(net.R.indexOf(r)), "star"], ["Tram", (r) => r.m === 1, 1], ["BHNS", (r) => /^O\d/.test(r.s), "bhns"], ["Urbaines", (r) => /^U/.test(r.s), 3], ["Centre et scolaires", (r) => /^[CS]/.test(r.s), 3], ["Express", (r) => /^E/.test(r.s), 3]];
-  $("#li-grid").innerHTML = groups.map(([n, f, m]) => { const ids = net.R.map((r, i) => [r, i]).filter(([r, i]) => f(r) && shownR(i)).map(([, i]) => i); return ids.length ? `<div class="lbl withico">${m === "star" ? `<span class="mode" style="color:var(--accent-strong,#C4430F)">${starSvg}</span>` : modeIcon(m)}${n}</div><div class="lgrid">${ids.map((i) => { const n = TR.ok ? (TR.lvl.get(i) || 0) : -1; return `<button type="button" data-r="${i}" aria-pressed="${i === S.line}" aria-label="Ligne ${esc(net.R[i].s)}${n > 0 ? " · " + TR_NIV[n] : ""}"${n >= 0 ? ` class="trlv trlv${n}" title="Ligne ${esc(net.R[i].s)} · ${TR_NIV[n]}"` : ""}>${badge(i, "lg", n >= 0)}${n > 0 ? `<i class="trp">${TR_PICTO[n]}</i>` : ""}</button>`; }).join("")}</div>` : ""; }).join("");
+  const groups = [["Mes lignes", (r) => myFirst(net.R.indexOf(r)), "star"], ["Tram", (r) => r.m === 1, 1], ["BHNS", (r) => /^O\d/.test(r.s), "bhns"], ["Urbaines", (r) => /^[UCS]/.test(r.s), 3], ["Express", (r) => /^E/.test(r.s), 3]]; // la C et les scolaires à la fin des urbaines (15 nov.)
+  const uOrd = (r) => /^U/.test(r.s) ? 0 : /^C/.test(r.s) ? 1 : 2;
+  $("#li-grid").innerHTML = groups.map(([n, f, m]) => { const ids = net.R.map((r, i) => [r, i]).filter(([r, i]) => f(r) && shownR(i)).sort(([a], [b]) => uOrd(a) - uOrd(b)).map(([, i]) => i); return ids.length ? `<div class="lbl withico">${m === "star" ? `<span class="mode" style="color:var(--accent-strong,#C4430F)">${starSvg}</span>` : modeIcon(m)}${n}</div><div class="lgrid">${ids.map((i) => { const n = TR.ok ? (TR.lvl.get(i) || 0) : -1; return `<button type="button" data-r="${i}" aria-pressed="${i === S.line}" aria-label="Ligne ${esc(net.R[i].s)}${n > 0 ? " · " + TR_NIV[n] : ""}"${n >= 0 ? ` class="trlv trlv${n}" title="Ligne ${esc(net.R[i].s)} · ${TR_NIV[n]}"` : ""}>${badge(i, "lg", n >= 0)}${n > 0 ? `<i class="trp">${TR_PICTO[n]}</i>` : ""}</button>`; }).join("")}</div>` : ""; }).join("");
 }
 buildGrid();
 $("#li-grid").addEventListener("click", (e) => { const b = e.target.closest("button[data-r]"); if (!b) return; S.line = +b.dataset.r; S.dir = 0; runLi(); fitLine(S.line); });
