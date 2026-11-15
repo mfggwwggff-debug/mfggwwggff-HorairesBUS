@@ -4,7 +4,7 @@ Outil web pour le réseau Grand Reims Mobilités, pensé pour le téléphone : a
 
 - **Horaires théoriques** : fichier GTFS publié sur transport.data.gouv.fr (Licence ouverte).
 - **Temps réel** : flux GTFS-RT du réseau, relu toutes les 30 secondes par le navigateur.
-- **Info trafic** : relevée sur grandreims-mobilites.fr toutes les 15 minutes environ par GitHub Actions, dans `info-trafic.json`.
+- **Info trafic** : relevée sur grandreims-mobilites.fr par GitHub Actions, dans `info-trafic.json` : à chaque changement repéré par le service d'alertes (lecture du site toutes les 5 min), sinon par la planification de GitHub.
 - **Fond de carte** : tuiles OpenStreetMap, adoucies en gris.
 - Tout tourne dans le navigateur : pas de compte, rien n'est collecté — sauf pour qui active les **alertes appli fermée** (#20), où un petit service garde un identifiant anonyme, ses réglages et le suivi des notifications reçues.
 
@@ -22,6 +22,10 @@ Outil web pour le réseau Grand Reims Mobilités, pensé pour le téléphone : a
 | `build/rondpoints.py` | Relève les rond-points d'OpenStreetMap (`build/rondpoints.json`), chaque mois par la tâche *Rond-points (OSM)*. |
 | `build/assets.js` | Logo Grand Reims Mobilités (vectoriel) et logos des lignes. |
 | `build/infotrafic.py` | Relève l'info trafic du site du réseau. |
+| `build/trafic_classe.py` | Classe chaque info (effets, gravité, nature, portée) et rapproche les arrêts cités de ceux du GTFS. |
+| `build/trafic-archive.json` | Toutes les infos vues, avec leur bon classement quand il a été vérifié. |
+| `build/test_trafic.py` | Banc d'essai : rejoue l'archive après chaque changement du classement (`python build/test_trafic.py`). |
+| `build/arrets-alias.json` | Équivalences à la main entre un nom d'arrêt de l'info trafic et celui du GTFS. |
 | `build/plans.py` | Télécharge les plans PDF du réseau et les convertit en images (`plans/`). |
 | `sw.js` | Service worker minimal : notifications de l'appli et du service d'alertes ; signale au service qu'une notification a été reçue puis touchée (#40). |
 | `notifs/` | Service d'alertes appli fermée (#20) : Cloudflare Worker + base D1, envoi web push, relevé de l'info trafic, journal des envois. Essais hors ligne : `node notifs/test.mjs` et `node notifs/test-envois.mjs`. |

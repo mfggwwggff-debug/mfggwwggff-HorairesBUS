@@ -1,7 +1,9 @@
 name: Info trafic
 
-# Relève l'info trafic de grandreims-mobilites.fr environ toutes les 15 minutes
-# et publie info-trafic.json si les perturbations ont changé.
+# Relève l'info trafic de grandreims-mobilites.fr et publie info-trafic.json si les perturbations ont changé.
+# Deux déclencheurs : la planification de GitHub (demandée toutes les 15 min, en pratique toutes les 35 à 60 min),
+# et le service d'alertes (notifs/worker.js), qui lit le site toutes les 5 min et relance ce relevé dès qu'une
+# info apparaît, change ou disparaît (secret GH_DISPATCH_TOKEN).
 on:
   schedule:
     - cron: "*/15 * * * *"
@@ -39,7 +41,7 @@ jobs:
           mv info-trafic.new.json info-trafic.json
           git config user.name "info-trafic-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add info-trafic.json
+          git add info-trafic.json build/trafic-archive.json
           git commit -m "Info trafic : mise à jour"
           for i in 1 2 3; do git pull --rebase -q && git push -q && exit 0; sleep 5; done
           exit 1

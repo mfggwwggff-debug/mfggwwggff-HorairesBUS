@@ -3286,7 +3286,9 @@ function trRecur(x) {
 const trRecurOn = (r) => { const n = parisNow(); const d = new Date(n.iso + "T12:00:00Z").getUTCDay(); return d === r.day && n.min < r.until; };
 // simple information (nouvel arrêt, arrêt desservi désormais) : ni perturbation ni pastille
 const TR_INFO = /nouvel(le)?s? arret|nouveaux arrets|sont (desormais )?desservis par|est (desormais )?desservi par|mise en service|ouverture de la ligne/;
-const trInfo = (x) => { const t = trText(x); return TR_INFO.test(t) && !TR_GENE.test(t); };
+// Le relevé classe chaque info (x.c, build/trafic_classe.py) : effets, gravité, nature, portée. L'appli s'en sert
+// d'abord, et ne retombe sur ses propres mots-clés que pour un fichier sans classement.
+const trInfo = (x) => { if (x.c) return x.c.nat === "info"; const t = trText(x); return TR_INFO.test(t) && !TR_GENE.test(t); };
 const trStatus = (x) => {
   const t = parisNow().iso, d = trDays(x); // #47 : journées citées par l'info
   if (d.length && !d.includes(t)) return "soon"; // elle vise d'autres jours (les jours passés sont déjà écartés)
@@ -3309,11 +3311,12 @@ const trRT = (x) => {
 // gêne le trajet (pastille « ! ») : déviation, arrêt non desservi, bus non assuré… mais pas un simple arrêt déplacé
 const TR_GENE = /devi|non desservi|ne (sera|seront|sont|est) (pas|plus) desservi|pas desservi|non assure|pas assure|suspendu|interrompu|supprime|forte perturbation|perturbation sur les horaires|ne circule|ne roule|retard|fige|arret(e|ee)s? de circul/;
 const TR_DEPLACE = /report|deplace|nouvel(le)?s? arret|transfer/;
-const trGene = (x) => { const t = trText(x); return TR_GENE.test(t) || !TR_DEPLACE.test(t); };
+const trGene = (x) => { if (x.c) return !!x.c.pastille; const t = trText(x); return TR_GENE.test(t) || !TR_DEPLACE.test(t); };
 // tout le réseau : info temps réel sans ligne précise (ou presque toutes) + mot-clé ; ni panne technique ni tram seul
 const TR_NET = /neige|verglas|intemperie|tempete|inondation|manifestation|greve|mouvement social|reseau (est )?(interrompu|suspendu|bloque|arrete|paralyse)|ensemble du reseau|tout le reseau|toutes les lignes|circulation des bus/;
 function trNetwork(x) {
   if (!trRT(x) || trStatus(x) !== "now") return false;
+  if (x.c && (x.c.nat !== "perturbation" || x.c.cond)) return false; // panne technique, nouveauté, « seulement en cas de »
   const rs = trRoutes(x), t = trText(x);
   if (rs.length && rs.length < Math.max(12, net.R.length * 0.6)) return false;
   if (rs.length && rs.every((r) => net.R[r].m === 1)) return false; // tram seul
@@ -3335,6 +3338,7 @@ const TR_PICTO = ["",
   // #71 : travaux à venir, plot de chantier (encadré gris)
   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M10.2 4h3.6L18.5 19.5h-13z"/><path d="M8.3 10.5h7.4M6.9 15h10.2"/><path d="M3.5 20.8h17"/></svg>`];
 function trLevel(x) {
+  if (x.c) return Math.max(1, x.c.niv | 0);
   const t = trText(x);
   if (TR_ROUGE.test(t)) return 3;
   if (TR_ORANGE.test(t)) return 2;
@@ -3455,7 +3459,13 @@ function netPop(x) {
 // --- zoom sur le plan : arrêts reportés, déviations, ou commune ---
 const stopKey = (s) => norm(s).replace(/\bsainte?\b/g, "st").replace(/\bgare de reims centre\b/, "gare centre").replace(/\s+/g, " ").trim();
 let _stopKeys = null;
+// arrêts cités dans l'info → nom exact du GTFS, trouvés par le relevé (x.st) avec ses abréviations et ses équivalences
+function trStMap() {
+  TR.st = new Map();
+  for (const x of TR.items) for (const [n, g] of x.st || []) if (g) { const i = net.P.findIndex((p) => p[0] === g); if (i >= 0) TR.st.set(stopKey(n.replace(/^arr[eê]ts?\s+/i, "")), i); }
+}
 function findStopFuzzy(name) {
+  if (TR.st) { const h = TR.st.get(stopKey(name.replace(/^arr[eê]ts?\s+/i, ""))); if (h != null) return h; }
   if (!_stopKeys) _stopKeys = net.P.map((p, i) => [stopKey(p[0]), i]);
   const k = stopKey(name.replace(/^arr[eê]ts?\s+/i, "").replace(/\s+de (la|a) ligne.*$/i, "").replace(/\s+\(.*$/, ""));
   if (!k) return -1;
@@ -3512,6 +3522,7 @@ const trKey = (s) => trPlain(s).replace(/[^a-z0-9]+/g, " ").trim();
 const TR_PETITS = new Set(["de", "des", "du", "d", "la", "le", "les", "l", "et", "au", "aux", "a", "en", "sur", "sous", "lez"]);
 const trMots = (s) => trKey(s).split(" ").filter((w) => w && !TR_PETITS.has(w));
 function trPole(name, poleIds) {
+  if (TR.st) { const h = TR.st.get(stopKey(name)); if (h != null && poleIds.has(h)) return h; }
   const k = trKey(name);
   for (const i of poleIds) if (trKey(net.P[i][0]) === k) return i;
   const want = trMots(name); if (!want.length) return null;
@@ -3601,11 +3612,11 @@ function trCancel() {
 const isNA = (pi, k, dk) => { const p = net.pats[pi]; return !!(p && p.na && p.na.has(k + ":" + dk)); };
 async function loadTrafic() {
   try {
-    const r = await fetch("../info-trafic.json?v=" + Math.floor(Date.now() / 120000), { cache: "no-cache" });
+    const r = await fetch("../info-trafic.json?v=" + Math.floor(Date.now() / 60000), { cache: "no-cache" });
     if (!r.ok) throw new Error("HTTP " + r.status);
     const d = await r.json(); TR.items = d.items || []; TR.at = d.at || null; TR.src = d.src || ""; TR.ok = true;
   } catch (e) { /* page hébergée ailleurs (claude.ai) ou fichier absent : on garde l'état précédent */ }
-  trCancel(); trIndex(); buildGrid();
+  trStMap(); trCancel(); trIndex(); buildGrid();
   if (S.view === "trafic") renderTrafic(); else rerender();
 }
 function trNoteFor(routes, small) {

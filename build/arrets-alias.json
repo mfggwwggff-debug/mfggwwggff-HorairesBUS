@@ -1,0 +1,4 @@
+{
+ "_lisezmoi": "Équivalences à la main entre un nom d'arrêt écrit par le réseau dans l'info trafic et le nom exact du GTFS, quand le rapprochement automatique se trompe ou ne trouve pas. Exemple : \"Opéra\": \"Opéra-Cathédrale\".",
+ "Opera": "Opéra-Cathédrale"
+}

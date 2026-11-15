@@ -258,7 +258,41 @@
    ],
    "rt": false,
    "sec": "par ligne",
-   "since": "2026-11-13"
+   "since": "2026-11-13",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": [
+    [
+     "SALENGRO",
+     "Salengro"
+    ],
+    [
+     "PERI",
+     "Péri"
+    ],
+    [
+     "ALLENDE",
+     "Allende"
+    ],
+    [
+     "arrêt ROUTE DE TAISSY",
+     "Route de Taissy"
+    ],
+    [
+     "CHAMP BERDIN",
+     "Champ Berdin"
+    ]
+   ]
   },
   {
    "id": "9d7156791c",
@@ -398,7 +432,25 @@
    ],
    "rt": false,
    "sec": "par ligne",
-   "since": "2026-11-13"
+   "since": "2026-11-13",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "lignes",
+    "sur": true
+   },
+   "st": [
+    [
+     "TOURANGEAUX",
+     "Tourangeaux"
+    ]
+   ]
   },
   {
    "id": "e7810d9a3b",
@@ -450,7 +502,29 @@
    ],
    "rt": false,
    "sec": "par ligne",
-   "since": "2026-11-11"
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": [
+    [
+     "STADE DE MUIRE",
+     "Stade de Muire"
+    ],
+    [
+     "arrêt ISLE DE FRANCE",
+     "Isle de France"
+    ]
+   ]
   },
   {
    "id": "16eb3530f2",
@@ -501,7 +575,29 @@
    ],
    "rt": true,
    "sec": "temps reel",
-   "since": "2026-11-14"
+   "since": "2026-11-14",
+   "c": {
+    "effets": [
+     "non_assure"
+    ],
+    "grav": "genant",
+    "niv": 2,
+    "pastille": true,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": [
+    [
+     "Orgeval",
+     "Orgeval"
+    ],
+    [
+     "Blanc Mont",
+     "Blancs Monts"
+    ]
+   ]
   },
   {
    "id": "16eb3530f2",
@@ -552,7 +648,29 @@
    ],
    "rt": true,
    "sec": "temps reel",
-   "since": "2026-11-14"
+   "since": "2026-11-14",
+   "c": {
+    "effets": [
+     "non_assure"
+    ],
+    "grav": "genant",
+    "niv": 2,
+    "pastille": true,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": [
+    [
+     "Croix du Sud",
+     "Croix du Sud"
+    ],
+    [
+     "Parc des expos",
+     "Parc Expositions"
+    ]
+   ]
   },
   {
    "id": "bcf248c5c4",
@@ -643,7 +761,29 @@
    ],
    "rt": false,
    "sec": "par ligne",
-   "since": "2026-11-11"
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": [
+    [
+     "RETHEL",
+     "Rethel"
+    ],
+    [
+     "THIEROT",
+     "Thierot"
+    ]
+   ]
   },
   {
    "id": "e1166714f6",
@@ -686,7 +826,25 @@
    ],
    "rt": false,
    "sec": "par ligne",
-   "since": "2026-11-11"
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "nouveaute"
+    ],
+    "grav": "aucune",
+    "niv": 0,
+    "pastille": false,
+    "nat": "info",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": [
+    [
+     "ESI",
+     "ESI"
+    ]
+   ]
   },
   {
    "id": "f8feabe17f",
@@ -707,7 +865,20 @@
    ],
    "rt": true,
    "sec": "temps reel",
-   "since": "2026-11-11"
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "technique"
+    ],
+    "grav": "aucune",
+    "niv": 0,
+    "pastille": false,
+    "nat": "technique",
+    "cond": false,
+    "portee": "aucune",
+    "sur": true
+   },
+   "st": []
   },
   {
    "id": "391d31b0d6",
@@ -846,7 +1017,37 @@
    ],
    "rt": false,
    "sec": "par ligne",
-   "since": "2026-11-11"
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": [
+    [
+     "SABLIERES",
+     "Sablières"
+    ],
+    [
+     "arrêt GARENNE",
+     "Garenne"
+    ],
+    [
+     "CROIX BLANCHE",
+     "Croix Blanche"
+    ],
+    [
+     "arrêt REDONT",
+     "Redont"
+    ]
+   ]
   },
   {
    "id": "25a156ef9e",
@@ -898,7 +1099,25 @@
    ],
    "rt": false,
    "sec": "par ligne",
-   "since": "2026-11-11"
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": [
+    [
+     "TINQUEUX MAIRIE",
+     "Tinqueux Mairie"
+    ]
+   ]
   },
   {
    "id": "2f036d5c93",
@@ -1016,7 +1235,33 @@
    ],
    "rt": false,
    "sec": "par ligne",
-   "since": "2026-11-11"
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": [
+    [
+     "VERRERIES",
+     "Verreries"
+    ],
+    [
+     "arrêt VERRERIES de la ligne U7 vers BOUTREAUX",
+     "Verreries"
+    ],
+    [
+     "PONT ST BRICE",
+     "Pont St Brice"
+    ]
+   ]
   },
   {
    "id": "1539d33ccb",
@@ -1069,7 +1314,26 @@
    ],
    "rt": false,
    "sec": "par ligne",
-   "since": "2026-11-11"
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "horaires",
+     "deviation"
+    ],
+    "grav": "genant",
+    "niv": 2,
+    "pastille": true,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": false
+   },
+   "st": [
+    [
+     "TRESLON",
+     null
+    ]
+   ]
   },
   {
    "id": "7f0499f1fe",
@@ -1151,7 +1415,25 @@
    ],
    "rt": false,
    "sec": "par ligne",
-   "since": "2026-11-11"
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "lignes",
+    "sur": true
+   },
+   "st": [
+    [
+     "FOLLE PEINE",
+     "Folle Peine"
+    ]
+   ]
   },
   {
    "id": "b7890436b6",
@@ -1203,7 +1485,25 @@
    ],
    "rt": false,
    "sec": "par ligne",
-   "since": "2026-11-11"
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": [
+    [
+     "STADE DE MUIRE",
+     "Stade de Muire"
+    ]
+   ]
   },
   {
    "id": "2ea8abe072",
@@ -1539,7 +1839,49 @@
    ],
    "rt": false,
    "sec": "par ligne",
-   "since": "2026-11-11"
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": [
+    [
+     "LEONARD DE VINCI",
+     "Léonard de Vinci"
+    ],
+    [
+     "ARNOULD",
+     "Arnould"
+    ],
+    [
+     "RAPHAEL",
+     "Raphael"
+    ],
+    [
+     "arrêt BAUSSONNET de la ligne O1",
+     "Baussonnet"
+    ],
+    [
+     "BELGIQUE",
+     "Belgique"
+    ],
+    [
+     "GERUZEZ",
+     "Géruzez"
+    ],
+    [
+     "arrêt ROMAINS",
+     "Romains"
+    ]
+   ]
   },
   {
    "id": "f9f6989857",
@@ -1817,7 +2159,41 @@
    ],
    "rt": false,
    "sec": "par ligne",
-   "since": "2026-11-11"
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": [
+    [
+     "SAINTE-ANNE",
+     "Sainte-Anne"
+    ],
+    [
+     "arrêt SAINTE-ANNE de la ligne U4",
+     "Sainte-Anne"
+    ],
+    [
+     "HARMAN",
+     "Harman"
+    ],
+    [
+     "ALEXANDRE 1ER",
+     "Alexandre 1er"
+    ],
+    [
+     "D'ORVES",
+     "D'Orves"
+    ]
+   ]
   },
   {
    "id": "f168938f84",
@@ -1908,7 +2284,25 @@
    ],
    "rt": false,
    "sec": "par ligne",
-   "since": "2026-11-11"
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": [
+    [
+     "ALEXANDRE 1ER",
+     "Alexandre 1er"
+    ]
+   ]
   },
   {
    "id": "f118b20ae9",
@@ -1990,7 +2384,25 @@
    ],
    "rt": false,
    "sec": "par ligne",
-   "since": "2026-11-11"
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "lignes",
+    "sur": true
+   },
+   "st": [
+    [
+     "D'ORVES",
+     "D'Orves"
+    ]
+   ]
   },
   {
    "id": "34f3c220d0",
@@ -2042,7 +2454,25 @@
    ],
    "rt": false,
    "sec": "par ligne",
-   "since": "2026-11-11"
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": [
+    [
+     "ST NICAISE",
+     "St Nicaise"
+    ]
+   ]
   },
   {
    "id": "ed1db1ef0e",
@@ -2126,7 +2556,33 @@
    ],
    "rt": false,
    "sec": "par ligne",
-   "since": "2026-11-11"
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": false
+   },
+   "st": [
+    [
+     "VESLE",
+     "Vesle"
+    ],
+    [
+     "arrêt VESLE de la ligne U1 vers C.C CERNAY",
+     "Vesle"
+    ],
+    [
+     "LIBERGIER",
+     null
+    ]
+   ]
   },
   {
    "id": "10b804cffd",
@@ -2153,7 +2609,21 @@
    ],
    "rt": false,
    "sec": "par ligne",
-   "since": "2026-11-11"
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "nouveaute",
+     "fin"
+    ],
+    "grav": "aucune",
+    "niv": 0,
+    "pastille": false,
+    "nat": "info",
+    "cond": false,
+    "portee": "lignes",
+    "sur": true
+   },
+   "st": []
   },
   {
    "id": "cb96a7d272",
@@ -2242,7 +2712,25 @@
    ],
    "rt": false,
    "sec": "par ligne",
-   "since": "2026-11-11"
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": [
+    [
+     "POMACLE",
+     "Pomacle"
+    ]
+   ]
   },
   {
    "id": "e29d74191b",
@@ -2352,7 +2840,41 @@
    ],
    "rt": false,
    "sec": "par ligne",
-   "since": "2026-11-11"
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": [
+    [
+     "SAINTE-ANNE",
+     "Sainte-Anne"
+    ],
+    [
+     "arrêt SAINTE-ANNE de la ligne U4",
+     "Sainte-Anne"
+    ],
+    [
+     "HARMAN",
+     "Harman"
+    ],
+    [
+     "ALEXANDRE 1ER",
+     "Alexandre 1er"
+    ],
+    [
+     "D'ORVES",
+     "D'Orves"
+    ]
+   ]
   },
   {
    "id": "92830cbe2a",
@@ -2407,7 +2929,25 @@
    ],
    "rt": false,
    "sec": "par ligne",
-   "since": "2026-11-11"
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": [
+    [
+     "CHAISE AU PLAFOND",
+     "Chaise au Plafond"
+    ]
+   ]
   },
   {
    "id": "b04f0f8730",
@@ -2527,7 +3067,25 @@
    ],
    "rt": false,
    "sec": "par ligne",
-   "since": "2026-11-11"
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "lignes",
+    "sur": true
+   },
+   "st": [
+    [
+     "PONT D'EPERNAY",
+     "Pont d'Epernay"
+    ]
+   ]
   },
   {
    "id": "0a42915a79",
@@ -2698,7 +3256,45 @@
    ],
    "rt": false,
    "sec": "par ligne",
-   "since": "2026-11-11"
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": [
+    [
+     "BROUETTE",
+     "Brouette"
+    ],
+    [
+     "arrêt BROUETTE du dimanche, boulevard Jamin",
+     "Brouette"
+    ],
+    [
+     "GOBELINS",
+     "Gobelins"
+    ],
+    [
+     "arrêt BROUETTE",
+     "Brouette"
+    ],
+    [
+     "CHALET",
+     "Chalet"
+    ],
+    [
+     "arrêt CIMETIERE EST",
+     "Cimetière Est"
+    ]
+   ]
   },
   {
    "id": "23d9c88ab7",
@@ -2938,7 +3534,42 @@
    ],
    "rt": false,
    "sec": "par ligne",
-   "since": "2026-11-11"
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "blocage",
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": true,
+    "portee": "lignes",
+    "sur": true
+   },
+   "st": [
+    [
+     "REPUBLIQUE",
+     "République"
+    ],
+    [
+     "arrêt SCHNEITER",
+     "Schneiter"
+    ],
+    [
+     "JUSTICE",
+     "Justice"
+    ],
+    [
+     "arrêt LEMOINE",
+     "Lemoine"
+    ],
+    [
+     "ROBESPIERRE",
+     "Robespierre"
+    ]
+   ]
   }
  ]
 }

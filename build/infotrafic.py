@@ -6,6 +6,10 @@ tourne dans GitHub Actions (toutes les 15 minutes environ) et l'appli relit le f
 Chaque info porte, si la page la donne, sa rubrique : "rt" (true = temps réel, false = par ligne).
 Sans rubrique reconnue, l'appli devine : une info sans dates est traitée comme du temps réel.
 
+Chaque info porte aussi son classement (`c`) et les arrêts cités rapprochés du GTFS (`st`), calculés par
+build/trafic_classe.py. Toute info jamais vue est ajoutée à build/trafic-archive.json, qui sert de banc d'essai
+(python build/test_trafic.py).
+
 Usage : python build/infotrafic.py [fichier_html_local] > info-trafic.json
 Sans argument, la page est téléchargée. Bibliothèque standard uniquement.
 """
@@ -103,7 +107,7 @@ def parse(page):
         lines, inner = m.group(1), m.group(2)
         sm = re.search(r"<summary[^>]*>(.*?)</summary>", inner, re.S | re.I)
         if not sm: continue
-        title = text(re.split(r"<div", sm.group(1), 1)[0])
+        title = text(re.split(r"<div", sm.group(1), maxsplit=1)[0])
         body = inner[sm.end():]
         h2 = re.search(r"<h2[^>]*>(.*?)</h2>", body, re.S | re.I)
         period = text(h2.group(1)) if h2 else ""
@@ -247,12 +251,38 @@ def old_since():
         return {}
 
 
+ARCHIVE = os.path.join(HERE, "trafic-archive.json")
+
+
+def archive(items, today):
+    """Ajoute à l'archive les infos jamais vues (texte complet + classement du jour), sans toucher aux autres."""
+    try: a = json.load(open(ARCHIVE, encoding="utf-8"))
+    except Exception: a = {"infos": {}}
+    infos, neuf = a.setdefault("infos", {}), 0
+    for it in items:
+        k = item_key(it)
+        if k in infos: continue
+        infos[k] = {"vu": today, "t": it["t"], "p": it["p"], "lines": it["lines"], "rt": it.get("rt"),
+                    "b": [{"r": b["r"]} for b in it["b"] if b.get("r")],
+                    "auto": {x: it["c"][x] for x in ("grav", "nat", "portee", "sur")}, "attendu": None}
+        neuf += 1
+    if neuf:
+        with open(ARCHIVE, "w", encoding="utf-8") as f:
+            json.dump(a, f, ensure_ascii=False, indent=1); f.write("\n")
+
+
 def main():
     page = open(sys.argv[1], encoding="utf-8").read() if len(sys.argv) > 1 else fetch()
     items = parse(page)
     seen, today = old_since(), paris_today()
     for it in items: it["since"] = seen.get(item_key(it), today)
     if "--sans-adresses" not in sys.argv: add_geo(items, old_cache())
+    try:
+        import trafic_classe
+        trafic_classe.complete(items)
+        if "--sans-archive" not in sys.argv: archive(items, today)
+    except Exception as e:  # le classement ne doit jamais empêcher le relevé : l'appli retombe sur son ancien tri
+        print("classement impossible :", e, file=sys.stderr)
     if not items and "tetinfotraf" not in page:
         sys.exit("structure de la page inattendue : rien écrit")
     out = {"src": URL, "at": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "items": items}

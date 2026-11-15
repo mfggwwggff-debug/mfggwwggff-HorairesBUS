@@ -545,6 +545,30 @@ async function minute(env, now) {
   for (const id of dead) await dropSub(env, id);
 }
 
+// ---------- relance du relevé GitHub dès que l'info trafic change ----------
+// La planification de GitHub ne passe que toutes les 35 à 60 min. Le service lit déjà le site toutes les 5 min :
+// quand la liste des infos (titres, lignes, encadré « en temps réel ») change, il demande à GitHub de relancer
+// tout de suite la tâche *Info trafic*, qui reclasse et publie info-trafic.json (~1 à 2 min plus tard dans l'appli).
+// Secret du Worker GH_TOKEN (posé depuis le secret GH_DISPATCH_TOKEN du dépôt) : jeton GitHub limité à ce dépôt,
+// droit « Actions : lecture et écriture ». Sans lui, rien ne change (le relevé reste celui de la planification).
+const GH_DISPATCH = "https://api.github.com/repos/mfggwwggff-debug/mfggwwggff-HorairesBUS/actions/workflows/info-trafic.yml/dispatches";
+async function relance(env, page, items, now) {
+  const i = page.indexOf("iconRt"), j = i < 0 ? -1 : page.indexOf("Toute l'info trafic", i);
+  const direct = i < 0 ? "" : textOf(page.slice(i, j > i ? j : i + 20000)).replace(/Mise à jour le [^A-Za-z]*\d{2}:\d{2}/g, "");
+  const sig = (await sha1hex(items.map((x) => x.id + ":" + x.lines.join(",")).sort().join("|") + "#" + direct)).slice(0, 16);
+  const old = await env.DB.prepare("SELECT v FROM kv WHERE k = 'trSig'").first();
+  if (old && old.v === sig) return;
+  await env.DB.prepare("INSERT OR REPLACE INTO kv (k, v) VALUES ('trSig', ?)").bind(sig).run();
+  if (!old || !env.GH_TOKEN) return; // premier passage : on note seulement
+  let code = 0;
+  try {
+    const r = await fetch(GH_DISPATCH, { method: "POST", body: JSON.stringify({ ref: "main" }),
+      headers: { Authorization: "Bearer " + env.GH_TOKEN, Accept: "application/vnd.github+json", "User-Agent": "grm-notifs", "X-GitHub-Api-Version": "2022-11-28" } });
+    code = r.status; // 204 : relevé relancé
+  } catch (e) { code = -1; }
+  await env.DB.prepare("INSERT OR REPLACE INTO kv (k, v) VALUES ('trRelance', ?)").bind(JSON.stringify({ at: now, code })).run();
+}
+
 // ---------- toutes les 5 minutes : info trafic ----------
 async function trafic(env, now) {
   let page;
@@ -554,6 +578,7 @@ async function trafic(env, now) {
   const last = await env.DB.prepare("SELECT v FROM kv WHERE k = 'trHash'").first();
   if (last && last.v === h) return;
   const items = await parseTrafic(page);
+  await relance(env, page, items, now).catch(() => {});
   const seenRow = await env.DB.prepare("SELECT v FROM kv WHERE k = 'trSeen'").first();
   const seen = new Set(seenRow ? JSON.parse(seenRow.v) : []);
   const fresh = seenRow ? items.filter((x) => !seen.has(x.id)) : []; // premier relevé : on note sans prévenir
