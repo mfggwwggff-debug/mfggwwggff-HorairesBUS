@@ -12,6 +12,9 @@ jobs:
       - uses: actions/checkout@v4
       - name: Copie
         run: |
-          curl -sS -A "Mozilla/5.0 (compatible; horaires-grand-reims)" -o debug-page.html https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html
+          UA="Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1"
+          curl -sS -A "$UA" -o d-1ja.html https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html
+          curl -sS -A "$UA" -o d-bpv.html https://www.grandreims-mobilites.fr/fr/BpV-Info-trafic.html
+          curl -sS -A "$UA" -o d-home.html https://www.grandreims-mobilites.fr/
           git config user.name bot; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add debug-page.html; git commit -m "page"; git push
+          git add d-*.html; git commit -m "pages"; git push
