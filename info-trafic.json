@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-14T18:13:46Z",
+ "at": "2026-11-15T21:38:56Z",
  "items": [
   {
    "id": "aba75f03db",
@@ -39,7 +39,13 @@
        "au 18 rue Aristide Briand (ancien arrêt Moulin à Vent)",
        1
       ]
-     ]
+     ],
+     "geo": {
+      "lat": 49.219778,
+      "lon": 4.050515,
+      "a": "18 rue Aristide Briand",
+      "k": "18 rue Aristide Briand|SALENGRO"
+     }
     },
     {
      "l": "U4",
@@ -97,7 +103,13 @@
        "au 18 rue Aristide Briand (ancien arrêt Moulin à Vent)",
        1
       ]
-     ]
+     ],
+     "geo": {
+      "lat": 49.219778,
+      "lon": 4.050515,
+      "a": "18 rue Aristide Briand",
+      "k": "18 rue Aristide Briand|PERI"
+     }
     },
     {
      "l": "U4",
@@ -184,7 +196,13 @@
        "Voie Verte au niveau u rond point Route de Taissy",
        1
       ]
-     ]
+     ],
+     "geo": {
+      "lat": 49.220357,
+      "lon": 4.063118,
+      "a": "Voie Verte au niveau du rond point Route de Taissy",
+      "k": "Route de Taissy|ALLENDE"
+     }
     },
     {
      "l": "U4",
@@ -242,7 +260,13 @@
        "Voie Verte au niveau u rond point Route de Taissy",
        1
       ]
-     ]
+     ],
+     "geo": {
+      "lat": 49.220357,
+      "lon": 4.063118,
+      "a": "Voie Verte au niveau du rond point Route de Taissy",
+      "k": "Route de Taissy|CHAMP BERDIN"
+     }
     },
     {
      "img": "https://prod.deviations.info/carte/grandreims/public/img/86783.jpg"
@@ -713,7 +737,8 @@
      "geo": {
       "lat": 49.278661,
       "lon": 4.026916,
-      "a": "179 rue de Neufchâtel"
+      "a": "179 rue de Neufchâtel",
+      "k": "179 rue de Neufchâtel|RETHEL"
      }
     },
     {
@@ -747,7 +772,8 @@
      "geo": {
       "lat": 49.278661,
       "lon": 4.026916,
-      "a": "179 rue de Neufchâtel"
+      "a": "179 rue de Neufchâtel",
+      "k": "179 rue de Neufchâtel|THIEROT"
      }
     },
     {
@@ -1218,7 +1244,8 @@
      "geo": {
       "lat": 49.262776,
       "lon": 4.005758,
-      "a": "14 rue Pierre Maitre"
+      "a": "14 rue Pierre Maitre",
+      "k": "14 rue Pierre Maitre|PONT ST BRICE"
      }
     },
     {
@@ -1373,7 +1400,13 @@
        "60 mètres avant l'arrêt, au niveau du 86 rue de Venise",
        1
       ]
-     ]
+     ],
+     "geo": {
+      "lat": 49.2478,
+      "lon": 4.034231,
+      "a": "60 mètres avant l'arrêt, au niveau du 86 rue de Venise",
+      "k": "rue de Venise|FOLLE PEINE"
+     }
     },
     {
      "l": "O2",
@@ -1402,7 +1435,13 @@
        "60 mètres avant l'arrêt, au niveau du 86 rue de Venise",
        1
       ]
-     ]
+     ],
+     "geo": {
+      "lat": 49.2478,
+      "lon": 4.034231,
+      "a": "60 mètres avant l'arrêt, au niveau du 86 rue de Venise",
+      "k": "rue de Venise|FOLLE PEINE"
+     }
     },
     {
      "r": [
@@ -1546,7 +1585,8 @@
      "geo": {
       "lat": 49.269308,
       "lon": 4.010898,
-      "a": "104 boulevard Albert 1er"
+      "a": "104 boulevard Albert 1er",
+      "k": "104 boulevard Albert 1er|LEONARD DE VINCI"
      }
     },
     {
@@ -1580,7 +1620,8 @@
      "geo": {
       "lat": 49.269391,
       "lon": 4.010913,
-      "a": "106 boulevard Albert 1er"
+      "a": "106 boulevard Albert 1er",
+      "k": "106 boulevard Albert 1er|LEONARD DE VINCI"
      }
     },
     {
@@ -1614,7 +1655,8 @@
      "geo": {
       "lat": 49.269308,
       "lon": 4.010898,
-      "a": "104 boulevard Albert 1er"
+      "a": "104 boulevard Albert 1er",
+      "k": "104 boulevard Albert 1er|ARNOULD"
      }
     },
     {
@@ -1648,7 +1690,8 @@
      "geo": {
       "lat": 49.269391,
       "lon": 4.010913,
-      "a": "106 boulevard Albert 1er"
+      "a": "106 boulevard Albert 1er",
+      "k": "106 boulevard Albert 1er|ARNOULD"
      }
     },
     {
@@ -2040,7 +2083,8 @@
      "geo": {
       "lat": 49.236457,
       "lon": 4.026221,
-      "a": "57 boulevard du Président Wilson"
+      "a": "57 boulevard du Président Wilson",
+      "k": "57 boulevard du Président Wilson|ALEXANDRE 1ER"
      }
     },
     {
@@ -2074,7 +2118,8 @@
      "geo": {
       "lat": 49.235382,
       "lon": 4.027754,
-      "a": "61 boulevard du Président Wilson"
+      "a": "61 boulevard du Président Wilson",
+      "k": "61 boulevard du Président Wilson|ALEXANDRE 1ER"
      }
     },
     {
@@ -2108,7 +2153,8 @@
      "geo": {
       "lat": 49.235382,
       "lon": 4.027754,
-      "a": "61 boulevard du Président Wilson"
+      "a": "61 boulevard du Président Wilson",
+      "k": "61 boulevard du Président Wilson|D'ORVES"
      }
     },
     {
@@ -2142,7 +2188,8 @@
      "geo": {
       "lat": 49.236457,
       "lon": 4.026221,
-      "a": "57 boulevard du Président Wilson"
+      "a": "57 boulevard du Président Wilson",
+      "k": "57 boulevard du Président Wilson|D'ORVES"
      }
     },
     {
@@ -2236,7 +2283,8 @@
      "geo": {
       "lat": 49.233404,
       "lon": 4.031768,
-      "a": "15 boulevard Louis Barthou"
+      "a": "15 boulevard Louis Barthou",
+      "k": "15 boulevard Louis Barthou|ALEXANDRE 1ER"
      }
     },
     {
@@ -2270,7 +2318,8 @@
      "geo": {
       "lat": 49.233146,
       "lon": 4.030819,
-      "a": "18 boulevard Louis Barthou"
+      "a": "18 boulevard Louis Barthou",
+      "k": "18 boulevard Louis Barthou|ALEXANDRE 1ER"
      }
     },
     {
@@ -2666,7 +2715,8 @@
      "geo": {
       "lat": 49.336348,
       "lon": 4.149237,
-      "a": "4 Chemin de la Billotière"
+      "a": "4 Chemin de la Billotière",
+      "k": "4 Chemin de la Billotière|POMACLE"
      }
     },
     {
@@ -2696,7 +2746,13 @@
        "Chemin de la Couture (Salle des Fêtes)",
        1
       ]
-     ]
+     ],
+     "geo": {
+      "lat": 49.335396,
+      "lon": 4.149976,
+      "a": "Chemin de la Couture",
+      "k": "Chemin de la Couture|POMACLE"
+     }
     },
     {
      "img": "https://grandreims-mobilites.fr/photos/ImportsEditeur/image_8857.png"
@@ -2992,7 +3048,8 @@
      "geo": {
       "lat": 49.248413,
       "lon": 4.011839,
-      "a": "29 avenue de Paris"
+      "a": "29 avenue de Paris",
+      "k": "29 avenue de Paris|PONT D'EPERNAY"
      }
     },
     {
@@ -3483,7 +3540,8 @@
      "geo": {
       "lat": 49.262441,
       "lon": 4.034651,
-      "a": "12 rue du Champ de Mars"
+      "a": "12 rue du Champ de Mars",
+      "k": "12 rue du Champ de Mars|JUSTICE"
      }
     },
     {
@@ -3517,7 +3575,8 @@
      "geo": {
       "lat": 49.267554,
       "lon": 4.03202,
-      "a": "84 rue Lesage"
+      "a": "84 rue Lesage",
+      "k": "84 rue Lesage|ROBESPIERRE"
      }
     },
     {
@@ -3540,10 +3599,10 @@
      "blocage",
      "deplacement"
     ],
-    "grav": "mineur",
-    "niv": 1,
+    "grav": "aucune",
+    "niv": 0,
     "pastille": false,
-    "nat": "perturbation",
+    "nat": "info",
     "cond": true,
     "portee": "lignes",
     "sur": true
