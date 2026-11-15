@@ -310,6 +310,7 @@ table.tt th.na { color: var(--na); }
 .lgrid button[aria-pressed="true"] { outline: 2px solid var(--ink); outline-offset: 2px; }
 /* 15 nov. : une ligne choisie s'ouvre en page complète (retour en haut à gauche) ; sans ligne, seulement la liste */
 #v-lignes.li-on .lpseg, #v-lignes.li-on #li-grid { display: none; }
+#scroll { overflow-x: hidden; } /* le glissement des lignes ne crée pas de défilement horizontal */
 #v-lignes:not(.li-on) #li-when, #v-lignes:not(.li-on) #li-msg, #v-lignes:not(.li-on) #li-res { display: none; }
 .lhead .icon-btn { flex: none; }
 /* #51 : ligne choisie avec un encadré d'état : pas de contour noir, le logo grandit jusqu'à l'encadré */
@@ -1809,7 +1810,22 @@ function buildGrid() {
   $("#li-grid").innerHTML = groups.map(([n, f, m]) => { const ids = net.R.map((r, i) => [r, i]).filter(([r, i]) => f(r) && shownR(i)).sort(([a], [b]) => uOrd(a) - uOrd(b)).map(([, i]) => i); return ids.length ? `<div class="lbl withico">${m === "star" ? `<span class="mode" style="color:var(--accent-strong,#C4430F)">${starSvg}</span>` : modeIcon(m)}${n}</div><div class="lgrid">${ids.map((i) => { const n = TR.ok ? (TR.lvl.get(i) || 0) : -1; return `<button type="button" data-r="${i}" aria-pressed="${i === S.line}" aria-label="Ligne ${esc(net.R[i].s)}${n > 0 ? " · " + TR_NIV[n] : ""}"${n >= 0 ? ` class="trlv trlv${n}" title="Ligne ${esc(net.R[i].s)} · ${TR_NIV[n]}"` : ""}>${badge(i, "lg", n >= 0)}${n > 0 ? `<i class="trp">${TR_PICTO[n]}</i>` : ""}</button>`; }).join("")}</div>` : ""; }).join("");
 }
 buildGrid();
-$("#li-grid").addEventListener("click", (e) => { const b = e.target.closest("button[data-r]"); if (!b) return; S.line = +b.dataset.r; S.dir = 0; runLi(); fitLine(S.line); });
+// 15 nov. : glissement entre la liste des lignes et la page d'une ligne (comme une page qu'on pousse sur iPhone :
+// la page de la ligne arrive par la droite, la liste revient par la gauche)
+let liBusy = false;
+function liSlide(fwd, change, after) {
+  const v = $("#v-lignes");
+  if (reduceMotion || !v.animate || liBusy) { change(); if (after) after(); return; }
+  liBusy = true;
+  const out = v.animate([{ transform: "none", opacity: 1 }, { transform: `translateX(${fwd ? -28 : 28}%)`, opacity: 0 }], { duration: 150, easing: "cubic-bezier(.4,0,1,1)", fill: "forwards" });
+  out.onfinish = () => {
+    change();
+    const inn = v.animate([{ transform: `translateX(${fwd ? 100 : -100}%)`, opacity: 1 }, { transform: "none", opacity: 1 }], { duration: 300, easing: "cubic-bezier(.2,.8,.2,1)" });
+    out.cancel();
+    inn.onfinish = inn.oncancel = () => { liBusy = false; if (after) after(); }; // le plan bouge après le glissement
+  };
+}
+$("#li-grid").addEventListener("click", (e) => { const b = e.target.closest("button[data-r]"); if (!b) return; const r = +b.dataset.r; liSlide(true, () => { S.line = r; S.dir = 0; runLi(); }, () => fitLine(r)); });
 function linePats(ri, dir) { return net.pats.map((p, i) => [p, i]).filter(([p]) => p.r === ri && p.dir === dir); }
 function runLi() {
   $("#li-grid").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", +b.dataset.r === S.line));
@@ -1828,7 +1844,7 @@ function runLi() {
   head.innerHTML = `<div class="lhead"><button type="button" class="icon-btn" id="li-back" aria-label="Retour aux lignes">${backSvg}</button>${badge(S.line, "lg")}<h2>${esc(r.l)}</h2></div>${isMobile() ? `<button type="button" class="li32" data-li32><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6.5v13.5l6-2.5 6 2.5 6-2.5V4l-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/></svg>Voir le tracé sur le plan</button>` : ""}${trNoteFor([S.line]).replace('class="trnote"', 'class="trnote" style="margin-top:10px"')}
     <div class="row" style="margin-top:10px"><div class="seg" role="group" aria-label="Sens">${dirs.map((d) => `<button type="button" data-d="${d}" aria-pressed="${d === S.dir}">→ ${esc(dirName(d))}</button>`).join("")}</div></div>`;
   head.querySelectorAll("[data-d]").forEach((b) => b.addEventListener("click", () => { S.dir = +b.dataset.d; runLi(); }));
-  $("#li-back").onclick = () => { S.line = null; runLi(); fitHome(); drawMap(); };
+  $("#li-back").onclick = () => liSlide(false, () => { S.line = null; runLi(); }, () => { fitHome(); drawMap(); });
   const l32 = head.querySelector("[data-li32]"); if (l32) l32.onclick = () => { p32Open(); fitLine(S.line); };
   if (!inRange(iso)) { res.innerHTML = ""; drawMap(); return; }
   const day = net.dayIndex(iso);
