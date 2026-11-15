@@ -4072,7 +4072,7 @@ function renderTrafic() {
         + (byLine.length ? byLine.map(trItem).join("") : `<div class="empty" style="padding:6px 4px">Pas d'autre perturbation annoncée.</div>`)
         + (infos.length ? `<div class="trsec" style="margin-top:10px"><h3>Infos</h3><small>nouveaux arrêts, marchés…</small></div>` + infos.map(trItem).join("") : "") : "");
     const at = TR.at ? new Date(TR.at).toLocaleString("fr-FR", { timeZone: "Europe/Paris", weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }) : "";
-    $("#tr-src").innerHTML = `Source : <a href="${esc(TR.src || "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html")}" target="_blank" rel="noopener">grandreims-mobilites.fr</a>, relevée automatiquement toutes les 15 minutes environ.${at ? ` Dernier changement : ${esc(at)}.` : ""}`;
+    $("#tr-src").innerHTML = `Source : <a href="${esc(TR.src || "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html")}" target="_blank" rel="noopener">grandreims-mobilites.fr</a>, relevée automatiquement dès qu’elle change sur le site (quelques minutes).${at ? ` Dernier changement : ${esc(at)}.` : ""}`;
     if (TR.open) { const el = res.querySelector(`[data-id="${CSS.escape(TR.open)}"]`); if (el) setTimeout(() => el.scrollIntoView({ block: "nearest" }), 50); }
   }
   head.querySelectorAll("[data-f]").forEach((b) => b.onclick = () => { const r = +b.dataset.f; TR.filter = TR.filter && TR.filter.length === 1 && TR.filter[0] === r ? null : [r]; TR.open = null; renderTrafic(); if (TR.filter) fitLine(TR.filter[0]); else fitHome(); drawMap(); });
