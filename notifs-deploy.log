@@ -1,9 +1,9 @@
-== 2026-11-10T09:22:05Z ==
+== 2026-11-15T14:22:04Z ==
 -- base D1
 base : trouvée***
 -- schéma
 
- ⛅️ wrangler 4.159.0
+ ⛅️ wrangler 4.162.0
 ────────────────────
 Resource location: remote 
 
@@ -15,11 +15,13 @@ Resource location: remote
 Note: if the execution fails to complete, your DB will return to its original state and you can safely retry.
 ├ Checking if file needs uploading
 │
-🌀 File already uploaded. Processing.
+├ 🌀 Uploading ***.f6246e2fe79b567e.sql
+│ 🌀 Uploading complete.
+│
 🌀 Starting import...
 🌀 Processed 12 queries.
-🚣 Executed 12 queries in 3.53ms (0 rows read, 0 rows written)
-   Database is currently at bookmark 00000006-00000050-0000511f-db74eeaa2e88833e4c2521e4b5a76854.
+🚣 Executed 12 queries in 2.54ms (0 rows read, 0 rows written)
+   Database is currently at bookmark 00000029-00000243-00005124-def4b37985343abb2029d67f3721aeff.
 [
   {
     "results": [
@@ -27,24 +29,24 @@ Note: if the execution fails to complete, your DB will return to its original st
         "Total queries executed": 12,
         "Rows read": 0,
         "Rows written": 0,
-        "Database size (MB)": "0.08"
+        "Database size (MB)": "0.10"
       }
     ],
     "success": true,
-    "finalBookmark": "00000006-00000050-0000511f-db74eeaa2e88833e4c2521e4b5a76854",
+    "finalBookmark": "00000029-00000243-00005124-def4b37985343abb2029d67f3721aeff",
     "meta": {
       "served_by": "v3-prod",
       "served_by_region": "WNAM",
       "served_by_colo": "DFW",
       "served_by_primary": true,
       "timings": {
-        "sql_duration_ms": 3.5299
+        "sql_duration_ms": 2.5418
       },
-      "duration": 3.5299,
-      "changes": 1,
+      "duration": 2.5418,
+      "changes": 0,
       "last_row_id": 0,
-      "changed_db": true,
-      "size_after": 77824,
+      "changed_db": false,
+      "size_after": 98304,
       "rows_read": 0,
       "rows_written": 0,
       "num_tables": 6,
@@ -54,21 +56,21 @@ Note: if the execution fails to complete, your DB will return to its original st
 ]
 -- déploiement
 
- ⛅️ wrangler 4.159.0
+ ⛅️ wrangler 4.162.0
 ────────────────────
 
 Cloudflare collects anonymous telemetry about your usage of Wrangler. Learn more at https://github.com/cloudflare/workers-sdk/tree/main/packages/wrangler/telemetry.md
-Total Upload: 30.24 KiB / gzip: 9.86 KiB
-Worker Startup Time: 1 ms
+Total Upload: 35.41 KiB / gzip: 11.18 KiB
+Worker Startup Time: 2 ms
 Your Worker has access to the following bindings:
 Binding                  Resource         
 env.DB (grm-notifs)      D1 Database      
 
-Uploaded grm-notifs (1.88 sec)
-Deployed grm-notifs triggers (0.74 sec)
+Uploaded grm-notifs (1.74 sec)
+Deployed grm-notifs triggers (0.94 sec)
   https://grm-notifs.2bnfmb79f8.workers.dev
   schedule: * * * * *
-Current Version ID: fe193e1f-cf23-410e-8b3b-02c2886c382e
+Current Version ID: 3117e0e3-3ea2-4656-b1ea-4664c518b5c7
 adresse : https://grm-notifs.2bnfmb79f8.workers.dev (code 0)
 -- clé de la page admin (#40)
 clé ADMIN_KEY en place
