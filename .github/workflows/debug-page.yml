@@ -2,14 +2,16 @@ name: Debug page info trafic
 on:
   push:
     branches: [debug-page-it]
+    paths: [".github/workflows/debug-page.yml"]
+permissions:
+  contents: write
 jobs:
   dump:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - name: Copie
         run: |
-          curl -sS -A "Mozilla/5.0 (compatible; horaires-grand-reims)" -o page.html https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html
-      - uses: actions/upload-artifact@v4
-        with:
-          name: page
-          path: page.html
+          curl -sS -A "Mozilla/5.0 (compatible; horaires-grand-reims)" -o debug-page.html https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html
+          git config user.name bot; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add debug-page.html; git commit -m "page"; git push
