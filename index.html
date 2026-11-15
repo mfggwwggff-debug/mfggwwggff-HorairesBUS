@@ -111,7 +111,8 @@ h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; }
 header.top { display: flex; align-items: center; gap: 10px; padding: 14px 18px 8px; flex: none; }
 .mark { width: 40px; height: 24px; color: var(--brand); display: grid; place-items: center; flex: none; }
 .mark svg { width: 100%; height: 100%; }
-header.top h1 { font-size: 19px; font-weight: 700; letter-spacing: .01em; white-space: nowrap; }
+header.top h1 { font-size: 19px; font-weight: 700; letter-spacing: .01em; white-space: nowrap; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 400px) { header.top h1 { font-size: 17px; } .rt { flex: none; padding: 4px 9px 4px 7px; } } /* #42 : l'état du temps réel n'est plus coupé */
 .rt { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); border: 1px solid var(--rule); border-radius: 999px; padding: 4px 10px 4px 8px; background: var(--sunk); white-space: nowrap; max-width: 60%; overflow: hidden; text-overflow: ellipsis; }
 .rt i { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none; }
 .rt.ok i { background: var(--ok); animation: pulse 2s infinite; }
@@ -314,21 +315,26 @@ table.tt th.na { color: var(--na); }
 .lgrid { display: flex; flex-wrap: wrap; gap: 8px; }
 .lgrid button { border: 0; padding: 0; background: none; border-radius: 8px; }
 .lgrid button[aria-pressed="true"] { outline: 2px solid var(--ink); outline-offset: 2px; }
+/* #51 : ligne choisie avec un encadré d'état : pas de contour noir, le logo grandit jusqu'à l'encadré */
+.lgrid button.trlv[aria-pressed="true"] { outline: none; padding: 0; }
+.lgrid button.trlv[aria-pressed="true"] > .bd { height: calc(var(--bdh, 30px) + 6px); min-width: calc(var(--bdw, 40px) + 6px); padding: 0 9px; border-radius: 9px; font-size: 17.5px; }
+.lgrid button.trlv[aria-pressed="true"] > .bd.tram { --bdw: 60px; border-radius: 18px; }
 /* #48 : état du trafic de la ligne, encadré autour du logo. Nom de classe distinct de `.tl` (détail d'un
    trajet d'itinéraire, en display:none) : la réutiliser masquait toutes les lignes de la grille. */
-.trlv { --tlc: #1f9d55; }
-.trlv1 { --tlc: #d8a200; }
+.trlv { --tlc: #17924a; }
+.trlv1 { --tlc: #c99400; } /* #48 : jaune plus soutenu, lisible sur fond clair */
 .trlv2 { --tlc: var(--alert); }
 .trlv3 { --tlc: var(--na); }
 /* encadré détaché du logo (sinon les deux couleurs se touchent et se mélangent) + mini picto d'état */
-.lgrid button.trlv { position: relative; padding: 3px; border: 2px solid var(--tlc); border-radius: 11px; background: var(--surface); }
-.trp { position: absolute; right: -5px; bottom: -5px; width: 15px; height: 15px; border-radius: 5px; background: var(--surface); color: var(--tlc); box-shadow: 0 0 0 1.6px var(--tlc); display: grid; place-items: center; }
-.trp svg { width: 11px; height: 11px; }
+.lgrid button.trlv { position: relative; padding: 3px; border: 2.5px solid var(--tlc); border-radius: 11.5px; background: var(--surface); }
+.trp { position: absolute; right: -8px; bottom: -8px; width: 16px; height: 16px; border-radius: 5px; background: var(--tlc); color: #fff; box-shadow: 0 0 0 2px var(--surface); display: grid; place-items: center; }
+.trp svg { width: 12px; height: 12px; stroke-width: 2.6; }
 /* même encadré autour d'un logo seul (info trafic : filtres et lignes de chaque info) */
 .trlvw { position: relative; display: inline-flex; flex: none; padding: 3px; border: 2px solid var(--tlc); border-radius: 11px; background: var(--surface); }
-.trlvw.sm { padding: 2px; border-width: 1.5px; border-radius: 8px; }
-.trlvw.sm .trp { right: -4px; bottom: -4px; width: 12px; height: 12px; border-radius: 4px; box-shadow: 0 0 0 1.4px var(--tlc); }
-.trlvw.sm .trp svg { width: 9px; height: 9px; }
+.trlvw { border-width: 2.5px; }
+.trlvw.sm { padding: 2px; border-width: 2.2px; border-radius: 8px; }
+.trlvw.sm .trp { right: -7px; bottom: -7px; width: 13px; height: 13px; border-radius: 4px; box-shadow: 0 0 0 1.6px var(--surface); }
+.trlvw.sm .trp svg { width: 9px; height: 9px; stroke-width: 2.8; }
 .lgroup { display: flex; flex-direction: column; gap: 8px; }
 .lhead { display: flex; gap: 10px; align-items: center; }
 .lhead h2 { font-size: 19px; font-weight: 600; }
@@ -605,6 +611,7 @@ body.p32cover .sheet { border-radius: 0; box-shadow: none; }
 .fh-t { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .fh-t h2 { font-size: 19px; font-weight: 700; line-height: 1.15; }
 .fh-s { font-size: 12.5px; color: var(--muted); display: flex; gap: 6px; align-items: center; }
+.fh-k { font: 700 10.5px/1 var(--font-body); letter-spacing: .09em; color: var(--accent); margin-bottom: 3px; } /* #42 */
 .pillmode { font: 700 11px/1 var(--font-body); letter-spacing: .08em; color: var(--accent); border: 1.5px solid var(--accent); border-radius: 999px; padding: 5px 8px; flex: none; }
 .mbh { border-radius: 18px; background: #15202b; color: #fff; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
 :root[data-theme="dark"] .mbh:not(.near) { background: #222c35; }
@@ -683,7 +690,7 @@ body.p32cover .sheet { border-radius: 0; box-shadow: none; }
 .alertbtn[aria-pressed="true"] { background: color-mix(in srgb, var(--accent) 12%, var(--surface)); color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, var(--rule)); }
 /* onglet Info trafic : « ! » animé quand une nouvelle info temps réel arrive */
 .tabbar .ico { position: relative; display: block; width: 22px; height: 22px; }
-.bang { position: absolute; left: -8px; bottom: -6px; width: 16px; height: 16px; border-radius: 50%; background: var(--alert); color: #fff; border: 2px solid var(--surface); font: 700 11px/16px var(--font-body); text-align: center; animation: wig 2.4s ease-in-out infinite; transform-origin: 50% 100%; }
+.bang { position: absolute; right: -9px; top: -5px; width: 16px; height: 16px; border-radius: 50%; background: var(--alert); color: #fff; border: 2px solid var(--surface); font: 700 11px/16px var(--font-body); text-align: center; animation: wig 2.4s ease-in-out infinite; transform-origin: 50% 100%; }
 .bang[hidden] { display: none; }
 @keyframes wig { 0%, 55%, 100% { transform: rotate(0) scale(1); } 8% { transform: rotate(-20deg) scale(1.25); } 16% { transform: rotate(18deg) scale(1.25); } 24% { transform: rotate(-14deg) scale(1.1); } 32% { transform: rotate(10deg) scale(1.05); } 40% { transform: rotate(-5deg); } 48% { transform: rotate(0); } }
 .lpseg { display: flex; margin-bottom: 14px; }
@@ -793,7 +800,8 @@ body.p32cover .sheet { border-radius: 0; box-shadow: none; }
 .pd28 > svg { grid-row: 1 / span 2; grid-column: 2; }
 .pd28 .pdt { font-size: 13.5px; } .pd28 .pdy { color: #c4430f; font-weight: 700; }
 .pd28 .pds { display: flex; flex-wrap: wrap; gap: 4px 12px; }
-.pdg { display: inline-flex; align-items: center; gap: 3px; }
+.pdg { display: inline-flex; align-items: center; gap: 3px; flex-wrap: wrap; min-width: 0; max-width: 100%; } /* #42 */
+.pd28 { min-width: 0; } .pd28 .pdt, .pd28 .pds { min-width: 0; }
 .pdg i { font: 700 10px/1 var(--font-body); font-style: normal; letter-spacing: .04em; color: var(--muted); margin-right: 2px; }
 .pdg.hl i { color: #c4430f; }
 .pdg em { font: 600 11px/1 var(--font-body); font-style: normal; color: var(--muted); }
@@ -874,7 +882,7 @@ body.p32cover .sheet { border-radius: 0; box-shadow: none; }
 .tc b { font-size: 16px; } .tc small { font-size: 11.5px; color: #4e5a64; }
 .tk-ok { width: 100%; height: 50px; border-radius: 14px; border: 0; background: #fff; color: #b83c10; font: 700 16px var(--font-body); margin-top: 6px; }
 /* guidage */
-.gchain { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+.gchain { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; padding: 2px; margin-bottom: 10px; } /* #42 : l'anneau de l'étape ne touche plus la carte */
 .gs { display: inline-flex; align-items: center; gap: 2px; padding: 3px; border-radius: 8px; color: var(--muted); font-size: 12.5px; }
 .gs.on { box-shadow: 0 0 0 2px var(--accent); }
 .gs.ok { opacity: .45; }
@@ -2829,7 +2837,7 @@ function renderFollow() {
     MB.key = ""; MB.lastNext = -1;
     // la ligne affichée commence un arrêt avant le bus (ou avant l'arrêt de montée s'il est plus tôt)
     MB.first = 0; // #25 : toute la course depuis le terminus de départ (la liste reste calée sur le bus)
-    el.innerHTML = `<div class="mbtop" id="mb-top"><div class="fhead"><button type="button" class="icon-btn" id="fo-back" aria-label="Retour">${backSvg}</button><button type="button" class="icon-btn" id="fo-close" aria-label="Quitter le plein écran">${closeSvg}</button>${badge(p.r, "lg")}<div class="fh-t"><h2>→ ${esc(p.h)}</h2><span class="fh-s" id="mb-status"></span><span class="b9row" id="mb-b9"></span></div><span class="pillmode">${S.guide ? "GUIDAGE" : modeOf(p.r) === "tram" ? "MON TRAM" : "MON BUS"}</span></div>
+    el.innerHTML = `<div class="mbtop" id="mb-top"><div class="fhead"><button type="button" class="icon-btn" id="fo-back" aria-label="Retour">${backSvg}</button><button type="button" class="icon-btn" id="fo-close" aria-label="Quitter le plein écran">${closeSvg}</button>${badge(p.r, "lg")}<div class="fh-t"><span class="fh-k">${S.guide ? "GUIDAGE" : modeOf(p.r) === "tram" ? "MON TRAM" : "MON BUS"}</span><h2>→ ${esc(p.h)}</h2><span class="fh-s" id="mb-status"></span><span class="b9row" id="mb-b9"></span></div></div>
       <div id="gd-card"></div>
       <div id="mb-banner"></div>
       <div id="mb-pd"></div>
@@ -3107,7 +3115,7 @@ function guideTick() {
   if (s.done) {
     S.follow = null;
     const html = `<div class="fhead"><button type="button" class="icon-btn" id="gd-back" aria-label="Retour">${backSvg}</button><div class="fh-t"><h2>Vous êtes arrivé</h2><span class="fh-s">${esc(vName(G.to))}</span></div><span class="pillmode">GUIDAGE</span></div>
-      <div class="gchain">${chain}</div><div class="gcard ok"><span class="tric ok">${okSvg}</span><div><b>Trajet terminé</b><span>Bonne journée !</span></div></div>
+      <div class="gchain">${chain}</div><div class="gcard ok"><span class="tric ok">${okSvg}</span><div><b>Trajet terminé</b><span>${esc(vName(G.to))}</span></div></div>
       <button type="button" class="btn primary" id="gd-end">Terminer le guidage</button>`;
     const fo = $("#fo"); if (fo.dataset.html !== html) { fo.innerHTML = html; fo.dataset.html = html; MB.key = ""; $("#gd-end").onclick = $("#gd-back").onclick = () => { S.guide = null; go("itineraire"); }; }
     ping(G.id + ":fin", "Vous êtes arrivé", vName(G.to), false, "board");
@@ -3882,14 +3890,14 @@ function installPop(os) {
 }
 const GUIDE = [
   ["passages", "Trouver un horaire", "passages.jpg", "<p>Dans <b>Passages</b>, choisissez un arrêt : les prochains départs de chaque ligne s'affichent, rangés par transport (tram, BHNS, bus, express). Touchez un titre pour replier un transport.</p><p>Un <b>point vert</b> veut dire temps réel, un <b>point gris</b> horaire prévu. Touchez un horaire pour suivre ce bus. L'étoile ajoute l'arrêt à votre accueil.</p>"],
-  ["itineraire", "Faire un itinéraire", "itineraire.jpg", "<p>Dans <b>Itinéraire</b>, indiquez d'où vous partez et où vous allez, puis « Partir à » ou « Arriver avant ». 6 trajets s'affichent ; « Plus tôt » et « Départs suivants » en ajoutent.</p><p>Ouvrez un trajet pour voir les étapes, puis « Me guider » : l'appli vous accompagne jusqu'à l'arrivée, correspondances comprises.</p>"],
+  ["itineraire", "Faire un itinéraire", "itineraire.jpg", "<p>Dans <b>Itinéraire</b>, indiquez d'où vous partez et où vous allez, puis « Partir à » ou « Arriver avant ». 6 trajets s'affichent ; « Plus tôt » et « Départs suivants » en ajoutent.</p><p>Ouvrez un trajet pour voir les étapes, puis « Me guider » : l'appli vous guide étape par étape, correspondances comprises.</p>"],
   ["monbus", "Suivre son bus", "monbus.jpg", "<p>Touchez un horaire ou un bus sur le plan : <b>Mon bus</b> montre où il est et à quelle heure il passera à chaque arrêt. Tirez le panneau vers le haut pour le plein écran.</p><p>Une fois monté, touchez <b>Je suis à bord</b> : le bus se cale sur votre position. Touchez votre arrêt de descente pour être prévenu juste avant. Si vous montez sans rien faire, l'appli vous propose elle-même de suivre votre bus.</p>"],
   ["trafic", "L'info trafic", "trafic.jpg", "<p>L'onglet <b>Info trafic</b> montre d'abord ce qui se passe en ce moment, puis les travaux et arrêts déplacés, ligne par ligne. Un « ! » s'allume sur l'onglet quand une nouvelle info tombe.</p><p>Touchez une info : le plan montre les arrêts concernés et ceux de remplacement.</p>"],
   ["profil", "Votre profil", "profil.jpg", "<p>Le rond en haut à gauche du plan ouvre <b>Mon profil</b> : rangez, renommez ou supprimez vos arrêts et trajets, choisissez vos lignes (elles passent en premier) et vos alertes.</p><p>En bas, chaque fonctionnalité peut être coupée si vous préférez un affichage plus simple.</p>"],
 ];
 function welcomePop() {
-  updPop([{ ico: icoSvg('<path d="M12 3.5 14.6 9l6 .7-4.5 4.1 1.2 5.9L12 16.8l-5.3 2.9 1.2-5.9L3.4 9.7l6-.7z"/>'), t: "Bienvenue !",
-    b: "<p>Horaires, itinéraires, suivi de votre bus en direct et info trafic du réseau Grand Reims Mobilités.</p><p>Deux minutes pour découvrir l'appli ? Le mode d'emploi reste ensuite dans votre profil (rond en haut à gauche du plan).</p>" }],
+  updPop([{ ico: icoSvg('<path d="M12 3.5 14.6 9l6 .7-4.5 4.1 1.2 5.9L12 16.8l-5.3 2.9 1.2-5.9L3.4 9.7l6-.7z"/>'), t: "Horaires Grand Reims",
+    b: "<p>Horaires, itinéraires, suivi de votre bus en direct et info trafic du réseau Grand Reims Mobilités.</p><p>Le mode d'emploi montre l'essentiel en cinq chapitres. Il reste ensuite dans votre profil (rond en haut à gauche du plan).</p>" }],
     { kicker: "Première visite", label: "Bienvenue", last: "Découvrir l'appli", onClose: () => {} });
   const go = $("#updpop .up-go"), sk = $("#updpop .up-skip");
   if (sk) sk.textContent = "Plus tard";
@@ -5049,7 +5057,7 @@ function nightPop() {
   el.innerHTML = `<div class="np-in" role="dialog" aria-modal="true" aria-labelledby="np-t">
     <span class="np-ico">${moonSvg(32)}</span>
     <h2 id="np-t">Fin de service sur le réseau</h2>
-    <p>Les derniers bus et trams ont terminé leur service.<br>À demain sur nos lignes !</p>
+    <p>Les derniers bus et trams ont terminé leur service.</p>
     <p class="np-s">Les horaires et les itinéraires de demain restent disponibles.</p>
     <button type="button" class="np-ok">Bonne nuit</button>
   </div>`;
@@ -5087,17 +5095,21 @@ const UPD_0611 = [
 // ajouter une entrée en tête (1 à 4 volets de nouveautés + un volet « Corrections »), elle s'affiche une fois.
 const personSvg = (n) => `<svg width="${n}" height="${n}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.6 4.2-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/></svg>`;
 const UPD_LOG = [
+  { v: "2026-11-15.2", t: "Un affichage plus net", slides: [
+    { ico: icoSvg('<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18"/>'), t: "Un affichage plus net",
+      b: "<ul><li>Lignes &amp; plans : la ligne choisie n'a plus de contour noir, son logo grandit jusqu'au cadre de couleur de son état.</li><li>Info trafic : cadres d'état plus épais et plus contrastés, petits pictos plus lisibles.</li><li>Mon bus : « Mon bus », « Mon tram » ou « Guidage » passe au-dessus de la destination, qui a toute la largeur.</li><li>Plus de chevauchements : le « ! » de l'onglet Info trafic, l'état du temps réel en haut, l'étape en cours du guidage, le bandeau « Par où descendre ».</li><li>Textes plus sobres.</li></ul>" },
+  ] },
   { v: "2026-11-15", t: "Des itinéraires plus logiques", slides: [
     { ico: icoSvg('<path d="M6 19V9a3 3 0 0 1 3-3h9"/><path d="m15 3 3 3-3 3"/><circle cx="6" cy="19" r="2"/>'), t: "Des correspondances plus logiques",
       b: "<ul><li>Vous changez de bus au <b>premier arrêt commun</b> aux deux lignes. L'appli ne vous fait plus rester dans le premier bus pour reprendre le second plus loin, dans l'autre sens.</li><li>Plus de descente pour reprendre la même ligne en sens inverse.</li><li>Plus de marche le long d'une ligne pour monter dans un bus qui passe de toute façon à votre arrêt.</li><li>Les longues marches entre deux arrêts ne sont proposées que si elles font vraiment gagner du temps.</li><li>Vers une adresse, vous descendez à l'arrêt le plus pratique, même s'il est quelques arrêts plus loin, plutôt qu'à celui qui est seulement le plus proche à vol d'oiseau.</li></ul>" },
     { ico: icoSvg('<path d="M20 6 9 17l-5-5"/>'), t: "Et quelques corrections",
       b: "<ul><li>Temps réel : quand le réseau met à jour ses horaires, les bus restent suivis en direct.</li><li>Mon bus : un bus suivi en temps réel ne dépasse plus un arrêt avant que le réseau ait confirmé son passage. Il reste « à l'approche », comme sur le site du réseau.</li><li>Tram et BHNS : Mon bus se figeait à l'approche de certaines stations (carte du haut, alertes de descente et barre du bas plus mises à jour). C'est réglé.</li></ul>" },
   ] },
-  { v: "2026-11-11.2", t: "L'état de chaque ligne en un coup d'œil", slides: [
+  { v: "2026-11-11.2", t: "L'état de chaque ligne", slides: [
     { ico: icoSvg('<circle cx="12" cy="12" r="8.6"/><path d="M12 7.8v5.4"/><circle cx="12" cy="16.4" r=".9" fill="currentColor" stroke="none"/>'), t: "Un encadré par ligne",
       b: "Dans <b>Lignes & plans</b>, le logo de chaque ligne porte maintenant un encadré de couleur : <b>vert</b> quand tout va bien, <b>jaune</b> pour une déviation en cours, <b>orange</b> pour une perturbation gênante (bus bloqué, en retard ou supprimé), <b>rouge</b> quand la ligne est interrompue. La légende est sous les lignes." },
     { ico: icoSvg('<path d="M20 6 9 17l-5-5"/>'), t: "Et quelques corrections",
-      b: "<ul><li>Info trafic : un message que le réseau laisse en ligne après la journée annoncée n'apparaît plus comme en cours. S'il annonce aussi une autre journée, il passe simplement « À venir ».</li></ul>" },
+      b: "<ul><li>Info trafic : un message que le réseau laisse en ligne après la journée annoncée n'apparaît plus comme en cours. S'il annonce aussi une autre journée, il passe en « À venir ».</li></ul>" },
   ] },
   { v: "2026-11-11", t: "Marche, adresses et courses annulées", slides: [
     { ico: icoSvg('<path d="M13.5 4.2a1.6 1.6 0 1 0 0-.1"/><path d="M11 8.5 9 13l2.5 1.5.7 5.5"/><path d="M11 8.5l3.2 1.2 1.6 3.3"/><path d="M9 13 7 20"/>'), t: "La marche, à votre main",
@@ -5184,7 +5196,7 @@ function updPop(slides = UPD_LOG[0].slides, o = {}) {
   </div>`;
   const tr = $(".up-track", el), go = $(".up-go", el), dots = [...el.querySelectorAll(".up-dots i")];
   const cur = () => Math.round(tr.scrollLeft / (tr.clientWidth || 1));
-  const sync = () => { const k = cur(); dots.forEach((d, i) => d.classList.toggle("on", i === k)); go.textContent = k >= n - 1 ? (o.last || "C'est parti !") : "Suivant"; };
+  const sync = () => { const k = cur(); dots.forEach((d, i) => d.classList.toggle("on", i === k)); go.textContent = k >= n - 1 ? (o.last || "Fermer") : "Suivant"; };
   tr.addEventListener("scroll", sync, { passive: true });
   const close = () => { el.classList.remove("on"); document.removeEventListener("keydown", esc_); if (o.onClose) o.onClose(); else setTimeout(checkNight, 300); };
   const esc_ = (e) => { if (e.key === "Escape") close(); };
