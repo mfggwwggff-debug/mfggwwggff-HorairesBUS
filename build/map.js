@@ -183,15 +183,17 @@ function runTimes(pi, k, dk) {
   if (RTC.size > 3000) RTC.clear();
   RTC.set(key, out); return out;
 }
-// #39 : arrêt confirmé par le temps réel. Une course en temps réel dont le flux confirme les passages
-// ne dépasse pas le premier arrêt non confirmé : elle y reste « à l'arrêt » jusqu'à la confirmation,
-// au plus HOLD minutes (le flux a ~30 s de retard : on ne veut pas non plus un bus trop en retard sur la réalité).
-const HOLD = 0.75;
+// #39 / #44 : arrêt confirmé par le temps réel. Une course suivie en temps réel ne dépasse pas le premier arrêt
+// que le flux n'a pas encore confirmé (heure de départ antérieure à l'heure du flux, ou arrêt retiré du flux) :
+// elle reste juste avant, « à l'approche », comme sur le site du réseau. Au plus HOLD minutes, si le flux ne
+// se met plus à jour ; au-delà, l'estimation reprend avec ce retard.
+const HOLD = 3;
 function rtHold(p, k, R, t, live) {
   if (!live || !p.conf) return t;
-  const c = p.conf[k]; if (c < 0 || c + 1 >= p.nS) return t; // flux qui ne confirme rien pour cette course : estimation seule
-  const over = t - R.d[c + 1];
-  return over > 0 ? t - Math.min(over, HOLD) : t;
+  const c = p.conf[k]; if (c < -1 || c + 1 >= p.nS) return t;
+  const lim = c + 1 === 0 ? R.d[0] : R.a[c + 1] - 0.02; // terminus : à quai jusqu'au départ confirmé
+  const over = t - lim;
+  return over <= 0 ? t : over <= HOLD ? lim : t - HOLD;
 }
 // #39 : le bus ralentit à l'approche des arrêts (et en repart doucement) et aux feux tricolores (FEUX, relevés dans OSM).
 // Le temps d'un tronçon est réparti selon un « coût » le long du chemin : plus élevé près des arrêts et des feux.
