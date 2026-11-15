@@ -176,19 +176,64 @@ def stops_index():
         return {}
 
 
-def geocode(addr, near):
-    # géocodage de l'IGN (data.geopf.fr) : l'API Adresse (api-adresse.data.gouv.fr) est fermée depuis fin
-    # janvier 2026. Mêmes paramètres (q, limit, lat, lon) et même réponse GeoJSON avec properties.score.
-    q = {"q": addr, "limit": 1, "index": "address"}
-    if near: q.update(lat=near[0], lon=near[1])
-    req = urllib.request.Request("https://data.geopf.fr/geocodage/search?" + urllib.parse.urlencode(q), headers={"User-Agent": "horaires-grand-reims"})
+GEO_URL = "https://data.geopf.fr/geocodage/"
+_COMMUNE = {}
+
+
+def _geo(path, q):
+    req = urllib.request.Request(GEO_URL + path + "?" + urllib.parse.urlencode(q), headers={"User-Agent": "horaires-grand-reims"})
     with urllib.request.urlopen(req, timeout=10) as r:
-        f = json.load(r)["features"]
-    if not f or f[0]["properties"].get("score", 0) < 0.45: return None
-    lon, lat = f[0]["geometry"]["coordinates"]
-    if near and ((lat - near[0]) * 111) ** 2 + ((lon - near[1]) * 73) ** 2 > 2.0 ** 2:
-        return None   # à plus de 2 km de l'arrêt : sans doute une autre rue du même nom
-    return [round(lat, 6), round(lon, 6)]
+        return json.load(r)["features"]
+
+
+def commune(near):
+    """Commune de l'arrêt habituel (géocodage inverse), pour ne pas tomber sur la même rue d'une autre ville."""
+    k = (round(near[0], 3), round(near[1], 3))
+    if k not in _COMMUNE:
+        try:
+            f = _geo("reverse", {"lat": near[0], "lon": near[1], "index": "address", "limit": 1})
+            _COMMUNE[k] = f[0]["properties"].get("city") if f else None
+        except Exception:
+            _COMMUNE[k] = None
+    return _COMMUNE[k]
+
+
+def geocode(addr, near, rue_seule=False):
+    # géocodage de l'IGN (data.geopf.fr) : l'API Adresse (api-adresse.data.gouv.fr) est fermée depuis fin janvier 2026.
+    # Le point lat/lon ne fait que favoriser les résultats proches : « 18 rue Aristide Briand » renvoyait Dunkerque.
+    # On ajoute donc la commune de l'arrêt habituel, on demande plusieurs réponses et on garde la plus proche à moins de 2 km.
+    city = commune(near) if near else "Reims"
+    qs = [addr + " " + city] if city and city.lower() not in addr.lower() else []
+    qs.append(addr)
+    for q in qs:
+        p = {"q": q, "limit": 5, "index": "address"}
+        if near: p.update(lat=near[0], lon=near[1])
+        best = None
+        for f in _geo("search", p):
+            pr = f["properties"]
+            if pr.get("score", 0) < (0.4 if rue_seule else 0.45): continue
+            if not rue_seule and pr.get("type") not in ("housenumber", None) and re.match(r"\d", addr): continue
+            lon, lat = f["geometry"]["coordinates"]
+            d = ((lat - near[0]) * 111) ** 2 + ((lon - near[1]) * 73) ** 2 if near else 0
+            if near and d > (0.8 if rue_seule else 2.0) ** 2: continue   # plus loin : sans doute une autre rue du même nom (rue entière : 800 m)
+            if best is None or d < best[0]: best = (d, [round(lat, 6), round(lon, 6)])
+        if best: return best[1]
+    return None
+
+
+# Report sans numéro (« déplacé Voie Verte au niveau du rond point Route de Taissy ») : on place le point sur la voie
+# citée en dernier (souvent la plus connue), à l'échelle de la rue.
+ADDR_RUE = re.compile(r"(?:d[ée]plac[ée]e?s?|report[ée]e?s?)\s+(?!(?:à|a) l'arr)(?:(?:au|du|face au)\s+)?([^()]*?\b(?:rue|avenue|boulevard|route|chemin|place|all[ée]e|quai|rond[- ]point|voie)\b[^,.;()]*)", re.I)
+VOIE = re.compile(r"\b((?:rue|avenue|boulevard|route|chemin|place|all[ée]e|quai|voie)\s+(?:de la |du |des |de l'|de |d')?[A-ZÉÈÀ0-9][^,.;()]*)$", re.I)
+
+
+def derniere_voie(t):
+    """Dernière voie citée : « Voie Verte au niveau du rond point Route de Taissy » → « Route de Taissy »."""
+    pos = [m.start() for m in re.finditer(r"(?i)\b(?:rue|avenue|boulevard|route|chemin|place|all[ée]e|quai|voie)\s", t)]
+    for p in reversed(pos):
+        v = VOIE.match(t[p:])
+        if v and len(v.group(1).split()) >= 2: return v.group(1).strip()
+    return None
 
 
 def add_geo(items, cache):
@@ -197,17 +242,23 @@ def add_geo(items, cache):
         for b in it["b"]:
             r = b.get("r") or []
             txt = "".join(x[0] for x in r)
-            m = ADDR.search(txt)
-            if not m: continue
-            addr = re.sub(r"\b(bld|bd)\b\.?", "boulevard", m.group(1), flags=re.I).strip()
+            m, rue_seule = ADDR.search(txt), False
+            if m: addr = label = m.group(1)
+            else:
+                m2 = ADDR_RUE.search(txt)
+                v = m2 and derniere_voie(re.sub(r"\s+", " ", m2.group(1)).strip())
+                if not v: continue
+                addr, label, rue_seule = v, re.sub(r"\s+au niveau u ", " au niveau du ", m2.group(1)).strip(), True
+            addr = re.sub(r"\b(bld|bd)\b\.?", "boulevard", addr, flags=re.I).strip()
+            if not rue_seule: label = addr
             stop = next((r[i][0] for i in range(1, len(r)) if r[i][1] and re.search(r"arr[êe]ts?\s*$", r[i - 1][0], re.I)), "")
             key = addr + "|" + stop
             if key not in cache:
                 if idx is None: idx = stops_index()
                 near = idx.get(norm_stop(stop))
-                try: cache[key] = geocode(addr + " Reims" if not near else addr, near)
+                try: cache[key] = geocode(addr, near, rue_seule)
                 except Exception: cache[key] = None
-            if cache.get(key): b["geo"] = {"lat": cache[key][0], "lon": cache[key][1], "a": addr}
+            if cache.get(key): b["geo"] = {"lat": cache[key][0], "lon": cache[key][1], "a": label.strip(), "k": key}
 
 
 def old_cache():
@@ -219,7 +270,7 @@ def old_cache():
                 if b.get("geo"):
                     r = b.get("r") or []
                     stop = next((r[i][0] for i in range(1, len(r)) if r[i][1] and re.search(r"arr[êe]ts?\s*$", r[i - 1][0], re.I)), "")
-                    c[b["geo"]["a"] + "|" + stop] = [b["geo"]["lat"], b["geo"]["lon"]]
+                    c[b["geo"].get("k") or b["geo"]["a"] + "|" + stop] = [b["geo"]["lat"], b["geo"]["lon"]]
     except Exception:
         pass
     return c

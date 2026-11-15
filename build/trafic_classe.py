@@ -6,7 +6,7 @@ Une info répond à quatre questions séparées, et l'appli en déduit ce qu'ell
   - gravité  : bloquant (rouge, 3), gênant (orange, 2), déviation (jaune + pastille, 1),
                mineur (jaune sans pastille, 1), aucune (simple info) ;
   - moment   : laissé à l'appli (dates, jours cités, « tous les dimanches »), qui le recalcule chaque minute ;
-               le relevé note seulement si l'info est conditionnelle (« seulement en cas de… ») ;
+               une info conditionnelle (« seulement en cas de… ») est une simple info ;
   - portée   : arrêts, ligne, lignes, réseau.
 
 L'info est lue phrase par phrase : une phrase qui annonce une fin ou une nouveauté (« fin de report »,
@@ -112,8 +112,10 @@ def classe(item, nb_lignes_reseau=29):
         # rien de reconnu : visible quand même, à vérifier. En temps réel, le réseau l'a mise dans son encadré
         # « en direct » : on la traite comme gênante plutôt que de la cacher.
         grav, nat, sur = ("genant", "perturbation", False) if rt else ("mineur", "perturbation", False)
-    if cond and grav in ("bloquant", "genant", "deviation"):
-        grav = "mineur"   # « seulement en cas de congestion » : possible, pas certain
+    if cond and nat == "perturbation":
+        # « seulement en cas de congestion » : simple info. Quand le réseau active la déviation, il publie une info
+        # en temps réel à part, classée normalement.
+        grav, nat = "aucune", "info"
     niv = GRAV[grav]
     pastille = grav in ("bloquant", "genant", "deviation")
 

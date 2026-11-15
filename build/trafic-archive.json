@@ -2923,8 +2923,8 @@
     "sur": true
    },
    "attendu": {
-    "grav": "mineur",
-    "nat": "perturbation",
+    "grav": "aucune",
+    "nat": "info",
     "portee": "lignes"
    }
   },
@@ -3415,8 +3415,8 @@
     }
    ],
    "attendu": {
-    "grav": "mineur",
-    "nat": "perturbation",
+    "grav": "aucune",
+    "nat": "info",
     "portee": "ligne"
    }
   }
