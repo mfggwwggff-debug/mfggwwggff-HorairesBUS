@@ -124,6 +124,48 @@ function getOneWay() {
 
 // quais : lignes qui s'y arrêtent (parcours fréquents) et quais de terminus, calculés au premier besoin
 let quayInfo = null;
+// #62 (essai, page de test seulement) : plan des arrêts et des vélos, sans tracés ni bus en circulation.
+// Toucher un arrêt ouvre ses horaires ; de près, chaque quai porte ses lignes et leurs directions ;
+// stations Zébullo (GBFS, temps réel) avec les vélos et les places libres.
+let PA = CAPS_ON && store.get("planArrets") !== false;
+const quayDirs = new Map(); // quai → [[ligne, direction]]
+function qDirs(q) {
+  let L = quayDirs.get(q); if (L) return L;
+  const tot = net.R.map(() => 0); net.pats.forEach((p) => { tot[p.r] += p.nT; });
+  const m = new Map(), l = net.qp[q];
+  for (let j = 0; j < l.length; j += 2) {
+    const p = net.pats[l[j]], i = l[j + 1];
+    if (i === p.nS - 1 || p.nT < 0.04 * tot[p.r] || net.hidden?.has(p.r)) continue;
+    const k = p.r + "|" + p.h; m.set(k, [p.r, p.h, (m.get(k)?.[2] || 0) + p.nT]);
+  }
+  L = [...m.values()].sort((a, b) => (net.R[a[0]].m === 1 ? 0 : 1) - (net.R[b[0]].m === 1 ? 0 : 1) || a[0] - b[0] || b[2] - a[2]);
+  quayDirs.set(q, L); return L;
+}
+const VLS = { st: [], at: 0, err: "", busy: false, urls: null };
+const GBFS_URL = "https://api.gbfs.ecovelo.mobi/zebullo/gbfs.json";
+async function vlsLoad() {
+  if (VLS.busy || !PA) return; VLS.busy = true;
+  try {
+    if (!VLS.urls) {
+      const j = await (await fetch(GBFS_URL, { cache: "no-store" })).json(), d = j.data || {};
+      const feeds = d.feeds || (d.fr || d.en || Object.values(d)[0] || {}).feeds || [];
+      VLS.urls = Object.fromEntries(feeds.map((f) => [f.name, f.url]));
+    }
+    const txt = (n) => Array.isArray(n) ? (n.find((x) => /^fr/.test(x.language)) || n[0] || {}).text || "" : n || "";
+    if (!VLS.st.length && VLS.urls.station_information) {
+      const j = await (await fetch(VLS.urls.station_information, { cache: "no-store" })).json();
+      VLS.st = (j.data?.stations || []).map((x) => ({ id: String(x.station_id), name: txt(x.name).replace(/^\s*\d+\s*[-–]\s*/, ""), lat: +x.lat, lon: +x.lon, cap: x.capacity ?? null, bikes: null, docks: null, ok: true }));
+    }
+    if (VLS.urls.station_status) {
+      const j = await (await fetch(VLS.urls.station_status, { cache: "no-store" })).json(), by = new Map(VLS.st.map((x) => [x.id, x]));
+      for (const x of j.data?.stations || []) { const s2 = by.get(String(x.station_id)); if (!s2) continue; s2.bikes = x.num_bikes_available ?? x.num_vehicles_available ?? null; s2.docks = x.num_docks_available ?? null; s2.ok = x.is_renting !== false && x.is_renting !== 0; }
+    }
+    VLS.at = Date.now(); VLS.err = "";
+  } catch (e) { VLS.err = "Stations Zébullo indisponibles"; }
+  VLS.busy = false; drawMap();
+}
+setInterval(() => { if (PA && !document.hidden) vlsLoad(); }, 60000);
+if (PA) vlsLoad();
 function getQuays() {
   if (quayInfo) return quayInfo;
   const tot = net.R.map(() => 0); net.pats.forEach((p) => { tot[p.r] += p.nT; });
@@ -505,7 +547,7 @@ function paint() {
   const [vx0, vy1] = fromS(-40, -40), [vx1, vy0] = fromS(W + 40, H + 40);
   const visible = (b) => !(b[2] < vx0 || b[0] > vx1 || b[3] < vy0 || b[1] > vy1);
   const frameFr = net.R.map(() => []);
-  for (const pass of [0, 1]) {
+  for (const pass of (PA && !(focus && S.view === "lignes") ? [] : [0, 1])) { // #62 : en essai, seulement le tracé d'une ligne choisie
     for (const ri of order) {
       const on = !focus || hl.routes.has(ri);
       const strong = on && focus && !journey;
@@ -582,7 +624,8 @@ function paint() {
     ctx.lineCap = "round"; stroke2(barW + 2.6, barW);
     return [cx, cy];
   };
-  net.P.forEach((p, i) => {
+  if (PA) paintPA(C, z, hs, focus, hl, QI, outC);
+  else net.P.forEach((p, i) => {
     if (capP.has(i)) return;
     const on = hs.has(i), hub = hubs.has(i) && z > 0.75 && (!focus || net.pRoutes[i].some((r) => hl.routes.has(r)));
     const term = termini.has(i) && z > 0.9 && (!focus || net.pRoutes[i].some((r) => hl.routes.has(r)));
@@ -634,6 +677,7 @@ function paint() {
   };
   // réserve la zone des boutons du plan
   placed.push([W - 64, 0, W, tl + 200]);
+  if (PA) placed.push(...PA_BOXES);
   hl.ends.forEach(([i]) => { if (!isPlace(i)) label(i, true); });
   if (S.view === "itineraire" && S.journeys[S.selJ]) S.journeys[S.selJ].legs.forEach((g) => { if (g.type === "ride") { const p = net.pats[g.pat]; label(net.Q[p.stops[g.bi]][0], true); label(net.Q[p.stops[g.ai]][0], true); } });
   if (hover && hover.kind === "stop") label(hover.i, true);
@@ -690,8 +734,8 @@ function paint() {
   }
   // bus en circulation
   lastVeh = [];
-  if (showBuses || S.view === "suivi") {
-    const vs = S.view === "suivi" && S.follow && !showBuses ? [vehicleOf(S.follow.pi, S.follow.k, S.follow.dk)].filter(Boolean) : vehicles();
+  if ((showBuses && !PA) || S.view === "suivi") {
+    const vs = S.view === "suivi" && S.follow && (!showBuses || PA) ? [vehicleOf(S.follow.pi, S.follow.k, S.follow.dk)].filter(Boolean) : vehicles();
     const sel = hl.trips;
     for (const v of vs) {
       if (hl.routes && hl.routes.size && !hl.routes.has(v.r)) continue;
@@ -738,6 +782,93 @@ function paint() {
     ctx.strokeText(at, ax, ay); ctx.fillText(at, ax, ay); ctx.textAlign = "start";
   }
   placePop();
+}
+
+// #62 : arrêts (pôle, puis quais avec lignes et directions de près) et stations de vélos
+let PA_BOXES = [], lastBike = [];
+function paintPA(C, z, hs, focus, hl, QI, outC) {
+  lastBike = [];
+  PA_BOXES = [[W - 64, 0, W, topInset() + 300], [0, 0, 74, topInset() + 74], [60, 0, 280, topInset() + 52]]; // boutons du plan, profil, échelle
+  const br = H - sheetInsetBottom();
+  const inV = (x, y, m = 40) => x > -m && y > -m && x < W + m && y < br + m;
+  const near = z >= 3.4, cards = z >= 5;
+  // stations de vélos (sous les arrêts)
+  if (z >= 1.25) for (const st of VLS.st) {
+    const [x, y] = geoS(st.lon, st.lat); if (!inV(x, y)) continue;
+    lastBike.push([st, x, y]);
+    const r = z >= 3 ? 9 : 6, g = st.ok ? (st.bikes ? "#0a8f5a" : "#8b9099") : "#8b9099";
+    ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fillStyle = g; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = C.surf; ctx.stroke();
+    if (r >= 9) { // petit vélo
+      ctx.save(); ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.3; ctx.lineCap = "round";
+      ctx.beginPath(); ctx.arc(x - 3.3, y + 1.6, 2.4, 0, 7); ctx.arc(x + 3.3, y + 1.6, 2.4, 0, 7); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x - 3.3, y + 1.6); ctx.lineTo(x - 0.8, y - 2.4); ctx.lineTo(x + 2.4, y - 2.4); ctx.lineTo(x + 3.3, y + 1.6); ctx.moveTo(x - 0.8, y - 2.4); ctx.lineTo(x + 0.4, y + 1.6); ctx.stroke(); ctx.restore();
+      if (st.bikes != null) { // nombre de vélos dans une pastille
+        const t = String(st.bikes); ctx.font = `700 10px ${C.font}`; const w = Math.max(14, ctx.measureText(t).width + 7);
+        ctx.beginPath(); roundRect(x + 5, y - 15, w, 13, 6.5); ctx.fillStyle = C.surf; ctx.fill(); ctx.lineWidth = 1.4; ctx.strokeStyle = g; ctx.stroke();
+        ctx.fillStyle = g; ctx.textAlign = "center"; ctx.fillText(t, x + 5 + w / 2, y - 8.3); ctx.textAlign = "start";
+      }
+    }
+  }
+  ctx.textBaseline = "middle";
+  const pend = [];
+  net.P.forEach((p, i) => {
+    if (!net.pRoutes[i].length) return;
+    const on = hs.has(i), hub = hubs.has(i), term = termini.has(i);
+    if (focus && !on && !net.pRoutes[i].some((r) => hl.routes.has(r))) return;
+    if (!on && !hub && !term && z < 1.5) return;
+    const [x, y] = stopS(i); if (!inV(x, y, 60)) return;
+    const qs = QI.byP[i];
+    if (!near || !qs.length) { // de loin : un rond par arrêt, plus gros pour les pôles
+      const r = on ? 7 : hub ? Math.min(7, 4 + net.pRoutes[i].length * 0.35) : 3.6;
+      ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fillStyle = C.surf; ctx.fill(); ctx.lineWidth = hub || on ? 2.6 : 1.8; ctx.strokeStyle = C.ink; ctx.stroke();
+      lastQuay.push([i, x, y]); return;
+    }
+    // de près : chaque quai, reliés en pointillé
+    const pts = qs.map((q) => toS(...warp(PX(net.Q[q][2]), PY(net.Q[q][1]))));
+    if (qs.length > 1) {
+      ctx.save(); ctx.setLineDash([2, 4]); ctx.lineCap = "round"; ctx.strokeStyle = C.muted; ctx.lineWidth = 2;
+      ctx.beginPath(); pts.forEach((p2, k) => (k ? ctx.lineTo(p2[0], p2[1]) : ctx.moveTo(p2[0], p2[1]))); ctx.stroke(); ctx.restore();
+    }
+    qs.forEach((q, k) => {
+      const [qx, qy] = pts[k]; if (!inV(qx, qy)) return;
+      lastQuay.push([i, qx, qy]);
+      const L = qDirs(q); const tram = L.some(([r]) => net.R[r].m === 1);
+      ctx.beginPath(); ctx.arc(qx, qy, tram ? 6 : 5, 0, 7); ctx.fillStyle = L.length ? net.R[L[0][0]].c : C.surf; ctx.fill(); ctx.lineWidth = 2.2; ctx.strokeStyle = C.surf; ctx.stroke();
+      ctx.beginPath(); ctx.arc(qx, qy, (tram ? 6 : 5) + 1.6, 0, 7); ctx.lineWidth = 1.2; ctx.strokeStyle = outC; ctx.stroke();
+      PA_BOXES.push([qx - 8, qy - 8, qx + 8, qy + 8]); // les cartes ne cachent pas les quais
+      if (cards && L.length) pend.push([qx, qy, L]);
+    });
+  });
+  // cartes des quais : ligne + direction (3 au plus), posées après tous les quais
+  for (const [qx, qy, L] of pend) {
+    {
+      const rows = L.slice(0, 3), more = L.length - rows.length;
+      ctx.font = `700 10.5px ${C.font}`; const bw = (r) => Math.max(20, ctx.measureText(net.R[r].s).width + 8);
+      ctx.font = `600 11.5px ${C.font}`;
+      const w = Math.min(Math.min(230, W - 90), Math.max(...rows.map(([r, h]) => bw(r) + 18 + ctx.measureText(h).width)) + 12), rh = 17, hgt = rows.length * rh + (more ? 13 : 0) + 8;
+      let box = null;
+      for (const [dx, dy] of [[10, -hgt - 6], [10, 8], [-w - 10, -hgt - 6], [-w - 10, 8]]) {
+        const b = [qx + dx, qy + dy, qx + dx + w, qy + dy + hgt];
+        if (b[0] < 4 || b[2] > W - 4 || b[1] < topInset() + 4 || b[3] > br - 4) continue;
+        if (PA_BOXES.some((o) => !(b[2] < o[0] || b[0] > o[2] || b[3] < o[1] || b[1] > o[3]))) continue;
+        box = b; break;
+      }
+      if (!box) continue;
+      PA_BOXES.push(box);
+      ctx.save(); ctx.shadowColor = "rgba(0,0,0,.18)"; ctx.shadowBlur = 6; ctx.shadowOffsetY = 1;
+      roundRect(box[0], box[1], w, hgt, 7); ctx.fillStyle = C.surf; ctx.fill(); ctx.restore();
+      roundRect(box[0], box[1], w, hgt, 7); ctx.lineWidth = 1; ctx.strokeStyle = outC; ctx.globalAlpha = 0.35; ctx.stroke(); ctx.globalAlpha = 1;
+      rows.forEach(([r, h], n) => {
+        const y0 = box[1] + 4 + n * rh + rh / 2, R = net.R[r]; ctx.font = `700 10.5px ${C.font}`; const b = bw(r);
+        roundRect(box[0] + 6, y0 - 7, b, 14, 4); ctx.fillStyle = R.c; ctx.fill();
+        ctx.fillStyle = R.t; ctx.textAlign = "center"; ctx.fillText(R.s, box[0] + 6 + b / 2, y0 + 0.5); ctx.textAlign = "start";
+        ctx.font = `600 11.5px ${C.font}`; ctx.fillStyle = C.ink;
+        let t = "→ " + h; const maxW = w - b - 18; while (ctx.measureText(t).width > maxW && t.length > 4) t = t.slice(0, -2) + "…";
+        ctx.fillText(t, box[0] + 6 + b + 6, y0 + 0.5);
+      });
+      if (more) { ctx.font = `600 10.5px ${C.font}`; ctx.fillStyle = C.muted; ctx.fillText(`+ ${more} autre${more > 1 ? "s" : ""}`, box[0] + 8, box[1] + 4 + rows.length * rh + 6); }
+    }
+  }
 }
 
 // ---------- caméra ----------
@@ -793,6 +924,7 @@ function hitTest(sx, sy) {
   for (const [i, b] of lastLab) if (sx >= b[0] - 4 && sx <= b[2] + 4 && sy >= b[1] - 6 && sy <= b[3] + 6) { const [x, y] = stopS(i), d = Math.min(sd - 1, ((x - sx) ** 2 + (y - sy) ** 2) / 4); if (d < sd) { sd = d; sb = { kind: "stop", i }; } }
   for (const [i, x, y] of lastQuay) { const d = (x - sx) ** 2 + (y - sy) ** 2; if (d < sd) { sd = d; sb = { kind: "stop", i }; } }
   net.P.forEach((p, i) => { const [x, y] = stopS(i); const d = (x - sx) ** 2 + (y - sy) ** 2; if (d < sd) { sd = d; sb = { kind: "stop", i }; } });
+  if (PA) for (const [st, x, y] of lastBike) { const d = (x - sx) ** 2 + (y - sy) ** 2; if (d < 16 * 16 && (!sb || d < sd)) return { kind: "vls", st }; }
   // un bus tout proche du doigt passe avant ; sinon l'arrêt le plus proche
   if (best && (!sb || bd <= sd)) return best;
   return sb || best;
@@ -867,6 +999,13 @@ const busBtn = $("#z-bus");
 const syncBusBtn = () => { busBtn.setAttribute("aria-pressed", showBuses); busBtn.title = showBuses ? "Masquer les bus en circulation" : "Afficher les bus en circulation"; };
 busBtn.addEventListener("click", () => { showBuses = !showBuses; store.set("buses", showBuses); syncBusBtn(); toast(showBuses ? "Bus en circulation affichés" : "Bus masqués", 1500); drawMap(); });
 syncBusBtn();
+if (CAPS_ON) { // #62 : bascule plan des arrêts / plan des lignes, page de test seulement
+  const b = document.createElement("button"); b.type = "button"; b.id = "z-pa";
+  b.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="5" cy="6" r="2.2"/><circle cx="14" cy="5" r="2.2"/><circle cx="9" cy="14" r="2.2"/><path d="M3 18h14" stroke-dasharray="1.5 2.5" stroke-linecap="round"/></svg>`;
+  const sync = () => { b.setAttribute("aria-pressed", PA); b.setAttribute("aria-label", PA ? "Revenir au plan des lignes" : "Essayer le plan des arrêts"); b.title = b.getAttribute("aria-label"); };
+  b.onclick = () => { PA = !PA; store.set("planArrets", PA); sync(); toast(PA ? "Plan des arrêts (essai)" : "Plan des lignes", 1500); if (PA) vlsLoad(); hidePop(); drawMap(); };
+  busBtn.after(b); sync();
+}
 cv.tabIndex = 0;
 cv.addEventListener("keydown", (e) => {
   const k = e.key, step = 80;
@@ -938,6 +1077,15 @@ function clickMap(sx, sy) {
     if (!ptHint && (S.view === "itineraire" || S.view === "accueil")) { ptHint = true; toast("Appui long sur le plan pour l'adresse d'un point", 2600); }
     return;
   }
+  if (h.kind === "vls") {
+    const st = h.st, up = VLS.at ? Math.max(0, Math.round((Date.now() - VLS.at) / 60000)) : null;
+    pop.dataset.html = "";
+    pop.innerHTML = `<button type="button" class="x" aria-label="Fermer">×</button><div class="sub" style="font-weight:700;color:#0a8f5a;letter-spacing:.04em;font-size:11px">ZÉBULLO</div><h3 style="margin:2px 0 6px">${esc(st.name)}</h3>
+      ${st.ok ? `<div class="sub"><b>${st.bikes ?? "?"}</b> vélo${st.bikes > 1 ? "s" : ""} · <b>${st.docks ?? "?"}</b> place${st.docks > 1 ? "s" : ""} libre${st.docks > 1 ? "s" : ""}</div>` : `<div class="sub">Station fermée</div>`}
+      <div class="sub" style="margin-top:4px;font-size:12px">${up == null ? "" : up < 1 ? "À l'instant" : "Il y a " + up + " min"}</div>`;
+    popAt = { x: PX(st.lon), y: PY(st.lat) }; pop.classList.add("on"); placePop(); return;
+  }
+  if (PA && h.kind === "stop") { hidePop(); openPassages(h.i); fitStop(h.i); return; }
   if (h.kind === "veh") { pop.dataset.html = ""; popAt = { veh: { pi: h.v.pi, k: h.v.k, dk: h.v.dk } }; fillVehPop(h.v); pop.classList.add("on"); placePop(); return; }
   const best = h.i, p = net.P[best];
   pop.dataset.html = "";
