@@ -39,7 +39,13 @@ function makeNet(D) {
   net.shapes = D.SH.map((f) => { const o = []; let x = 0, yy = 0; for (let i = 0; i < f.length; i += 2) { x += f[i]; yy += f[i + 1]; o.push([x / 1e5, yy / 1e5]); } return o; });
   // identifiants pour le temps réel
   net.tripIdx = new Map();
-  if (D.TI) D.TI.t.forEach((row, pi) => row.split(" ").forEach((code, k) => { const [num, s] = code.split("."); const suf = D.TI.suf[+s]; net.tripIdx.set(num ? num + "-" + suf : suf, [pi, k]); }));
+  // #46 : la seconde moitié du trip_id (calendrier) est renumérotée à chaque version du GTFS ; le numéro, lui,
+  // est stable et jamais ambigu un même jour : repli sur le numéro quand l'identifiant complet manque
+  net.tripNum = new Map();
+  if (D.TI) D.TI.t.forEach((row, pi) => row.split(" ").forEach((code, k) => {
+    const [num, s] = code.split("."); const suf = D.TI.suf[+s]; net.tripIdx.set(num ? num + "-" + suf : suf, [pi, k]);
+    if (num) { const l = net.tripNum.get(num); if (l) l.push([pi, k]); else net.tripNum.set(num, [[pi, k]]); }
+  }));
   net.qByStopId = new Map((D.QI || []).map((sid, q) => [sid, q]));
   net.liveDay = -1;
   return net;
@@ -53,11 +59,17 @@ function isLive(net, p, k, svcDay) { return svcDay === net.liveDay && p.live && 
 function applyRT(net, feed, liveDay, dayStartEpoch) {
   net.pats.forEach((p) => { p.LA = null; p.LD = null; p.LAf = null; p.LDf = null; p.live = null; p.conf = null; });
   net.liveDay = liveDay; net.rtVer = (net.rtVer || 0) + 1;
-  let matched = 0, total = 0;
+  let matched = 0, total = 0, byNum = 0;
   for (const e of feed.entity || []) {
     const tu = e.tu; if (!tu || !tu.trip || e.deleted) continue;
     total++;
-    const hit = net.tripIdx.get(tu.trip.trip_id); if (!hit) continue;
+    let hit = net.tripIdx.get(tu.trip.trip_id);
+    if (!hit) { // #46 : repli sur le numéro, la course dont le calendrier tourne ce jour-là (ou la veille, après minuit)
+      const l = net.tripNum.get(String(tu.trip.trip_id || "").split("-")[0]);
+      if (l) hit = l.find(([pi, k]) => net.svcOn(net.pats[pi].sv[k], liveDay)) || l.find(([pi, k]) => net.svcOn(net.pats[pi].sv[k], liveDay - 1));
+      if (!hit) continue;
+      byNum++;
+    }
     const [pi, k] = hit, p = net.pats[pi];
     // jour de service : aujourd'hui, ou la veille pour une course d'après minuit
     let svc = liveDay;
@@ -102,7 +114,7 @@ function applyRT(net, feed, liveDay, dayStartEpoch) {
     p.conf[k] = conf;
     p.live[k] = 1; matched++;
   }
-  return { matched, total };
+  return { matched, total, byNum };
 }
 
 function firstTrip(net, p, i, ready, day) {

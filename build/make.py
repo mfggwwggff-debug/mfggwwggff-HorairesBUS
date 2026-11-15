@@ -50,4 +50,16 @@ if test:
     out = os.path.join(root, "test", "index.html")
 open(out, "w", encoding="utf-8").write(t)
 feed = json.loads(open(data, encoding="utf-8").read())["feed"]
+if not test:
+    # #46 : liste des courses par calendrier, relue par le service d'alertes pour vérifier que le temps réel
+    # correspond bien aux horaires (page admin/, alerte de panne)
+    D = json.loads(open(data, encoding="utf-8").read())
+    if D.get("TI"):
+        by = {}
+        for pi, pat in enumerate(D["PAT"]):
+            for t, code in zip(pat[5], D["TI"]["t"][pi].split(" ")):
+                by.setdefault(t[0], []).append(code)
+        ref = {"v": feed.get("version"), "d0": D["d0"], "nd": D["nd"], "S": D["S"], "suf": D["TI"]["suf"],
+               "t": [" ".join(by.get(i, [])) for i in range(len(D["S"]))]}
+        open(os.path.join(root, "rt-ref.json"), "w", encoding="utf-8").write(json.dumps(ref, ensure_ascii=False, separators=(",", ":")))
 print(os.path.relpath(out, root), "reconstruit :", feed)

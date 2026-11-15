@@ -49,7 +49,7 @@ jobs:
           fi
           git config user.name "horaires-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html build/data.json
+          git add index.html build/data.json rt-ref.json
           git commit -m "Mise à jour automatique des horaires"
           for i in 1 2 3; do git pull --rebase -q && git push -q && exit 0; sleep 5; done
           exit 1

@@ -193,6 +193,80 @@ async function dropSub(env, id) {
 const clip = (s, n) => String(s == null ? "" : s).slice(0, n);
 const cleanMsg = (j) => ({ title: clip(j.title, 80), body: clip(j.body, 240), url: clip(j.url || "./", 200), tag: clip(j.tag || "", 40) });
 
+// ---------- #46 : santé du temps réel ----------
+const REF_URL = "https://raw.githubusercontent.com/mfggwwggff-debug/mfggwwggff-HorairesBUS/main/rt-ref.json";
+let REF = null; // { at, d0, nd, S, codes: [[num, suf, sv]] } gardé dans l'isolat 30 min
+// trip_id de toutes les mises à jour de course du flux
+export function rtIds(u8) {
+  const out = [], feed = pb(u8);
+  while (!feed.end()) {
+    const [f, w] = feed.tag();
+    if (f !== 2) { feed.skip(w); continue; }
+    const ent = pb(feed.bytes()); let tu = null, del = false;
+    while (!ent.end()) { const [g, w2] = ent.tag(); if (g === 3) tu = ent.bytes(); else if (g === 2) del = !!ent.varint(); else ent.skip(w2); }
+    if (!tu || del) continue;
+    const r = pb(tu);
+    while (!r.end()) { const [h, w3] = r.tag(); if (h === 1) { const td = msg(r.bytes(), { 1: strF("trip_id") }); if (td.trip_id) out.push(td.trip_id); break; } r.skip(w3); }
+  }
+  return out;
+}
+export function prepRef(j, now) {
+  const codes = [];
+  j.t.forEach((row, sv) => { if (row) for (const c of row.split(" ")) { const [num, s] = c.split("."); codes.push([num, j.suf[+s], sv]); } });
+  return { at: now, v: j.v, d0: j.d0, nd: j.nd, S: j.S, codes };
+}
+const parisIso = (ms) => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Paris", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(ms));
+// Compte les courses du flux qui correspondent aux horaires : identifiant complet, ou numéro seul (repli de l'appli)
+export function rtMatch(ids, ref, now) {
+  const iso = parisIso(now), y = +ref.d0.slice(0, 4), m = +ref.d0.slice(4, 6) - 1, d = +ref.d0.slice(6, 8);
+  const k = Math.round((Date.UTC(+iso.slice(0, 4), +iso.slice(5, 7) - 1, +iso.slice(8, 10)) - Date.UTC(y, m, d)) / 864e5);
+  const on = (sv, kk) => kk >= 0 && kk < ref.nd && ref.S[sv].charCodeAt(kk) === 49;
+  const full = new Set(), nums = new Set();
+  for (const [num, suf, sv] of ref.codes) if (on(sv, k) || on(sv, k - 1)) { full.add(num ? num + "-" + suf : suf); if (num) nums.add(num); }
+  let exact = 0, matched = 0;
+  for (const id of ids) { if (full.has(id)) { exact++; matched++; } else if (nums.has(String(id).split("-")[0])) matched++; }
+  return { total: ids.length, exact, matched, horsPeriode: k < 0 || k >= ref.nd };
+}
+async function rtSante(env, now) {
+  const kv = async (k) => { const r = await env.DB.prepare("SELECT v FROM kv WHERE k = ?").bind(k).first(); return r ? r.v : null; };
+  const old = JSON.parse((await kv("rtEtat")) || "{}");
+  const e = { at: now, statut: "injoignable", total: 0, exact: 0, matched: 0 };
+  let ids = null;
+  try { const r = await fetch(RT_URL, { cf: { cacheTtl: 20 } }); if (r.ok) ids = rtIds(new Uint8Array(await r.arrayBuffer())); else e.http = r.status; } catch (x) {}
+  try {
+    if (!REF || now - REF.at > 30 * 60000) { const r = await fetch(REF_URL + "?t=" + Math.floor(now / 6e5)); if (r.ok) REF = prepRef(await r.json(), now); }
+  } catch (x) {}
+  if (ids) {
+    if (!REF) e.statut = "sans-horaires";
+    else {
+      Object.assign(e, rtMatch(ids, REF, now)); e.v = REF.v;
+      e.statut = !e.total ? "vide" : !e.matched ? "panne" : e.exact < e.matched ? "repli" : "ok";
+    }
+  }
+  // en panne depuis quand (deux relevés de suite, soit 10 min, avant d'alerter)
+  e.depuis = e.statut === old.statut ? (old.depuis || now) : now;
+  e.alerte = old.alerte || 0;
+  const cible = await kv("rtAlerteSub");
+  const st = [];
+  if (cible) {
+    const sub = await env.DB.prepare("SELECT * FROM subs WHERE id = ?").bind(cible).first();
+    let m = null;
+    if (e.statut === "panne" && !e.alerte && now - e.depuis >= 9 * 60000) {
+      m = { title: "Temps réel en panne", body: `Aucune des ${e.total} courses du flux ne correspond aux horaires de l'appli.`, url: "./", tag: "rt" };
+      e.alerte = now;
+    } else if (e.alerte && (e.statut === "ok" || e.statut === "repli")) {
+      m = { title: "Temps réel rétabli", body: `${e.matched} courses suivies sur ${e.total}.`, url: "./", tag: "rt" };
+      e.alerte = 0;
+    }
+    if (m && sub) {
+      const n = await newEnvoi(env, "rt", m, cible, 1);
+      try { const r = await deliver(env, sub, m, n, "rt"); st.push(bumpStmt(env, n, r.ok ? 1 : 0, r.ok ? 0 : 1)); } catch (x) { st.push(bumpStmt(env, n, 0, 1)); }
+    }
+  }
+  st.push(env.DB.prepare("INSERT OR REPLACE INTO kv (k, v) VALUES ('rtEtat', ?)").bind(JSON.stringify(e)));
+  await env.DB.batch(st);
+}
+
 // ---------- #40 : outil d'envoi (page admin/) ----------
 const KIND_MAX = 40;         // envois immédiats par requête (offre gratuite : 50 requêtes sortantes)
 const ADM = new Map();       // essais ratés par adresse (mémoire de l'isolat)
@@ -222,11 +296,20 @@ async function admin(req, env, b, now) {
       env.DB.prepare("SELECT COUNT(*) n FROM habits WHERE at > ?").bind(now).first(),
       env.DB.prepare("SELECT v FROM kv WHERE k = 'trAt'").first(),
     ]);
+    const kv = async (k) => { const r = await env.DB.prepare("SELECT v FROM kv WHERE k = ?").bind(k).first(); return r ? r.v : null; };
+    const rt = JSON.parse((await kv("rtEtat")) || "null"), rtSub = await kv("rtAlerteSub");
     const phones = (subs.results || []).map((s) => {
       const p = JSON.parse(s.prefs || "{}");
       return { id: s.id, created: s.created, seen: s.seen, lines: (p.lines || []).length, hab: (p.hab || []).length, trafic: !!p.trafic, quiet: !!p.quiet };
     });
-    return json({ ok: true, phones, jobs: jobs.n, habits: habits.n, traficAt: tr ? +tr.v : 0, now });
+    return json({ ok: true, phones, jobs: jobs.n, habits: habits.n, traficAt: tr ? +tr.v : 0, rt, rtSub, now });
+  }
+
+  if (op === "rtAlerte") { // #46 : le téléphone qui reçoit l'alerte de panne du temps réel (un seul)
+    const id = b.sub ? clip(b.sub, 24) : "";
+    if (id && !(await env.DB.prepare("SELECT id FROM subs WHERE id = ?").bind(id).first())) return json({ error: "Ce téléphone n'est pas abonné aux alertes." }, 400);
+    await env.DB.prepare(id ? "INSERT OR REPLACE INTO kv (k, v) VALUES ('rtAlerteSub', ?)" : "DELETE FROM kv WHERE k = 'rtAlerteSub' AND ? = ''").bind(id).run();
+    return json({ ok: true, rtSub: id || null });
   }
 
   if (op === "envoyer") {
@@ -474,7 +557,7 @@ export default {
   },
   async scheduled(ev, env, ctx) {
     const now = ev.scheduledTime || Date.now();
-    if (new Date(now).getUTCMinutes() % 5 === 0) await trafic(env, now).catch(() => {});
+    if (new Date(now).getUTCMinutes() % 5 === 0) { await trafic(env, now).catch(() => {}); await rtSante(env, now).catch(() => {}); }
     await minute(env, Date.now());
     // ménage : abonnements jamais revus depuis 60 jours, journal des envois au-delà de 30 jours (#40)
     if (new Date(now).getUTCHours() === 3 && new Date(now).getUTCMinutes() === 7) {

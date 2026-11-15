@@ -97,6 +97,14 @@ footer{color:var(--dim);font-size:12px;text-align:center;margin-top:18px}
   <div id="flash"></div>
 
   <div class="card">
+    <h2>Temps réel</h2>
+    <div id="rt">Chargement…</div>
+    <label for="rtdst">Alerte de panne envoyée à</label>
+    <select id="rtdst"><option value="">Personne</option></select>
+    <p class="sub" style="margin:6px 0 0">Un seul téléphone, jamais les autres. L'alerte part après 10 min sans aucune course reconnue, puis une seconde quand ça revient.</p>
+  </div>
+
+  <div class="card">
     <h2>Nouveau message</h2>
     <label for="t">Titre <span class="cnt" id="ct">0/60</span></label>
     <input id="t" type="text" maxlength="70" placeholder="Travaux place d'Erlon">
@@ -151,7 +159,7 @@ footer{color:var(--dim);font-size:12px;text-align:center;margin-top:18px}
 <script>
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-const KINDS = { msg: "Message", test: "Essai", hab: "Bus habituel", last: "Dernier bus", suivi: "Suivi Mon bus", trafic: "Info trafic" };
+const KINDS = { msg: "Message", test: "Essai", hab: "Bus habituel", last: "Dernier bus", suivi: "Suivi Mon bus", trafic: "Info trafic", rt: "Panne temps réel" };
 const fDate = new Intl.DateTimeFormat("fr-FR", { timeZone: "Europe/Paris", weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 const fCourt = new Intl.DateTimeFormat("fr-FR", { timeZone: "Europe/Paris", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 const fHeure = new Intl.DateTimeFormat("fr-FR", { timeZone: "Europe/Paris", hour: "2-digit", minute: "2-digit" });
@@ -208,9 +216,33 @@ function showEtat(e) {
   sel.innerHTML = `<option value="">Tous les téléphones abonnés (${n})</option>` +
     e.phones.map((p) => `<option value="${esc(p.id)}">Un seul : ${esc(court(p.id))}${p.id === mine ? " (ce navigateur)" : ""} · abonné le ${esc(court2(p.created))}</option>`).join("");
   sel.value = keep;
+  showRT(e.rt, e.rtSub, mine);
   $("phones").innerHTML = n ? `<table><tr><th>Téléphone</th><th>Abonné</th><th>Vu</th><th>Lignes</th><th>Bus hab.</th></tr>` +
     e.phones.map((p) => `<tr><td>${esc(court(p.id))}${p.id === mine ? " <span class=tag>ici</span>" : ""}</td><td>${esc(court2(p.created))}</td><td>${esc(court2(p.seen))}</td><td>${p.lines}</td><td>${p.hab}</td></tr>`).join("") + "</table>"
     : "<p class=sub style=margin:0>Personne n'a encore activé les alertes.</p>";
+}
+// #46 : le service relit le flux toutes les 5 min et le compare aux horaires de l'appli
+const RT_ST = {
+  ok: ["good", "Fonctionne"], repli: ["good", "Fonctionne, par le numéro de course"],
+  panne: ["err", "En panne : aucune course reconnue"], vide: ["", "Aucune course annoncée (nuit ou flux vide)"],
+  injoignable: ["err", "Flux injoignable"], "sans-horaires": ["err", "Liste des courses (rt-ref.json) introuvable"],
+};
+function showRT(rt, rtSub, mine) {
+  if (!rt) $("rt").innerHTML = "<p class=sub style=margin:0>Pas encore de relevé (toutes les 5 min).</p>";
+  else {
+    const [cls, txt] = RT_ST[rt.statut] || ["", rt.statut];
+    const pc = rt.total ? Math.round((rt.matched / rt.total) * 100) : 0;
+    $("rt").innerHTML = `<div class="note ${cls}" style="margin-bottom:8px"><b>${esc(txt)}</b>${rt.statut === "panne" ? " depuis " + esc(heure(rt.depuis)) : ""}</div>
+      <div class="nums"><span><b>${rt.matched}</b> suivie${rt.matched > 1 ? "s" : ""} sur <b>${rt.total}</b> annoncée${rt.total > 1 ? "s" : ""}</span>
+        ${rt.matched > rt.exact ? `<span><b>${rt.matched - rt.exact}</b> par le numéro seul</span>` : ""}
+        <span class="m" style="margin-left:auto">relevé à ${esc(heure(rt.at))}${rt.v ? " · horaires " + esc(rt.v) : ""}</span></div>
+      ${rt.total ? `<div class="bar"><i style="width:${pc}%"></i></div>` : ""}
+      ${rt.matched > rt.exact ? `<p class="sub" style="margin:8px 0 0">Les identifiants du flux ne suivent plus la version des horaires : l'appli s'en sort par le numéro de course.</p>` : ""}`;
+  }
+  const sel = $("rtdst");
+  if (document.activeElement === sel) return;
+  sel.innerHTML = `<option value="">Personne</option>` + PHONES.map((p) => `<option value="${esc(p.id)}">${esc(court(p.id))}${p.id === mine ? " (ce navigateur)" : ""}</option>`).join("");
+  sel.value = rtSub && PHONES.some((p) => p.id === rtSub) ? rtSub : "";
 }
 function showEnvois(list) {
   if (!list.length) { $("journal").innerHTML = "<p class=sub style=margin:0>Aucun envoi pour l'instant.</p>"; return; }
@@ -291,6 +323,10 @@ $("go").onclick = () => enter($("k").value.trim());
 $("k").onkeydown = (e) => { if (e.key === "Enter") $("go").click(); };
 $("t").oninput = $("c").oninput = prev;
 $("refresh").onclick = () => load();
+$("rtdst").onchange = async () => {
+  try { await call("rtAlerte", { sub: $("rtdst").value }); flash($("rtdst").value ? "Les alertes de panne iront sur ce téléphone." : "Plus d'alerte de panne."); }
+  catch (e) { flash(e.message, true); load(true); }
+};
 $("forget").onclick = () => { localStorage.removeItem("grm:adminKey"); KEY = ""; $("k").value = ""; gate("Clé oubliée sur ce navigateur."); };
 $("send").onclick = async () => {
   const titre = $("t").value.trim(), corps = $("c").value.trim(), sub = $("dst").value;
