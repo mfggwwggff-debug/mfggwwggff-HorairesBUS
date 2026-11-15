@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-15T21:38:56Z",
+ "at": "2026-11-15T21:40:00Z",
  "items": [
   {
    "id": "aba75f03db",
@@ -74,7 +74,13 @@
        "face au 20 rue Aristide Briand (ancien arrêt Moulin à Vent)",
        1
       ]
-     ]
+     ],
+     "geo": {
+      "lat": 49.219107,
+      "lon": 4.05069,
+      "a": "20 rue Aristide Briand",
+      "k": "20 rue Aristide Briand|SALENGRO"
+     }
     },
     {
      "l": "U4",
@@ -138,7 +144,13 @@
        "face au 20 rue Aristide Briand (ancien arrêt Moulin à Vent)",
        1
       ]
-     ]
+     ],
+     "geo": {
+      "lat": 49.219107,
+      "lon": 4.05069,
+      "a": "20 rue Aristide Briand",
+      "k": "20 rue Aristide Briand|PERI"
+     }
     },
     {
      "l": "U4",
@@ -3449,7 +3461,13 @@
        "au 8 Bld Joffre",
        1
       ]
-     ]
+     ],
+     "geo": {
+      "lat": 49.259585,
+      "lon": 4.026157,
+      "a": "8 boulevard Joffre",
+      "k": "8 boulevard Joffre|REPUBLIQUE"
+     }
     },
     {
      "l": "U4",
@@ -3478,7 +3496,13 @@
        "au 8 Bld Joffre",
        1
       ]
-     ]
+     ],
+     "geo": {
+      "lat": 49.259585,
+      "lon": 4.026157,
+      "a": "8 boulevard Joffre",
+      "k": "8 boulevard Joffre|REPUBLIQUE"
+     }
     },
     {
      "l": "U20",
