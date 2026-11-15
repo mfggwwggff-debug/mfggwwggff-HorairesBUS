@@ -1203,7 +1203,8 @@ function applyRT(net, feed, liveDay, dayStartEpoch) {
     }
     // #39 : dernier arrêt dont le passage est confirmé par le flux : arrêts déjà retirés de la prévision
     // (avant le premier arrêt annoncé), ou heure de départ déjà passée au moment où le flux a été produit
-    const fts = tu.ts || (feed.header && feed.header.ts) || 0, tsMin = fts ? (fts - base) / 60 : null;
+    // heure du flux le plus récent : celle de la course est parfois vieille de plusieurs minutes (le bus restait bloqué)
+    const fts = Math.max(tu.ts || 0, (feed.header && feed.header.ts) || 0), tsMin = fts ? (fts - base) / 60 : null;
     let conf = first - 1;
     if (tsMin != null) for (const [i, [, d]] of upd) if (d <= tsMin + 0.05 && i > conf) conf = i;
     p.conf[k] = conf;
@@ -2383,7 +2384,7 @@ function runLi() {
 // ---------- Mon bus : suivi d'une course, arrêt de descente, alertes ----------
 // minutes d'avance appliquées aux courses en temps réel (le flux a un peu de retard sur la réalité).
 // #39 : 30 s → 15 s, maintenant que le temps réel est lu à la seconde (Mon bus annonçait les arrêts trop tôt)
-const RT_LEAD = 0; // #44 : plus d'avance sur le flux (le bus passait les arrêts avant le site du réseau)
+const RT_LEAD = 0.25; // avance de 15 s sur le flux, remise le 15 nov. au soir (sans elle le bus traînait derrière)
 function tripState(pi, k, dk) {
   // état d'une course à l'instant : arrêt atteint, position, horaires
   const p = net.pats[pi], today = todayIdx(), off = (dk - today) * 1440;
@@ -2394,7 +2395,7 @@ function tripState(pi, k, dk) {
   // #39 : la position et l'arrêt atteint suivent les mêmes horaires que le plan (temps d'arrêt, temps réel à la seconde)
   const RT = typeof runTimes === "function" ? runTimes(pi, k, dk) : null;
   const ra = (i) => RT ? RT.a[i] + off : at(i), rd = (i) => RT ? RT.d[i] + off : dp(i);
-  // #39 : arrêt suivant pas encore confirmé par le flux : le bus l'attend (au plus 3 min, #44)
+  // #39 : arrêt suivant pas encore confirmé par le flux : le bus l'attend (au plus 45 s)
   const th = RT && typeof rtHold === "function" ? rtHold(p, k, RT, t - off, live) + off : t;
   let state = "running", i = 0;
   if (t < dp(0)) state = "before";
@@ -4357,16 +4358,15 @@ function runTimes(pi, k, dk) {
   RTC.set(key, out); return out;
 }
 // #39 / #44 : arrêt confirmé par le temps réel. Une course suivie en temps réel ne dépasse pas le premier arrêt
-// que le flux n'a pas encore confirmé (heure de départ antérieure à l'heure du flux, ou arrêt retiré du flux) :
-// elle reste juste avant, « à l'approche », comme sur le site du réseau. Au plus HOLD minutes, si le flux ne
-// se met plus à jour ; au-delà, l'estimation reprend avec ce retard.
-const HOLD = 3;
+// que le flux n'a pas encore confirmé : elle reste juste avant, « à l'approche ». Assoupli le 15 nov. au soir
+// (le bus restait 4 arrêts en arrière) : 45 s au plus, puis la position reprend l'estimation sans garder de retard.
+const HOLD = 0.75;
 function rtHold(p, k, R, t, live) {
   if (!live || !p.conf) return t;
   const c = p.conf[k]; if (c < -1 || c + 1 >= p.nS) return t;
   const lim = c + 1 === 0 ? R.d[0] : R.a[c + 1] - 0.02; // terminus : à quai jusqu'au départ confirmé
   const over = t - lim;
-  return over <= 0 ? t : over <= HOLD ? lim : t - HOLD;
+  return over <= 0 || over > HOLD ? t : lim;
 }
 // #39 : le bus ralentit à l'approche des arrêts (et en repart doucement) et aux feux tricolores (FEUX, relevés dans OSM).
 // Le temps d'un tronçon est réparti selon un « coût » le long du chemin : plus élevé près des arrêts et des feux.

@@ -1906,7 +1906,7 @@ function runLi() {
 // ---------- Mon bus : suivi d'une course, arrêt de descente, alertes ----------
 // minutes d'avance appliquées aux courses en temps réel (le flux a un peu de retard sur la réalité).
 // #39 : 30 s → 15 s, maintenant que le temps réel est lu à la seconde (Mon bus annonçait les arrêts trop tôt)
-const RT_LEAD = 0; // #44 : plus d'avance sur le flux (le bus passait les arrêts avant le site du réseau)
+const RT_LEAD = 0.25; // avance de 15 s sur le flux, remise le 15 nov. au soir (sans elle le bus traînait derrière)
 function tripState(pi, k, dk) {
   // état d'une course à l'instant : arrêt atteint, position, horaires
   const p = net.pats[pi], today = todayIdx(), off = (dk - today) * 1440;
@@ -1917,7 +1917,7 @@ function tripState(pi, k, dk) {
   // #39 : la position et l'arrêt atteint suivent les mêmes horaires que le plan (temps d'arrêt, temps réel à la seconde)
   const RT = typeof runTimes === "function" ? runTimes(pi, k, dk) : null;
   const ra = (i) => RT ? RT.a[i] + off : at(i), rd = (i) => RT ? RT.d[i] + off : dp(i);
-  // #39 : arrêt suivant pas encore confirmé par le flux : le bus l'attend (au plus 3 min, #44)
+  // #39 : arrêt suivant pas encore confirmé par le flux : le bus l'attend (au plus 45 s)
   const th = RT && typeof rtHold === "function" ? rtHold(p, k, RT, t - off, live) + off : t;
   let state = "running", i = 0;
   if (t < dp(0)) state = "before";

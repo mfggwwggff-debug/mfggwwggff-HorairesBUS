@@ -110,7 +110,8 @@ function applyRT(net, feed, liveDay, dayStartEpoch) {
     }
     // #39 : dernier arrêt dont le passage est confirmé par le flux : arrêts déjà retirés de la prévision
     // (avant le premier arrêt annoncé), ou heure de départ déjà passée au moment où le flux a été produit
-    const fts = tu.ts || (feed.header && feed.header.ts) || 0, tsMin = fts ? (fts - base) / 60 : null;
+    // heure du flux le plus récent : celle de la course est parfois vieille de plusieurs minutes (le bus restait bloqué)
+    const fts = Math.max(tu.ts || 0, (feed.header && feed.header.ts) || 0), tsMin = fts ? (fts - base) / 60 : null;
     let conf = first - 1;
     if (tsMin != null) for (const [i, [, d]] of upd) if (d <= tsMin + 0.05 && i > conf) conf = i;
     p.conf[k] = conf;
