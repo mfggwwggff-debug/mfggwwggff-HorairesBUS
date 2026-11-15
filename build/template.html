@@ -3637,6 +3637,12 @@ const UPD_0611 = [
 // ajouter une entrée en tête (1 à 4 volets de nouveautés + un volet « Corrections »), elle s'affiche une fois.
 const personSvg = (n) => `<svg width="${n}" height="${n}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-3.6 4.2-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/></svg>`;
 const UPD_LOG = [
+  { v: "2026-11-15", t: "Des itinéraires plus logiques", slides: [
+    { ico: icoSvg('<path d="M6 19V9a3 3 0 0 1 3-3h9"/><path d="m15 3 3 3-3 3"/><circle cx="6" cy="19" r="2"/>'), t: "Des correspondances plus logiques",
+      b: "<ul><li>Vous changez de bus au <b>premier arrêt commun</b> aux deux lignes. L'appli ne vous fait plus rester dans le premier bus pour reprendre le second plus loin, dans l'autre sens.</li><li>Plus de descente pour reprendre la même ligne en sens inverse.</li><li>Plus de marche le long d'une ligne pour monter dans un bus qui passe de toute façon à votre arrêt.</li><li>Les longues marches entre deux arrêts ne sont proposées que si elles font vraiment gagner du temps.</li><li>Vers une adresse, vous descendez à l'arrêt le plus pratique, même s'il est quelques arrêts plus loin, plutôt qu'à celui qui est seulement le plus proche à vol d'oiseau.</li></ul>" },
+    { ico: icoSvg('<path d="M20 6 9 17l-5-5"/>'), t: "Et quelques corrections",
+      b: "<ul><li>Temps réel : quand le réseau met à jour ses horaires, les bus restent suivis en direct.</li></ul>" },
+  ] },
   { v: "2026-11-11.2", t: "L'état de chaque ligne en un coup d'œil", slides: [
     { ico: icoSvg('<circle cx="12" cy="12" r="8.6"/><path d="M12 7.8v5.4"/><circle cx="12" cy="16.4" r=".9" fill="currentColor" stroke="none"/>'), t: "Un encadré par ligne",
       b: "Dans <b>Lignes & plans</b>, le logo de chaque ligne porte maintenant un encadré de couleur : <b>vert</b> quand tout va bien, <b>jaune</b> pour une déviation en cours, <b>orange</b> pour une perturbation gênante (bus bloqué, en retard ou supprimé), <b>rouge</b> quand la ligne est interrompue. La légende est sous les lignes." },

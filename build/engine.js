@@ -46,6 +46,7 @@ function makeNet(D) {
     const [num, s] = code.split("."); const suf = D.TI.suf[+s]; net.tripIdx.set(num ? num + "-" + suf : suf, [pi, k]);
     if (num) { const l = net.tripNum.get(num); if (l) l.push([pi, k]); else net.tripNum.set(num, [[pi, k]]); }
   }));
+  net.qPole = new Int32Array(net.nQ).fill(-1); net.P.forEach((p, i) => p[3].forEach((q) => { net.qPole[q] = i; }));
   net.qByStopId = new Map((D.QI || []).map((sid, q) => [sid, q]));
   net.liveDay = -1;
   return net;
@@ -132,7 +133,10 @@ function firstTrip(net, p, i, ready, day) {
 }
 
 // o et dst : un arrêt (index de pôle) ou un lieu (#21 : adresse, ma position, point du plan) = { q: [[quai, minutes à pied], …] }
-function raptor(net, o, dst, day, t0, maxRides = 5) {
+// maxFp : marche la plus longue permise entre deux arrêts différents (#43 : seconde passe sans les longues marches)
+const DEST_SLACK = 6; // #43 : un arrêt plus loin sur la ligne reste en lice s'il épargne de la marche à l'arrivée
+const WALK_W = 0.6;   // #43 : chaque minute de marche à l'arrivée « coûte » 1,6 min : on reste dans le bus plutôt que marcher
+function raptor(net, o, dst, day, t0, maxRides = 5, maxFp = 1e9) {
   const nQ = net.nQ, INF = 1e9;
   const dstW = new Map(typeof dst === "number" ? net.P[dst][3].map((q) => [q, 0]) : dst.q);
   const dstQ = new Set(dstW.keys());
@@ -149,7 +153,8 @@ function raptor(net, o, dst, day, t0, maxRides = 5) {
       if (!(L.ty[q] === 1 || L.ty[q] === 2)) continue;
       const f = net.fp[q];
       for (let j = 0; j < f.length; j += 2) {
-        const q2 = f[j], v = T[q] + f[j + 1];
+        const q2 = f[j]; if (f[j + 1] > maxFp && net.qPole[q2] !== net.qPole[q]) continue;
+        const v = T[q] + f[j + 1];
         if (v < T[q2] && v < best[q2]) { T[q2] = v; best[q2] = v; L.ty[q2] = 3; L.a[q2] = q; L.b[q2] = f[j + 1]; add.push(q2); }
       }
     }
@@ -173,7 +178,7 @@ function raptor(net, o, dst, day, t0, maxRides = 5) {
         const q = p.stops[i];
         if (cur && i > 0) {
           const a = cur.A[cur.k * p.nS + i] + cur.off;
-          if (a < best[q] && a < destBest()) {
+          if (a < best[q] && a < destBest() + DEST_SLACK) {
             t[q] = a; best[q] = a; l.ty[q] = 2; l.a[q] = pi; l.b[q] = cur.k; l.c[q] = cur.off; l.d[q] = bi; l.e[q] = i; nm.add(q);
           }
         }
@@ -182,7 +187,11 @@ function raptor(net, o, dst, day, t0, maxRides = 5) {
           const curDep = cur ? cur.D[cur.k * p.nS + i] + cur.off : INF;
           if (ready <= curDep) {
             const ft = firstTrip(net, p, i, ready, day);
-            if (ft && ft.t < curDep) { cur = ft; bi = i; }
+            // #43 : à heure égale (même course), on monte au dernier arrêt possible : correspondance au premier
+            // arrêt commun, plutôt que rester dans le premier bus pour reprendre le second plus en amont
+            // (seulement si l'on y est arrivé en bus, ou à pied dans le même pôle : pas en longeant la ligne à pied)
+            const sansMarche = prevL.ty[q] !== 3 || net.qPole[prevL.a[q]] === net.qPole[q];
+            if (ft && (ft.t < curDep || (ft.t === curDep && sansMarche))) { cur = ft; bi = i; }
           }
         }
       }
@@ -194,7 +203,10 @@ function raptor(net, o, dst, day, t0, maxRides = 5) {
   let prevBest = INF;
   for (let k = 1; k < tau.length; k++) {
     let bq = -1, bv = INF;
-    dstW.forEach((w, q) => { if (tau[k][q] < INF && tau[k][q] + w < bv) { bv = tau[k][q] + w; bq = q; } });
+    // #43 : l'arrêt de descente est choisi en comptant la marche plus cher que le trajet assis (la marche
+    // est estimée à vol d'oiseau : l'arrêt le plus proche à vol d'oiseau n'est pas forcément le plus proche à pied)
+    let bs = INF;
+    dstW.forEach((w, q) => { if (tau[k][q] < INF && tau[k][q] + w * (1 + WALK_W) < bs) { bs = tau[k][q] + w * (1 + WALK_W); bv = tau[k][q] + w; bq = q; } });
     if (bv < prevBest) { prevBest = bv; const j = rebuild(net, tau, lab, k, bq, day, dstW.get(bq)); if (j.rides) res.push(j); }
   }
   return res;
@@ -236,11 +248,15 @@ function rebuild(net, tau, lab, k, q, day, egress = 0) {
 }
 
 function planDepart(net, o, dst, day, t0, want = 4) {
+  net0 = net;
   const out = new Map();
   let t = t0;
   for (let it = 0; it < 30 && (out.size < want || prune([...out.values()]).length < want); it++) {
     const res = raptor(net, o, dst, day, t);
     if (!res.length) break;
+    // #43 : seconde passe sans marche de plus de 4 min entre deux arrêts : un trajet un peu plus long mais sans
+    // traverser la ville à pied reste proposé ; prune départage
+    raptor(net, o, dst, day, t, 5, 4).forEach((j) => { if (!out.has(j.key) && j.legs.length) out.set(j.key, j); });
     res.forEach((j) => { if (!out.has(j.key) && j.legs.length) out.set(j.key, j); });
     const firstRide = Math.min(...res.map((j) => (j.legs.find((x) => x.type === "ride") || { dep: t }).dep));
     t = Math.max(t + 1, firstRide - (res[0].legs[0].type === "walk" ? res[0].legs[0].dur : 0) + 1);
@@ -249,9 +265,10 @@ function planDepart(net, o, dst, day, t0, want = 4) {
 }
 
 function planArrive(net, o, dst, day, deadline, want = 3) {
+  net0 = net;
   const out = new Map();
   for (let back = 15; back <= 240 && out.size < want + 2; back += 10) {
-    const res = raptor(net, o, dst, day, deadline - back);
+    const res = [...raptor(net, o, dst, day, deadline - back), ...raptor(net, o, dst, day, deadline - back, 5, 4)];
     res.forEach((j) => { if (j.arr <= deadline && j.legs.length && !out.has(j.key)) out.set(j.key, j); });
   }
   const sols = prune([...out.values()]).filter((j) => j.arr <= deadline);
@@ -259,6 +276,7 @@ function planArrive(net, o, dst, day, deadline, want = 3) {
   return sols.slice(0, want).sort((a, b) => a.dep - b.dep);
 }
 
+let net0 = null; // réseau du dernier calcul (pour prune)
 function prune(list) {
   // #45 : la marche entre dans la comparaison. Sans elle, le trajet qui marche 20 min était « meilleur » dès
   // qu'il arrivait une minute plus tôt, et celui qui marche 4 min disparaissait avant toute autre vérification.
@@ -269,9 +287,14 @@ function prune(list) {
   // #45 : la marche n'était comparée nulle part (ni dans `dom`, ni dans le tri) : un trajet qui marche 20 min
   // pour arriver une minute plus tôt n'était jamais écarté par celui qui marche 4 min. Passe à part pour ne
   // pas risquer deux trajets qui s'éliminent l'un l'autre, et `max` vient du réglage « Marche ».
-  const better = (b, a) => b !== a && walkMin(b) + 3 <= walkMin(a) && b.rides <= a.rides && b.dep >= a.dep - 3 && b.arr <= a.arr + 3;
+  // #43 : la tolérance grandit avec la marche épargnée (moitié du temps de marche gagné, 3 min au moins)
+  const better = (b, a) => { const g = walkMin(a) - walkMin(b); const tol = Math.max(3, g / 2);
+    return b !== a && g >= 3 && b.rides <= a.rides && b.dep >= a.dep - tol && b.arr <= a.arr + tol; };
   const less = keep.filter((a) => !keep.some((b) => better(b, a)));
   if (less.length) keep = less;
+  // #43 : pas d'aller-retour sur la même ligne (descendre d'un U3 pour reprendre le U3 dans l'autre sens)
+  const allerRetour = (j) => { const r = j.legs.filter((x) => x.type === "ride").map((x) => net0.pats[x.pat].r); return r.some((x, i) => i && x === r[i - 1]); };
+  if (net0) { const sans = keep.filter((j) => !allerRetour(j)); if (sans.length) keep = sans; }
   const sous = keep.filter((j) => walkMin(j) <= walkPref().max);
   if (sous.length) keep = sous; // s'il ne reste rien sous le plafond, on garde quand même une proposition
   keep.sort((a, b) => a.dep - b.dep || a.arr - b.arr);
