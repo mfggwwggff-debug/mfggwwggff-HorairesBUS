@@ -89,5 +89,34 @@ await adm("erreurOk", { sig: h.sig }); er = (await adm("erreurs")).erreurs;
 ok("« Réglée » efface la ligne", er.length === 1 && !/has/.test(er[0].msg), er);
 await adm("erreurOk", { tout: true }); ok("« Tout effacer »", (await adm("erreurs")).erreurs.length === 0);
 
+console.log("Infos à la main et pop-ups (#53)");
+{
+  const T = Date.now();
+  const sub = await (await post("/abonner", { sub: { endpoint: "https://push.test/a3", keys: UA }, prefs: { trafic: true, lines: ["U3"] } })).json();
+  const r1 = await adm("infoSave", { info: { t: "Accident rue de Vesle", txt: "Retards sur la U3.", lines: ["U3"], niv: "genant", rt: true, debut: T - 60000, fin: T + 3600e3 }, prevenir: true });
+  ok("info publiée", r1.ok && r1.id > 0, r1);
+  ok("refus sans titre", !!(await adm("infoSave", { info: { t: "", niv: "genant", debut: T, fin: T + 1 } })).error);
+  ok("refus fin avant début", !!(await adm("infoSave", { info: { t: "x", niv: "genant", debut: T, fin: T - 1 } })).error);
+  const ex = await (await worker.fetch(new Request("https://s.test/extra"), env)).json();
+  const it = ex.infos.find((x) => x.id === "m" + r1.id);
+  ok("/extra : info au format du relevé", it && it.lines[0] === "U3" && it.rt && it.c.niv === 2 && it.c.pastille && it.until > T && it.b[0].r[0][0] === "Retards sur la U3.", it);
+  const job = db.prepare("SELECT * FROM jobs WHERE kind = 'trafic'").all();
+  ok("abonné de la U3 prévenu", job.some((j) => j.sub === sub.id), job.length);
+  await adm("infoFin", { id: r1.id });
+  ok("info terminée : plus dans /extra", !(await (await worker.fetch(new Request("https://s.test/extra"), env)).json()).infos.some((x) => x.id === "m" + r1.id));
+  ok("lien de pop-up hors appli refusé", !!(await adm("popupSave", { popup: { t: "x", lien: "https://exemple.fr", debut: T, fin: T + 1000 } })).error);
+  const p1 = await adm("popupSave", { popup: { t: "Marché de Noël", txt: "Le tram est dévié.", btn: "Voir l'info trafic", lien: "#trafic", debut: T - 1000, fin: T + 864e5 } });
+  const p2 = await adm("popupSave", { popup: { t: "Plus tard", debut: T + 864e5, fin: T + 2 * 864e5 } });
+  let pops = (await (await worker.fetch(new Request("https://s.test/extra"), env)).json()).popups;
+  ok("pop-up en cours seulement", pops.length === 1 && pops[0].t === "Marché de Noël" && pops[0].lien === "#trafic", pops);
+  const id0 = pops[0].id;
+  await new Promise((r) => setTimeout(r, 5));
+  await adm("popupSave", { popup: { id: p1.id, t: "Marché de Noël", txt: "Texte modifié.", btn: "", lien: "", debut: T - 1000, fin: T + 864e5 } });
+  pops = (await (await worker.fetch(new Request("https://s.test/extra"), env)).json()).popups;
+  ok("modifié : nouvel identifiant (s'affiche de nouveau)", pops[0].id !== id0, [id0, pops[0].id]);
+  await adm("popupDel", { id: p2.id });
+  ok("listes de l'admin", (await adm("infos")).infos.length === 1 && (await adm("popups")).popups.length === 1);
+}
+
 console.log(ko ? `\n${ko} essai(s) raté(s)` : "\nTout est passé");
 process.exit(ko ? 1 : 0);

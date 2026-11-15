@@ -51,6 +51,19 @@ button:disabled{opacity:.45;cursor:default}
 .prevn p{margin:1px 0 0;font-size:13px;line-height:1.3;color:#2b2b33;overflow-wrap:anywhere}
 .prevn .app{font-size:10px;font-weight:700;letter-spacing:.6px;color:#6b6b76;text-transform:uppercase}
 .prevn .when{font-size:11px;color:#6b6b76;margin-left:auto;flex:0 0 auto}
+/* #53 */
+input[type=datetime-local]{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;-webkit-appearance:none;min-height:40px}
+.lchips{display:flex;flex-wrap:wrap;gap:6px}
+.lchips button{padding:4px 8px;min-width:38px;border-radius:7px;font-size:13px;font-weight:700;border:2px solid transparent;opacity:.4}
+.lchips button[aria-pressed="true"]{opacity:1;border-color:var(--ink)}
+.it{border-top:1px solid var(--line);padding:10px 0;display:flex;gap:10px;align-items:flex-start}
+.it .w{flex:1;min-width:0}.it .w b{display:block}.it .w small{color:var(--dim);font-size:12.5px;display:block;margin-top:2px}
+.it .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.it.off{opacity:.55}
+.ppv{margin-top:14px;border:1px solid var(--line);border-radius:16px;padding:16px;text-align:center;background:var(--bg)}
+.ppv .ppk{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--accent);text-transform:uppercase;margin-bottom:6px}
+.ppv b{display:block;font-size:18px;margin-bottom:6px}.ppv #pp-x{color:var(--dim);font-size:14px;white-space:pre-line}
+.ppv .ppb{display:inline-block;margin-top:10px;background:var(--accent-strong);color:#fff;border-radius:10px;padding:8px 14px;font-weight:600;font-size:14px}
 /* journal */
 .env{border-top:1px solid var(--line);padding:11px 0}
 .env:first-of-type{border-top:0;padding-top:2px}
@@ -134,6 +147,61 @@ footer{color:var(--dim);font-size:12px;text-align:center;margin-top:18px}
       <button id="refresh" class="plain">Rafraîchir</button>
       <button id="forget" class="plain">Oublier la clé</button>
     </div>
+  </div>
+
+  <div class="card" id="infos-card">
+    <h2>Info trafic ajoutée à la main</h2>
+    <p class="sub" style="margin:-6px 0 4px">Affichée dans l'appli comme une info du réseau, entre le début et la fin.</p>
+    <input type="hidden" id="i-id">
+    <label for="i-t">Titre</label>
+    <input id="i-t" type="text" maxlength="120" placeholder="Accident rue de Vesle">
+    <label for="i-txt">Texte</label>
+    <textarea id="i-txt" maxlength="1500" placeholder="Retards importants sur la U3 entre Vesle et Opéra-Cathédrale."></textarea>
+    <label>Lignes concernées <span class="cnt" id="i-nl">aucune : tout le réseau</span></label>
+    <div id="i-lines" class="lchips">Chargement…</div>
+    <label for="i-niv">Gravité</label>
+    <select id="i-niv">
+      <option value="info">Info (sans gêne)</option>
+      <option value="deviation">Déviation</option>
+      <option value="genant" selected>Perturbation gênante</option>
+      <option value="bloquant">Ligne interrompue</option>
+    </select>
+    <div class="row" style="gap:10px;align-items:flex-end">
+      <div style="flex:1;min-width:150px"><label for="i-deb">Début</label><input id="i-deb" type="datetime-local"></div>
+      <div style="flex:1;min-width:150px"><label for="i-fin">Fin</label><input id="i-fin" type="datetime-local"></div>
+    </div>
+    <div class="chk"><input type="checkbox" id="i-rt" checked><label for="i-rt" style="margin:0;text-transform:none;letter-spacing:0;font-size:14px;color:var(--ink)"><span>En temps réel<small>Rangée dans « Temps réel » de l'onglet Info trafic pendant sa durée.</small></span></label></div>
+    <div class="chk"><input type="checkbox" id="i-prev" checked><label for="i-prev" style="margin:0;text-transform:none;letter-spacing:0;font-size:14px;color:var(--ink)"><span>Prévenir les abonnés de ces lignes<small>Comme une nouvelle info du site : alerte « perturbation sur mes lignes », heures calmes respectées. Seulement à la création.</small></span></label></div>
+    <div class="row" style="margin-top:14px">
+      <button id="i-save">Publier</button>
+      <button id="i-new" class="plain">Nouvelle info</button>
+    </div>
+    <div id="i-list" style="margin-top:14px"></div>
+  </div>
+
+  <div class="card" id="pops-card">
+    <h2>Pop-up à l'ouverture</h2>
+    <p class="sub" style="margin:-6px 0 4px">Une fenêtre affichée une seule fois sur chaque téléphone qui ouvre l'appli entre le début et la fin. Modifier le texte la remontre.</p>
+    <input type="hidden" id="p-id">
+    <label for="p-t">Titre</label>
+    <input id="p-t" type="text" maxlength="80" placeholder="Marché de Noël">
+    <label for="p-txt">Texte</label>
+    <textarea id="p-txt" maxlength="600" placeholder="Du 28 novembre au 28 décembre, le tram est dévié place d'Erlon."></textarea>
+    <div class="row" style="gap:10px;align-items:flex-end">
+      <div style="flex:1;min-width:150px"><label for="p-btn">Bouton (facultatif)</label><input id="p-btn" type="text" maxlength="40" placeholder="Voir l'info trafic"></div>
+      <div style="flex:1;min-width:150px"><label for="p-lien">Il ouvre</label>
+        <select id="p-lien"><option value="">Pas de bouton</option><option value="#trafic">L'onglet Info trafic</option><option value="#lignes">L'onglet Lignes &amp; plans</option><option value="#itineraire">L'onglet Itinéraire</option><option value="#passages">L'onglet Passages</option></select></div>
+    </div>
+    <div class="row" style="gap:10px;align-items:flex-end">
+      <div style="flex:1;min-width:150px"><label for="p-deb">Début</label><input id="p-deb" type="datetime-local"></div>
+      <div style="flex:1;min-width:150px"><label for="p-fin">Fin</label><input id="p-fin" type="datetime-local"></div>
+    </div>
+    <div class="ppv" aria-hidden="true"><div class="ppk">Information</div><b id="pp-t">Titre</b><div id="pp-x"></div><span id="pp-b" class="ppb" hidden></span></div>
+    <div class="row" style="margin-top:14px">
+      <button id="p-save">Publier</button>
+      <button id="p-new" class="plain">Nouveau pop-up</button>
+    </div>
+    <div id="p-list" style="margin-top:14px"></div>
   </div>
 
   <div class="card">
@@ -312,11 +380,95 @@ function showErrs(list) {
   const all = $("errs-all"); if (all) all.onclick = async () => { if (!confirm("Effacer toutes les erreurs relevées ?")) return; try { await call("erreurOk", { tout: true }); load(true); } catch (e) { flash(e.message, true); } };
 }
 
+// ---------- #53 : infos ajoutées à la main, pop-ups ----------
+const pad = (n) => String(n).padStart(2, "0");
+const toLocal = (ms) => { const d = new Date(ms); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const fromLocal = (v) => v ? new Date(v).getTime() : 0;
+const quand = (ms) => new Date(ms).toLocaleString("fr-FR", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+let LINES = [], ILINES = new Set();
+async function loadLines() {
+  try { const d = await (await fetch("../build/data.json", { cache: "force-cache" })).json(); LINES = (d.R || []).filter((r) => r && r.s).map((r) => ({ s: r.s, c: r.c, t: r.t })); }
+  catch (e) { LINES = []; }
+  drawLines();
+}
+function drawLines() {
+  const el = $("i-lines");
+  if (!LINES.length) { el.innerHTML = `<input id="i-ltxt" type="text" placeholder="U3 U1 T1">`; return; }
+  el.innerHTML = LINES.map((r) => `<button type="button" data-l="${esc(r.s)}" aria-pressed="${ILINES.has(r.s)}" style="background:${esc(r.c || "#555")};color:${esc(r.t || "#fff")}">${esc(r.s)}</button>`).join("");
+  el.querySelectorAll("[data-l]").forEach((b) => b.onclick = () => { const l = b.dataset.l; ILINES.has(l) ? ILINES.delete(l) : ILINES.add(l); b.setAttribute("aria-pressed", ILINES.has(l)); nl(); });
+  nl();
+}
+const nl = () => { $("i-nl").textContent = ILINES.size ? [...ILINES].join(", ") : "aucune : tout le réseau"; };
+function infoForm(x) {
+  const n = Date.now();
+  $("i-id").value = x ? x.id : ""; $("i-t").value = x ? x.t : ""; $("i-txt").value = x ? x.txt || "" : "";
+  ILINES = new Set(x ? (x.lines || "").split(" ").filter(Boolean) : []); drawLines();
+  $("i-niv").value = x ? x.niv : "genant"; $("i-rt").checked = x ? !!x.rt : true;
+  $("i-deb").value = toLocal(x ? x.debut : n); $("i-fin").value = toLocal(x ? x.fin : n + 2 * 3600e3);
+  $("i-prev").disabled = !!x; $("i-save").textContent = x ? "Enregistrer" : "Publier";
+}
+const NIVT = { info: "Info", deviation: "Déviation", genant: "Gênante", bloquant: "Interrompue" };
+let INFOS = [], POPS = [];
+function showInfos(list) {
+  INFOS = list; const now = Date.now();
+  $("i-list").innerHTML = list.length ? list.map((x) => { const on = x.fin > now, fut = x.debut > now;
+    return `<div class="it${on ? "" : " off"}"><div class="w"><b>${esc(x.t)}</b><small>${esc(NIVT[x.niv] || x.niv)} · ${x.lines ? esc(x.lines.split(" ").join(", ")) : "tout le réseau"}${x.rt ? " · temps réel" : ""}</small><small>${fut ? "Commence " : on ? "En cours, depuis " : "Terminée · "}${esc(quand(x.debut))} → ${esc(quand(x.fin))}</small></div>
+      <div class="acts"><button class="plain" data-iedit="${x.id}">Modifier</button>${on ? `<button class="plain" data-ifin="${x.id}">Terminer</button>` : ""}<button class="plain" data-idel="${x.id}">Supprimer</button></div></div>`; }).join("") : `<p class="sub" style="margin:0">Aucune info ajoutée.</p>`;
+  $("i-list").querySelectorAll("[data-iedit]").forEach((b) => b.onclick = () => { infoForm(INFOS.find((x) => x.id === +b.dataset.iedit)); $("infos-card").scrollIntoView({ behavior: "smooth" }); });
+  $("i-list").querySelectorAll("[data-ifin]").forEach((b) => b.onclick = async () => { if (!confirm("Terminer cette info maintenant ?")) return; try { await call("infoFin", { id: +b.dataset.ifin }); flash("Info terminée."); loadInfos(); } catch (e) { flash(e.message, true); } });
+  $("i-list").querySelectorAll("[data-idel]").forEach((b) => b.onclick = async () => { if (!confirm("Supprimer cette info ?")) return; try { await call("infoDel", { id: +b.dataset.idel }); flash("Info supprimée."); loadInfos(); } catch (e) { flash(e.message, true); } });
+}
+async function loadInfos() { try { showInfos((await call("infos")).infos); } catch (e) {} }
+$("i-new").onclick = () => infoForm(null);
+$("i-save").onclick = async () => {
+  const id = +$("i-id").value || 0;
+  const lines = LINES.length ? [...ILINES] : ($("i-ltxt")?.value || "").toUpperCase().split(/[\s,;]+/).filter(Boolean);
+  const info = { id, t: $("i-t").value.trim(), txt: $("i-txt").value.trim(), lines, niv: $("i-niv").value, rt: $("i-rt").checked, debut: fromLocal($("i-deb").value), fin: fromLocal($("i-fin").value) };
+  if (!info.t) return flash("Il faut un titre.", true);
+  const prev = !id && $("i-prev").checked && info.niv !== "info";
+  if (!confirm(`${id ? "Enregistrer" : "Publier"} « ${info.t} » ?${prev ? "\nLes abonnés de ces lignes seront prévenus." : ""}`)) return;
+  try { const r = await call("infoSave", { info, prevenir: prev }); flash(id ? "Info modifiée." : `Info publiée${r.prevenus ? ` · ${r.prevenus} téléphone${r.prevenus > 1 ? "s" : ""} prévenu${r.prevenus > 1 ? "s" : ""}` : ""}. L'appli l'affiche à sa prochaine mise à jour.`); infoForm(null); loadInfos(); }
+  catch (e) { flash(e.message, true); }
+};
+function popForm(x) {
+  const n = Date.now();
+  $("p-id").value = x ? x.id : ""; $("p-t").value = x ? x.t : ""; $("p-txt").value = x ? x.txt || "" : "";
+  $("p-btn").value = x ? x.btn || "" : ""; $("p-lien").value = x ? x.lien || "" : "";
+  $("p-deb").value = toLocal(x ? x.debut : n); $("p-fin").value = toLocal(x ? x.fin : n + 7 * 864e5);
+  $("p-save").textContent = x ? "Enregistrer" : "Publier"; popPrev();
+}
+function popPrev() {
+  $("pp-t").textContent = $("p-t").value || "Titre"; $("pp-x").textContent = $("p-txt").value;
+  const b = $("p-btn").value.trim(), l = $("p-lien").value; $("pp-b").hidden = !(b && l); $("pp-b").textContent = b;
+}
+["p-t", "p-txt", "p-btn", "p-lien"].forEach((k) => $(k).addEventListener("input", popPrev));
+function showPops(list) {
+  POPS = list; const now = Date.now();
+  $("p-list").innerHTML = list.length ? list.map((x) => { const on = x.fin > now, fut = x.debut > now;
+    return `<div class="it${on ? "" : " off"}"><div class="w"><b>${esc(x.t)}</b><small>${fut ? "Commence " : on ? "En cours, depuis " : "Terminé · "}${esc(quand(x.debut))} → ${esc(quand(x.fin))}</small></div>
+      <div class="acts"><button class="plain" data-pedit="${x.id}">Modifier</button>${on ? `<button class="plain" data-pfin="${x.id}">Terminer</button>` : ""}<button class="plain" data-pdel="${x.id}">Supprimer</button></div></div>`; }).join("") : `<p class="sub" style="margin:0">Aucun pop-up.</p>`;
+  $("p-list").querySelectorAll("[data-pedit]").forEach((b) => b.onclick = () => { popForm(POPS.find((x) => x.id === +b.dataset.pedit)); $("pops-card").scrollIntoView({ behavior: "smooth" }); });
+  $("p-list").querySelectorAll("[data-pfin]").forEach((b) => b.onclick = async () => { if (!confirm("Arrêter ce pop-up maintenant ?")) return; try { await call("popupFin", { id: +b.dataset.pfin }); flash("Pop-up arrêté."); loadPops(); } catch (e) { flash(e.message, true); } });
+  $("p-list").querySelectorAll("[data-pdel]").forEach((b) => b.onclick = async () => { if (!confirm("Supprimer ce pop-up ?")) return; try { await call("popupDel", { id: +b.dataset.pdel }); flash("Pop-up supprimé."); loadPops(); } catch (e) { flash(e.message, true); } });
+}
+async function loadPops() { try { showPops((await call("popups")).popups); } catch (e) {} }
+$("p-new").onclick = () => popForm(null);
+$("p-save").onclick = async () => {
+  const id = +$("p-id").value || 0, lien = $("p-lien").value;
+  const popup = { id, t: $("p-t").value.trim(), txt: $("p-txt").value.trim(), btn: lien ? $("p-btn").value.trim() || "Voir" : "", lien, debut: fromLocal($("p-deb").value), fin: fromLocal($("p-fin").value) };
+  if (!popup.t) return flash("Il faut un titre.", true);
+  if (!confirm(`${id ? "Enregistrer" : "Publier"} le pop-up « ${popup.t} » ?`)) return;
+  try { await call("popupSave", { popup }); flash(id ? "Pop-up modifié : il s'affichera de nouveau sur chaque téléphone." : "Pop-up publié."); popForm(null); loadPops(); }
+  catch (e) { flash(e.message, true); }
+};
+infoForm(null); popForm(null); loadLines();
+
 // ---------- chargement ----------
 async function load(quiet) {
   try {
     const [e, j, s, er] = await Promise.all([call("etat"), call("envois"), call("stats"), call("erreurs")]);
     showEtat(e); showEnvois(j.envois); showStats(s.stats); showErrs(er.erreurs);
+    if (!load.n53) { load.n53 = 1; loadInfos(); loadPops(); }
     return true;
   } catch (err) {
     if (err.code === 401 || err.code === 429) { gate(err.message); return false; }

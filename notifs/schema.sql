@@ -14,3 +14,6 @@ CREATE TABLE IF NOT EXISTS recus (envoi INTEGER NOT NULL, sub TEXT NOT NULL, at 
 CREATE INDEX IF NOT EXISTS recus_envoi ON recus(envoi);
 -- #45 : erreurs relevées dans l'appli (une ligne par erreur distincte, page admin/)
 CREATE TABLE IF NOT EXISTS erreurs (sig TEXT PRIMARY KEY, msg TEXT, src TEXT, stack TEXT, vue TEXT, app TEXT, ua TEXT, n INTEGER DEFAULT 1, tels TEXT, first INTEGER, last INTEGER);
+-- #53 : infos trafic ajoutées à la main et pop-ups à l'ouverture (page admin/)
+CREATE TABLE IF NOT EXISTS infos_main (id INTEGER PRIMARY KEY AUTOINCREMENT, t TEXT, txt TEXT, lines TEXT, niv TEXT, rt INTEGER DEFAULT 0, debut INTEGER, fin INTEGER, cree INTEGER, maj INTEGER);
+CREATE TABLE IF NOT EXISTS popups (id INTEGER PRIMARY KEY AUTOINCREMENT, t TEXT, txt TEXT, btn TEXT, lien TEXT, debut INTEGER, fin INTEGER, cree INTEGER, maj INTEGER);

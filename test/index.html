@@ -333,6 +333,7 @@ table.tt th.na { color: var(--na); }
 .trlv4 { --tlc: #8b9099; } /* #71 : travaux à venir */
 .sharebtn { margin: -4px 0 12px; width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px; } /* #57 */
 #fo-share { display: inline-flex; align-items: center; gap: 6px; }
+#updpop .up-dots[hidden] { display: none; }
 .trhint { margin: 8px 2px 0; font-size: 12.5px; color: var(--muted); } /* #47 */
 .tritem .body p { margin: 0 0 8px; } .tritem .body .trsmall { font-size: 12.5px; color: var(--muted); }
 /* encadré détaché du logo (sinon les deux couleurs se touchent et se mélangent) + mini picto d'état */
@@ -3273,7 +3274,7 @@ function trDays(x) {
   return (x._d = [...new Set(out)].sort());
 }
 const trPast = (x) => { const d = trDays(x), t = parisNow().iso; return d.length > 0 && !d.some((v) => v >= t); };
-const trActive = () => { const t = parisNow().iso; return TR.items.filter((x) => (!x.end || x.end >= t) && !trPast(x)); };
+const trActive = () => { const t = parisNow().iso, n = Date.now(); return TR.items.filter((x) => (x.until ? x.until > n : (!x.end || x.end >= t) && !trPast(x))); }; // x.until : info ajoutée dans admin/ (#53), à la minute
 // info qui revient un jour de la semaine (« tous les dimanches jusqu'à 15h00 » : marchés) : perturbation ce jour-là seulement
 const TR_DAYS = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
 function trRecur(x) {
@@ -3290,6 +3291,7 @@ const TR_INFO = /nouvel(le)?s? arret|nouveaux arrets|sont (desormais )?desservis
 // d'abord, et ne retombe sur ses propres mots-clés que pour un fichier sans classement.
 const trInfo = (x) => { if (x.c) return x.c.nat === "info"; const t = trText(x); return TR_INFO.test(t) && !TR_GENE.test(t); };
 const trStatus = (x) => {
+  if (x.until) return x.from > Date.now() ? "soon" : trInfo(x) ? "info" : "now"; // #53 : info ajoutée dans admin/, heures exactes
   const t = parisNow().iso, d = trDays(x); // #47 : journées citées par l'info
   if (d.length && !d.includes(t)) return "soon"; // elle vise d'autres jours (les jours passés sont déjà écartés)
   if (x.start && x.start > t) return "soon";
@@ -3610,12 +3612,36 @@ function trCancel() {
   }
 }
 const isNA = (pi, k, dk) => { const p = net.pats[pi]; return !!(p && p.na && p.na.has(k + ":" + dk)); };
+// #53 : infos trafic ajoutées dans la page admin et pop-ups à l'ouverture (service d'alertes, /extra)
+TR.extra = [];
+let EXTRA_POPS = [];
+async function loadExtra() {
+  try {
+    const u = await pushBase(); if (!u) return;
+    const r = await fetch(u + "/extra", { cache: "no-cache" }); if (!r.ok) return;
+    const d = await r.json(); TR.extra = (d.infos || []).filter((x) => x && x.id && Array.isArray(x.lines)); EXTRA_POPS = d.popups || [];
+    setTimeout(extraPop, 1200);
+  } catch (e) {}
+}
+// pop-up à l'ouverture : une seule fois par téléphone (modifier le texte dans admin/ la remontre), jamais par-dessus une autre fenêtre
+function extraPop() {
+  if (SIMU && !/[?&]pop=1/.test(location.search)) return;
+  const seen = store.get("popSeen") || [], x = EXTRA_POPS.find((p) => !seen.includes(p.id));
+  if (!x || ($("#updpop") && $("#updpop").classList.contains("on")) || document.querySelector(".nightpop.on, #nightpop.on")) return;
+  store.set("popSeen", [...seen, x.id].slice(-50));
+  const body = x.txt.split(/\n+/).filter((l) => l.trim()).map((l) => `<p>${esc(l)}</p>`).join("") + (x.btn && x.lien ? `<p><button type="button" class="btn primary" data-poplien="${esc(x.lien)}" style="margin-top:6px">${esc(x.btn)}</button></p>` : "");
+  updPop([{ ico: icoSvg('<path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/>'), t: esc(x.t), b: body }], { kicker: "Information", label: x.t, last: "Fermer", onClose: () => {} });
+  const b = document.querySelector("#updpop [data-poplien]");
+  if (b) b.onclick = () => { $("#updpop").classList.remove("on"); const l = b.dataset.poplien; if (l.startsWith("#")) go(l.slice(1)); else location.href = l; };
+}
 async function loadTrafic() {
   try {
     const r = await fetch("../info-trafic.json?v=" + Math.floor(Date.now() / 60000), { cache: "no-cache" });
     if (!r.ok) throw new Error("HTTP " + r.status);
-    const d = await r.json(); TR.items = d.items || []; TR.at = d.at || null; TR.src = d.src || ""; TR.ok = true;
+    const d = await r.json(); TR.base = d.items || []; TR.at = d.at || null; TR.src = d.src || ""; TR.ok = true;
   } catch (e) { /* page hébergée ailleurs (claude.ai) ou fichier absent : on garde l'état précédent */ }
+  await loadExtra();
+  TR.items = [...(TR.base || []), ...(TR.extra || [])];
   trStMap(); trCancel(); trIndex(); buildGrid();
   if (S.view === "trafic") renderTrafic(); else rerender();
 }

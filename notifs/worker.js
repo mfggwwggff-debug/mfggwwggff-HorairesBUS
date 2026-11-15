@@ -267,6 +267,21 @@ async function rtSante(env, now) {
   await env.DB.batch(st);
 }
 
+// ---------- #53 : infos trafic ajoutées à la main ----------
+// Même forme que les infos relevées sur le site (info-trafic.json) : l'appli les traite pareil, sans mention à part.
+const NIV = { info: [0, "aucune", "info", false], deviation: [1, "deviation", "perturbation", true], genant: [2, "genant", "perturbation", true], bloquant: [3, "bloquant", "perturbation", true] };
+const parisDay = (ms) => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Paris", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(ms));
+const parisTxt = (ms) => new Intl.DateTimeFormat("fr-FR", { timeZone: "Europe/Paris", weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }).format(new Date(ms)).replace(":", " h ").replace(/ h 00$/, " h");
+function infoItem(x) {
+  const n = NIV[x.niv] || NIV.genant, lines = (x.lines || "").split(" ").filter(Boolean);
+  const hh = (ms) => parisTxt(ms).replace(/^.* à /, ""), jour = (ms) => parisTxt(ms).replace(/ à .*$/, "");
+  const per = parisDay(x.debut) === parisDay(x.fin) ? `${jour(x.debut).replace(/^./, (c) => c.toUpperCase())}, de ${hh(x.debut)} à ${hh(x.fin)}` : `Du ${parisTxt(x.debut)} au ${parisTxt(x.fin)}`;
+  return { id: "m" + x.id, t: x.t, lines, p: per, start: parisDay(x.debut), end: parisDay(x.fin), from: x.debut, until: x.fin,
+    rt: !!x.rt, sec: x.rt ? "temps réel" : "par ligne", since: parisDay(x.cree),
+    c: { effets: [], grav: n[1], niv: n[0], pastille: n[3], nat: n[2], cond: false, portee: lines.length > 1 ? "lignes" : lines.length ? "ligne" : "reseau", sur: true },
+    b: (x.txt || "").split(/\n+/).filter((l) => l.trim()).map((l) => ({ l: "", r: [[l.trim(), 0]] })) };
+}
+
 // ---------- #40 : outil d'envoi (page admin/) ----------
 const KIND_MAX = 40;         // envois immédiats par requête (offre gratuite : 50 requêtes sortantes)
 const ADM = new Map();       // essais ratés par adresse (mémoire de l'isolat)
@@ -305,6 +320,48 @@ async function admin(req, env, b, now) {
     return json({ ok: true, phones, jobs: jobs.n, habits: habits.n, traficAt: tr ? +tr.v : 0, rt, rtSub, now });
   }
 
+  // #53 : infos ajoutées à la main
+  if (op === "infos") return json({ ok: true, infos: ((await env.DB.prepare("SELECT * FROM infos_main ORDER BY fin < ?, debut DESC LIMIT 100").bind(now).all()).results || []) });
+  if (op === "infoSave") {
+    const i = b.info || {}, t = clip(i.t, 120), debut = Math.round(+i.debut) || now, fin = Math.round(+i.fin) || 0;
+    if (!t) return json({ error: "Il faut un titre." }, 400);
+    if (!(fin > debut)) return json({ error: "La fin doit être après le début." }, 400);
+    if (!NIV[i.niv]) return json({ error: "Gravité inconnue." }, 400);
+    const lines = (Array.isArray(i.lines) ? i.lines : []).map((l) => clip(l, 8)).filter(Boolean).slice(0, 30).join(" ");
+    let id = Math.round(+i.id) || 0;
+    if (id) await env.DB.prepare("UPDATE infos_main SET t = ?, txt = ?, lines = ?, niv = ?, rt = ?, debut = ?, fin = ?, maj = ? WHERE id = ?").bind(t, clip(i.txt, 1500), lines, i.niv, i.rt ? 1 : 0, debut, fin, now, id).run();
+    else { const r = await env.DB.prepare("INSERT INTO infos_main (t, txt, lines, niv, rt, debut, fin, cree, maj) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)").bind(t, clip(i.txt, 1500), lines, i.niv, i.rt ? 1 : 0, debut, fin, now, now).run(); id = r.meta.last_row_id; }
+    // prévenir les abonnés « perturbation sur mes lignes », comme pour une info du site (nouvelle info seulement)
+    let prev = 0;
+    if (b.prevenir && !i.id && i.niv !== "info") {
+      const ls = lines.split(" ").filter(Boolean), item = infoItem({ id, t, lines, niv: i.niv, debut, fin, cree: now, txt: "" });
+      const subs = (await env.DB.prepare("SELECT id, prefs FROM subs").all()).results || [], st = [];
+      for (const s2 of subs) {
+        const p = JSON.parse(s2.prefs || "{}"); if (!p.trafic) continue;
+        if (!(p.scope === "all" || !ls.length || ls.some((l) => (p.lines || []).includes(l)))) continue;
+        const m = { title: "Info trafic" + (ls.length ? " · " + ls.slice(0, 4).join(", ") : " · tout le réseau"), body: t, url: "./?o=tr:" + item.id + "#trafic", tag: "tr" };
+        st.push(env.DB.prepare("INSERT INTO jobs (sub, kind, at, msg) VALUES (?, 'trafic', ?, ?)").bind(s2.id, Math.max(debut, quietUntil(p, now) || now), JSON.stringify(m))); prev++;
+      }
+      if (st.length) await env.DB.batch(st);
+    }
+    return json({ ok: true, id, prevenus: prev });
+  }
+  if (op === "infoFin") { await env.DB.prepare("UPDATE infos_main SET fin = ?, maj = ? WHERE id = ? AND fin > ?").bind(now, now, Math.round(+b.id) || 0, now).run(); return json({ ok: true }); }
+  if (op === "infoDel") { await env.DB.prepare("DELETE FROM infos_main WHERE id = ?").bind(Math.round(+b.id) || 0).run(); return json({ ok: true }); }
+  // #53 : pop-ups à l'ouverture (une fois par téléphone, entre deux dates ; modifier le texte la remontre)
+  if (op === "popups") return json({ ok: true, popups: ((await env.DB.prepare("SELECT * FROM popups ORDER BY fin < ?, debut DESC LIMIT 100").bind(now).all()).results || []) });
+  if (op === "popupSave") {
+    const i = b.popup || {}, t = clip(i.t, 80), debut = Math.round(+i.debut) || now, fin = Math.round(+i.fin) || 0;
+    if (!t) return json({ error: "Il faut un titre." }, 400);
+    if (!(fin > debut)) return json({ error: "La fin doit être après le début." }, 400);
+    const lien = clip(i.lien, 200); if (lien && !/^(\.\/|#)/.test(lien)) return json({ error: "Le bouton ne peut ouvrir qu'une page de l'appli." }, 400);
+    let id = Math.round(+i.id) || 0;
+    if (id) await env.DB.prepare("UPDATE popups SET t = ?, txt = ?, btn = ?, lien = ?, debut = ?, fin = ?, maj = ? WHERE id = ?").bind(t, clip(i.txt, 600), clip(i.btn, 40), lien, debut, fin, now, id).run();
+    else { const r = await env.DB.prepare("INSERT INTO popups (t, txt, btn, lien, debut, fin, cree, maj) VALUES (?, ?, ?, ?, ?, ?, ?, ?)").bind(t, clip(i.txt, 600), clip(i.btn, 40), lien, debut, fin, now, now).run(); id = r.meta.last_row_id; }
+    return json({ ok: true, id });
+  }
+  if (op === "popupFin") { await env.DB.prepare("UPDATE popups SET fin = ? WHERE id = ? AND fin > ?").bind(now, Math.round(+b.id) || 0, now).run(); return json({ ok: true }); }
+  if (op === "popupDel") { await env.DB.prepare("DELETE FROM popups WHERE id = ?").bind(Math.round(+b.id) || 0).run(); return json({ ok: true }); }
   if (op === "erreurs") { // #45
     const { results } = await env.DB.prepare("SELECT * FROM erreurs ORDER BY last DESC LIMIT 100").all();
     return json({ ok: true, erreurs: results.map((e) => Object.assign(e, { tels: e.tels ? e.tels.split(" ").length : 0 })) });
@@ -389,6 +446,15 @@ async function handle(req, env) {
   const url = new URL(req.url), path = url.pathname.replace(/\/+$/, "") || "/";
   if (req.method === "GET" && path === "/cle") return json({ key: (await vapid(env)).pub });
   if (req.method === "GET" && path === "/") return json({ ok: true, service: "alertes Horaires Grand Reims" });
+  // #53 : infos trafic ajoutées à la main et pop-ups en cours, lus par l'appli à l'ouverture
+  if (req.method === "GET" && path === "/extra") {
+    const now = Date.now();
+    const [inf, pop] = await Promise.all([
+      env.DB.prepare("SELECT * FROM infos_main WHERE fin > ? ORDER BY debut").bind(now).all(),
+      env.DB.prepare("SELECT * FROM popups WHERE debut <= ? AND fin > ? ORDER BY debut").bind(now, now).all()]);
+    const r = json({ ok: true, at: now, infos: (inf.results || []).map(infoItem), popups: (pop.results || []).map((x) => ({ id: "p" + x.id + "-" + x.maj, t: x.t, txt: x.txt, btn: x.btn || "", lien: x.lien || "" })) });
+    const h = new Headers(r.headers); h.set("Cache-Control", "public, max-age=30"); return new Response(r.body, { status: 200, headers: h });
+  }
   if (req.method !== "POST") return json({ error: "méthode" }, 405);
   const raw = await req.text(); if (raw.length > 200000) return json({ error: "trop gros" }, 413);
   let b; try { b = JSON.parse(raw); } catch { return json({ error: "json" }, 400); }
@@ -620,6 +686,7 @@ export default {
       await env.DB.batch([
         env.DB.prepare("DELETE FROM recus WHERE envoi IN (SELECT id FROM envois WHERE at < ?)").bind(cut),
         env.DB.prepare("DELETE FROM erreurs WHERE last < ?").bind(cut), // #45
+        env.DB.prepare("DELETE FROM infos_main WHERE fin < ?").bind(cut), env.DB.prepare("DELETE FROM popups WHERE fin < ?").bind(cut), // #53
         env.DB.prepare("DELETE FROM envois WHERE at < ?").bind(cut),
       ]);
     }
