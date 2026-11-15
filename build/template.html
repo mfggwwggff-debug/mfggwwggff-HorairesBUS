@@ -323,6 +323,9 @@ table.tt th.na { color: var(--na); }
 .trlv1 { --tlc: #c99400; } /* #48 : jaune plus soutenu, lisible sur fond clair */
 .trlv2 { --tlc: var(--alert); }
 .trlv3 { --tlc: var(--na); }
+.trlv4 { --tlc: #8b9099; } /* #71 : travaux à venir */
+.trhint { margin: 8px 2px 0; font-size: 12.5px; color: var(--muted); } /* #47 */
+.tritem .body p { margin: 0 0 8px; } .tritem .body .trsmall { font-size: 12.5px; color: var(--muted); }
 /* encadré détaché du logo (sinon les deux couleurs se touchent et se mélangent) + mini picto d'état */
 .lgrid button.trlv { position: relative; padding: 3px; border: 2.5px solid var(--tlc); border-radius: 11.5px; background: var(--surface); }
 .trp { position: absolute; right: -8px; bottom: -8px; width: 16px; height: 16px; border-radius: 5px; background: var(--tlc); color: #fff; box-shadow: 0 0 0 2px var(--surface); display: grid; place-items: center; }
@@ -2616,7 +2619,7 @@ function mbCenter(st, instant) {
   clearTimeout(MB.progT); MB.progT = setTimeout(() => { MB.progScroll = false; }, 800);
 }
 // plein écran de Mon bus : en tirant le panneau tout en haut, le plan, l'en-tête et les onglets s'effacent
-if (/[?&]simu=/.test(location.search)) window.__t = { startFollow: (...a) => startFollow(...a), tripState: (...a) => tripState(...a), setSheet: (x) => setSheet(x), todayIdx: () => todayIdx(), net: () => net, MB, shape: (pi) => shapeOfPat[pi], BOARD, ME, onPat: userOnPat, popStop: (i) => { const p = net.P[i]; const [sx, sy] = toS(PX(p[2]), PY(p[1])); clickMap(sx, sy); return [sx, sy]; }, openPa: (i) => openPassages(i), pName: (i) => pName(i), go: (v) => go(v) , showInBus: (c, dk) => showInBus(c, dk), a28: (pi, i) => openA28(coAt(pi, i)), coAt: (pi, i) => coAt(pi, i), startGuide: (j, to) => startGuide(j, to), A28, plan: (a, b, d, t, n) => planDepart(net, a, b, d, t, n), findStop: (s) => findStop(s), dayIdx: (iso) => net.dayIndex(iso), deps: (p, d, t, h) => departures(net, p, d, t, h), lineDirs: (p) => [...stopLineDirs(net, p).values()].map((G) => ({ r: net.R[G.r].s, ri: G.r, h: G.h, dir: G.dir })), vehicles: () => vehicles(), runTimes: (pi, k, dk) => runTimes(pi, k, dk), habitJobs: () => habitJobs(), lieuxFind: (q) => lieuxFind(q), lieuxLoad: (cb) => lieuxLoad(cb), LIEUX, segProfile: (a, b) => segProfile(a, b), segAt: (a, b, c) => segAt(a, b, c), patGeo: (a) => patGeo(a), rtHold: (...a) => rtHold(...a), tripState: (...a) => tripState(...a) };
+if (/[?&]simu=/.test(location.search)) window.__t = { startFollow: (...a) => startFollow(...a), tripState: (...a) => tripState(...a), setSheet: (x) => setSheet(x), todayIdx: () => todayIdx(), net: () => net, MB, shape: (pi) => shapeOfPat[pi], BOARD, ME, onPat: userOnPat, popStop: (i) => { const p = net.P[i]; const [sx, sy] = toS(PX(p[2]), PY(p[1])); clickMap(sx, sy); return [sx, sy]; }, openPa: (i) => openPassages(i), pName: (i) => pName(i), go: (v) => go(v) , showInBus: (c, dk) => showInBus(c, dk), a28: (pi, i) => openA28(coAt(pi, i)), coAt: (pi, i) => coAt(pi, i), startGuide: (j, to) => startGuide(j, to), A28, plan: (a, b, d, t, n) => planDepart(net, a, b, d, t, n), findStop: (s) => findStop(s), dayIdx: (iso) => net.dayIndex(iso), deps: (p, d, t, h) => departures(net, p, d, t, h), lineDirs: (p) => [...stopLineDirs(net, p).values()].map((G) => ({ r: net.R[G.r].s, ri: G.r, h: G.h, dir: G.dir })), vehicles: () => vehicles(), runTimes: (pi, k, dk) => runTimes(pi, k, dk), habitJobs: () => habitJobs(), lieuxFind: (q) => lieuxFind(q), lieuxLoad: (cb) => lieuxLoad(cb), LIEUX, segProfile: (a, b) => segProfile(a, b), segAt: (a, b, c) => segAt(a, b, c), patGeo: (a) => patGeo(a), trAuto: () => { trAutoDelays(); return [...TR.auto]; }, TR, trIndex: () => trIndex(), subOn: (d) => subOn(d), rtHold: (...a) => rtHold(...a), tripState: (...a) => tripState(...a) };
 function updMbFull() { document.body.classList.toggle("mbfull", feat("plein") && isMobile() && S.view === "suivi" && sheetState === "full"); }
 
 const renderFollowBg = () => renderFollow();
@@ -2804,12 +2807,14 @@ function trNetwork(x) {
 const TR_ROUGE = /interrompue?|interruption|suspendue?|ne circule (plus|pas)|ne circulent (plus|pas)|ligne (fermee|coupee)|service (arrete|annule)/;
 const TR_ORANGE = /non assure|pas assure|supprime|bloque|fige|forte perturbation|perturbation sur les horaires|retard|accident|incident|manifestation|greve|neige|verglas|intemperie/;
 const TR_JAUNE = /devi|non desservi|pas desservi|report|deplace|travaux|nouvel(le)?s? arret|transfer/;
-const TR_NIV = ["Trafic normal", "Déviation en cours", "Perturbation gênante", "Ligne interrompue"];
+const TR_NIV = ["Trafic normal", "Déviation en cours", "Perturbation gênante", "Ligne interrompue", "Travaux à venir"]; // 4 : #71
 // mini picto dans le coin de l'encadré (rien quand tout va bien) : plot de chantier, « ! », « × »
 const TR_PICTO = ["",
   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M10.2 4h3.6L18.5 19.5h-13z"/><path d="M3.5 20.8h17"/></svg>`,
   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 5v8.2"/><path d="M12 18.4h.01"/></svg>`,
-  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"><path d="M6.6 6.6 17.4 17.4M17.4 6.6 6.6 17.4"/></svg>`];
+  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"><path d="M6.6 6.6 17.4 17.4M17.4 6.6 6.6 17.4"/></svg>`,
+  // #71 : travaux à venir, plot de chantier (encadré gris)
+  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M10.2 4h3.6L18.5 19.5h-13z"/><path d="M8.3 10.5h7.4M6.9 15h10.2"/><path d="M3.5 20.8h17"/></svg>`];
 function trLevel(x) {
   const t = trText(x);
   if (TR_ROUGE.test(t)) return 3;
@@ -2817,13 +2822,37 @@ function trLevel(x) {
   if (TR_JAUNE.test(t)) return 1;
   return 1; // info en cours sans mot-clé reconnu : au moins une gêne légère
 }
+// #49 : ligne repérée perturbée par l'appli : au moins 2 courses en route avec 6 min de retard ou plus, soit au moins
+// 40 % des courses de la ligne suivies en temps réel. Gardée 5 min après la fin des retards (pas de clignotement).
+const AUTO_RET = 6, AUTO_N = 2, AUTO_PART = 0.4, AUTO_GARDE = 5 * 60000;
+TR.auto = new Map(); // ligne → { n, tot, max, at }
+function trAutoDelays() {
+  const now = Date.now(), seen = new Map(), t = nowMinF();
+  if (net.liveDay >= 0) for (const p of net.pats) if (p.live && p.dly) for (let k = 0; k < p.nT; k++) {
+    if (!p.live[k]) continue;
+    const o = k * p.nS; if (p.LDf[o] > t + 1 || p.LAf[o + p.nS - 1] < t - 1) continue; // course en route
+    const s = seen.get(p.r) || { n: 0, tot: 0, max: 0 }; s.tot++;
+    if (p.dly[k] >= AUTO_RET) { s.n++; s.max = Math.max(s.max, p.dly[k]); }
+    seen.set(p.r, s);
+  }
+  let changed = false;
+  for (const [ri, s] of seen) if (s.n >= AUTO_N && s.n / s.tot >= AUTO_PART) { if (!TR.auto.has(ri)) changed = true; TR.auto.set(ri, Object.assign(s, { at: now })); }
+  for (const [ri, s] of TR.auto) if (now - s.at > AUTO_GARDE) { TR.auto.delete(ri); changed = true; }
+  if (changed && TR.ok) trIndex();
+}
 function trIndex() {
   TR.byRoute = new Map(); TR.alert = new Set(); TR.lvl = new Map();
-  const up = (ri, n) => TR.lvl.set(ri, Math.max(n, TR.lvl.get(ri) || 0));
+  const up = (ri, n) => TR.lvl.set(ri, Math.max(n, TR.lvl.get(ri) === 4 ? 0 : TR.lvl.get(ri) || 0));
   trActive().forEach((x) => { if (trStatus(x) !== "now") return; const g = trGene(x), n = trLevel(x); trRoutes(x).forEach((ri) => { if (!TR.byRoute.has(ri)) TR.byRoute.set(ri, []); TR.byRoute.get(ri).push(x); if (g) TR.alert.add(ri); up(ri, n); }); });
   // départs supprimés aujourd'hui (#24 / #43) : on le sait exactement, c'est au moins orange
   const dk = net.dayIndex(parisNow().iso);
   if (dk >= 0) for (const p of net.pats) if (p.na) { for (const k of p.na) if (+k.split(":")[1] === dk) { up(p.r, 2); break; } }
+  // #50 : SUB déployée aujourd'hui → le tram est interrompu
+  if (dk >= 0 && subOn(dk)) net.R.forEach((r, ri) => { if (r.m === 1) { up(ri, 3); TR.alert.add(ri); } });
+  // #49 : retards détectés par l'appli sur le temps réel
+  for (const [ri] of TR.auto) { up(ri, 2); TR.alert.add(ri); }
+  // #71 : rien aujourd'hui mais des travaux annoncés : encadré gris
+  trActive().forEach((x) => { if (trStatus(x) === "soon" && !trInfo(x)) trRoutes(x).forEach((ri) => { if (!TR.lvl.has(ri)) TR.lvl.set(ri, 4); }); });
   trBang(); trNetCheck(); subBarCheck(); alertMyLines();
 }
 // #11 « Perturbation sur mes lignes » : prévenu une fois par info, appli ouverte
@@ -3485,25 +3514,41 @@ function renderTrafic() {
     res.innerHTML = `<div class="empty">${/claude/.test(location.hostname) ? "L'info trafic ne peut pas être chargée dans cette page hébergée sur claude.ai. Elle fonctionne sur la version GitHub." : "Info trafic indisponible pour le moment."}</div>`;
     $("#tr-src").innerHTML = "";
   } else {
-    const act = trActive(), f = TR.filter;
-    const lines = [...new Set(act.flatMap(trRoutes))].sort((a, b) => myFirst(b) - myFirst(a) || a - b);
-    h += `<div class="trf" role="group" aria-label="Filtrer par ligne" style="margin-top:12px"><button type="button" data-f="" aria-pressed="${!f}">Toutes</button>${lines.map((r) => `<button type="button" data-f="${r}" aria-pressed="${!!f && f.length === 1 && f[0] === r}" aria-label="Ligne ${esc(net.R[r].s)}">${badgeLv(r, "sm")}</button>`).join("")}</div>`;
+    const act = trActive();
+    // #47 : plus de liste « par ligne » : les pastilles des lignes touchées (les plus graves d'abord) ; toucher une
+    // pastille ouvre le détail de la ligne (travaux, infos) ; sans ligne choisie, seulement ce qui se passe en ce moment
+    const dk = net.dayIndex(parisNow().iso), subToday = dk >= 0 && subOn(dk);
+    if (TR.open && !TR.filter) { const x = TR.items.find((y) => y.id === TR.open); if (x && !(trRT(x) && trStatus(x) === "now") && trRoutes(x).length) TR.filter = [trRoutes(x)[0]]; }
+    const f = TR.filter;
+    const sev = (r) => [0, 3, 4, 5, 1][lineLv(r)] ?? 0; // interrompue, gênante, déviation, puis travaux à venir
+    const lines = [...new Set([...act.flatMap(trRoutes), ...TR.auto.keys(), ...(subToday ? net.R.map((r, i) => r.m === 1 ? i : -1).filter((i) => i >= 0) : [])])]
+      .sort((a, b) => myFirst(b) - myFirst(a) || sev(b) - sev(a) || a - b);
+    h += lines.length ? `<div class="trf" role="group" aria-label="Lignes touchées" style="margin-top:12px">${lines.map((r) => `<button type="button" data-f="${r}" aria-pressed="${!!f && f.length === 1 && f[0] === r}" aria-label="Ligne ${esc(net.R[r].s)}">${badgeLv(r, "sm")}</button>`).join("")}</div>`
+      + `<p class="trhint">${f ? "Touchez à nouveau la ligne pour revenir à tout le réseau." : "Touchez une ligne pour voir ses perturbations et ses travaux à venir."}</p>` : "";
     head.innerHTML = h;
     const onMy = (x) => trRoutes(x).some(myFirst);
-    const list = (f ? act.filter((x) => trRoutes(x).some((r) => f.includes(r))) : act).slice().sort((a, b) => onMy(b) - onMy(a) || (trStatus(a) === "soon") - (trStatus(b) === "soon"));
+    const inF = (rs) => !f || rs.some((r) => f.includes(r));
+    const list = act.filter((x) => inF(trRoutes(x))).sort((a, b) => onMy(b) - onMy(a) || (trStatus(a) === "soon") - (trStatus(b) === "soon"));
     const isInfo = (x) => ["info", "recur"].includes(trStatus(x));
     const live = list.filter((x) => trRT(x) && trStatus(x) === "now"), infos = list.filter((x) => !live.includes(x) && isInfo(x)), byLine = list.filter((x) => !live.includes(x) && !isInfo(x));
-    res.innerHTML = `<div class="trsec"><span class="live" aria-hidden="true"></span><h3>Temps réel</h3><small>${live.length ? live.length + " en cours" : "rien à signaler"}</small></div>`
-      + (live.length ? live.map(trItem).join("") : `<div class="empty" style="padding:6px 4px">Aucune perturbation en direct${f ? " sur cette ligne" : ""}.</div>`)
-      + `<div class="trsec" style="margin-top:10px"><h3>Par ligne</h3><small>${byLine.length} perturbation${byLine.length > 1 ? "s" : ""}</small></div>`
-      + (byLine.length ? byLine.map(trItem).join("") : `<div class="empty" style="padding:6px 4px">Aucune perturbation annoncée${f ? " sur cette ligne" : ""}.</div>`)
-      + (infos.length ? `<div class="trsec" style="margin-top:10px"><h3>Infos</h3><small>nouveaux arrêts, marchés…</small></div>` + infos.map(trItem).join("") : "");
+    // cartes ajoutées par l'appli : #50 tram remplacé par la SUB, #49 retards repérés sur le temps réel
+    const extra = [];
+    if (subToday && inF(net.R.map((r, i) => r.m === 1 ? i : -1).filter((i) => i >= 0))) extra.push(`<details class="tritem trlive" data-x="sub"><summary><span class="tt2">Tram interrompu : bus de substitution (SUB)</span><svg class="chev" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 5 4 4 4-4"/></svg><span class="bs"><span class="tag live">En direct</span>${net.R.map((r, i) => r.m === 1 ? badge(i, "sm", true) : "").join("")}</span></summary><div class="body"><p>Aujourd'hui, le tram ne circule pas : il est remplacé par des bus (ligne SUB), qui ne s'arrêtent pas à toutes les stations.</p><button type="button" class="linkbtn" data-subline>Où prendre la SUB ${chevR}</button></div></details>`);
+    for (const [ri, a] of TR.auto) if (inF([ri])) extra.push(`<details class="tritem trlive" data-x="auto${ri}"><summary><span class="tt2">${esc(net.R[ri].s)} : retards importants</span><svg class="chev" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 5 4 4 4-4"/></svg><span class="bs"><span class="tag live">En direct</span>${badge(ri, "sm", true)}</span></summary><div class="body"><p>${a.n} ${modeOf(ri) === "tram" ? "trams" : "bus"} sur ${a.tot} en route ont ${AUTO_RET} min de retard ou plus (jusqu'à ${Math.round(a.max)} min).</p><p class="trsmall">Repéré par l'appli à partir du temps réel, ce n'est pas une info du réseau.</p></div></details>`);
+    const nLive = live.length + extra.length;
+    res.innerHTML = `<div class="trsec"><span class="live" aria-hidden="true"></span><h3>Temps réel</h3><small>${nLive ? nLive + " en cours" : "rien à signaler"}</small></div>`
+      + (nLive ? extra.join("") + live.map(trItem).join("") : `<div class="empty" style="padding:6px 4px">Aucune perturbation en direct${f ? " sur cette ligne" : ""}.</div>`)
+      + (f ? `<div class="trsec" style="margin-top:10px"><h3>${f.length === 1 ? "Ligne " + esc(net.R[f[0]].s) : "Ces lignes"}</h3><small>${byLine.length} perturbation${byLine.length > 1 ? "s" : ""} ou travaux</small></div>`
+        + (byLine.length ? byLine.map(trItem).join("") : `<div class="empty" style="padding:6px 4px">Pas d'autre perturbation annoncée.</div>`)
+        + (infos.length ? `<div class="trsec" style="margin-top:10px"><h3>Infos</h3><small>nouveaux arrêts, marchés…</small></div>` + infos.map(trItem).join("") : "") : "");
     const at = TR.at ? new Date(TR.at).toLocaleString("fr-FR", { timeZone: "Europe/Paris", weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }) : "";
     $("#tr-src").innerHTML = `Source : <a href="${esc(TR.src || "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html")}" target="_blank" rel="noopener">grandreims-mobilites.fr</a>, relevée automatiquement toutes les 15 minutes environ.${at ? ` Dernier changement : ${esc(at)}.` : ""}`;
     if (TR.open) { const el = res.querySelector(`[data-id="${CSS.escape(TR.open)}"]`); if (el) setTimeout(() => el.scrollIntoView({ block: "nearest" }), 50); }
   }
-  head.querySelectorAll("[data-f]").forEach((b) => b.onclick = () => { TR.filter = b.dataset.f === "" ? null : [+b.dataset.f]; TR.open = null; renderTrafic(); if (TR.filter) fitLine(TR.filter[0]); else fitHome(); drawMap(); });
+  head.querySelectorAll("[data-f]").forEach((b) => b.onclick = () => { const r = +b.dataset.f; TR.filter = TR.filter && TR.filter.length === 1 && TR.filter[0] === r ? null : [r]; TR.open = null; renderTrafic(); if (TR.filter) fitLine(TR.filter[0]); else fitHome(); drawMap(); });
+  { const sb = res.querySelector("[data-subline]"); if (sb) sb.onclick = () => openLine(SUBR); }
   res.querySelectorAll("details").forEach((d) => d.addEventListener("toggle", () => {
+    if (d.dataset.x) return; // cartes ajoutées par l'appli
     if (d.open) { TR.open = d.dataset.id; const x = TR.items.find((y) => y.id === d.dataset.id); if (x && (trTargets(x) || trRoutes(x).length === 1)) trZoom(x, false); }
     else if (TR.open === d.dataset.id) { TR.open = null; if (TR.zoom && TR.zoom.id === d.dataset.id) { TR.zoom = null; drawMap(); } }
   }));
@@ -3634,6 +3679,7 @@ async function pollRT() {
     const today = todayIdx();
     if (today < 0 || today >= net.nd) throw new Error("date hors du fichier d'horaires");
     const st = applyRT(net, feed, today, parisMidnightEpoch);
+    try { trAutoDelays(); } catch (e) { errReport(e); }
     RT.ok = true; RT.at = Date.now(); RT.n = st.matched; RT.err = "";
     rtEl.title = `${st.matched} courses suivies en temps réel sur ${st.total} annoncées.`;
     rerender();

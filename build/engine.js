@@ -93,11 +93,12 @@ function applyRT(net, feed, liveDay, dayStartEpoch) {
       upd.set(i, [a ?? d, d ?? a]);
     }
     if (!upd.size) continue;
-    if (!p.LA) { p.LA = Int32Array.from(p.A); p.LD = Int32Array.from(p.D); p.LAf = Float64Array.from(p.A); p.LDf = Float64Array.from(p.D); p.live = new Uint8Array(p.nT); p.conf = new Int16Array(p.nT).fill(-1); }
+    if (!p.LA) { p.LA = Int32Array.from(p.A); p.LD = Int32Array.from(p.D); p.LAf = Float64Array.from(p.A); p.LDf = Float64Array.from(p.D); p.live = new Uint8Array(p.nT); p.conf = new Int16Array(p.nT).fill(-1); p.dly = new Float32Array(p.nT); }
     const first = Math.min(...upd.keys());
     // arrêts sans prévision : un seul retard propagé (celui du départ du dernier arrêt connu),
     // sinon un écart arrivée/départ à un arrêt de régulation se recopiait en attente fictive à chaque arrêt
     let delay = upd.get(first)[0] - p.A[k * p.nS + first];
+    p.dly[k] = delay; // #49 : retard au prochain arrêt annoncé
     let prev = -Infinity;
     for (let i = 0; i < p.nS; i++) {
       const o = k * p.nS + i;
