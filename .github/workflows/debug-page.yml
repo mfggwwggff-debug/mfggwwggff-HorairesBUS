@@ -2,7 +2,7 @@ name: Debug page info trafic
 on:
   push:
     branches: [debug-page-it]
-    paths: [".github/workflows/debug-page.yml"]
+    paths: [".github/workflows/debug-page.yml", "debug-geo.py"]
 permissions:
   contents: write
 jobs:
@@ -10,11 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Copie
+      - name: Geo
         run: |
-          UA="Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1"
-          curl -sS -A "$UA" -o d-1ja.html https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html
-          curl -sS -A "$UA" -o d-bpv.html https://www.grandreims-mobilites.fr/fr/BpV-Info-trafic.html
-          curl -sS -A "$UA" -o d-home.html https://www.grandreims-mobilites.fr/
+          python3 debug-geo.py
           git config user.name bot; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add d-*.html; git commit -m "pages"; git push
+          git add debug-geo.json; git commit -m "geo"; git push
