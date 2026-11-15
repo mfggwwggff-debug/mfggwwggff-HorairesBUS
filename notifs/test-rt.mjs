@@ -76,5 +76,18 @@ await adm("rtAlerte", { sub: "" });
 FLUX = ["1-x"]; for (const m of [40, 45, 50, 55]) await tick(m);
 ok("plus personne choisi : aucune alerte", sent.length === 2, sent);
 
+console.log("Erreurs de l'appli (#45)");
+const err = (m, id) => post("/err", { msg: m, src: "index.html:3:120", stack: "TypeError: " + m, vue: "suivi · O1", app: "2026-11-15 · 20261111", ua: "iPhone", anon: id });
+await err("Cannot read properties of undefined (reading 'has')", "t1"); await err("Cannot read properties of undefined (reading 'has')", "t2"); await err("Cannot read properties of undefined (reading 'has')", "t1");
+await err("x is not defined", "t1");
+let er = (await adm("erreurs")).erreurs;
+ok("deux erreurs distinctes", er.length === 2, er);
+const h = er.find((x) => /has/.test(x.msg));
+ok("la même erreur regroupée : 3 fois, 2 téléphones", h && h.n === 3 && h.tels === 2, h);
+ok("sans clé, la liste est refusée", (await (await post("/admin", { op: "erreurs" })).json()).error !== undefined);
+await adm("erreurOk", { sig: h.sig }); er = (await adm("erreurs")).erreurs;
+ok("« Réglée » efface la ligne", er.length === 1 && !/has/.test(er[0].msg), er);
+await adm("erreurOk", { tout: true }); ok("« Tout effacer »", (await adm("erreurs")).erreurs.length === 0);
+
 console.log(ko ? `\n${ko} essai(s) raté(s)` : "\nTout est passé");
 process.exit(ko ? 1 : 0);

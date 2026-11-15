@@ -2777,7 +2777,7 @@ window.addEventListener("resize", () => { const el = $("#a28"); if (el && el.cla
 function pd28Html(c) {
   if (!c) return "";
   const G = coGroups(c), yb = coYours(c);
-  const seg = [1, 2, 3].filter((k) => G[k] && G[k].here.length).map((k) => { const L = G[k].here; return `<span class="pdg${yb && yb.pos === k ? " hl" : ""}"><i>${CO_NAME[k].slice(0, 2).toUpperCase()}</i>${L.slice(0, 3).map(coItem).join("")}${L.length > 3 ? `<em>+${L.length - 3}</em>` : ""}</span>`; }).join("");
+  const seg = [1, 2, 3].filter((k) => G[k] && G[k].here.length).map((k) => { const L = G[k].here; return `<span class="pdg${yb && yb.pos === k ? " hl" : ""}"><i>${CO_NAME[k].slice(0, 2).toUpperCase()}</i>${L.slice(0, 3).map((x) => coItem(x, G)).join("")}${L.length > 3 ? `<em>+${L.length - 3}</em>` : ""}</span>`; }).join("");
   return `<button type="button" class="pd28" data-a28="${c.pi}:${c.i}"><span class="pdt"><b>Par où descendre</b> à ${esc(qName(net.pats[c.pi].stops[c.i]))}${yb ? ` · <span class="pdy">${CO_NAME[yb.pos]} pour le ${esc(net.R[yb.r].s)}</span>` : ""}</span><span class="pds">${seg}</span>${chevR}</button>`;
 }
 document.addEventListener("click", (e) => { const b = e.target.closest("[data-a28]"); if (!b) return; const [pi, i] = b.dataset.a28.split(":").map(Number); openA28(coAt(pi, i)); });
@@ -2822,8 +2822,11 @@ function renderFollow() {
   const { pi, k, dk, from } = S.follow, dest = S.follow.dest;
   const st = boardAdjust(tripState(pi, k, dk), pi, k, dk), p = st.p, R = net.R[p.r];
   const key = [pi, k, dk, from, dest, !!S.guide].join(":");
+  // #45 : écran reconstruit s'il a disparu (contenu remplacé) ; la clé n'est posée qu'une fois l'écran construit,
+  // sinon une erreur pendant la construction laissait un écran vide que plus rien ne reconstruisait
+  if (MB.key === key && !$("#mb-track")) MB.key = "";
   if (MB.key !== key) {
-    MB.key = key; MB.lastNext = -1;
+    MB.key = ""; MB.lastNext = -1;
     // la ligne affichée commence un arrêt avant le bus (ou avant l'arrêt de montée s'il est plus tôt)
     MB.first = 0; // #25 : toute la course depuis le terminus de départ (la liste reste calée sur le bus)
     el.innerHTML = `<div class="mbtop" id="mb-top"><div class="fhead"><button type="button" class="icon-btn" id="fo-back" aria-label="Retour">${backSvg}</button><button type="button" class="icon-btn" id="fo-close" aria-label="Quitter le plein écran">${closeSvg}</button>${badge(p.r, "lg")}<div class="fh-t"><h2>→ ${esc(p.h)}</h2><span class="fh-s" id="mb-status"></span><span class="b9row" id="mb-b9"></span></div><span class="pillmode">${S.guide ? "GUIDAGE" : modeOf(p.r) === "tram" ? "MON TRAM" : "MON BUS"}</span></div>
@@ -2849,6 +2852,7 @@ function renderFollow() {
     el.querySelectorAll(".mbr").forEach((b) => b.onclick = () => { if (S.guide) return; const i = +b.dataset.i; if (S.follow.from != null && i <= S.follow.from) { toast("Choisissez un arrêt après votre arrêt de montée", 2500); return; } S.follow.dest = S.follow.dest === i ? null : i; if (S.follow.dest != null) askNotify(); renderFollow(); drawMap(); });
     // badges des correspondances (statiques), les temps sont ajoutés pour l'arrêt suivant et la descente
     el.querySelectorAll("[data-cx]").forEach((c) => { const i = +c.dataset.cx; const rs = net.pRoutes[net.Q[p.stops[i]][0]].filter((r) => r !== p.r); c.dataset.base = rs.slice(0, 7).map((r) => badge(r, "sm", true)).join(""); c.innerHTML = c.dataset.base; });
+    MB.key = key;
   }
   // --- mise à jour ---
   const nS = p.nS, next = st.next, t = st.t;
@@ -2964,8 +2968,7 @@ function renderFollow() {
       host.dataset.out = 1;
       const sc = $(".sc28", host); if (sc) sc.classList.add("go28");
       SND("tout");
-      setTimeout(() => $("#mb-hero").classList.remove("hid28"), 2300);
-      setTimeout(() => host.classList.remove("open"), 2300);
+      setTimeout(() => { const h = $("#mb-hero"); if (h) h.classList.remove("hid28"); host.classList.remove("open"); }, 2300);
       setTimeout(() => { host.innerHTML = ""; host.dataset.k = ""; host.dataset.out = ""; }, 2850);
     } else if (scC && !host.dataset.out) {
       const yb = coYours(scC); scC.t = t;
@@ -2974,10 +2977,12 @@ function renderFollow() {
         host.innerHTML = `<div class="scb28"><div class="scw28">${scene28(scC, yb, true)}</div><div class="lsw28">${list}</div></div>`;
         host.dataset.k = sk; host.dataset.list = list; fit28(host);
         const cc = scC; host.onclick = () => openA28(cc);
-        requestAnimationFrame(() => requestAnimationFrame(() => { host.classList.add("open"); $("#mb-hero").classList.add("hid28"); }));
+        requestAnimationFrame(() => requestAnimationFrame(() => { if (!host.isConnected || host.dataset.k !== sk) return; host.classList.add("open"); const h = $("#mb-hero"); if (h) h.classList.add("hid28"); }));
         setTimeout(() => SND("tin"), 1300); // freinage calé sur la fin de l'arrivée de l'animation (~3,3 s)
       } else if (host.dataset.list !== list) { $(".lsw28", host).innerHTML = list; host.dataset.list = list; }
     }
+    // #45 : jamais de carte du haut masquée sans scène à la place
+    if (!host.dataset.k && !host.dataset.out) { host.classList.remove("open"); const h = $("#mb-hero"); if (h) h.classList.remove("hid28"); }
   } }
   { const c = st.state === "running" && !scC ? coAt(pi, next) : null, h28 = c && !isNA(pi, k, dk) ? pd28Html(c) : "", e28 = $("#mb-pd"); if (e28 && e28.dataset.html !== h28) { e28.innerHTML = h28; e28.dataset.html = h28; } }
   if (dest != null && st.gps && !isNA(pi, k, dk) && ((st.state === "running" && next === dest && !st.atStop && st.at(dest) - t <= 1.1) || (st.atStop && st.i === dest))) {
@@ -3562,6 +3567,24 @@ async function pushPost(path, body, keepalive) {
   if (r.status === 403) { pushForget(); throw new Error("abonnement inconnu"); }
   return r.json();
 }
+// #45 : erreurs de l'appli envoyées au service (page admin/, « Erreurs dans l'appli ») : chaque erreur une fois
+// par ouverture, 8 au plus ; ni en simulation, ni en local
+const ERR = { seen: new Set() };
+function errReport(e, src) {
+  try {
+    if (SIMU || /^(localhost|127\.)/.test(location.hostname) || ERR.seen.size >= 8) return;
+    const msg = String((e && e.message) || e || "?").slice(0, 300), where = src || ((e && e.stack) || "").split("\n").find((l) => /\.html|\.js/.test(l)) || "";
+    const loc = (where.match(/(?:index\.html|[\w-]+\.js)[^)\s]*/) || [""])[0];
+    const sig = msg + "|" + loc; if (ERR.seen.has(sig)) return; ERR.seen.add(sig);
+    let anon = store.get("errId"); if (!anon) { anon = Math.random().toString(36).slice(2, 10); store.set("errId", anon); }
+    const R0 = S.follow && net.pats[S.follow.pi] ? net.R[net.pats[S.follow.pi].r].s : "";
+    const vue = (S.view || "?") + (R0 ? " · " + R0 + (S.guide ? " (guidage)" : "") : "") + (document.body.classList.contains("mbfull") ? " · plein écran" : "") + (location.pathname.includes("/test/") ? " · page de test" : "");
+    const body = { msg, src: loc, stack: ((e && e.stack) || "").split("\n").slice(0, 6).join("\n"), vue, app: (UPD_LOG[0] ? UPD_LOG[0].v : "") + " · " + D.feed.version, ua: navigator.userAgent.replace(/\s*\(KHTML[^)]*\)/, "").slice(0, 160), id: PUSH.id || null, anon };
+    pushBase().then((u) => u && fetch(u + "/err", { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify(body), keepalive: true })).catch(() => {});
+  } catch (x) {}
+}
+window.addEventListener("error", (ev) => errReport(ev.error || ev.message, ev.error ? "" : (ev.filename || "").split("/").pop() + ":" + ev.lineno + ":" + ev.colno));
+window.addEventListener("unhandledrejection", (ev) => errReport(ev.reason));
 function pushForget() { PUSH.id = PUSH.key = null; store.set("pushId", null); store.set("pushKey", null); MY.al.push = false; store.set("myAlerts", MY.al); }
 const unb64u = (s) => { s = s.replace(/-/g, "+").replace(/_/g, "/"); while (s.length % 4) s += "="; return Uint8Array.from(atob(s), (c) => c.charCodeAt(0)); };
 const pushPrefs = () => ({ trafic: !!MY.al.trafic, scope: MY.al.scope === "all" ? "all" : "mine", lines: MY.lines.map((i) => net.R[i] && net.R[i].s).filter(Boolean), quiet: !!MY.al.quiet, qFrom: MY.al.qFrom, qTo: MY.al.qTo });
@@ -3827,7 +3850,7 @@ function featChanged(k) {
   if (k === "pliage" && !feat("pliage")) { MFOLD.clear(); store.set("modeFold", []); }
   if (k === "gps" && !feat("gps")) BOARD.on = false;
   if (k === "inbus" && !feat("inbus")) { $("#inbus").classList.remove("on"); INBUS.shownKey = ""; }
-  try { buildGrid(); trBang(); trNetCheck(); subBarCheck(); checkNight(); updMbFull(); renderHome(); if (S.view === "trafic") renderTrafic(); if (S.view === "suivi") renderFollow(); } catch (e) {}
+  try { buildGrid(); trBang(); trNetCheck(); subBarCheck(); checkNight(); updMbFull(); renderHome(); if (S.view === "trafic") renderTrafic(); if (S.view === "suivi") renderFollow(); } catch (e) { errReport(e); }
 }
 // #22 : mode d'emploi (installation en volets, puis chapitres à déplier, avec de vraies captures de l'appli)
 const GUIDE_IMG = (f) => `${/\/test\//.test(location.pathname) ? "../" : ""}guide/${f}`;
@@ -5068,7 +5091,7 @@ const UPD_LOG = [
     { ico: icoSvg('<path d="M6 19V9a3 3 0 0 1 3-3h9"/><path d="m15 3 3 3-3 3"/><circle cx="6" cy="19" r="2"/>'), t: "Des correspondances plus logiques",
       b: "<ul><li>Vous changez de bus au <b>premier arrêt commun</b> aux deux lignes. L'appli ne vous fait plus rester dans le premier bus pour reprendre le second plus loin, dans l'autre sens.</li><li>Plus de descente pour reprendre la même ligne en sens inverse.</li><li>Plus de marche le long d'une ligne pour monter dans un bus qui passe de toute façon à votre arrêt.</li><li>Les longues marches entre deux arrêts ne sont proposées que si elles font vraiment gagner du temps.</li><li>Vers une adresse, vous descendez à l'arrêt le plus pratique, même s'il est quelques arrêts plus loin, plutôt qu'à celui qui est seulement le plus proche à vol d'oiseau.</li></ul>" },
     { ico: icoSvg('<path d="M20 6 9 17l-5-5"/>'), t: "Et quelques corrections",
-      b: "<ul><li>Temps réel : quand le réseau met à jour ses horaires, les bus restent suivis en direct.</li><li>Mon bus : un bus suivi en temps réel ne dépasse plus un arrêt avant que le réseau ait confirmé son passage. Il reste « à l'approche », comme sur le site du réseau.</li></ul>" },
+      b: "<ul><li>Temps réel : quand le réseau met à jour ses horaires, les bus restent suivis en direct.</li><li>Mon bus : un bus suivi en temps réel ne dépasse plus un arrêt avant que le réseau ait confirmé son passage. Il reste « à l'approche », comme sur le site du réseau.</li><li>Tram et BHNS : Mon bus se figeait à l'approche de certaines stations (carte du haut, alertes de descente et barre du bas plus mises à jour). C'est réglé.</li></ul>" },
   ] },
   { v: "2026-11-11.2", t: "L'état de chaque ligne en un coup d'œil", slides: [
     { ico: icoSvg('<circle cx="12" cy="12" r="8.6"/><path d="M12 7.8v5.4"/><circle cx="12" cy="16.4" r=".9" fill="currentColor" stroke="none"/>'), t: "Un encadré par ligne",

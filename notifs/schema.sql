@@ -12,3 +12,5 @@ CREATE TABLE IF NOT EXISTS envois (id INTEGER PRIMARY KEY AUTOINCREMENT, at INTE
 CREATE INDEX IF NOT EXISTS envois_at ON envois(at);
 CREATE TABLE IF NOT EXISTS recus (envoi INTEGER NOT NULL, sub TEXT NOT NULL, at INTEGER, vu INTEGER, PRIMARY KEY (envoi, sub));
 CREATE INDEX IF NOT EXISTS recus_envoi ON recus(envoi);
+-- #45 : erreurs relevées dans l'appli (une ligne par erreur distincte, page admin/)
+CREATE TABLE IF NOT EXISTS erreurs (sig TEXT PRIMARY KEY, msg TEXT, src TEXT, stack TEXT, vue TEXT, app TEXT, ua TEXT, n INTEGER DEFAULT 1, tels TEXT, first INTEGER, last INTEGER);

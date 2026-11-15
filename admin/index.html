@@ -148,6 +148,12 @@ footer{color:var(--dim);font-size:12px;text-align:center;margin-top:18px}
   </div>
 
   <div class="card">
+    <h2>Erreurs dans l'appli</h2>
+    <p class="sub" style="margin:-6px 0 10px">Relevées sur les téléphones des voyageurs, abonnés ou non : une ligne par erreur, avec le nombre de fois et de téléphones. Gardées 30 jours.</p>
+    <div id="errs">Chargement…</div>
+  </div>
+
+  <div class="card">
     <h2>Téléphones abonnés</h2>
     <div id="phones">Chargement…</div>
   </div>
@@ -288,11 +294,29 @@ function showStats(list) {
     list.map((x) => row(KINDS[x.kind] || x.kind, x)).join("") + row("Total", tot, true) + "</table>";
 }
 
+// #45 : erreurs relevées dans l'appli
+let ERRS_OPEN = new Set();
+function showErrs(list) {
+  const h = !list.length ? `<p class="sub" style="margin:0">Aucune erreur relevée.</p>` :
+    list.map((x) => `<div class="err" data-sig="${esc(x.sig)}" style="border-top:1px solid var(--line);padding:10px 0">
+      <div style="display:flex;gap:8px;align-items:baseline"><b style="flex:1;word-break:break-word">${esc(x.msg)}</b><span style="color:var(--dim);font-size:13px">${x.n}× · ${x.tels} tél.</span></div>
+      <div style="color:var(--dim);font-size:13px;margin-top:2px">${esc(x.vue || "")} · ${esc(x.src || "")} · dernière ${esc(court2(x.last))}</div>
+      <details${ERRS_OPEN.has(x.sig) ? " open" : ""}><summary style="color:var(--dim);font-size:13px;cursor:pointer;margin-top:4px">détail</summary>
+        <pre style="white-space:pre-wrap;font-size:11px;margin:6px 0;opacity:.8">${esc(x.stack || "")}</pre>
+        <div style="color:var(--dim);font-size:12px">Version ${esc(x.app || "?")} · ${esc(x.ua || "")} · première ${esc(court2(x.first))}</div></details>
+      <button type="button" class="plain" data-ok style="margin-top:6px">Réglée</button></div>`).join("") +
+    `<button type="button" class="plain" id="errs-all" style="margin-top:10px">Tout effacer</button>`;
+  if ($("errs").dataset.h === h) return; $("errs").dataset.h = h; $("errs").innerHTML = h;
+  $("errs").querySelectorAll("details").forEach((d) => d.ontoggle = () => { const sg = d.closest(".err").dataset.sig; d.open ? ERRS_OPEN.add(sg) : ERRS_OPEN.delete(sg); });
+  $("errs").querySelectorAll("[data-ok]").forEach((b) => b.onclick = async () => { try { await call("erreurOk", { sig: b.closest(".err").dataset.sig }); load(true); } catch (e) { flash(e.message, true); } });
+  const all = $("errs-all"); if (all) all.onclick = async () => { if (!confirm("Effacer toutes les erreurs relevées ?")) return; try { await call("erreurOk", { tout: true }); load(true); } catch (e) { flash(e.message, true); } };
+}
+
 // ---------- chargement ----------
 async function load(quiet) {
   try {
-    const [e, j, s] = await Promise.all([call("etat"), call("envois"), call("stats")]);
-    showEtat(e); showEnvois(j.envois); showStats(s.stats);
+    const [e, j, s, er] = await Promise.all([call("etat"), call("envois"), call("stats"), call("erreurs")]);
+    showEtat(e); showEnvois(j.envois); showStats(s.stats); showErrs(er.erreurs);
     return true;
   } catch (err) {
     if (err.code === 401 || err.code === 429) { gate(err.message); return false; }

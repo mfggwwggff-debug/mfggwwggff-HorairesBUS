@@ -305,6 +305,15 @@ async function admin(req, env, b, now) {
     return json({ ok: true, phones, jobs: jobs.n, habits: habits.n, traficAt: tr ? +tr.v : 0, rt, rtSub, now });
   }
 
+  if (op === "erreurs") { // #45
+    const { results } = await env.DB.prepare("SELECT * FROM erreurs ORDER BY last DESC LIMIT 100").all();
+    return json({ ok: true, erreurs: results.map((e) => Object.assign(e, { tels: e.tels ? e.tels.split(" ").length : 0 })) });
+  }
+  if (op === "erreurOk") { // #45 : erreur réglée (ou toutes)
+    if (b.sig) await env.DB.prepare("DELETE FROM erreurs WHERE sig = ?").bind(clip(b.sig, 400)).run();
+    else if (b.tout) await env.DB.prepare("DELETE FROM erreurs").run();
+    return json({ ok: true });
+  }
   if (op === "rtAlerte") { // #46 : le téléphone qui reçoit l'alerte de panne du temps réel (un seul)
     const id = b.sub ? clip(b.sub, 24) : "";
     if (id && !(await env.DB.prepare("SELECT id FROM subs WHERE id = ?").bind(id).first())) return json({ error: "Ce téléphone n'est pas abonné aux alertes." }, 400);
@@ -395,6 +404,25 @@ async function handle(req, env) {
     return json({ ok: true });
   }
   if (path === "/admin") return admin(req, env, b, now);
+
+  // #45 : erreur relevée dans l'appli (sans clé : n'importe quel téléphone peut signaler ; table bornée à 300 erreurs)
+  if (path === "/err") {
+    const msg = clip(b.msg, 300), src = clip(b.src, 200); if (!msg) return json({ error: "msg" }, 400);
+    const sig = clip(msg.replace(/\d+/g, "#") + "|" + src.replace(/\?[^:]*/, ""), 400);
+    const tel = clip(b.id || b.anon, 24) || "?";
+    const old = await env.DB.prepare("SELECT tels FROM erreurs WHERE sig = ?").bind(sig).first();
+    if (!old) {
+      const c = await env.DB.prepare("SELECT COUNT(*) AS n FROM erreurs").first();
+      if (c.n >= 300) return json({ ok: false, plein: true });
+      await env.DB.prepare("INSERT INTO erreurs (sig, msg, src, stack, vue, app, ua, n, tels, first, last) VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)")
+        .bind(sig, msg, src, clip(b.stack, 1200), clip(b.vue, 120), clip(b.app, 60), clip(b.ua, 160), tel, now, now).run();
+    } else {
+      const tels = old.tels ? old.tels.split(" ") : []; if (!tels.includes(tel) && tels.length < 50) tels.push(tel);
+      await env.DB.prepare("UPDATE erreurs SET n = n + 1, last = ?, vue = ?, app = ?, ua = ?, stack = ?, tels = ? WHERE sig = ?")
+        .bind(now, clip(b.vue, 120), clip(b.app, 60), clip(b.ua, 160), clip(b.stack, 1200), tels.join(" "), sig).run();
+    }
+    return json({ ok: true });
+  }
 
   if (path === "/abonner") {
     const s = b.sub; if (!s || !s.endpoint || !s.keys || !s.keys.p256dh || !s.keys.auth || !/^https:\/\//.test(s.endpoint)) return json({ error: "abonnement" }, 400);
@@ -566,6 +594,7 @@ export default {
       const cut = now - 30 * 864e5;
       await env.DB.batch([
         env.DB.prepare("DELETE FROM recus WHERE envoi IN (SELECT id FROM envois WHERE at < ?)").bind(cut),
+        env.DB.prepare("DELETE FROM erreurs WHERE last < ?").bind(cut), // #45
         env.DB.prepare("DELETE FROM envois WHERE at < ?").bind(cut),
       ]);
     }
