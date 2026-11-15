@@ -1,0 +1,11 @@
+name: Debug page info trafic
+on:
+  push:
+    branches: [debug-page-it]
+jobs:
+  dump:
+    runs-on: ubuntu-latest
+    steps:
+      - run: curl -sS -A "Mozilla/5.0 (compatible; horaires-grand-reims)" -H "Accept-Language: fr" -o page.html https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html
+      - uses: actions/upload-artifact@v4
+        with: { name: page, path: page.html }
