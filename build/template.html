@@ -324,6 +324,8 @@ table.tt th.na { color: var(--na); }
 .trlv2 { --tlc: var(--alert); }
 .trlv3 { --tlc: var(--na); }
 .trlv4 { --tlc: #8b9099; } /* #71 : travaux à venir */
+.sharebtn { margin: -4px 0 12px; width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px; } /* #57 */
+#fo-share { display: inline-flex; align-items: center; gap: 6px; }
 .trhint { margin: 8px 2px 0; font-size: 12.5px; color: var(--muted); } /* #47 */
 .tritem .body p { margin: 0 0 8px; } .tritem .body .trsmall { font-size: 12.5px; color: var(--muted); }
 /* encadré détaché du logo (sinon les deux couleurs se touchent et se mélangent) + mini picto d'état */
@@ -1214,7 +1216,9 @@ const FEATS = [
     ["perturbe", "Alerte réseau perturbé", "Message en cas de neige, grève…"],
     ["mesl", "Mes lignes d'abord", "En tête d'Info trafic et Lignes & plans."]]],
   ["Sons", [
-    ["sons", "Sons de l'appli", "Suivent le volume du téléphone."]]]];
+    ["sons", "Sons de l'appli", "Suivent le volume du téléphone."]]],
+  ["Partage", [
+    ["partage", "Partager mon trajet", "Envoie votre heure d'arrivée par message."]]]];
 // toujours actives (choix du 9 nov.) : plus d'interrupteur
 const FEAT_ON = new Set(["gps", "dedans", "retour", "plein", "centre", "parmode", "pliage", "plus", "nuit"]);
 const MY = { ft: store.get("myFeats") || {}, lines: store.get("myLines") || [], names: store.get("stopNames") || {}, walk: store.get("myWalk") || "normal", al:Object.assign({ trafic: true, last: true, arrive: true, arriveMin: 5, scope: "mine", desc: true, quiet: false, qFrom: "22:30", qTo: "06:30", push: false, habit: true, hab: [] }, store.get("myAlerts") || {}) };
@@ -1225,7 +1229,8 @@ const WALK_TXT = { court: "Jusqu'à 10 min de marche en tout, et des arrêts à 
 // #20 : abonnement au service d'alertes (voir plus bas, pushEnable)
 const PUSH = { url: null, id: store.get("pushId") || null, key: store.get("pushKey") || null, suivi: false, t: 0, syncAt: 0 };
 const pushOn = () => !!(MY.al.push && PUSH.id);
-const feat = (k) => FEAT_ON.has(k) || MY.ft[k] !== false; // #11 : fonctionnalité active ? (toutes actives au départ)
+const FEAT_OFF = new Set(["partage"]); // #57 : coupées tant qu'on ne les active pas
+const feat = (k) => FEAT_ON.has(k) || (FEAT_OFF.has(k) ? MY.ft[k] === true : MY.ft[k] !== false); // #11 : fonctionnalité active ? (toutes actives au départ, sauf FEAT_OFF)
 const myFirst = (ri) => feat("mesl") && MY.lines.includes(ri); // « Mes lignes d'abord »
 const uName = (i) => MY.names[pName(i)] || pName(i); // nom donné par l'utilisateur (Mon profil), sinon le vrai nom
 const tripKey = (a, b) => a + "|" + b;
@@ -1674,7 +1679,7 @@ function renderIt(noFit) {
         ${isToday && TR.net ? jcWarn(j) : ""}
         ${tags.length ? `<div class="chain" style="grid-column:1/-1">${tags.join("")}</div>` : ""}
       </button>
-      <div class="tl">${isToday ? `<button type="button" class="btn primary guidebtn" data-guide="${k}">${bellSvg.replace('width="40" height="40"', 'width="18" height="18"')}Me guider jusqu'à l'arrivée</button>` : ""}${timeline(j, k)}</div>
+      <div class="tl">${isToday ? `<button type="button" class="btn primary guidebtn" data-guide="${k}">${bellSvg.replace('width="40" height="40"', 'width="18" height="18"')}Me guider jusqu'à l'arrivée</button>${feat("partage") ? `<button type="button" class="btn ghost sharebtn" data-share="${k}">${shareSvg}Partager mon trajet</button>` : ""}` : ""}${timeline(j, k)}</div>
     </article>`;
   }).join("") + mb(1);
   res.querySelectorAll("[data-more]").forEach((b) => b.onclick = () => itMore(+b.dataset.more));
@@ -1684,11 +1689,25 @@ function renderIt(noFit) {
     drawMap(); if (S.selJ >= 0) fitJourney(S.journeys[S.selJ]);
   }));
   res.querySelectorAll("[data-guide]").forEach((b) => b.addEventListener("click", () => startGuide(S.journeys[+b.dataset.guide], S.to)));
+  res.querySelectorAll("[data-share]").forEach((b) => b.addEventListener("click", () => shareText(shareJourneyText(S.journeys[+b.dataset.share], S.to))));
   res.querySelectorAll("[data-followleg]").forEach((b) => b.addEventListener("click", () => {
     const [k, li] = b.dataset.followleg.split(":").map(Number); const g = S.journeys[k].legs[li];
     startFollow(g.pat, g.trip, g.svcDay, net.Q[net.pats[g.pat].stops[g.bi]][0], net.Q[net.pats[g.pat].stops[g.ai]][0]);
   }));
   drawMap(); if (!noFit) fitJourney(js[S.selJ]);
+}
+// #57 : partager son trajet (option coupée par défaut) : le message seul, sans lien ; avec correspondance,
+// seulement l'heure d'arrivée finale
+const shareSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7.5 7.5 4.5-4.5 4.5 4.5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>`;
+function shareText(txt) {
+  if (navigator.share) navigator.share({ text: txt }).catch(() => {});
+  else if (navigator.clipboard) navigator.clipboard.writeText(txt).then(() => toast("Message copié", 2000), () => toast(txt, 5000));
+  else toast(txt, 5000);
+}
+function shareJourneyText(j, to) {
+  const g = j.legs.find((x) => x.type === "ride"); if (!g) return `J'arrive à ${vName(to)} vers ${hm(j.arr)}.`;
+  const lt = legTimes(g), p = net.pats[g.pat];
+  return `Je prends le ${net.R[p.r].s} à ${qName(p.stops[g.bi])} à ${hm(lt.dep)}, j'arrive à ${vName(to)} vers ${hm(j.arr)}.`;
 }
 function timeline(j, jk) {
   let h = "";
@@ -2597,19 +2616,34 @@ function renderFollow() {
     S.follow.px = px; }
   if ($("#mb-banner").dataset.html !== banner) { $("#mb-banner").innerHTML = banner; $("#mb-banner").dataset.html = banner; }
   // barre du bas
-  const bar = S.guide ? `<button type="button" class="btn small ghost" id="fo-stop">Arrêter le guidage</button>${S.followFree ? `<button type="button" class="btn small primary" id="fo-recenter">Recentrer</button>` : ""}`
+  const shb = feat("partage") && st.state !== "done" && !naTrip ? `<button type="button" class="btn small ghost" id="fo-share" aria-label="Partager mon trajet">${shareSvg.replace('width="18" height="18"', 'width="16" height="16"')}Partager</button>` : "";
+  const bar = S.guide ? `${shb}<button type="button" class="btn small ghost" id="fo-stop">Arrêter le guidage</button>${S.followFree ? `<button type="button" class="btn small primary" id="fo-recenter">Recentrer</button>` : ""}`
     : `<span class="hint">${dest == null ? "Touchez un arrêt pour le choisir comme descente" : "Touchez un autre arrêt pour changer de descente"}</span>
 ${dest != null ? `<button type="button" class="btn small alertbtn" id="fo-alert" aria-pressed="${S.follow.alert}">${bellSvg.replace('width="40" height="40"', 'width="16" height="16"')}${S.follow.alert ? "Alerte activée" : "Alerte coupée"}</button>` : ""}
-      ${S.followFree ? `<button type="button" class="btn small primary" id="fo-recenter">Recentrer</button>` : ""}<button type="button" class="btn small ghost" id="fo-stop">Arrêter</button>`;
+      ${S.followFree ? `<button type="button" class="btn small primary" id="fo-recenter">Recentrer</button>` : ""}${shb}<button type="button" class="btn small ghost" id="fo-stop">Arrêter</button>`;
   if ($("#mb-bar").dataset.html !== bar) {
     $("#mb-bar").innerHTML = bar; $("#mb-bar").dataset.html = bar;
     $("#fo-stop").onclick = () => { const g = !!S.guide; S.follow = null; S.guide = null; MB.key = ""; go(g ? "itineraire" : S.prevView && S.prevView !== "suivi" ? S.prevView : "accueil"); };
     const rc = $("#fo-recenter"); if (rc) rc.onclick = () => { S.followFree = false; renderFollow(); followCam(true); };
     const al = $("#fo-alert"); if (al) al.onclick = () => { S.follow.alert = !S.follow.alert; if (S.follow.alert) askNotify(); renderFollow(); };
+    const sh = $("#fo-share"); if (sh) sh.onclick = () => shareText(followShareText());
   }
   if (S.guide) guideTick();
 }
 
+// #57 : message de Mon bus (en guidage : heure d'arrivée finale du trajet)
+function followShareText() {
+  const { pi, k, dk, from } = S.follow, st = boardAdjust(tripState(pi, k, dk), pi, k, dk), p = st.p, R = net.R[p.r];
+  let to, arr;
+  if (S.guide) {
+    const L = S.guide.legs, li = L.map((g, i) => [g, i]).filter(([g]) => g.type === "ride").pop();
+    const walk = L.slice(li[1] + 1).filter((x) => x.type === "walk").reduce((a, x) => a + x.dur, 0);
+    to = vName(S.guide.to); arr = legTimes(li[0]).arr + walk;
+  } else { const ti = S.follow.dest ?? p.nS - 1; to = qName(p.stops[ti]); arr = st.at(ti); }
+  const onBoard = st.state !== "before" && (from == null || st.pos >= from - 0.02);
+  return onBoard ? `Je suis dans le ${R.s}, j'arrive à ${to} vers ${hm(arr)}.`
+    : `Je prends le ${R.s} à ${qName(p.stops[from ?? 0])} à ${hm(st.dp(from ?? 0))}, j'arrive à ${to} vers ${hm(arr)}.`;
+}
 // thermomètre de Mon bus : recale la liste sur le bus (sous la carte du haut, qui reste visible)
 function mbCenter(st, instant) {
   if (Date.now() - MB.userScrollAt < 4000 || (!instant && !feat("centre"))) return;
@@ -3390,12 +3424,12 @@ function renderProfile(page) {
     </div>
     <p class="pnote">${alPushOn() ? "Un service garde un identifiant anonyme, ces réglages et, quelques semaines, le fait qu'une alerte a bien été reçue ; tout est effacé si vous coupez." : "Sans activation : appli ouverte seulement."}</p>
     <h3>Fonctionnalités</h3>
-    ${FEATS.map(([cat, list]) => `<div class="pcat">${cat}</div><div class="pcard">${list.map(([k, t, d]) => `<div class="prow"><span class="pn"><b>${t}</b><small>${d}</small></span><button type="button" class="tg" data-ft="${k}" aria-pressed="${MY.ft[k] !== false}" aria-label="Activer"></button></div>`).join("")}</div>`).join("")}
+    ${FEATS.map(([cat, list]) => `<div class="pcat">${cat}</div><div class="pcard">${list.map(([k, t, d]) => `<div class="prow"><span class="pn"><b>${t}</b><small>${d}</small></span><button type="button" class="tg" data-ft="${k}" aria-pressed="${feat(k)}" aria-label="Activer"></button></div>`).join("")}</div>`).join("")}
     <p class="pnote">Toutes actives au départ.</p>`;
   $("#prof-x").onclick = () => el.classList.remove("on");
   el.querySelectorAll("[data-pg]").forEach((b) => b.onclick = () => renderProfile(b.dataset.pg));
   el.querySelectorAll("[data-myl]").forEach((b) => b.onclick = () => { const i = +b.dataset.myl; MY.lines = MY.lines.includes(i) ? MY.lines.filter((x) => x !== i) : [...MY.lines, i]; saveMy(); b.setAttribute("aria-pressed", MY.lines.includes(i)); buildGrid(); if (S.view === "trafic") renderTrafic(); });
-  el.querySelectorAll("[data-ft]").forEach((b) => b.onclick = () => { const k = b.dataset.ft; MY.ft[k] = MY.ft[k] === false; saveMy(); b.setAttribute("aria-pressed", MY.ft[k] !== false); featChanged(k); });
+  el.querySelectorAll("[data-ft]").forEach((b) => b.onclick = () => { const k = b.dataset.ft; MY.ft[k] = !feat(k); saveMy(); b.setAttribute("aria-pressed", feat(k)); featChanged(k); });
   el.querySelectorAll("[data-al]").forEach((b) => b.onclick = () => { MY.al[b.dataset.al] = !MY.al[b.dataset.al]; saveMy(); b.setAttribute("aria-pressed", !!MY.al[b.dataset.al]); });
   const sel = el.querySelector("[data-almin]"); if (sel) sel.onchange = () => { MY.al.arriveMin = +sel.value; saveMy(); };
   el.querySelectorAll("[data-hab]").forEach((b) => b.onclick = () => renderProfile("hab:" + b.dataset.hab));
