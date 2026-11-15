@@ -315,8 +315,10 @@ table.tt th.na { color: var(--na); }
 .lgrid { display: flex; flex-wrap: wrap; gap: 8px; }
 .lgrid button { border: 0; padding: 0; background: none; border-radius: 8px; }
 .lgrid button[aria-pressed="true"] { outline: 2px solid var(--ink); outline-offset: 2px; }
-/* ligne choisie : les autres s'estompent (15 nov.) */
-#li-grid:has(button[aria-pressed="true"]) button:not([aria-pressed="true"]) { opacity: .38; transition: opacity .2s; }
+/* 15 nov. : une ligne choisie s'ouvre en page complète (retour en haut à gauche) ; sans ligne, seulement la liste */
+#v-lignes.li-on .lpseg, #v-lignes.li-on #li-grid { display: none; }
+#v-lignes:not(.li-on) #li-when, #v-lignes:not(.li-on) #li-msg, #v-lignes:not(.li-on) #li-res { display: none; }
+.lhead .icon-btn { flex: none; }
 /* #51 : ligne choisie avec un encadré d'état : pas de contour noir, le logo grandit jusqu'à l'encadré */
 .lgrid button.trlv[aria-pressed="true"] { outline: none; padding: 0; }
 .lgrid button.trlv[aria-pressed="true"] > .bd { height: calc(var(--bdh, 30px) + 6px); min-width: calc(var(--bdw, 40px) + 6px); padding: 0 9px; border-radius: 9px; font-size: 17.5px; }
@@ -2287,6 +2289,9 @@ $("#li-grid").addEventListener("click", (e) => { const b = e.target.closest("but
 function linePats(ri, dir) { return net.pats.map((p, i) => [p, i]).filter(([p]) => p.r === ri && p.dir === dir); }
 function runLi() {
   $("#li-grid").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", +b.dataset.r === S.line));
+  const wasOn = $("#v-lignes").classList.contains("li-on");
+  $("#v-lignes").classList.toggle("li-on", S.line != null);
+  if (wasOn !== (S.line != null)) { const sc = $("#scroll"); if (sc) sc.scrollTop = 0; }
   const head = $("#li-head"), res = $("#li-res");
   const iso = $("#li-date").value, t = toMin($("#li-time").value);
   $("#li-whenlbl").textContent = `${iso === parisNow().iso ? "Aujourd'hui" : fmtDateShort(iso)}, à partir de ${hm(t)}`;
@@ -2296,9 +2301,10 @@ function runLi() {
   const dirs = [0, 1].filter((d) => linePats(S.line, d).length);
   if (!dirs.includes(S.dir)) S.dir = dirs[0];
   const dirName = (d) => { const ps = linePats(S.line, d); const cnt = {}; ps.forEach(([p]) => cnt[p.h] = (cnt[p.h] || 0) + p.nT); return Object.entries(cnt).sort((a, b) => b[1] - a[1])[0][0]; };
-  head.innerHTML = `<div class="lhead">${badge(S.line, "lg")}<h2>${esc(r.l)}</h2></div>${isMobile() ? `<button type="button" class="li32" data-li32><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6.5v13.5l6-2.5 6 2.5 6-2.5V4l-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/></svg>Voir le tracé sur le plan</button>` : ""}${trNoteFor([S.line]).replace('class="trnote"', 'class="trnote" style="margin-top:10px"')}
+  head.innerHTML = `<div class="lhead"><button type="button" class="icon-btn" id="li-back" aria-label="Retour aux lignes">${backSvg}</button>${badge(S.line, "lg")}<h2>${esc(r.l)}</h2></div>${isMobile() ? `<button type="button" class="li32" data-li32><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6.5v13.5l6-2.5 6 2.5 6-2.5V4l-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/></svg>Voir le tracé sur le plan</button>` : ""}${trNoteFor([S.line]).replace('class="trnote"', 'class="trnote" style="margin-top:10px"')}
     <div class="row" style="margin-top:10px"><div class="seg" role="group" aria-label="Sens">${dirs.map((d) => `<button type="button" data-d="${d}" aria-pressed="${d === S.dir}">→ ${esc(dirName(d))}</button>`).join("")}</div></div>`;
   head.querySelectorAll("[data-d]").forEach((b) => b.addEventListener("click", () => { S.dir = +b.dataset.d; runLi(); }));
+  $("#li-back").onclick = () => { S.line = null; runLi(); fitHome(); drawMap(); };
   const l32 = head.querySelector("[data-li32]"); if (l32) l32.onclick = () => { p32Open(); fitLine(S.line); };
   if (!inRange(iso)) { res.innerHTML = ""; drawMap(); return; }
   const day = net.dayIndex(iso);
@@ -5300,7 +5306,7 @@ S.from = od[0] ? findStop(od[0]) : -1; S.to = od[1] ? findStop(od[1]) : -1;
 if (S.from < 0) S.from = null; if (S.to < 0) S.to = null;
 fromP.set(S.from); toP.set(S.to);
 const pa = store.get("pa") || fav.stops[0] || "Opéra-Cathédrale"; S.paStop = findStop(pa); if (S.paStop < 0) S.paStop = findStop("Opéra-Cathédrale"); paP.set(S.paStop);
-S.line = net.R.findIndex((r) => r.m === 1);
+S.line = null; // 15 nov. : l'onglet Lignes & plans s'ouvre sur la liste des lignes
 if (isMobile()) setSheet("half", true);
 resize(); fitHome(); route();
 // ?vue=lat,lon,échelle : cadre le plan à cet endroit (essais)
