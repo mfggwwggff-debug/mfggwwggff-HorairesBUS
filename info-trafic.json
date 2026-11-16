@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-16T11:30:27Z",
+ "at": "2026-11-16T12:29:28Z",
  "items": [
   {
    "id": "aba75f03db",
@@ -489,6 +489,79 @@
    ]
   },
   {
+   "id": "16eb3530f2",
+   "t": "En raison de contraintes d'exploitation, certains départs ne sont pas assurés aujourd'hui :",
+   "lines": [
+    "U22"
+   ],
+   "p": "",
+   "start": null,
+   "end": null,
+   "b": [
+    {
+     "r": [
+      [
+       "Lundi 16 novembre:",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Départs de Neuvillette Mairie non assurés: 7h17-8h58-10h45-12h43",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Départs de Royale non assurés: 6h22-8h07-9h45-11h31-13h31",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Conseil déplacement",
+       1
+      ],
+      [
+       ": nous vous invitons à anticiper votre trajet ou à privilégier les lignes à proximité ( https://grandreims-mobilites.fr/fr/3RW-Itineraire.html)",
+       0
+      ]
+     ]
+    }
+   ],
+   "rt": true,
+   "sec": "temps reel",
+   "since": "2026-11-16",
+   "c": {
+    "effets": [
+     "non_assure"
+    ],
+    "grav": "genant",
+    "niv": 2,
+    "pastille": true,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": [
+    [
+     "Neuvillette Mairie",
+     "Neuvil. Mairie"
+    ],
+    [
+     "Royale",
+     "Royale"
+    ]
+   ]
+  },
+  {
    "id": "f2cfc03dd2",
    "t": "Travaux rue Gabriel Voisin",
    "lines": [
@@ -779,79 +852,6 @@
    "id": "16eb3530f2",
    "t": "En raison de contraintes d'exploitation, certains départs ne sont pas assurés aujourd'hui :",
    "lines": [
-    "U22"
-   ],
-   "p": "",
-   "start": null,
-   "end": null,
-   "b": [
-    {
-     "r": [
-      [
-       "Lundi 16 novembre:",
-       0
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Départs de Neuvillette Mairie non assurés: 7h17-8h58-10h45-12h43-14h23-15h58-17h36-19h24",
-       0
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Départs de Royale non assurés: 6h22-8h07-9h45-11h31-13h31-15h09-16h47-18h25-20h08",
-       0
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Conseil déplacement",
-       1
-      ],
-      [
-       ": nous vous invitons à anticiper votre trajet ou à privilégier les lignes à proximité ( https://grandreims-mobilites.fr/fr/3RW-Itineraire.html)",
-       0
-      ]
-     ]
-    }
-   ],
-   "rt": true,
-   "sec": "temps reel",
-   "since": "2026-11-16",
-   "c": {
-    "effets": [
-     "non_assure"
-    ],
-    "grav": "genant",
-    "niv": 2,
-    "pastille": true,
-    "nat": "perturbation",
-    "cond": false,
-    "portee": "ligne",
-    "sur": true
-   },
-   "st": [
-    [
-     "Neuvillette Mairie",
-     "Neuvil. Mairie"
-    ],
-    [
-     "Royale",
-     "Royale"
-    ]
-   ]
-  },
-  {
-   "id": "16eb3530f2",
-   "t": "En raison de contraintes d'exploitation, certains départs ne sont pas assurés aujourd'hui :",
-   "lines": [
     "U20"
    ],
    "p": "",
@@ -1121,10 +1121,10 @@
     "effets": [
      "technique"
     ],
-    "grav": "aucune",
-    "niv": 0,
-    "pastille": false,
-    "nat": "technique",
+    "grav": "genant",
+    "niv": 2,
+    "pastille": true,
+    "nat": "perturbation",
     "cond": false,
     "portee": "aucune",
     "sur": true
