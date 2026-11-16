@@ -90,7 +90,12 @@ th{font-size:11.5px;text-transform:uppercase;letter-spacing:.3px;color:var(--dim
 @media (prefers-color-scheme:dark){.note.err{background:#3a1b1d;color:#ffc9cb;border-color:#5d2a2d}.note.good{background:#15301f;color:#b7e8c9;border-color:#245a39}}
 .hide{display:none}
 /* #74 : déviations hors GTFS */
-.card.wide{width:min(1340px,calc(100vw - 24px));position:relative;left:50%;transform:translateX(-50%)}
+.wrap.wide{max-width:1340px}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;margin:12px 0 14px;padding:4px;background:var(--card);border:1px solid var(--line);border-radius:14px;position:sticky;top:8px;z-index:500}
+.tabs button{flex:1 1 auto;background:transparent;color:var(--dim);border:0;border-radius:10px;padding:9px 12px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.tabs button:hover{color:var(--ink);background:var(--bg)}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--card)}
+.tb:empty{display:none}.tb{min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--accent);color:#fff;font-size:11px;font-weight:700;line-height:18px;box-sizing:border-box}
 .dvwrap{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
 .dvlist{flex:1 1 250px;max-width:300px;display:flex;flex-direction:column;gap:8px}
 .dvi{display:block;width:100%;text-align:left;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-weight:500}
@@ -134,11 +139,14 @@ footer{color:var(--dim);font-size:12px;text-align:center;margin-top:18px}
 </div>
 
 <div id="app" class="hide">
-  <h1>Notifications</h1>
-  <p class="sub" id="etat">Chargement…</p>
+  <div class="row" style="justify-content:space-between;align-items:flex-start"><div><h1>Administration</h1>
+  <p class="sub" id="etat">Chargement…</p></div><div class="row"><button id="refresh" class="plain">Rafraîchir</button><button id="forget" class="plain">Oublier la clé</button></div></div>
   <div id="flash"></div>
 
-  <div class="card">
+  <nav class="tabs" role="tablist" aria-label="Rubriques"><button type="button" role="tab" id="tab-bord" data-tab="bord" aria-controls="sec-bord" aria-selected="false">Tableau de bord<span class="tb" id="tb-bord"></span></button><button type="button" role="tab" id="tab-notifs" data-tab="notifs" aria-controls="sec-notifs" aria-selected="false">Notifications<span class="tb" id="tb-notifs"></span></button><button type="button" role="tab" id="tab-trafic" data-tab="trafic" aria-controls="sec-trafic" aria-selected="false">Info trafic et pop-up<span class="tb" id="tb-trafic"></span></button><button type="button" role="tab" id="tab-dev" data-tab="dev" aria-controls="sec-dev" aria-selected="false">Déviations<span class="tb" id="tb-dev"></span></button></nav>
+
+  <section id="sec-bord" class="tabsec" role="tabpanel" aria-labelledby="tab-bord" hidden>
+    <div class="card">
     <h2>Temps réel</h2>
     <div id="rt">Chargement…</div>
     <label for="rtdst">Alerte de panne envoyée à</label>
@@ -146,7 +154,15 @@ footer{color:var(--dim);font-size:12px;text-align:center;margin-top:18px}
     <p class="sub" style="margin:6px 0 0">Un seul téléphone, jamais les autres. L'alerte part après 10 min sans aucune course reconnue, puis une seconde quand ça revient.</p>
   </div>
 
-  <div class="card">
+    <div class="card">
+    <h2>Erreurs dans l'appli</h2>
+    <p class="sub" style="margin:-6px 0 10px">Relevées sur les téléphones des voyageurs, abonnés ou non : une ligne par erreur, avec le nombre de fois et de téléphones. Gardées 30 jours.</p>
+    <div id="errs">Chargement…</div>
+  </div>
+  </section>
+
+  <section id="sec-notifs" class="tabsec" role="tabpanel" aria-labelledby="tab-notifs" hidden>
+    <div class="card">
     <h2>Nouveau message</h2>
     <label for="t">Titre <span class="cnt" id="ct">0/60</span></label>
     <input id="t" type="text" maxlength="70" placeholder="Travaux place d'Erlon">
@@ -173,12 +189,28 @@ footer{color:var(--dim);font-size:12px;text-align:center;margin-top:18px}
     </div>
     <div class="row" style="margin-top:14px">
       <button id="send">Envoyer</button>
-      <button id="refresh" class="plain">Rafraîchir</button>
-      <button id="forget" class="plain">Oublier la clé</button>
     </div>
   </div>
 
-  <div class="card" id="infos-card">
+    <div class="card">
+    <h2>Envois et réceptions</h2>
+    <p class="sub" style="margin:-6px 0 10px">« Envoyées » = Apple ou Google a pris le message. « Reçues » = le téléphone l'a vraiment affichée ; le chiffre monte au fil de l'eau (téléphone éteint : à son réveil).</p>
+    <div id="journal">Chargement…</div>
+  </div>
+
+    <div class="card">
+    <h2>7 derniers jours, par type d'alerte</h2>
+    <div id="stats">Chargement…</div>
+  </div>
+
+    <div class="card">
+    <h2>Téléphones abonnés</h2>
+    <div id="phones">Chargement…</div>
+  </div>
+  </section>
+
+  <section id="sec-trafic" class="tabsec" role="tabpanel" aria-labelledby="tab-trafic" hidden>
+    <div class="card" id="infos-card">
     <h2>Info trafic ajoutée à la main</h2>
     <p class="sub" style="margin:-6px 0 4px">Affichée dans l'appli comme une info du réseau, entre le début et la fin.</p>
     <input type="hidden" id="i-id">
@@ -208,7 +240,7 @@ footer{color:var(--dim);font-size:12px;text-align:center;margin-top:18px}
     <div id="i-list" style="margin-top:14px"></div>
   </div>
 
-  <div class="card" id="pops-card">
+    <div class="card" id="pops-card">
     <h2>Pop-up à l'ouverture</h2>
     <p class="sub" style="margin:-6px 0 4px">Une fenêtre affichée une seule fois sur chaque téléphone qui ouvre l'appli entre le début et la fin. Modifier le texte la remontre.</p>
     <input type="hidden" id="p-id">
@@ -232,34 +264,15 @@ footer{color:var(--dim);font-size:12px;text-align:center;margin-top:18px}
     </div>
     <div id="p-list" style="margin-top:14px"></div>
   </div>
+  </section>
 
-  <div class="card">
-    <h2>Envois et réceptions</h2>
-    <p class="sub" style="margin:-6px 0 10px">« Envoyées » = Apple ou Google a pris le message. « Reçues » = le téléphone l'a vraiment affichée ; le chiffre monte au fil de l'eau (téléphone éteint : à son réveil).</p>
-    <div id="journal">Chargement…</div>
-  </div>
-
-  <div class="card">
-    <h2>7 derniers jours, par type d'alerte</h2>
-    <div id="stats">Chargement…</div>
-  </div>
-
-  <div class="card">
-    <h2>Erreurs dans l'appli</h2>
-    <p class="sub" style="margin:-6px 0 10px">Relevées sur les téléphones des voyageurs, abonnés ou non : une ligne par erreur, avec le nombre de fois et de téléphones. Gardées 30 jours.</p>
-    <div id="errs">Chargement…</div>
-  </div>
-
-  <div class="card">
-    <h2>Téléphones abonnés</h2>
-    <div id="phones">Chargement…</div>
-  </div>
-
-  <div class="card wide" id="dv">
+  <section id="sec-dev" class="tabsec" role="tabpanel" aria-labelledby="tab-dev" hidden>
+    <div class="card" id="dv">
     <h2>Déviations hors GTFS</h2>
     <p class="sub" style="margin:-6px 0 12px">Tirées de l'info trafic à chaque relevé : arrêts non desservis, arrêts provisoires, tracé calculé sur les rues et heures estimées. Vérifiez le tracé avec le plan de report ; corrigez-le si besoin (glisser les points bleus, toucher le plan pour en ajouter, clic droit pour en retirer), puis validez. L'appli prend la correction à sa prochaine ouverture.</p>
     <div class="dvwrap"><div class="dvlist" id="dv-list">Chargement…</div><div class="dved" id="dv-ed"><p class="sub">Choisissez une déviation.</p></div></div>
   </div>
+  </section>
 
   <footer>Les téléphones n'ont ni nom ni compte : seul un identifiant tiré au hasard.</footer>
 </div>
@@ -409,6 +422,7 @@ function showErrs(list) {
         <div style="color:var(--dim);font-size:12px">Version ${esc(x.app || "?")} · ${esc(x.ua || "")} · première ${esc(court2(x.first))}</div></details>
       <button type="button" class="plain" data-ok style="margin-top:6px">Réglée</button></div>`).join("") +
     `<button type="button" class="plain" id="errs-all" style="margin-top:10px">Tout effacer</button>`;
+  { const n = (h.match(/class="err"/g) || []).length; $("tb-bord").textContent = n ? String(n) : ""; $("tb-bord").title = n ? n + " erreur(s) dans l'appli" : ""; }
   if ($("errs").dataset.h === h) return; $("errs").dataset.h = h; $("errs").innerHTML = h;
   $("errs").querySelectorAll("details").forEach((d) => d.ontoggle = () => { const sg = d.closest(".err").dataset.sig; d.open ? ERRS_OPEN.add(sg) : ERRS_OPEN.delete(sg); });
   $("errs").querySelectorAll("[data-ok]").forEach((b) => b.onclick = async () => { try { await call("erreurOk", { sig: b.closest(".err").dataset.sig }); load(true); } catch (e) { flash(e.message, true); } });
@@ -577,6 +591,7 @@ function dvList() {
   $("dv-list").innerHTML = [...g.values()].map((L) => { const d = L[0], st = L.map(dvSt), w = st.find((x) => x[0] === "auto") || st[0];
     return `<button type="button" class="dvi${DV.cur && L.some((x) => x.id === DV.cur.id) ? " on" : ""}" data-dv="${esc(d.id)}"><b>${dvLine(d.r)} ${esc(d.t)}</b><small>${esc(dvWhen(d))}</small><span class="st ${w[0]}">${w[1]}</span></button>`; }).join("") || `<p class="sub">Aucune déviation dans l'info trafic.</p>`;
   $("dv-list").querySelectorAll("[data-dv]").forEach((b) => b.onclick = () => dvOpen(b.dataset.dv));
+  const nAuto = DV.list.filter((d) => dvSt(d)[0] === "auto").length; $("tb-dev").textContent = nAuto ? String(nAuto) : ""; $("tb-dev").title = nAuto ? nAuto + " tracé(s) à vérifier" : "";
 }
 // parcours du GTFS (ligne, sens) qui passe par les arrêts de la déviation : positions et horaire habituel de a à b
 function dvPat(d) {
@@ -705,6 +720,23 @@ async function dvSave(st) {
     e.dirty = false; dvList(); dvOpen(d.id);
   } catch (er) { flash(er.message, true); }
 }
+
+// ---------- onglets ----------
+const TABS = ["bord", "notifs", "trafic", "dev"];
+function showTab(k) {
+  if (!TABS.includes(k)) k = "bord";
+  TABS.forEach((t) => { $("sec-" + t).hidden = t !== k; $("tab-" + t).setAttribute("aria-selected", String(t === k)); $("tab-" + t).tabIndex = t === k ? 0 : -1; });
+  document.querySelector(".wrap").classList.toggle("wide", k === "dev");
+  try { localStorage.setItem("grm:adminTab", k); } catch {}
+  if (location.hash.slice(1) !== k) history.replaceState(null, "", "#" + k);
+  if (k === "dev" && DV.map) setTimeout(() => DV.map.invalidateSize(), 30);
+}
+document.querySelectorAll(".tabs [data-tab]").forEach((b) => {
+  b.onclick = () => showTab(b.dataset.tab);
+  b.onkeydown = (e) => { if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return; const i = (TABS.indexOf(b.dataset.tab) + (e.key === "ArrowRight" ? 1 : TABS.length - 1)) % TABS.length; showTab(TABS[i]); $("tab-" + TABS[i]).focus(); };
+});
+window.addEventListener("hashchange", () => showTab(location.hash.slice(1)));
+showTab(location.hash.slice(1) || (() => { try { return localStorage.getItem("grm:adminTab"); } catch { return null; } })() || "bord");
 
 prev();
 if (KEY) enter(KEY); else gate();
