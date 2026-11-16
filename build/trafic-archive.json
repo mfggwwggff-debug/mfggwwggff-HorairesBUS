@@ -3561,6 +3561,32 @@
     "sur": true
    },
    "attendu": null
+  },
+  "f660a10d14|U5": {
+   "vu": "2026-11-16",
+   "t": "Suite à des travaux, votre bus effectue son terminus à l'arrêt IUT",
+   "p": "",
+   "lines": [
+    "U5"
+   ],
+   "rt": true,
+   "b": [
+    {
+     "r": [
+      [
+       "Arrêts non desservis : Parc, ESI, Ader, INSPE, Hoche, Parc Expositions",
+       0
+      ]
+     ]
+    }
+   ],
+   "auto": {
+    "grav": "deviation",
+    "nat": "perturbation",
+    "portee": "ligne",
+    "sur": true
+   },
+   "attendu": null
   }
  }
 }
