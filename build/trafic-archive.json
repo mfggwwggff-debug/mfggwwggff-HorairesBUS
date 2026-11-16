@@ -3613,6 +3613,172 @@
     "sur": true
    },
    "attendu": null
+  },
+  "f2cfc03dd2|U5": {
+   "vu": "2026-11-16",
+   "t": "Travaux rue Gabriel Voisin",
+   "p": "A partir du lundi 16 novembre 2026 jusqu'au lundi 23 novembre 2026",
+   "lines": [
+    "U5"
+   ],
+   "rt": false,
+   "b": [
+    {
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "ADER",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "PARC DES EXPOSITIONS",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt ADER de la ligne U6 vers Gare Centre",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "INSPE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "PARC DES EXPOSITIONS",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt ADER de la ligne U6 vers Gare Centre",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "HOCHE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "PARC DES EXPOSITIONS",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt PARC de la ligne U6 vers Gare Centre EXPOSITIONS",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "PARC EXPOSITIONS",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "PARC DES EXPOSITIONS",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt PARC EXPOSITIONS de la ligne U6 vers Gare Centre",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "PARC EXPOSITIONS",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "CROIX DU SUD",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt PARC EXPOSITIONS de la ligne U6 vers Gare Centre",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "auto": {
+    "grav": "mineur",
+    "nat": "perturbation",
+    "portee": "ligne",
+    "sur": true
+   },
+   "attendu": null
   }
  }
 }
