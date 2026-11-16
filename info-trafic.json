@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-16T13:55:27Z",
+ "at": "2026-11-16T16:19:26Z",
  "items": [
   {
    "id": "aba75f03db",
@@ -489,6 +489,79 @@
    ]
   },
   {
+   "id": "16eb3530f2",
+   "t": "En raison de contraintes d'exploitation, certains départs ne sont pas assurés aujourd'hui :",
+   "lines": [
+    "U20"
+   ],
+   "p": "",
+   "start": null,
+   "end": null,
+   "b": [
+    {
+     "r": [
+      [
+       "Lundi 16 novembre et mardi 17 novembre:",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Départs de Gare Clairmarais non assurés: 7h19-8h31-9h43-10h55-12h07-13h19-14h30-15h42-16h54-18h08-19h22",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Départs de Fac des Sciences non assurés: 8h57-9h09-10h21-11h33-12h45-13h57-15h09-16h21-17h34-18h47-20h",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Conseil déplacement",
+       1
+      ],
+      [
+       " : nous vous invitons à anticiper votre trajet ou à privilégier les lignes à proximité ( https://grandreims-mobilites.fr/fr/3RW-Itineraire.html)",
+       0
+      ]
+     ]
+    }
+   ],
+   "rt": true,
+   "sec": "temps reel",
+   "since": "2026-11-16",
+   "c": {
+    "effets": [
+     "non_assure"
+    ],
+    "grav": "genant",
+    "niv": 2,
+    "pastille": true,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": [
+    [
+     "Gare Clairmarais",
+     "Gare Clairmarais"
+    ],
+    [
+     "Fac des Sciences",
+     "Fac des Sciences"
+    ]
+   ]
+  },
+  {
    "id": "f2cfc03dd2",
    "t": "Travaux rue Gabriel Voisin",
    "lines": [
@@ -772,79 +845,6 @@
     [
      "arrêt ISLE DE FRANCE",
      "Isle de France"
-    ]
-   ]
-  },
-  {
-   "id": "16eb3530f2",
-   "t": "En raison de contraintes d'exploitation, certains départs ne sont pas assurés aujourd'hui :",
-   "lines": [
-    "U20"
-   ],
-   "p": "",
-   "start": null,
-   "end": null,
-   "b": [
-    {
-     "r": [
-      [
-       "Lundi 16 novembre:",
-       0
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Départs de Gare Clairmarais non assurés: 7h19-8h31-9h43-10h55-12h07-13h19-14h30-15h42-16h54-18h08-19h22",
-       0
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Départs de Fac des Sciences non assurés: 8h57-9h09-10h21-11h33-12h45-13h57-15h09-16h21-17h34-18h47-20h",
-       0
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Conseil déplacement",
-       1
-      ],
-      [
-       " : nous vous invitons à anticiper votre trajet ou à privilégier les lignes à proximité ( https://grandreims-mobilites.fr/fr/3RW-Itineraire.html)",
-       0
-      ]
-     ]
-    }
-   ],
-   "rt": true,
-   "sec": "temps reel",
-   "since": "2026-11-16",
-   "c": {
-    "effets": [
-     "non_assure"
-    ],
-    "grav": "genant",
-    "niv": 2,
-    "pastille": true,
-    "nat": "perturbation",
-    "cond": false,
-    "portee": "ligne",
-    "sur": true
-   },
-   "st": [
-    [
-     "Gare Clairmarais",
-     "Gare Clairmarais"
-    ],
-    [
-     "Fac des Sciences",
-     "Fac des Sciences"
     ]
    ]
   },
