@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-16T10:43:45Z",
+ "at": "2026-11-16T11:30:27Z",
  "items": [
   {
    "id": "aba75f03db",
@@ -487,42 +487,6 @@
      "Tourangeaux"
     ]
    ]
-  },
-  {
-   "id": "f91683339d",
-   "t": "Suite à des travaux, votre bus est dévié secteur Farman en direction de Parc Expositions",
-   "lines": [
-    "U5"
-   ],
-   "p": "",
-   "start": null,
-   "end": null,
-   "b": [
-    {
-     "r": [
-      [
-       "Arrêts non desservis : Ader, INSPE, Hoche",
-       0
-      ]
-     ]
-    }
-   ],
-   "rt": true,
-   "sec": "temps reel",
-   "since": "2026-11-16",
-   "c": {
-    "effets": [
-     "deviation"
-    ],
-    "grav": "deviation",
-    "niv": 1,
-    "pastille": true,
-    "nat": "perturbation",
-    "cond": false,
-    "portee": "ligne",
-    "sur": true
-   },
-   "st": []
   },
   {
    "id": "f2cfc03dd2",
@@ -1168,175 +1132,6 @@
    "st": []
   },
   {
-   "id": "391d31b0d6",
-   "t": "Travaux rue des Sablières à Champigny",
-   "lines": [
-    "U8"
-   ],
-   "p": "A partir du lundi 19 octobre 2026 jusqu'au lundi 21 décembre 2026",
-   "start": "2026-10-19",
-   "end": "2026-12-21",
-   "b": [
-    {
-     "l": "U8",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "SABLIERES",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "LA COUTURELLE",
-       1
-      ],
-      [
-       " est reporté à l'",
-       0
-      ],
-      [
-       "arrêt GARENNE",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "U8",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "SABLIERES",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "CHAMPEA",
-       1
-      ],
-      [
-       " est reporté à l'",
-       0
-      ],
-      [
-       "arrêt GARENNE",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "U8",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "CROIX BLANCHE",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "LA COUTURELLE",
-       1
-      ],
-      [
-       " est reporté à l'",
-       0
-      ],
-      [
-       "arrêt REDONT",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "U8",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "CROIX BLANCHE",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "CHAMPEA",
-       1
-      ],
-      [
-       " est reporté à l'",
-       0
-      ],
-      [
-       "arrêt REDONT",
-       1
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne",
-   "since": "2026-11-11",
-   "c": {
-    "effets": [
-     "deplacement"
-    ],
-    "grav": "mineur",
-    "niv": 1,
-    "pastille": false,
-    "nat": "perturbation",
-    "cond": false,
-    "portee": "ligne",
-    "sur": true
-   },
-   "st": [
-    [
-     "SABLIERES",
-     "Sablières"
-    ],
-    [
-     "arrêt GARENNE",
-     "Garenne"
-    ],
-    [
-     "CROIX BLANCHE",
-     "Croix Blanche"
-    ],
-    [
-     "arrêt REDONT",
-     "Redont"
-    ]
-   ]
-  },
-  {
    "id": "2f036d5c93",
    "t": "Travaux rue Pierre Maître et rue de Courcelles",
    "lines": [
@@ -1478,78 +1273,6 @@
     [
      "PONT ST BRICE",
      "Pont St Brice"
-    ]
-   ]
-  },
-  {
-   "id": "1539d33ccb",
-   "t": "Travaux de voirie à Treslon",
-   "lines": [
-    "E6"
-   ],
-   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 16 avril 2027",
-   "start": "2026-10-19",
-   "end": "2027-04-16",
-   "b": [
-    {
-     "l": "",
-     "r": [
-      [
-       "Forte perturbation sur les horaires de la ligne durant cette période",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "E6",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "TRESLON",
-       1
-      ],
-      [
-       " dans les deux sens est non desservi par la ligne, mais reste desservi par le",
-       0
-      ],
-      [
-       "Transport A la Demande",
-       1
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne",
-   "since": "2026-11-11",
-   "c": {
-    "effets": [
-     "horaires",
-     "deviation"
-    ],
-    "grav": "genant",
-    "niv": 2,
-    "pastille": true,
-    "nat": "perturbation",
-    "cond": false,
-    "portee": "ligne",
-    "sur": false
-   },
-   "st": [
-    [
-     "TRESLON",
-     null
     ]
    ]
   },
@@ -1732,6 +1455,247 @@
     [
      "TINQUEUX MAIRIE",
      "Tinqueux Mairie"
+    ]
+   ]
+  },
+  {
+   "id": "1539d33ccb",
+   "t": "Travaux de voirie à Treslon",
+   "lines": [
+    "E6"
+   ],
+   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 16 avril 2027",
+   "start": "2026-10-19",
+   "end": "2027-04-16",
+   "b": [
+    {
+     "l": "",
+     "r": [
+      [
+       "Forte perturbation sur les horaires de la ligne durant cette période",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "E6",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "TRESLON",
+       1
+      ],
+      [
+       " dans les deux sens est non desservi par la ligne, mais reste desservi par le",
+       0
+      ],
+      [
+       "Transport A la Demande",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne",
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "horaires",
+     "deviation"
+    ],
+    "grav": "genant",
+    "niv": 2,
+    "pastille": true,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": false
+   },
+   "st": [
+    [
+     "TRESLON",
+     null
+    ]
+   ]
+  },
+  {
+   "id": "391d31b0d6",
+   "t": "Travaux rue des Sablières à Champigny",
+   "lines": [
+    "U8"
+   ],
+   "p": "A partir du lundi 19 octobre 2026 jusqu'au lundi 21 décembre 2026",
+   "start": "2026-10-19",
+   "end": "2026-12-21",
+   "b": [
+    {
+     "l": "U8",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "SABLIERES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "LA COUTURELLE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt GARENNE",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U8",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "SABLIERES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "CHAMPEA",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt GARENNE",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U8",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "CROIX BLANCHE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "LA COUTURELLE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt REDONT",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U8",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "CROIX BLANCHE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "CHAMPEA",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt REDONT",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne",
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": [
+    [
+     "SABLIERES",
+     "Sablières"
+    ],
+    [
+     "arrêt GARENNE",
+     "Garenne"
+    ],
+    [
+     "CROIX BLANCHE",
+     "Croix Blanche"
+    ],
+    [
+     "arrêt REDONT",
+     "Redont"
     ]
    ]
   },
