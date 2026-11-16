@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-16T16:19:26Z",
+ "at": "2026-11-16T18:25:25Z",
  "items": [
   {
    "id": "aba75f03db",
@@ -487,6 +487,40 @@
      "Tourangeaux"
     ]
    ]
+  },
+  {
+   "id": "f8feabe17f",
+   "t": "Horaires en temps réel Kif&go en dysfonctionnement",
+   "lines": [],
+   "p": "",
+   "start": null,
+   "end": null,
+   "b": [
+    {
+     "r": [
+      [
+       "Nous vous invitons à consulter les horaires en temps réel sur notre site internet",
+       0
+      ]
+     ]
+    }
+   ],
+   "rt": true,
+   "sec": "temps reel",
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "technique"
+    ],
+    "grav": "genant",
+    "niv": 2,
+    "pastille": true,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "aucune",
+    "sur": true
+   },
+   "st": []
   },
   {
    "id": "16eb3530f2",
@@ -1025,38 +1059,188 @@
    ]
   },
   {
-   "id": "f8feabe17f",
-   "t": "Horaires en temps réel Kif&go en dysfonctionnement",
-   "lines": [],
-   "p": "",
-   "start": null,
-   "end": null,
+   "id": "1539d33ccb",
+   "t": "Travaux de voirie à Treslon",
+   "lines": [
+    "E6"
+   ],
+   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 16 avril 2027",
+   "start": "2026-10-19",
+   "end": "2027-04-16",
    "b": [
+    {
+     "l": "",
+     "r": [
+      [
+       "Forte perturbation sur les horaires de la ligne durant cette période",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "E6",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "TRESLON",
+       1
+      ],
+      [
+       " dans les deux sens est non desservi par la ligne, mais reste desservi par le",
+       0
+      ],
+      [
+       "Transport A la Demande",
+       1
+      ]
+     ]
+    },
     {
      "r": [
       [
-       "Nous vous invitons à consulter les horaires en temps réel sur notre site intenet",
-       0
+       "Merci de votre compréhension",
+       1
       ]
      ]
     }
    ],
-   "rt": true,
-   "sec": "temps reel",
+   "rt": false,
+   "sec": "par ligne",
    "since": "2026-11-11",
    "c": {
     "effets": [
-     "technique"
+     "horaires",
+     "deviation"
     ],
     "grav": "genant",
     "niv": 2,
     "pastille": true,
     "nat": "perturbation",
     "cond": false,
-    "portee": "aucune",
+    "portee": "ligne",
+    "sur": false
+   },
+   "st": [
+    [
+     "TRESLON",
+     null
+    ]
+   ]
+  },
+  {
+   "id": "7f0499f1fe",
+   "t": "Report de l'arrêt Folle Peine",
+   "lines": [
+    "E5",
+    "O2"
+   ],
+   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 18 décembre 2026",
+   "start": "2026-10-19",
+   "end": "2026-12-18",
+   "b": [
+    {
+     "l": "E5",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "FOLLE PEINE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "CATHEDRALE",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "60 mètres avant l'arrêt, au niveau du 86 rue de Venise",
+       1
+      ]
+     ],
+     "geo": {
+      "lat": 49.2478,
+      "lon": 4.034231,
+      "a": "60 mètres avant l'arrêt, au niveau du 86 rue de Venise",
+      "k": "rue de Venise|FOLLE PEINE"
+     }
+    },
+    {
+     "l": "O2",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "FOLLE PEINE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "GARE CENTRE",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "60 mètres avant l'arrêt, au niveau du 86 rue de Venise",
+       1
+      ]
+     ],
+     "geo": {
+      "lat": 49.2478,
+      "lon": 4.034231,
+      "a": "60 mètres avant l'arrêt, au niveau du 86 rue de Venise",
+      "k": "rue de Venise|FOLLE PEINE"
+     }
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne",
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "lignes",
     "sur": true
    },
-   "st": []
+   "st": [
+    [
+     "FOLLE PEINE",
+     "Folle Peine"
+    ]
+   ]
   },
   {
    "id": "2f036d5c93",
@@ -1439,190 +1623,6 @@
     [
      "TINQUEUX MAIRIE",
      "Tinqueux Mairie"
-    ]
-   ]
-  },
-  {
-   "id": "7f0499f1fe",
-   "t": "Report de l'arrêt Folle Peine",
-   "lines": [
-    "E5",
-    "O2"
-   ],
-   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 18 décembre 2026",
-   "start": "2026-10-19",
-   "end": "2026-12-18",
-   "b": [
-    {
-     "l": "E5",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "FOLLE PEINE",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "CATHEDRALE",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "60 mètres avant l'arrêt, au niveau du 86 rue de Venise",
-       1
-      ]
-     ],
-     "geo": {
-      "lat": 49.2478,
-      "lon": 4.034231,
-      "a": "60 mètres avant l'arrêt, au niveau du 86 rue de Venise",
-      "k": "rue de Venise|FOLLE PEINE"
-     }
-    },
-    {
-     "l": "O2",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "FOLLE PEINE",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "GARE CENTRE",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "60 mètres avant l'arrêt, au niveau du 86 rue de Venise",
-       1
-      ]
-     ],
-     "geo": {
-      "lat": 49.2478,
-      "lon": 4.034231,
-      "a": "60 mètres avant l'arrêt, au niveau du 86 rue de Venise",
-      "k": "rue de Venise|FOLLE PEINE"
-     }
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne",
-   "since": "2026-11-11",
-   "c": {
-    "effets": [
-     "deplacement"
-    ],
-    "grav": "mineur",
-    "niv": 1,
-    "pastille": false,
-    "nat": "perturbation",
-    "cond": false,
-    "portee": "lignes",
-    "sur": true
-   },
-   "st": [
-    [
-     "FOLLE PEINE",
-     "Folle Peine"
-    ]
-   ]
-  },
-  {
-   "id": "1539d33ccb",
-   "t": "Travaux de voirie à Treslon",
-   "lines": [
-    "E6"
-   ],
-   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 16 avril 2027",
-   "start": "2026-10-19",
-   "end": "2027-04-16",
-   "b": [
-    {
-     "l": "",
-     "r": [
-      [
-       "Forte perturbation sur les horaires de la ligne durant cette période",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "E6",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "TRESLON",
-       1
-      ],
-      [
-       " dans les deux sens est non desservi par la ligne, mais reste desservi par le",
-       0
-      ],
-      [
-       "Transport A la Demande",
-       1
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne",
-   "since": "2026-11-11",
-   "c": {
-    "effets": [
-     "horaires",
-     "deviation"
-    ],
-    "grav": "genant",
-    "niv": 2,
-    "pastille": true,
-    "nat": "perturbation",
-    "cond": false,
-    "portee": "ligne",
-    "sur": false
-   },
-   "st": [
-    [
-     "TRESLON",
-     null
     ]
    ]
   },
