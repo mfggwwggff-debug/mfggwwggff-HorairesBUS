@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-16T08:03:42Z",
+ "at": "2026-11-16T10:25:22Z",
  "items": [
   {
    "id": "aba75f03db",
@@ -525,60 +525,6 @@
    "st": []
   },
   {
-   "id": "16eb3530f2",
-   "t": "En raison de contraintes d'exploitation, certains départs ne sont pas assurés aujourd'hui :",
-   "lines": [
-    "U24"
-   ],
-   "p": "",
-   "start": null,
-   "end": null,
-   "b": [],
-   "rt": true,
-   "sec": "temps reel",
-   "since": "2026-11-16",
-   "c": {
-    "effets": [
-     "non_assure"
-    ],
-    "grav": "genant",
-    "niv": 2,
-    "pastille": true,
-    "nat": "perturbation",
-    "cond": false,
-    "portee": "ligne",
-    "sur": true
-   },
-   "st": []
-  },
-  {
-   "id": "16eb3530f2",
-   "t": "En raison de contraintes d'exploitation, certains départs ne sont pas assurés aujourd'hui :",
-   "lines": [
-    "U21"
-   ],
-   "p": "",
-   "start": null,
-   "end": null,
-   "b": [],
-   "rt": true,
-   "sec": "temps reel",
-   "since": "2026-11-16",
-   "c": {
-    "effets": [
-     "non_assure"
-    ],
-    "grav": "genant",
-    "niv": 2,
-    "pastille": true,
-    "nat": "perturbation",
-    "cond": false,
-    "portee": "ligne",
-    "sur": true
-   },
-   "st": []
-  },
-  {
    "id": "e7810d9a3b",
    "t": "Report de l'arrêt Stade de Muire vers P+R Thillois",
    "lines": [
@@ -1009,6 +955,320 @@
    "st": []
   },
   {
+   "id": "391d31b0d6",
+   "t": "Travaux rue des Sablières à Champigny",
+   "lines": [
+    "U8"
+   ],
+   "p": "A partir du lundi 19 octobre 2026 jusqu'au lundi 21 décembre 2026",
+   "start": "2026-10-19",
+   "end": "2026-12-21",
+   "b": [
+    {
+     "l": "U8",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "SABLIERES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "LA COUTURELLE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt GARENNE",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U8",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "SABLIERES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "CHAMPEA",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt GARENNE",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U8",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "CROIX BLANCHE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "LA COUTURELLE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt REDONT",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U8",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "CROIX BLANCHE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "CHAMPEA",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt REDONT",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne",
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": [
+    [
+     "SABLIERES",
+     "Sablières"
+    ],
+    [
+     "arrêt GARENNE",
+     "Garenne"
+    ],
+    [
+     "CROIX BLANCHE",
+     "Croix Blanche"
+    ],
+    [
+     "arrêt REDONT",
+     "Redont"
+    ]
+   ]
+  },
+  {
+   "id": "2f036d5c93",
+   "t": "Travaux rue Pierre Maître et rue de Courcelles",
+   "lines": [
+    "U7"
+   ],
+   "p": "A partir du lundi 19 octobre 2026 jusqu'au dimanche 21 février 2027",
+   "start": "2026-10-19",
+   "end": "2027-02-21",
+   "b": [
+    {
+     "l": "U7",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "VERRERIES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "HOPITAL DEBRE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt VERRERIES de la ligne U7 vers BOUTREAUX",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U7",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "PONT ST BRICE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "HOPITAL DEBRE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt VERRERIES de la ligne U7 vers BOUTREAUX",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U7",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "PONT ST BRICE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "BOUTREAUX",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "au 14 rue Pierre Maitre",
+       1
+      ]
+     ],
+     "geo": {
+      "lat": 49.262776,
+      "lon": 4.005758,
+      "a": "14 rue Pierre Maitre",
+      "k": "14 rue Pierre Maitre|PONT ST BRICE"
+     }
+    },
+    {
+     "img": "https://prod.deviations.info/carte/grandreims/public/img/86603.jpg"
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne",
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": [
+    [
+     "VERRERIES",
+     "Verreries"
+    ],
+    [
+     "arrêt VERRERIES de la ligne U7 vers BOUTREAUX",
+     "Verreries"
+    ],
+    [
+     "PONT ST BRICE",
+     "Pont St Brice"
+    ]
+   ]
+  },
+  {
    "id": "1539d33ccb",
    "t": "Travaux de voirie à Treslon",
    "lines": [
@@ -1259,320 +1519,6 @@
     [
      "TINQUEUX MAIRIE",
      "Tinqueux Mairie"
-    ]
-   ]
-  },
-  {
-   "id": "2f036d5c93",
-   "t": "Travaux rue Pierre Maître et rue de Courcelles",
-   "lines": [
-    "U7"
-   ],
-   "p": "A partir du lundi 19 octobre 2026 jusqu'au dimanche 21 février 2027",
-   "start": "2026-10-19",
-   "end": "2027-02-21",
-   "b": [
-    {
-     "l": "U7",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "VERRERIES",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "HOPITAL DEBRE",
-       1
-      ],
-      [
-       " est reporté à l'",
-       0
-      ],
-      [
-       "arrêt VERRERIES de la ligne U7 vers BOUTREAUX",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "U7",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "PONT ST BRICE",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "HOPITAL DEBRE",
-       1
-      ],
-      [
-       " est reporté à l'",
-       0
-      ],
-      [
-       "arrêt VERRERIES de la ligne U7 vers BOUTREAUX",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "U7",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "PONT ST BRICE",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "BOUTREAUX",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "au 14 rue Pierre Maitre",
-       1
-      ]
-     ],
-     "geo": {
-      "lat": 49.262776,
-      "lon": 4.005758,
-      "a": "14 rue Pierre Maitre",
-      "k": "14 rue Pierre Maitre|PONT ST BRICE"
-     }
-    },
-    {
-     "img": "https://prod.deviations.info/carte/grandreims/public/img/86603.jpg"
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne",
-   "since": "2026-11-11",
-   "c": {
-    "effets": [
-     "deplacement"
-    ],
-    "grav": "mineur",
-    "niv": 1,
-    "pastille": false,
-    "nat": "perturbation",
-    "cond": false,
-    "portee": "ligne",
-    "sur": true
-   },
-   "st": [
-    [
-     "VERRERIES",
-     "Verreries"
-    ],
-    [
-     "arrêt VERRERIES de la ligne U7 vers BOUTREAUX",
-     "Verreries"
-    ],
-    [
-     "PONT ST BRICE",
-     "Pont St Brice"
-    ]
-   ]
-  },
-  {
-   "id": "391d31b0d6",
-   "t": "Travaux rue des Sablières à Champigny",
-   "lines": [
-    "U8"
-   ],
-   "p": "A partir du lundi 19 octobre 2026 jusqu'au lundi 21 décembre 2026",
-   "start": "2026-10-19",
-   "end": "2026-12-21",
-   "b": [
-    {
-     "l": "U8",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "SABLIERES",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "LA COUTURELLE",
-       1
-      ],
-      [
-       " est reporté à l'",
-       0
-      ],
-      [
-       "arrêt GARENNE",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "U8",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "SABLIERES",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "CHAMPEA",
-       1
-      ],
-      [
-       " est reporté à l'",
-       0
-      ],
-      [
-       "arrêt GARENNE",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "U8",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "CROIX BLANCHE",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "LA COUTURELLE",
-       1
-      ],
-      [
-       " est reporté à l'",
-       0
-      ],
-      [
-       "arrêt REDONT",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "U8",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "CROIX BLANCHE",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "CHAMPEA",
-       1
-      ],
-      [
-       " est reporté à l'",
-       0
-      ],
-      [
-       "arrêt REDONT",
-       1
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne",
-   "since": "2026-11-11",
-   "c": {
-    "effets": [
-     "deplacement"
-    ],
-    "grav": "mineur",
-    "niv": 1,
-    "pastille": false,
-    "nat": "perturbation",
-    "cond": false,
-    "portee": "ligne",
-    "sur": true
-   },
-   "st": [
-    [
-     "SABLIERES",
-     "Sablières"
-    ],
-    [
-     "arrêt GARENNE",
-     "Garenne"
-    ],
-    [
-     "CROIX BLANCHE",
-     "Croix Blanche"
-    ],
-    [
-     "arrêt REDONT",
-     "Redont"
     ]
    ]
   },
@@ -2345,106 +2291,6 @@
    ]
   },
   {
-   "id": "f118b20ae9",
-   "t": "Report de l'arrêt D'Orves vers C.C Cormontreuil",
-   "lines": [
-    "O2",
-    "U5"
-   ],
-   "p": "A partir du lundi 28 septembre 2026 jusqu'au jeudi 31 décembre 2026",
-   "start": "2026-09-28",
-   "end": "2026-12-31",
-   "b": [
-    {
-     "l": "O2",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "D'ORVES",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "C.C. CORMONTREUIL",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "200 mètres avant, face au 61 Bld du Président Wilson (ancien arrêt de la ligne 2)",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "U5",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "D'ORVES",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "PARC DES EXPOSITIONS",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "200 mètres avant, face au 61 Bld du Président Wilson (ancien arrêt de la ligne 2)",
-       1
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne",
-   "since": "2026-11-11",
-   "c": {
-    "effets": [
-     "deplacement"
-    ],
-    "grav": "mineur",
-    "niv": 1,
-    "pastille": false,
-    "nat": "perturbation",
-    "cond": false,
-    "portee": "lignes",
-    "sur": true
-   },
-   "st": [
-    [
-     "D'ORVES",
-     "D'Orves"
-    ]
-   ]
-  },
-  {
    "id": "f168938f84",
    "t": "Report des arrêts Alexandre 1er",
    "lines": [
@@ -2552,6 +2398,106 @@
     [
      "ALEXANDRE 1ER",
      "Alexandre 1er"
+    ]
+   ]
+  },
+  {
+   "id": "f118b20ae9",
+   "t": "Report de l'arrêt D'Orves vers C.C Cormontreuil",
+   "lines": [
+    "O2",
+    "U5"
+   ],
+   "p": "A partir du lundi 28 septembre 2026 jusqu'au jeudi 31 décembre 2026",
+   "start": "2026-09-28",
+   "end": "2026-12-31",
+   "b": [
+    {
+     "l": "O2",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "D'ORVES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "C.C. CORMONTREUIL",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "200 mètres avant, face au 61 Bld du Président Wilson (ancien arrêt de la ligne 2)",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U5",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "D'ORVES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "PARC DES EXPOSITIONS",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "200 mètres avant, face au 61 Bld du Président Wilson (ancien arrêt de la ligne 2)",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne",
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "lignes",
+    "sur": true
+   },
+   "st": [
+    [
+     "D'ORVES",
+     "D'Orves"
     ]
    ]
   },
