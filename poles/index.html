@@ -23,15 +23,19 @@ html,body{margin:0;height:100%;overflow:hidden;touch-action:manipulation;-webkit
 .recenter{position:fixed;left:50%;transform:translateX(-50%);display:none;border:0;background:var(--accent-strong);color:#fff;font:700 14px "DM Sans",system-ui,sans-serif;padding:10px 16px;border-radius:22px;box-shadow:0 4px 14px rgba(0,0,0,.25);cursor:pointer;z-index:5}
 #compass{position:fixed;right:14px;top:64px;width:40px;height:40px;border-radius:50%;background:var(--surface);box-shadow:0 2px 10px rgba(0,0,0,.12);display:grid;place-items:center}
 #compass svg{transition:none}
-.panel{position:fixed;left:0;right:0;bottom:0;transform:translateZ(0);background:var(--surface);border-radius:20px 20px 0 0;box-shadow:0 -4px 24px rgba(0,0,0,.14);padding:14px 16px calc(14px + env(safe-area-inset-bottom));max-height:52vh;overflow:hidden;display:flex;flex-direction:column}
+.panel{position:fixed;left:0;right:0;bottom:0;transform:translateZ(0);background:var(--surface);border-radius:20px 20px 0 0;box-shadow:0 -4px 24px rgba(0,0,0,.14);padding:14px 16px calc(14px + env(safe-area-inset-bottom));max-height:58vh;overflow:hidden;display:flex;flex-direction:column;transition:transform .28s cubic-bezier(.2,.8,.2,1);will-change:transform}
+.panel.drag{transition:none}
+.sheethead{touch-action:none;cursor:grab;margin:-14px -16px 0;padding:14px 16px 0}
+.panel.low .scroll{visibility:hidden}
 .panel .scroll{overflow:auto;min-height:0;flex:1;-webkit-overflow-scrolling:touch}
 @media (min-width:820px){.panel{left:16px;right:auto;bottom:16px;top:76px;width:360px;border-radius:20px;max-height:none}}
-.grab{width:40px;height:4px;border-radius:2px;background:#d8d3cb;margin:0 auto 10px}
+.grab{width:44px;height:5px;border-radius:3px;background:#cfc8bd;margin:0 auto 4px}
 @media (min-width:820px){.grab{display:none}}
-@media (max-width:819px){body.guiding .panel .f,body.guiding .panel select,body.guiding .panel ol,body.guiding .panel .note{display:none}}
+@media (max-width:819px){body.guiding .panel .scroll{display:none}}
+@media (min-width:820px){.sheethead{cursor:default;margin:0;padding:0}.panel.low{transform:none!important}.panel.low .scroll{visibility:visible}}
 label.f{display:block;font-size:12px;color:var(--muted);margin:8px 0 4px;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
 select{width:100%;font:500 15px "DM Sans",system-ui,sans-serif;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#faf8f5;color:var(--ink);appearance:none;background-image:linear-gradient(45deg,transparent 50%,#888 50%),linear-gradient(135deg,#888 50%,transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px;background-repeat:no-repeat}
-.sum{display:flex;align-items:center;gap:12px;margin:14px 0 10px}
+.sum{display:flex;align-items:center;gap:12px;margin:8px 0 12px}
 .sum .big{font-size:26px;font-weight:700;color:var(--accent-strong)}
 .sum .sub{font-size:13px;color:var(--muted)}
 .go{margin-left:auto;border:0;background:var(--accent-strong);color:#fff;font:700 15px "DM Sans",system-ui,sans-serif;padding:12px 16px;border-radius:14px;cursor:pointer}
@@ -70,13 +74,13 @@ body.thumb .top,body.thumb .panel,body.thumb #compass,body.thumb .hint,body.thum
 <div class="hint" id="hint">1 doigt : déplacer · pincer : zoom · 2 doigts : tourner ou incliner</div>
 <button class="recenter" id="recenter">Recentrer</button>
 <div class="panel">
-  <div class="grab"></div>
+  <div class="sheethead" id="sheethead"><div class="grab"></div>
+  <div class="sum"><div><div class="big" id="dist">–</div><div class="sub" id="time"></div></div><button class="go" id="go">Me guider</button></div></div>
+  <div class="scroll">
   <label class="f">Je descends</label>
   <select id="from"></select>
   <label class="f">Je prends</label>
-  <select id="to"></select>
-  <div class="sum"><div><div class="big" id="dist">–</div><div class="sub" id="time"></div></div><button class="go" id="go">Me guider</button></div>
-  <div class="scroll"><ol class="steps" id="steps"></ol>
+  <select id="to"></select><ol class="steps" id="steps"></ol>
   <div class="note" id="note"></div><div class="err" id="err"></div></div>
 </div>
 <div class="load" id="load"><div class="ldi"><div class="spin"></div><span id="ldt">Chargement du pôle…</span></div></div>
@@ -390,7 +394,7 @@ controls.addEventListener("start", () => { tween = null; if (guide && following)
 let guide = null; const goBtn = $("go"), banner = $("banner");
 function startGuide() {
   if (!cur || cur.len < 1) { frame(); return; }
-  guide = { s: 0, step: -1, blend: 0 }; document.body.classList.add("guiding"); following = true; recBtn.style.display = "none";
+  setSheet(false, false); guide = { s: 0, step: -1, blend: 0 }; document.body.classList.add("guiding"); following = true; recBtn.style.display = "none";
   goBtn.textContent = "Arrêter"; goBtn.classList.add("stop"); banner.style.display = "flex"; tween = null;
 }
 function stopGuide(done) {
@@ -399,6 +403,33 @@ function stopGuide(done) {
   document.querySelectorAll("#steps li").forEach((li) => li.classList.remove("cur", "done"));
 }
 goBtn.onclick = () => (guide ? stopGuide() : startGuide());
+// ---------- panneau du bas : position haute / basse (téléphone) ----------
+const panel = document.querySelector(".panel"), sheetHead = $("sheethead");
+let sheetLow = false, sheetDrag = null;
+const isPhone = () => innerWidth < 820;
+function lowOffset() { const ph = panel.offsetHeight, hh = sheetHead.offsetHeight; return Math.max(0, ph - hh - 4 - (parseFloat(getComputedStyle(panel).paddingBottom) || 0) + 6); }
+function setSheet(low, anim = true) {
+  sheetLow = low && isPhone() && !document.body.classList.contains("guiding");
+  panel.classList.toggle("drag", !anim); panel.classList.toggle("low", sheetLow);
+  panel.style.transform = sheetLow ? `translateY(${lowOffset()}px)` : "translateY(0)";
+}
+sheetHead.addEventListener("pointerdown", (e) => {
+  if (!isPhone() || e.target.closest("button") || document.body.classList.contains("guiding")) return;
+  sheetDrag = { y: e.clientY, base: sheetLow ? lowOffset() : 0, moved: 0 }; sheetHead.setPointerCapture(e.pointerId); panel.classList.add("drag");
+});
+sheetHead.addEventListener("pointermove", (e) => {
+  if (!sheetDrag) return; const dy = e.clientY - sheetDrag.y; sheetDrag.moved = Math.max(sheetDrag.moved, Math.abs(dy));
+  const t = Math.max(0, Math.min(lowOffset(), sheetDrag.base + dy)); panel.style.transform = `translateY(${t}px)`; panel.classList.toggle("low", t > lowOffset() / 2);
+});
+const endSheet = (e) => {
+  if (!sheetDrag) return; const dy = e.clientY - sheetDrag.y, d = sheetDrag;
+  sheetDrag = null; panel.classList.remove("drag");
+  if (d.moved < 6) setSheet(!sheetLow); // simple toucher : on bascule
+  else setSheet(dy > 40 ? true : dy < -40 ? false : d.base + dy > lowOffset() / 2);
+  if (!guide) setTimeout(frame, 300); // l'itinéraire se recadre dans la nouvelle zone visible
+};
+sheetHead.addEventListener("pointerup", endSheet); sheetHead.addEventListener("pointercancel", endSheet);
+addEventListener("resize", () => setSheet(sheetLow, false));
 // ---------- gestes tactiles ----------
 // 1 doigt : faire glisser le plan (avec élan) · 2 doigts : pincer = zoom, tourner = rotation, glisser vers le haut / bas = inclinaison
 // double tap : zoom avant · pendant le guidage, pincer règle le zoom sans quitter le suivi

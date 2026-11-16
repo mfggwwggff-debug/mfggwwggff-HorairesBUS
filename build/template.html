@@ -3793,7 +3793,7 @@ function poles3dHtml() {
   if (!P3.list) { if (!P3.loading) { P3.loading = true; loadPoles3D(); } return ""; }
   if (!P3.list.length) return "";
   return `<h3 class="plh">Pôles en 3D</h3>` + P3.list.map((p) => {
-    const lns = (p.lines || []).map((l) => net.R.findIndex((r) => r.s === l)).filter((ri) => ri >= 0 && shownR(ri)).sort((a, b) => a - b).slice(0, 8);
+    const lns = (p.lines || []).map((l) => net.R.findIndex((r) => r.s === l)).filter((ri) => ri >= 0 && shownR(ri)).sort((a, b) => a - b).slice(0, 12);
     return `<button type="button" class="plc p3" data-p3="${esc(p.id)}"><span class="im" style="background-image:url('${P3.dir}${esc(p.thumb)}')"></span><span class="tx"><b>${esc(p.name)}</b><span class="lns">${lns.map((ri) => badge(ri, "sm", true)).join("")}</span><small>Vue en 3D · chemin entre les quais</small></span></button>`;
   }).join("") + `<h3 class="plh">Plans officiels</h3>`;
 }
