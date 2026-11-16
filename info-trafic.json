@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-16T12:29:28Z",
+ "at": "2026-11-16T13:55:27Z",
  "items": [
   {
    "id": "aba75f03db",
@@ -485,79 +485,6 @@
     [
      "TOURANGEAUX",
      "Tourangeaux"
-    ]
-   ]
-  },
-  {
-   "id": "16eb3530f2",
-   "t": "En raison de contraintes d'exploitation, certains départs ne sont pas assurés aujourd'hui :",
-   "lines": [
-    "U22"
-   ],
-   "p": "",
-   "start": null,
-   "end": null,
-   "b": [
-    {
-     "r": [
-      [
-       "Lundi 16 novembre:",
-       0
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Départs de Neuvillette Mairie non assurés: 7h17-8h58-10h45-12h43",
-       0
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Départs de Royale non assurés: 6h22-8h07-9h45-11h31-13h31",
-       0
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Conseil déplacement",
-       1
-      ],
-      [
-       ": nous vous invitons à anticiper votre trajet ou à privilégier les lignes à proximité ( https://grandreims-mobilites.fr/fr/3RW-Itineraire.html)",
-       0
-      ]
-     ]
-    }
-   ],
-   "rt": true,
-   "sec": "temps reel",
-   "since": "2026-11-16",
-   "c": {
-    "effets": [
-     "non_assure"
-    ],
-    "grav": "genant",
-    "niv": 2,
-    "pastille": true,
-    "nat": "perturbation",
-    "cond": false,
-    "portee": "ligne",
-    "sur": true
-   },
-   "st": [
-    [
-     "Neuvillette Mairie",
-     "Neuvil. Mairie"
-    ],
-    [
-     "Royale",
-     "Royale"
     ]
    ]
   },
@@ -1277,260 +1204,6 @@
    ]
   },
   {
-   "id": "7f0499f1fe",
-   "t": "Report de l'arrêt Folle Peine",
-   "lines": [
-    "E5",
-    "O2"
-   ],
-   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 18 décembre 2026",
-   "start": "2026-10-19",
-   "end": "2026-12-18",
-   "b": [
-    {
-     "l": "E5",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "FOLLE PEINE",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "CATHEDRALE",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "60 mètres avant l'arrêt, au niveau du 86 rue de Venise",
-       1
-      ]
-     ],
-     "geo": {
-      "lat": 49.2478,
-      "lon": 4.034231,
-      "a": "60 mètres avant l'arrêt, au niveau du 86 rue de Venise",
-      "k": "rue de Venise|FOLLE PEINE"
-     }
-    },
-    {
-     "l": "O2",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "FOLLE PEINE",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "GARE CENTRE",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "60 mètres avant l'arrêt, au niveau du 86 rue de Venise",
-       1
-      ]
-     ],
-     "geo": {
-      "lat": 49.2478,
-      "lon": 4.034231,
-      "a": "60 mètres avant l'arrêt, au niveau du 86 rue de Venise",
-      "k": "rue de Venise|FOLLE PEINE"
-     }
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne",
-   "since": "2026-11-11",
-   "c": {
-    "effets": [
-     "deplacement"
-    ],
-    "grav": "mineur",
-    "niv": 1,
-    "pastille": false,
-    "nat": "perturbation",
-    "cond": false,
-    "portee": "lignes",
-    "sur": true
-   },
-   "st": [
-    [
-     "FOLLE PEINE",
-     "Folle Peine"
-    ]
-   ]
-  },
-  {
-   "id": "25a156ef9e",
-   "t": "Report de l'arrêt Tinqueux Mairie vers P+R Thillois",
-   "lines": [
-    "U1"
-   ],
-   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 18 décembre 2026",
-   "start": "2026-10-19",
-   "end": "2026-12-18",
-   "b": [
-    {
-     "l": "U1",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "TINQUEUX MAIRIE",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "P+R THILLOIS",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "50 mètres avant l'arrêt",
-       1
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne",
-   "since": "2026-11-11",
-   "c": {
-    "effets": [
-     "deplacement"
-    ],
-    "grav": "mineur",
-    "niv": 1,
-    "pastille": false,
-    "nat": "perturbation",
-    "cond": false,
-    "portee": "ligne",
-    "sur": true
-   },
-   "st": [
-    [
-     "TINQUEUX MAIRIE",
-     "Tinqueux Mairie"
-    ]
-   ]
-  },
-  {
-   "id": "1539d33ccb",
-   "t": "Travaux de voirie à Treslon",
-   "lines": [
-    "E6"
-   ],
-   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 16 avril 2027",
-   "start": "2026-10-19",
-   "end": "2027-04-16",
-   "b": [
-    {
-     "l": "",
-     "r": [
-      [
-       "Forte perturbation sur les horaires de la ligne durant cette période",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "E6",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "TRESLON",
-       1
-      ],
-      [
-       " dans les deux sens est non desservi par la ligne, mais reste desservi par le",
-       0
-      ],
-      [
-       "Transport A la Demande",
-       1
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne",
-   "since": "2026-11-11",
-   "c": {
-    "effets": [
-     "horaires",
-     "deviation"
-    ],
-    "grav": "genant",
-    "niv": 2,
-    "pastille": true,
-    "nat": "perturbation",
-    "cond": false,
-    "portee": "ligne",
-    "sur": false
-   },
-   "st": [
-    [
-     "TRESLON",
-     null
-    ]
-   ]
-  },
-  {
    "id": "391d31b0d6",
    "t": "Travaux rue des Sablières à Champigny",
    "lines": [
@@ -1696,6 +1369,260 @@
     [
      "arrêt REDONT",
      "Redont"
+    ]
+   ]
+  },
+  {
+   "id": "25a156ef9e",
+   "t": "Report de l'arrêt Tinqueux Mairie vers P+R Thillois",
+   "lines": [
+    "U1"
+   ],
+   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 18 décembre 2026",
+   "start": "2026-10-19",
+   "end": "2026-12-18",
+   "b": [
+    {
+     "l": "U1",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "TINQUEUX MAIRIE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "P+R THILLOIS",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "50 mètres avant l'arrêt",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne",
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": [
+    [
+     "TINQUEUX MAIRIE",
+     "Tinqueux Mairie"
+    ]
+   ]
+  },
+  {
+   "id": "7f0499f1fe",
+   "t": "Report de l'arrêt Folle Peine",
+   "lines": [
+    "E5",
+    "O2"
+   ],
+   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 18 décembre 2026",
+   "start": "2026-10-19",
+   "end": "2026-12-18",
+   "b": [
+    {
+     "l": "E5",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "FOLLE PEINE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "CATHEDRALE",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "60 mètres avant l'arrêt, au niveau du 86 rue de Venise",
+       1
+      ]
+     ],
+     "geo": {
+      "lat": 49.2478,
+      "lon": 4.034231,
+      "a": "60 mètres avant l'arrêt, au niveau du 86 rue de Venise",
+      "k": "rue de Venise|FOLLE PEINE"
+     }
+    },
+    {
+     "l": "O2",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "FOLLE PEINE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "GARE CENTRE",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "60 mètres avant l'arrêt, au niveau du 86 rue de Venise",
+       1
+      ]
+     ],
+     "geo": {
+      "lat": 49.2478,
+      "lon": 4.034231,
+      "a": "60 mètres avant l'arrêt, au niveau du 86 rue de Venise",
+      "k": "rue de Venise|FOLLE PEINE"
+     }
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne",
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "lignes",
+    "sur": true
+   },
+   "st": [
+    [
+     "FOLLE PEINE",
+     "Folle Peine"
+    ]
+   ]
+  },
+  {
+   "id": "1539d33ccb",
+   "t": "Travaux de voirie à Treslon",
+   "lines": [
+    "E6"
+   ],
+   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 16 avril 2027",
+   "start": "2026-10-19",
+   "end": "2027-04-16",
+   "b": [
+    {
+     "l": "",
+     "r": [
+      [
+       "Forte perturbation sur les horaires de la ligne durant cette période",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "E6",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "TRESLON",
+       1
+      ],
+      [
+       " dans les deux sens est non desservi par la ligne, mais reste desservi par le",
+       0
+      ],
+      [
+       "Transport A la Demande",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne",
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "horaires",
+     "deviation"
+    ],
+    "grav": "genant",
+    "niv": 2,
+    "pastille": true,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": false
+   },
+   "st": [
+    [
+     "TRESLON",
+     null
     ]
    ]
   },
@@ -2468,6 +2395,106 @@
    ]
   },
   {
+   "id": "f118b20ae9",
+   "t": "Report de l'arrêt D'Orves vers C.C Cormontreuil",
+   "lines": [
+    "O2",
+    "U5"
+   ],
+   "p": "A partir du lundi 28 septembre 2026 jusqu'au jeudi 31 décembre 2026",
+   "start": "2026-09-28",
+   "end": "2026-12-31",
+   "b": [
+    {
+     "l": "O2",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "D'ORVES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "C.C. CORMONTREUIL",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "200 mètres avant, face au 61 Bld du Président Wilson (ancien arrêt de la ligne 2)",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U5",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "D'ORVES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "PARC DES EXPOSITIONS",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "200 mètres avant, face au 61 Bld du Président Wilson (ancien arrêt de la ligne 2)",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne",
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "lignes",
+    "sur": true
+   },
+   "st": [
+    [
+     "D'ORVES",
+     "D'Orves"
+    ]
+   ]
+  },
+  {
    "id": "f168938f84",
    "t": "Report des arrêts Alexandre 1er",
    "lines": [
@@ -2575,106 +2602,6 @@
     [
      "ALEXANDRE 1ER",
      "Alexandre 1er"
-    ]
-   ]
-  },
-  {
-   "id": "f118b20ae9",
-   "t": "Report de l'arrêt D'Orves vers C.C Cormontreuil",
-   "lines": [
-    "O2",
-    "U5"
-   ],
-   "p": "A partir du lundi 28 septembre 2026 jusqu'au jeudi 31 décembre 2026",
-   "start": "2026-09-28",
-   "end": "2026-12-31",
-   "b": [
-    {
-     "l": "O2",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "D'ORVES",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "C.C. CORMONTREUIL",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "200 mètres avant, face au 61 Bld du Président Wilson (ancien arrêt de la ligne 2)",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "U5",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "D'ORVES",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "PARC DES EXPOSITIONS",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "200 mètres avant, face au 61 Bld du Président Wilson (ancien arrêt de la ligne 2)",
-       1
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne",
-   "since": "2026-11-11",
-   "c": {
-    "effets": [
-     "deplacement"
-    ],
-    "grav": "mineur",
-    "niv": 1,
-    "pastille": false,
-    "nat": "perturbation",
-    "cond": false,
-    "portee": "lignes",
-    "sur": true
-   },
-   "st": [
-    [
-     "D'ORVES",
-     "D'Orves"
     ]
    ]
   },
