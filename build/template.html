@@ -924,6 +924,15 @@ body.p32cover .sheet { border-radius: 0; box-shadow: none; }
 .plc .im { aspect-ratio: 4 / 3; background: var(--sunk) center / cover no-repeat; border-bottom: 1px solid var(--rule); }
 .plc .tx { display: flex; flex-direction: column; gap: 3px; padding: 9px 10px 10px; align-items: flex-start; }
 .plc b { font-size: 14.5px; line-height: 1.2; } .plc small { font-size: 12px; color: var(--muted); }
+/* #29 pôles en 3D */
+.plh { grid-column: 1 / -1; margin: 6px 2px 0; font-size: 13px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+.plh:first-child { margin-top: 0; }
+.plc.p3 .im { position: relative; }
+.plc.p3 .im::after { content: "3D"; position: absolute; left: 8px; top: 8px; background: var(--accent-strong); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 6px; border-radius: 6px; }
+.plc .lns { display: flex; flex-wrap: wrap; gap: 3px; }
+#p3v { position: fixed; inset: 0; z-index: 81; background: #ECE7DE; display: none; }
+#p3v.on { display: block; }
+#p3v iframe { position: absolute; left: 0; right: 0; bottom: 0; top: var(--sat, 0px); width: 100%; height: calc(100% - var(--sat, 0px)); border: 0; display: block; }
 #plv { position: fixed; inset: 0; z-index: 80; background: var(--bg); display: none; flex-direction: column; }
 #plv.on { display: flex; }
 .plv-top { display: flex; align-items: center; gap: 10px; padding: calc(var(--sat) + 10px) 12px 10px; background: var(--surface); border-bottom: 1px solid var(--rule); }
@@ -3652,6 +3661,31 @@ function renderTrafic() {
 // ---------- Plans du réseau ----------
 // PDF officiels convertis en images chaque semaine par une tâche GitHub (dossier plans/).
 const PL = { list: null, err: false, src: "" };
+// #29 : pôles d'échange en 3D (décors faits avec Pôle Studio, dossier poles/, visionneuse poles/index.html)
+const P3 = { list: null, err: false, dir: "poles/" };
+async function loadPoles3D() {
+  try { const r = await fetch(P3.dir + "poles.json?v=" + Math.floor(Date.now() / 3600000), { cache: "no-cache" }); if (!r.ok) throw 0; P3.list = (await r.json()).poles || []; }
+  catch (e) { P3.err = true; P3.list = []; }
+  if (S.view === "plans") renderPlans();
+}
+function poles3dHtml() {
+  if (!P3.list) { if (!P3.loading) { P3.loading = true; loadPoles3D(); } return ""; }
+  if (!P3.list.length) return "";
+  return `<h3 class="plh">Pôles en 3D</h3>` + P3.list.map((p) => {
+    const lns = (p.lines || []).map((l) => net.R.findIndex((r) => r.s === l)).filter((ri) => ri >= 0 && shownR(ri)).sort((a, b) => a - b).slice(0, 8);
+    return `<button type="button" class="plc p3" data-p3="${esc(p.id)}"><span class="im" style="background-image:url('${P3.dir}${esc(p.thumb)}')"></span><span class="tx"><b>${esc(p.name)}</b><span class="lns">${lns.map((ri) => badge(ri, "sm", true)).join("")}</span><small>Vue en 3D · chemin entre les quais</small></span></button>`;
+  }).join("") + `<h3 class="plh">Plans officiels</h3>`;
+}
+function openPole3D(id) {
+  let el = $("#p3v");
+  if (!el) { el = document.createElement("div"); el.id = "p3v"; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", "Pôle en 3D"); document.body.appendChild(el); }
+  el.innerHTML = `<iframe title="Pôle en 3D" src="${P3.dir}index.html?p=${encodeURIComponent(id)}&embed=1" allow="fullscreen"></iframe>`;
+  el.classList.add("on");
+  const close = () => { el.classList.remove("on"); el.innerHTML = ""; window.removeEventListener("message", onMsg); document.removeEventListener("keydown", esck); };
+  const onMsg = (e) => { if (e.data && e.data.grm === "pole-close") close(); };
+  const esck = (e) => { if (e.key === "Escape") close(); };
+  window.addEventListener("message", onMsg); document.addEventListener("keydown", esck);
+}
 async function loadPlans() {
   try { const r = await fetch("plans/plans.json?v=" + Math.floor(Date.now() / 3600000), { cache: "no-cache" }); if (!r.ok) throw 0; const d = await r.json(); PL.list = d.plans || []; PL.src = d.src || ""; }
   catch (e) { PL.err = true; }
@@ -3665,9 +3699,10 @@ function renderPlans() {
     if (!PL.err && !PL.loading) { PL.loading = true; loadPlans(); }
     return;
   }
-  res.innerHTML = PL.list.filter((p) => { const ri = p.line ? net.R.findIndex((r) => r.s === p.line) : -1; return ri < 0 || shownR(ri); }).map((p) => { const m = p.title.match(/^(.*?)\s*\((.*)\)\s*$/); const ri = p.line ? net.R.findIndex((r) => r.s === p.line) : -1;
+  res.innerHTML = poles3dHtml() + PL.list.filter((p) => { const ri = p.line ? net.R.findIndex((r) => r.s === p.line) : -1; return ri < 0 || shownR(ri); }).map((p) => { const m = p.title.match(/^(.*?)\s*\((.*)\)\s*$/); const ri = p.line ? net.R.findIndex((r) => r.s === p.line) : -1;
     return `<button type="button" class="plc" data-pl="${esc(p.id)}"><span class="im" style="background-image:url('plans/${esc(p.thumb)}')"></span><span class="tx">${ri >= 0 ? badge(ri, "sm", true) : ""}<b>${esc(m ? m[1] : p.title)}</b>${m ? `<small>${esc(m[2])}</small>` : ""}<small>${p.pages.length > 1 ? p.pages.length + " pages · " : ""}PDF ${p.mb} Mo</small></span></button>`; }).join("");
   res.querySelectorAll("[data-pl]").forEach((b) => b.onclick = () => openPlan(b.dataset.pl, 0));
+  res.querySelectorAll("[data-p3]").forEach((b) => b.onclick = () => openPole3D(b.dataset.p3));
   $("#pl-src").innerHTML = `Plans officiels de Grand Reims Mobilités, <a href="${esc(site)}" target="_blank" rel="noopener">téléchargeables sur leur site</a>. Mis à jour automatiquement chaque semaine.`;
 }
 function openPlan(id, page) {

@@ -1,0 +1,2 @@
+three.js r160 (https://threejs.org), licence MIT, Copyright © 2010-2023 three.js authors.
+Fichiers copiés tels quels depuis le dépôt mrdoob/three.js (tag r160) pour la visionneuse des pôles en 3D (#29).

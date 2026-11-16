@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Pôles en 3D · Grand Reims Mobilités</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
+<style>
+:root{--accent:#E8511C;--accent-strong:#C4430F;--ink:#1d1d1b;--muted:#6b6b6b;--surface:#fff;--line:#e7e3dc;--navy:#1C2B39}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;font-family:"DM Sans",system-ui,sans-serif;color:var(--ink);background:#ECE7DE}
+#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.top{position:fixed;top:calc(12px + env(safe-area-inset-top));left:12px;right:12px;display:flex;gap:8px;align-items:center;pointer-events:none}
+.badge{pointer-events:auto;background:var(--surface);border-radius:14px;padding:8px 12px;box-shadow:0 2px 10px rgba(0,0,0,.12);display:flex;align-items:center;gap:10px}
+.badge b{font-size:15px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:56vw}.badge small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:56vw}.badge small{display:block;color:var(--muted);font-size:12px}
+.dot{width:28px;height:28px;border-radius:8px;background:var(--accent);display:grid;place-items:center;color:#fff;font-weight:700;font-size:13px;flex:none}
+.views{margin-left:auto;display:flex;gap:6px;pointer-events:auto}
+.vbtn{border:0;background:var(--surface);border-radius:12px;height:40px;padding:0 12px;font:500 13px "DM Sans",system-ui,sans-serif;box-shadow:0 2px 10px rgba(0,0,0,.12);cursor:pointer;color:var(--ink)}
+.vbtn.on{background:var(--navy);color:#fff}
+.vbtn svg{display:block}
+#compass{cursor:pointer}
+.recenter{position:fixed;left:50%;transform:translateX(-50%);display:none;border:0;background:var(--accent-strong);color:#fff;font:700 14px "DM Sans",system-ui,sans-serif;padding:10px 16px;border-radius:22px;box-shadow:0 4px 14px rgba(0,0,0,.25);cursor:pointer;z-index:5}
+#compass{position:fixed;right:14px;top:64px;width:40px;height:40px;border-radius:50%;background:var(--surface);box-shadow:0 2px 10px rgba(0,0,0,.12);display:grid;place-items:center}
+#compass svg{transition:none}
+.panel{position:fixed;left:0;right:0;bottom:0;transform:translateZ(0);background:var(--surface);border-radius:20px 20px 0 0;box-shadow:0 -4px 24px rgba(0,0,0,.14);padding:14px 16px calc(14px + env(safe-area-inset-bottom));max-height:52vh;overflow:hidden;display:flex;flex-direction:column}
+.panel .scroll{overflow:auto;min-height:0;flex:1;-webkit-overflow-scrolling:touch}
+@media (min-width:820px){.panel{left:16px;right:auto;bottom:16px;top:76px;width:360px;border-radius:20px;max-height:none}}
+.grab{width:40px;height:4px;border-radius:2px;background:#d8d3cb;margin:0 auto 10px}
+@media (min-width:820px){.grab{display:none}}
+@media (max-width:819px){body.guiding .panel .f,body.guiding .panel select,body.guiding .panel ol,body.guiding .panel .note{display:none}}
+label.f{display:block;font-size:12px;color:var(--muted);margin:8px 0 4px;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
+select{width:100%;font:500 15px "DM Sans",system-ui,sans-serif;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#faf8f5;color:var(--ink);appearance:none;background-image:linear-gradient(45deg,transparent 50%,#888 50%),linear-gradient(135deg,#888 50%,transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px;background-repeat:no-repeat}
+.sum{display:flex;align-items:center;gap:12px;margin:14px 0 10px}
+.sum .big{font-size:26px;font-weight:700;color:var(--accent-strong)}
+.sum .sub{font-size:13px;color:var(--muted)}
+.go{margin-left:auto;border:0;background:var(--accent-strong);color:#fff;font:700 15px "DM Sans",system-ui,sans-serif;padding:12px 16px;border-radius:14px;cursor:pointer}
+.go.stop{background:var(--navy)}
+ol.steps{list-style:none;margin:6px 0 0;padding:0}
+ol.steps li{display:flex;gap:10px;padding:9px 0;border-top:1px solid var(--line);font-size:14px;align-items:flex-start;transition:opacity .3s}
+ol.steps li .n{width:22px;height:22px;border-radius:50%;background:#efebe5;display:grid;place-items:center;font-size:12px;font-weight:700;flex:none}
+ol.steps li .d{color:var(--muted);font-size:12px;margin-left:auto;white-space:nowrap;padding-left:8px}
+ol.steps li.cur .n{background:var(--accent);color:#fff}
+ol.steps li.done{opacity:.45}
+.note{margin-top:12px;font-size:12px;color:var(--muted);line-height:1.45}
+.hint{position:fixed;left:50%;transform:translateX(-50%);top:64px;background:rgba(28,43,57,.92);color:#fff;font-size:13px;padding:8px 12px;border-radius:12px;pointer-events:none;transition:opacity .5s;white-space:nowrap}
+.banner{position:fixed;left:12px;right:12px;top:64px;background:var(--navy);color:#fff;border-radius:16px;padding:12px 14px;display:none;align-items:center;gap:12px;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+@media (min-width:820px){.banner{left:392px;right:auto;width:420px}}
+.banner .ic{width:36px;height:36px;border-radius:50%;background:var(--accent);display:grid;place-items:center;flex:none}
+.banner .t{font-weight:700;font-size:16px}.banner .s{font-size:12px;opacity:.8}
+.file{display:block;margin-top:10px;font-size:13px;font-weight:500;color:var(--accent-strong);cursor:pointer}.file input{display:none}.err{color:#d0242b;font-size:12px;margin-top:6px}
+.vbtn.back{width:40px;padding:0;display:grid;place-items:center;pointer-events:auto;flex:none}
+.badge .bt{position:relative;min-width:0}
+#poleSel{position:absolute;inset:0;opacity:0;width:100%;cursor:pointer}
+.badge .bt b::after{content:" ▾";font-size:11px;color:var(--muted)}
+.ldi{display:flex;flex-direction:column;align-items:center;gap:12px}.spin{width:34px;height:34px;border-radius:50%;border:3px solid #d8d1c6;border-top-color:var(--accent);animation:sp 0.9s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+body.thumb .top,body.thumb .panel,body.thumb #compass,body.thumb .hint,body.thumb .banner{display:none!important}
+.load{position:fixed;inset:0;display:grid;place-items:center;background:#ECE7DE;font-weight:500;color:var(--muted);transition:opacity .4s}
+</style>
+<script type="importmap">{"imports":{"three":"./lib/three.module.min.js","three/addons/":"./lib/"}}</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="top">
+  <button class="vbtn back" id="back" aria-label="Retour"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><div class="badge"><div class="dot">3D</div><div class="bt"><b id="pName">Pôle</b><select id="poleSel" aria-label="Changer de pôle"></select></div></div>
+  <div class="views"><button class="vbtn" id="vFit" title="Recentrer sur l'itinéraire"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="7.5"/></svg></button><button class="vbtn" id="v2d">2D</button></div>
+</div>
+<div id="compass" title="Nord"><svg width="26" height="26" viewBox="-13 -13 26 26"><g id="needle"><path d="M0-10 L4 0 L-4 0Z" fill="#E8511C"/><path d="M0 10 L4 0 L-4 0Z" fill="#c9c3ba"/><text x="0" y="-3.5" font-size="0" fill="#fff">N</text></g></svg></div>
+<div class="banner" id="banner"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div><div><div class="t" id="bT"></div><div class="s" id="bS"></div></div></div>
+<div class="hint" id="hint">1 doigt : déplacer · pincer : zoom · 2 doigts : tourner ou incliner</div>
+<button class="recenter" id="recenter">Recentrer</button>
+<div class="panel">
+  <div class="grab"></div>
+  <label class="f">Je descends</label>
+  <select id="from"></select>
+  <label class="f">Je prends</label>
+  <select id="to"></select>
+  <div class="sum"><div><div class="big" id="dist">–</div><div class="sub" id="time"></div></div><button class="go" id="go">Me guider</button></div>
+  <div class="scroll"><ol class="steps" id="steps"></ol>
+  <div class="note" id="note"></div><div class="err" id="err"></div></div>
+</div>
+<div class="load" id="load"><div class="ldi"><div class="spin"></div><span id="ldt">Chargement du pôle…</span></div></div>
+<script type="module">
+import * as THREE from "three";
+import { MapControls } from "three/addons/controls/MapControls.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
+const $ = (id) => document.getElementById(id);
+const rad = (d) => ((d || 0) * Math.PI) / 180;
+const canvas = $("c");
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+const scene = new THREE.Scene();
+scene.background = new THREE.Color("#E9E4DB"); scene.fog = new THREE.Fog("#E9E4DB", 500, 1100);
+const camera = new THREE.PerspectiveCamera(40, 1, 0.5, 3000);
+const controls = new MapControls(camera, canvas);
+controls.enableDamping = true; controls.dampingFactor = 0.12; controls.maxPolarAngle = 1.2;
+controls.minDistance = 15; controls.maxDistance = 520; controls.zoomToCursor = true; controls.zoomSpeed = 1.2; controls.rotateSpeed = 0.6;
+controls.touches = { ONE: -1, TWO: -1 }; // gestes tactiles gérés plus bas (façon Plans / Google Maps)
+scene.add(new THREE.HemisphereLight("#ffffff", "#c9bfae", 1.25));
+const sun = new THREE.DirectionalLight("#fff6e8", 1.6);
+sun.position.set(-160, 260, 120); sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048);
+Object.assign(sun.shadow.camera, { left: -300, right: 300, top: 300, bottom: -300, near: 10, far: 900 }); sun.shadow.bias = -0.0004;
+scene.add(sun, sun.target);
+const mat = (c, o = {}) => new THREE.MeshLambertMaterial({ color: c, ...o });
+const logoImgReady = null;
+const FONT = '"DM Sans", system-ui, sans-serif';
+let world = null, P = null, B = { x0: -200, x1: 200, z0: -200, z1: 200 }, LOGOS = {};
+
+// ---------- libellés ----------
+const SMALL = new Set(["de", "des", "du", "la", "le", "les", "et", "à", "d'", "l'"]);
+function pretty(t) {
+  if (!t) return "";
+  t = t.replace("GARE CHAMP. TGV", "GARE CHAMPAGNE TGV").replace("FAC DES SCIENCES", "FACULTÉ DES SCIENCES").replace("HOPITAL", "HÔPITAL").replace("DEBRE", "DEBRÉ").replace("LEON BLUM", "LÉON BLUM").replace("ESPEREY", "ESPÈREY").replace("COMEDIE", "COMÉDIE").replace("OPERA", "OPÉRA").replace("CHAMPEA", "CHAMPÉA").replace("NEUFCHATEL", "NEUFCHÂTEL");
+  if (t !== t.toUpperCase()) return t;
+  return t.toLowerCase().split(" ").map((w, i) => {
+    if (/^c\.c\.$/.test(w)) return "C.C.";
+    if (w === "p+r" || w === "tgv" || w === "sncf") return w.toUpperCase();
+    if (i && SMALL.has(w)) return w;
+    return w.charAt(0).toUpperCase() + w.slice(1);
+  }).join(" ");
+}
+function withArticle(name) {
+  if (!name) return null;
+  let n = name.split(" · ")[0].trim(); const w = n.split(" ")[0].toLowerCase();
+  const art = { boulevard: "le ", rue: "la ", cour: "la ", esplanade: "l'", avenue: "l'", allée: "l'", place: "la ", square: "le ", parvis: "le ", voies: "les ", quai: "le ", passage: "le ", promenade: "la ", chemin: "le " }[w];
+  return art ? art + n.charAt(0).toLowerCase() + n.slice(1) : n;
+}
+const MODE = (r) => (r === "T1" || r === "T2" ? "tram" : r === "O1" || r === "O2" ? "BHNS" : "bus");
+
+// ---------- logos ----------
+const logoImg = {};
+const loadImg = (src) => new Promise((ok) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => ok(null); i.src = src; });
+
+// ---------- panneaux ----------
+function signTexture(title, rows) {
+  const Wd = 520, rh = 58, H = 64 + rows.length * rh + 14;
+  const c = document.createElement("canvas"); c.width = Wd; c.height = H; const x = c.getContext("2d");
+  x.fillStyle = "#fff"; x.beginPath(); x.roundRect(0, 0, Wd, H, 14); x.fill();
+  x.fillStyle = "#1C2B39"; x.beginPath(); x.roundRect(0, 0, Wd, 64, [14, 14, 0, 0]); x.fill();
+  x.fillStyle = "#fff"; x.font = `700 34px ${FONT}`; x.textBaseline = "middle"; x.fillText(title, 18, 34, Wd - 36);
+  rows.forEach(([l, h], i) => {
+    const y = 64 + 7 + i * rh, img = logoImg[l]; let lw = 0;
+    if (img) { lw = (44 * img.width) / img.height; x.drawImage(img, 18, y + 4, lw, 44); }
+    else if (l) { x.fillStyle = l === "SNCF" ? "#E8511C" : "#1C2B39"; x.beginPath(); x.roundRect(18, y + 4, 64, 44, 9); x.fill(); x.fillStyle = "#fff"; x.font = `700 20px ${FONT}`; x.textAlign = "center"; x.fillText(l, 50, y + 27); x.textAlign = "left"; lw = 64; }
+    x.fillStyle = "#1d1d1b"; x.font = `500 32px ${FONT}`; x.fillText(h, 18 + lw + 14, y + 27, Wd - lw - 50);
+  });
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return { t, ratio: H / Wd };
+}
+let pickables = [];
+function addSign(x, z, lift, title, rows, data) {
+  const { t, ratio } = signTexture(title, rows);
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, depthTest: false, transparent: true }));
+  sp.scale.set(12, 12 * ratio, 1); sp.center.set(0.5, 0); sp.position.set(x, lift, z); sp.renderOrder = 10; sp.userData = { ...data, ratio };
+  world.add(sp); pickables.push(sp);
+  const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, lift, 6), mat("#1C2B39")); pole.position.set(x, lift / 2, z); world.add(pole);
+}
+
+// ---------- décor exporté par Pôle Studio (.glb, compressé meshopt) ----------
+function loadGLB(url) {
+  return new Promise((ok, ko) => {
+    const L = new GLTFLoader(); L.setMeshoptDecoder(MeshoptDecoder);
+    L.load(url, (g) => {
+      g.scene.traverse((m) => {
+        if (!m.isMesh) return;
+        const bb = (m.geometry.computeBoundingBox(), m.geometry.boundingBox), h = (bb.max.y - bb.min.y) * Math.abs(m.matrixWorld.elements[5] || m.scale.y || 1);
+        m.receiveShadow = true; m.castShadow = h > 0.4;
+        if (m.material && m.material.isMeshStandardMaterial) m.material.envMapIntensity = 0;
+      });
+      ok(g.scene);
+    }, (e) => { if (e.total) $("ldt").textContent = `Chargement du pôle… ${Math.round((e.loaded / e.total) * 100)} %`; }, ko);
+  });
+}
+// ---------- réseau piéton ----------
+let NODES = {}, ADJ = {}, QUAIS = [], POIS = [];
+function buildWalk(walk) {
+  NODES = {}; ADJ = {};
+  walk.nodes.forEach((n) => (NODES[n.id] = n));
+  walk.edges.forEach((e) => {
+    const a = NODES[e.from], b = NODES[e.to]; if (!a || !b) return;
+    let d = Math.hypot(a.x - b.x, a.z - b.z); if (e.kind === "crosswalk" || e.kind === "track_crossing") d += 6;
+    (ADJ[e.from] ||= []).push([e.to, d, e]); (ADJ[e.to] ||= []).push([e.from, d, e]);
+  });
+}
+function route(a, b) {
+  const dist = { [a]: 0 }, prev = {}, todo = new Set([a]);
+  while (todo.size) {
+    let u = null; for (const k of todo) if (u === null || dist[k] < dist[u]) u = k; todo.delete(u);
+    if (u === b) break;
+    for (const [v, d, e] of ADJ[u] || []) { const nd = dist[u] + d; if (dist[v] === undefined || nd < dist[v]) { dist[v] = nd; prev[v] = [u, e]; todo.add(v); } }
+  }
+  if (dist[b] === undefined) return null;
+  const nodes = [b], edges = []; let k = b;
+  while (k !== a) { const [p, e] = prev[k]; nodes.unshift(p); edges.unshift(e); k = p; }
+  return { nodes, edges };
+}
+
+// ---------- construction d'un pôle ----------
+const Q = new URLSearchParams(location.search), EMBED = Q.has("embed");
+let POLES = [], PID = null;
+async function build(id) {
+  const meta = POLES.find((p) => p.id === id); if (!meta) throw new Error("Pôle introuvable.");
+  PID = id; $("load").style.display = "grid"; $("load").style.opacity = 1; $("ldt").textContent = "Chargement du pôle…";
+  const pole = await (await fetch(id + ".json", { cache: "no-cache" })).json();
+  P = pole; if (world) { scene.remove(world); world.traverse((m) => { m.geometry?.dispose?.(); }); }
+  world = new THREE.Group(); scene.add(world); pickables = [];
+  $("pName").textContent = pole.name; document.title = pole.name + " en 3D";
+  const [x0, z0, x1, z1] = pole.bounds || [-200, -200, 200, 200]; B = { x0, x1, z0, z1 };
+  AZ0 = rad(meta.az ?? 0);
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(x1 - x0 + 1200, z1 - z0 + 1200), mat("#E4DED2"));
+  ground.rotation.x = -Math.PI / 2; ground.position.set((x0 + x1) / 2, -0.3, (z0 + z1) / 2); ground.receiveShadow = true; world.add(ground);
+  if (meta.glb) { try { world.add(await loadGLB(meta.glb)); } catch (e) { console.warn(e); $("err").textContent = "Le décor 3D n'a pas pu être chargé."; } }
+  QUAIS = pole.quais; POIS = pole.pois || [];
+  const need = new Set(); QUAIS.forEach((q) => { q.assignments.forEach((a) => need.add(a.routeId)); (q.routes || []).forEach((r) => need.add(r)); });
+  await Promise.all([...need].filter((r) => LOGOS[r] && !logoImg[r]).map(async (r) => (logoImg[r] = await loadImg(LOGOS[r][0]))));
+  const placed = [], lift0 = 7;
+  const title = pole.name;
+  QUAIS.forEach((q) => {
+    let rows = q.assignments.filter((a) => !q.arrivalOnly).map((a) => [a.routeId, pretty(a.direction)]);
+    const seenR = new Set(); rows = rows.filter((r) => { const k = r.join("|"); if (seenR.has(k)) return false; seenR.add(k); return true; });
+    if (!rows.length) rows = routesAt(q).map((r) => [r, "Descente seulement"]);
+    let lift = lift0; while (placed.some((p) => Math.hypot(p.x - q.x, p.z - q.z) < 22 && Math.abs(p.lift - lift) < 6)) lift += 6;
+    placed.push({ x: q.x, z: q.z, lift }); addSign(q.x, q.z, lift, title, rows, { stop: q.stopId });
+  });
+  POIS.forEach((p) => addSign(p.x, p.z, 16, p.label, p.kind === "station_entrance" ? [["SNCF", "TER · TGV"]] : [], { poi: p.id }));
+  buildWalk(pole.walk); fillSelects();
+  $("note").textContent = (pole.attribution ? pole.attribution + " " : "") + "Décor réalisé avec Pôle Studio.";
+  const ld = $("load"); ld.style.opacity = 0; setTimeout(() => (ld.style.display = "none"), 400);
+}
+function routesAt(q) { return q.routes?.length ? q.routes : [...new Set(q.assignments.map((a) => a.routeId))]; }
+
+// ---------- choix ----------
+const fromSel = $("from"), toSel = $("to");
+function quaiLabel(q) {
+  if (q.arrivalOnly || !q.assignments.length) return `${routesAt(q).join(", ")} · descente`;
+  const by = {}; q.assignments.forEach((a) => { const h = pretty(a.direction); (by[h] ||= []).includes(a.routeId) || by[h].push(a.routeId); });
+  return Object.entries(by).map(([h, ls]) => `${ls.join(", ")} → ${h}`).join(" · ");
+}
+const rank = (r) => (r[0] === "T" ? 0 : r[0] === "O" ? 1 : r[0] === "U" || r === "C" ? 2 : 3);
+function fillSelects() {
+  fromSel.innerHTML = ""; toSel.innerHTML = "";
+  const ok = QUAIS.filter((q) => q.walkNode && NODES[q.walkNode]);
+  [...ok].sort((a, b) => rank(routesAt(a)[0] || "Z") - rank(routesAt(b)[0] || "Z") || routesAt(a)[0]?.localeCompare(routesAt(b)[0] || "", "fr", { numeric: true }))
+    .forEach((q) => fromSel.add(new Option(quaiLabel(q), q.stopId)));
+  const dests = [], seen = new Set();
+  ok.forEach((q) => { if (q.arrivalOnly) return; q.assignments.forEach((a) => { const h = pretty(a.direction), k = q.stopId + a.routeId + h; if (seen.has(k) || h === pretty(P.name)) return; seen.add(k); dests.push({ q, a, h }); }); });
+  dests.sort((x, y) => rank(x.a.routeId) - rank(y.a.routeId) || x.a.routeId.localeCompare(y.a.routeId, "fr", { numeric: true }) || x.h.localeCompare(y.h))
+    .forEach(({ q, a, h }) => toSel.add(new Option(`${a.routeId} → ${h}`, `S|${q.stopId}|${a.routeId}|${h}`)));
+  POIS.forEach((p) => toSel.add(new Option(p.label, `P|${p.id}`)));
+  // présélection : ?from=<stop_id>&to=<stop_id> (pour le guidage plus tard), sinon un tram puis une correspondance
+  const qf = Q.get("from"), qt = Q.get("to");
+  const f = (qf && [...fromSel.options].find((o) => o.value === qf)) || [...fromSel.options].find((o) => /^T1/.test(o.text)) || fromSel.options[0];
+  if (f) fromSel.value = f.value;
+  const t = (qt && [...toSel.options].find((o) => o.value.startsWith("S|" + qt + "|"))) || [...toSel.options].find((o) => !o.value.startsWith("S|" + fromSel.value + "|") && !/^T/.test(o.text)) || toSel.options[0];
+  if (t) toSel.value = t.value;
+}
+// ---------- itinéraire ----------
+const scratch = new THREE.Group(); scene.add(scratch);
+const pathMat = (() => {
+  const c = document.createElement("canvas"); c.width = 64; c.height = 32; const x = c.getContext("2d");
+  x.fillStyle = "#E8511C"; x.fillRect(0, 0, 64, 32); x.strokeStyle = "#fff"; x.lineWidth = 5; x.lineCap = "round"; x.lineJoin = "round";
+  x.beginPath(); x.moveTo(22, 8); x.lineTo(36, 16); x.lineTo(22, 24); x.stroke();
+  const t = new THREE.CanvasTexture(c); t.wrapS = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; t.repeat.set(1 / 3.2, 1);
+  return new THREE.MeshBasicMaterial({ map: t, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -12, polygonOffsetUnits: -120 });
+})();
+function ribbonGeo(Pp, w) {
+  const pos = [], uv = [], idx = []; let s = 0;
+  Pp.forEach((p, i) => {
+    const a = Pp[Math.max(0, i - 1)], b = Pp[Math.min(Pp.length - 1, i + 1)];
+    let dx = b.x - a.x, dz = b.z - a.z; const L = Math.hypot(dx, dz) || 1; dx /= L; dz /= L;
+    if (i) s += Math.hypot(p.x - Pp[i - 1].x, p.z - Pp[i - 1].z);
+    pos.push(p.x - dz * w / 2, p.y, p.z + dx * w / 2, p.x + dz * w / 2, p.y, p.z - dx * w / 2); uv.push(s, 0, s, 1);
+    if (i) { const k = i * 2; idx.push(k - 2, k - 1, k, k - 1, k + 1, k); }
+  });
+  const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2)); g.setIndex(idx); return g;
+}
+const walker = new THREE.Group();
+{
+  // point « vous êtes ici » façon GPS : toujours visible, même derrière un arbre ou un bâtiment
+  const top = (m, o) => { m.material.depthTest = false; m.material.depthWrite = false; m.renderOrder = 30 + o; return m; };
+  const flat = (geo, color, op = 1) => { const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color, transparent: true, opacity: op })); m.rotation.x = -Math.PI / 2; return m; };
+  const halo = top(flat(new THREE.CircleGeometry(4.2, 40), "#1a73e8", 0.18), 0);
+  const white = top(flat(new THREE.CircleGeometry(1.75, 32), "#ffffff"), 1);
+  const dot = top(flat(new THREE.CircleGeometry(1.3, 32), "#1a73e8"), 2);
+  const cone = new THREE.Shape([new THREE.Vector2(0, 4.6), new THREE.Vector2(-1.9, 1.5), new THREE.Vector2(0, 2.3), new THREE.Vector2(1.9, 1.5)]);
+  const arrow = top(flat(new THREE.ShapeGeometry(cone), "#1a73e8", 0.95), 3);
+  const head = new THREE.Group(); head.add(arrow); walker.userData = { ring: halo, head };
+  const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.4, 0.9, 4, 10), mat("#1a73e8")); body.position.y = 1; body.castShadow = true;
+  walker.add(halo, white, dot, head, body); walker.children.forEach((c) => c !== body && (c.position.y = 0.3)); scene.add(walker);
+}
+const pin = new THREE.Group();
+{
+  const c = new THREE.Mesh(new THREE.ConeGeometry(1.3, 3, 16), mat("#C4430F")); c.rotation.x = Math.PI; c.position.y = 1.9;
+  const s = new THREE.Mesh(new THREE.SphereGeometry(1.35, 16, 12), mat("#C4430F")); s.position.y = 3.6;
+  pin.add(c, s); scene.add(pin);
+}
+let cur = null, pathMesh = null;
+function lerpPath(pts, cum, s) {
+  let i = 1; while (i < pts.length - 1 && cum[i] < s) i++;
+  const t = Math.max(0, Math.min(1, (s - cum[i - 1]) / (cum[i] - cum[i - 1] || 1))), a = pts[i - 1], b = pts[i];
+  return { x: a.x + (b.x - a.x) * t, z: a.z + (b.z - a.z) * t, y: a.y + (b.y - a.y) * t, dx: b.x - a.x, dz: b.z - a.z };
+}
+function stepText(e) {
+  const n = withArticle(e.name);
+  if (e.kind === "crosswalk") return n ? `Traversez ${n}` : "Traversez la rue";
+  if (e.kind === "track_crossing") return "Traversez les voies du tram";
+  if (e.kind === "stairs") return "Prenez l'escalier";
+  if (e.kind === "ramp") return "Prenez la rampe";
+  if (e.kind === "elevator") return "Prenez l'ascenseur";
+  if (e.name && /accès au quai/i.test(e.name)) return "Rejoignez le quai";
+  if (e.kind === "path") return n ? `Passez par ${n}` : "Suivez l'allée";
+  return n ? `Longez ${n}` : "Longez le trottoir";
+}
+function compute() {
+  const fq = QUAIS.find((q) => q.stopId === fromSel.value); if (!fq) return;
+  const tv = toSel.value.split("|");
+  let target, endLabel;
+  if (tv[0] === "S") { const q = QUAIS.find((q) => q.stopId === tv[1]); target = q.walkNode; endLabel = `Votre arrêt ${tv[2]} → ${tv[3]}`; }
+  else { const p = POIS.find((p) => p.id === tv[1]); target = p.walkNode; endLabel = p.label || p.name; }
+  const firstL = fq.assignments?.[0]?.routeId || routesAt(fq)[0] || "";
+  let r = fq.walkNode === target ? { nodes: [target], edges: [] } : route(fq.walkNode, target);
+  $("err").textContent = r ? "" : "Pas de chemin dans le réseau piéton entre ces deux quais.";
+  if (!r) r = { nodes: [fq.walkNode], edges: [] };
+  const pts = r.nodes.map((k) => ({ x: NODES[k].x, z: NODES[k].z, y: (NODES[k].y ?? 0.15) + 0.25 }));
+  const cum = [0]; for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i].x - pts[i - 1].x, pts[i].z - pts[i - 1].z));
+  const len = cum[cum.length - 1];
+  const steps = [{ t: `Descendez du ${MODE(firstL)} ${firstL}`, d: "", s: 0 }];
+  r.edges.forEach((e, i) => {
+    const seg = cum[i + 1] - cum[i], t = stepText(e), last = steps[steps.length - 1];
+    const cross = /Traversez/.test(t);
+    if (last.t === t || (!cross && seg < 8 && steps.length > 1 && !/Traversez/.test(last.t))) { last.dm = (last.dm || 0) + seg; if (last.dm >= 1) last.d = Math.round(last.dm) + " m"; return; }
+    steps.push({ t, dm: seg, d: Math.round(seg) + " m", s: cum[i] });
+  });
+  if (!len) steps.push({ t: `Restez sur le quai : ${endLabel.replace("Votre arrêt ", "")} part d'ici`, d: "", s: 0 });
+  else steps.push({ t: endLabel, d: "", s: len });
+  for (let i = steps.length - 1; i > 0; i--) if (!/Traversez/.test(steps[i].t) && (steps[i].dm || 0) < 3 && i < steps.length) { if (steps[i].dm !== undefined) steps.splice(i, 1); }
+  cur = { pts, cum, len, steps };
+  $("dist").textContent = len ? `${Math.round(len / 10) * 10} m` : "Sur place";
+  $("time").textContent = len ? `${Math.max(1, Math.ceil(len / 80))} min à pied` : "même quai";
+  $("steps").innerHTML = steps.map((s, i) => `<li data-i="${i}"><span class="n">${i + 1}</span><span>${s.t}</span><span class="d">${s.d}</span></li>`).join("");
+  if (pathMesh) { scratch.remove(pathMesh); pathMesh.geometry.dispose(); pathMesh = null; }
+  if (pts.length > 1) { pathMesh = new THREE.Mesh(ribbonGeo(pts, 1.6), pathMat); pathMesh.renderOrder = 3; scratch.add(pathMesh); }
+  const e = pts[pts.length - 1]; pin.position.set(e.x, e.y, e.z); walker.position.set(pts[0].x, pts[0].y - 0.2, pts[0].z);
+}
+fromSel.onchange = toSel.onchange = () => { stopGuide(); compute(); frame(); };
+
+// ---------- vue : centre = zone visible ----------
+function freeRect() {
+  const w = canvas.clientWidth || innerWidth, h = canvas.clientHeight || innerHeight, p = document.querySelector(".panel").getBoundingClientRect(), bn = $("banner");
+  let top = document.querySelector(".top").getBoundingClientRect().bottom + 6;
+  if (bn.style.display === "flex") top = bn.getBoundingClientRect().bottom + 6;
+  if (w >= 820) return { l: p.right + 8, t: top, r: w, b: h };
+  return { l: 0, t: top, r: w, b: p.top - 6 };
+}
+let FR = null;
+function applyView() {
+  const w = canvas.clientWidth || innerWidth, h = canvas.clientHeight || innerHeight, f = (FR = freeRect()), cx = (f.l + f.r) / 2, cy = (f.t + f.b) / 2;
+  const fw = cx > w / 2 ? 2 * cx : 2 * (w - cx), fh = cy > h / 2 ? 2 * cy : 2 * (h - cy);
+  camera.fov = (2 * Math.atan(Math.tan((40 * Math.PI) / 360) * fh / h) * 180) / Math.PI;
+  camera.aspect = fw / fh; camera.setViewOffset(fw, fh, cx > w / 2 ? 0 : fw - w, cy > h / 2 ? 0 : fh - h, w, h);
+}
+let AZ0 = 0; // orientation par défaut du pôle (poles.json « az », 0 = nord en haut)
+let PITCH = 0.95;
+function camFor(tx, tz, dist, pitch = PITCH, az = AZ0) { const s = Math.sin(pitch) * dist; return new THREE.Vector3(tx + Math.sin(az) * s, Math.cos(pitch) * dist, tz + Math.cos(az) * s); }
+function fitDist(r) { const f = FR || freeRect(), px = Math.min(f.r - f.l, f.b - f.t) / 2 - 24, focal = innerHeight / 2 / Math.tan((40 * Math.PI) / 360); return Math.max(40, Math.min(500, ((focal * r) / Math.max(80, px)) * 0.95)); }
+let tween = null, following = false, followDist = 48;
+function flyTo(p, t, ms = 1100) { tween = { p0: camera.position.clone(), t0: controls.target.clone(), p, t, a: performance.now(), ms }; }
+function frame() {
+  if (!cur) return; let x0 = 1e9, x1 = -1e9, z0 = 1e9, z1 = -1e9;
+  cur.pts.forEach((p) => { x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x); z0 = Math.min(z0, p.z); z1 = Math.max(z1, p.z); });
+  const cx = (x0 + x1) / 2, cz = (z0 + z1) / 2, r = Math.max(25, Math.hypot(x1 - x0, z1 - z0) / 2 + 12);
+  following = false; $("recenter").style.display = "none";
+  flyTo(camFor(cx, cz, fitDist(r)), new THREE.Vector3(cx, 0, cz));
+}
+const v2d = $("v2d");
+$("vFit").onclick = () => (guide ? resumeFollow() : frame());
+v2d.onclick = () => {
+  PITCH = PITCH > 0.3 ? 0.02 : 0.95; v2d.textContent = PITCH > 0.3 ? "2D" : "3D"; v2d.classList.toggle("on", PITCH < 0.3);
+  const t = controls.target, d = camera.position.distanceTo(t), az = Math.atan2(camera.position.x - t.x, camera.position.z - t.z);
+  flyTo(camFor(t.x, t.z, d, PITCH, az), t.clone(), 700);
+};
+$("compass").onclick = () => { const t = controls.target, d = camera.position.distanceTo(t), ph = Math.acos(Math.min(1, (camera.position.y - t.y) / d)); flyTo(camFor(t.x, t.z, d, ph, AZ0), t.clone(), 700); };
+const recBtn = $("recenter");
+function resumeFollow() { following = true; recBtn.style.display = "none"; if (guide) guide.blend = 0; }
+recBtn.onclick = () => (guide ? resumeFollow() : frame());
+controls.addEventListener("start", () => { tween = null; if (guide && following) { following = false; recBtn.style.display = "block"; } });
+
+// ---------- guidage ----------
+let guide = null; const goBtn = $("go"), banner = $("banner");
+function startGuide() {
+  if (!cur || cur.len < 1) { frame(); return; }
+  guide = { s: 0, step: -1, blend: 0 }; document.body.classList.add("guiding"); following = true; recBtn.style.display = "none";
+  goBtn.textContent = "Arrêter"; goBtn.classList.add("stop"); banner.style.display = "flex"; tween = null;
+}
+function stopGuide(done) {
+  if (!guide) return; guide = null; document.body.classList.remove("guiding"); following = false; recBtn.style.display = "none";
+  goBtn.textContent = "Me guider"; goBtn.classList.remove("stop"); if (!done) banner.style.display = "none";
+  document.querySelectorAll("#steps li").forEach((li) => li.classList.remove("cur", "done"));
+}
+goBtn.onclick = () => (guide ? stopGuide() : startGuide());
+// ---------- gestes tactiles ----------
+// 1 doigt : faire glisser le plan (avec élan) · 2 doigts : pincer = zoom, tourner = rotation, glisser vers le haut / bas = inclinaison
+// double tap : zoom avant · pendant le guidage, pincer règle le zoom sans quitter le suivi
+const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), gRay = new THREE.Raycaster();
+function groundAt(x, y) {
+  const r = canvas.getBoundingClientRect(); camera.updateMatrixWorld(); camera.updateProjectionMatrix();
+  gRay.setFromCamera(new THREE.Vector2(((x - r.left) / r.width) * 2 - 1, -((y - r.top) / r.height) * 2 + 1), camera);
+  const p = new THREE.Vector3(); return gRay.ray.intersectPlane(groundPlane, p) ? p : null;
+}
+function camState() { const t = controls.target, o = camera.position.clone().sub(t), d = o.length(); return { d, pitch: Math.acos(Math.min(1, o.y / d)), az: Math.atan2(o.x, o.z) }; }
+function setCam(d, pitch, az) { const t = controls.target, s = Math.sin(pitch) * d; camera.position.set(t.x + Math.sin(az) * s, t.y + Math.cos(pitch) * d, t.z + Math.cos(az) * s); camera.lookAt(t); }
+function shift(v) { controls.target.add(v); camera.position.add(v); }
+const TP = new Map(); let G = null, vel = new THREE.Vector3(), lastTap = null, moved = 0;
+function pauseFollow() { if (guide && following) { following = false; recBtn.style.display = "block"; } }
+function baseline() {
+  const pts = [...TP.values()]; tween = null;
+  if (pts.length === 1) G = { n: 1, p0: groundAt(pts[0].x, pts[0].y), last: performance.now() };
+  else if (pts.length >= 2) {
+    const [a, b] = pts, mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+    G = { n: 2, d0: Math.hypot(a.x - b.x, a.y - b.y), a0: Math.atan2(b.y - a.y, b.x - a.x), my0: my, mx0: mx, ay0: a.y, by0: b.y, cam: camState(), pm: groundAt(mx, my), mode: null, fd0: followDist };
+  } else G = null;
+}
+canvas.addEventListener("pointerdown", (e) => { if (e.pointerType !== "touch") return; TP.set(e.pointerId, { x: e.clientX, y: e.clientY }); vel.set(0, 0, 0); moved = 0; baseline(); });
+canvas.addEventListener("pointermove", (e) => {
+  if (e.pointerType !== "touch" || !TP.has(e.pointerId) || !G) return;
+  const prev = TP.get(e.pointerId); moved += Math.hypot(e.clientX - prev.x, e.clientY - prev.y);
+  TP.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  const pts = [...TP.values()];
+  if (G.n === 1 && pts.length === 1) {
+    if (moved < 6) return; pauseFollow();
+    const p = groundAt(pts[0].x, pts[0].y); if (!p || !G.p0) return;
+    const dv = G.p0.clone().sub(p); dv.y = 0; shift(dv);
+    const now = performance.now(), dtm = Math.max(8, now - G.last) / 1000; vel.lerp(dv.clone().divideScalar(dtm), 0.5); G.last = now;
+  } else if (G.n === 2 && pts.length >= 2) {
+    const [a, b] = pts, d = Math.hypot(a.x - b.x, a.y - b.y), ang = Math.atan2(b.y - a.y, b.x - a.x), mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+    if (!G.mode) {
+      const dy1 = a.y - G.ay0, dy2 = b.y - G.by0, pinch = Math.abs(d - G.d0), twist = Math.abs(ang - G.a0) * 60;
+      if (Math.abs(dy1) > 12 && Math.abs(dy2) > 12 && Math.sign(dy1) === Math.sign(dy2) && pinch < 25 && twist < 10) G.mode = "tilt";
+      else if (pinch > 10 || twist > 8) G.mode = "zoom";
+      else return;
+    }
+    if (G.mode === "tilt") {
+      pauseFollow(); const pitch = Math.max(0.02, Math.min(1.2, G.cam.pitch - (my - G.my0) * 0.006)); setCam(G.cam.d, pitch, G.cam.az);
+    } else {
+      const sc = G.d0 / Math.max(20, d);
+      if (guide && following) { followDist = Math.max(18, Math.min(220, G.fd0 * sc)); return; }
+      let da = ang - G.a0; if (da > Math.PI) da -= 2 * Math.PI; if (da < -Math.PI) da += 2 * Math.PI;
+      const dist = Math.max(controls.minDistance, Math.min(controls.maxDistance, G.cam.d * sc));
+      setCam(dist, G.cam.pitch, G.cam.az + da);
+      if (G.pm) { const pm = groundAt(mx, my); if (pm) { const dv = G.pm.clone().sub(pm); dv.y = 0; shift(dv); } }
+    }
+  }
+});
+function endTouch(e) {
+  if (e.pointerType !== "touch" || !TP.has(e.pointerId)) return;
+  const wasOne = G && G.n === 1 && TP.size === 1, p = TP.get(e.pointerId); TP.delete(e.pointerId);
+  if (wasOne && moved < 8) {
+    const now = performance.now();
+    if (lastTap && now - lastTap.t < 320 && Math.hypot(p.x - lastTap.x, p.y - lastTap.y) < 40) {
+      lastTap = null; const g = groundAt(p.x, p.y); if (g) { pauseFollow(); const st = camState(); g.y = 0; const nt = controls.target.clone().lerp(g, 0.5); const d = Math.max(controls.minDistance, st.d * 0.5), s = Math.sin(st.pitch) * d; flyTo(new THREE.Vector3(nt.x + Math.sin(st.az) * s, Math.cos(st.pitch) * d, nt.z + Math.cos(st.az) * s), nt, 450); }
+    } else lastTap = { t: now, x: p.x, y: p.y };
+  }
+  if (!wasOne || moved < 8 || performance.now() - (G?.last || 0) > 90) vel.set(0, 0, 0);
+  baseline();
+}
+canvas.addEventListener("pointerup", endTouch); canvas.addEventListener("pointercancel", endTouch);
+// pas de zoom de la page elle-même sur iPhone (sinon le plan se décale)
+document.addEventListener("gesturestart", (e) => e.preventDefault(), { passive: false });
+document.addEventListener("dblclick", (e) => e.preventDefault(), { passive: false });
+document.addEventListener("touchmove", (e) => { if (e.touches.length > 1 && e.target === canvas) e.preventDefault(); }, { passive: false });
+// toucher un panneau
+const ray = new THREE.Raycaster(), mouse = new THREE.Vector2(); let down = null;
+canvas.addEventListener("pointerdown", (e) => (down = [e.clientX, e.clientY]));
+canvas.addEventListener("pointerup", (e) => {
+  if (!down || Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 6 || guide || TP.size) return;
+  mouse.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1); ray.setFromCamera(mouse, camera);
+  const hit = ray.intersectObjects(pickables)[0]; if (!hit) return; const d = hit.object.userData;
+  const o = [...toSel.options].find((o) => (d.poi ? o.value === "P|" + d.poi : o.value.startsWith("S|" + d.stop + "|")));
+  if (o) { toSel.value = o.value; compute(); frame(); }
+});
+// ouvrir un autre fichier
+
+
+// ---------- boucle ----------
+const clock = new THREE.Clock(), tmp = new THREE.Vector3(), needle = $("needle");
+function resize() { renderer.setSize(canvas.clientWidth || innerWidth, canvas.clientHeight || innerHeight, false); applyView(); }
+window.visualViewport?.addEventListener("resize", () => setTimeout(resize, 50));
+addEventListener("resize", resize);
+function loop() {
+  const dt = Math.min(clock.getDelta(), 0.05), now = performance.now();
+  pathMat.map.offset.x -= dt * 0.35;
+  walker.userData.ring.scale.setScalar(1 + 0.18 * Math.sin(now / 300));
+  if (cur) { const e = cur.pts[cur.pts.length - 1]; pin.position.y = e.y + Math.abs(Math.sin(now / 420)) * 0.8; } pin.rotation.y += dt;
+  if (tween) {
+    const k = Math.min(1, (now - tween.a) / tween.ms), e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+    camera.position.lerpVectors(tween.p0, tween.p, e); controls.target.lerpVectors(tween.t0, tween.t, e); if (k >= 1) tween = null;
+  }
+  if (guide && cur) {
+    guide.s = Math.min(cur.len, guide.s + dt * 1.4 * 7);
+    const p = lerpPath(cur.pts, cur.cum, guide.s); walker.position.set(p.x, p.y - 0.2, p.z);
+    { // cap du marcheur (lissé) : la flèche du point bleu et la caméra le suivent
+      const ah = lerpPath(cur.pts, cur.cum, Math.min(cur.len, guide.s + 14)); let hx = ah.x - p.x, hz = ah.z - p.z; const hl = Math.hypot(hx, hz);
+      if (hl < 1) { const L = Math.hypot(p.dx, p.dz) || 1; hx = p.dx / L; hz = p.dz / L; } else { hx /= hl; hz /= hl; }
+      guide.hx = guide.hx === undefined ? hx : guide.hx + (hx - guide.hx) * (1 - Math.exp(-dt * 2));
+      guide.hz = guide.hz === undefined ? hz : guide.hz + (hz - guide.hz) * (1 - Math.exp(-dt * 2));
+      walker.userData.head.rotation.y = Math.atan2(-guide.hx, -guide.hz);
+    }
+    if (following) {
+      // le point bleu reste au centre de la zone visible : la cible de la caméra EST le marcheur
+      const az = Math.atan2(-guide.hx, -guide.hz), pit = PITCH > 0.3 ? 0.95 : 0.02, D = PITCH > 0.3 ? followDist : followDist * 1.6;
+      const s = Math.sin(pit) * D, want = new THREE.Vector3(p.x + Math.sin(az) * s, Math.cos(pit) * D, p.z + Math.cos(az) * s);
+      guide.blend = Math.min(1, (guide.blend || 0) + dt / 1.2);
+      const k = guide.blend < 1 ? 1 - Math.exp(-dt * 5) : 1;
+      controls.target.lerp(new THREE.Vector3(p.x, 0, p.z), k); camera.position.lerp(want, k);
+    }
+    let st = 0; cur.steps.forEach((s, i) => { if (guide.s >= s.s - 0.01 && i < cur.steps.length - 1) st = i; });
+    if (guide.s >= cur.len) st = cur.steps.length - 1;
+    if (st !== guide.step) {
+      guide.step = st;
+      document.querySelectorAll("#steps li").forEach((li, i) => { li.classList.toggle("cur", i === st); li.classList.toggle("done", i < st); });
+      $("bT").textContent = cur.steps[st].t;
+    }
+    const left = cur.len - guide.s;
+    $("bS").textContent = left > 1 ? `Encore ${Math.round(left)} m · ${Math.max(1, Math.ceil(left / 80))} min` : "Vous êtes arrivé";
+    if (guide.s >= cur.len) { stopGuide(true); setTimeout(() => { if (!guide) banner.style.display = "none"; }, 3500); const e = cur.pts[cur.pts.length - 1]; flyTo(camFor(e.x, e.z, 60), new THREE.Vector3(e.x, 0, e.z), 1400); }
+  }
+  if (vel.lengthSq() > 0.01 && !TP.size) { shift(vel.clone().multiplyScalar(dt)); vel.multiplyScalar(Math.exp(-dt * 4.5)); } else if (!TP.size) vel.set(0, 0, 0);
+  applyView(); controls.update();
+  { const t = controls.target; t.x = Math.max(B.x0, Math.min(B.x1, t.x)); t.z = Math.max(B.z0, Math.min(B.z1, t.z)); t.y = 0; }
+  pickables.forEach((sp) => { const d = camera.position.distanceTo(sp.position), k = Math.max(3.5, Math.min(13, d * 0.09)); sp.scale.set(k, k * sp.userData.ratio, 1); });
+  camera.getWorldDirection(tmp); const ang = Math.atan2(tmp.x, -tmp.z);
+  needle.setAttribute("transform", `rotate(${(-ang * 180) / Math.PI})`);
+  renderer.render(scene, camera); requestAnimationFrame(loop);
+}
+(async () => {
+  if (EMBED) document.body.classList.add("embed");
+  if (Q.has("thumb")) document.body.classList.add("thumb");
+  $("back").onclick = () => { if (EMBED) parent.postMessage({ grm: "pole-close" }, "*"); else history.back(); };
+  await document.fonts.load(`700 34px "DM Sans"`).catch(() => {}); await document.fonts.load(`500 32px "DM Sans"`).catch(() => {});
+  try {
+    const [pl, lg] = await Promise.all([fetch("poles.json", { cache: "no-cache" }).then((r) => r.json()), fetch("logos.json").then((r) => r.json())]);
+    POLES = pl.poles; LOGOS = lg;
+    const ps = $("poleSel"); POLES.forEach((p) => ps.add(new Option(p.name, p.id))); ps.onchange = () => switchPole(ps.value);
+    const id = POLES.some((p) => p.id === Q.get("p")) ? Q.get("p") : POLES[0].id; ps.value = id;
+    resize(); camera.position.copy(camFor(0, 0, 420)); controls.target.set(0, 0, 0); applyView(); loop();
+    await build(id); compute();
+    if (Q.has("thumb")) { const qs = QUAIS.length ? QUAIS : [{ x: 0, z: 0 }], cx = qs.reduce((a, q) => a + q.x, 0) / qs.length, cz = qs.reduce((a, q) => a + q.z, 0) / qs.length; camera.position.copy(camFor(cx, cz, 230, 0.85)); pickables.forEach((s) => (s.visible = false)); controls.target.set(cx, 0, cz); pickables.forEach((s) => (s.visible = false)); scene.remove(walker, pin, scratch); setTimeout(() => (window.__ready = true), 1500); }
+    else frame();
+  } catch (e) { console.error(e); $("ldt").textContent = "Pôle indisponible pour le moment."; }
+  setTimeout(() => ($("hint").style.opacity = 0), 5000);
+})();
+async function switchPole(id) { stopGuide(); try { await build(id); compute(); frame(); history.replaceState(null, "", "?p=" + id + (EMBED ? "&embed=1" : "")); } catch (e) { $("err").textContent = e.message; } }
+</script>
+</body>
+</html>
