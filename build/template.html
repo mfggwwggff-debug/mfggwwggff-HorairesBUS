@@ -1623,7 +1623,7 @@ $("#it-arr").addEventListener("click", () => { S.mode = "arr"; syncMode(); itFol
 // réseau fortement perturbé : mention sous chaque trajet
 function jcWarn(j) {
   const rides = j.legs.filter((g) => g.type === "ride"); if (!rides.length) return "";
-  if (rides.some((g) => net.R[net.pats[g.pat].r].m !== 1)) return `<div class="jcwarn">${alertSvg.replace('width="18" height="18"', 'width="15" height="15"')}Course peut-être non assurée (réseau perturbé)</div>`;
+  if (rides.some((g) => net.R[net.pats[g.pat].r].m !== 1)) return `<div class="jcwarn">${alertSvg.replace('width="18" height="18"', 'width="15" height="15"')}Course peut-être supprimée (réseau perturbé)</div>`;
   return `<div class="jcwarn">${alertSvg.replace('width="18" height="18"', 'width="15" height="15"')}Perturbations possibles (réseau perturbé)</div>`;
 }
 function runIt(noFit) {
@@ -1800,7 +1800,7 @@ function runPa() {
   if (!feat("pliage") && MFOLD.stop !== S.paStop) { MFOLD.clear(); MFOLD.stop = S.paStop; } // sans « Mémoire de l'affichage » : tout redéplié à chaque arrêt
   res.innerHTML = subBlock(S.paStop, day, t0, isToday) + trNoteFor(net.pRoutes[S.paStop]).replace('class="trnote"', 'class="trnote" style="margin-bottom:10px"') + `<div class="legend-dots" style="margin:0 0 10px"><span>${dot(true)}temps réel</span><span>${dot(false)}horaire théorique</span><span>Touchez un horaire pour suivre le bus</span></div><div class="deps">` + byMode([...gs, ...ended], (g) => g.r).map(([mk, mn, L]) => `<div class="mgrp${mk && MFOLD.has(mk) ? " fold" : ""}">${mk ? modeFoldBtn(mk, mn, L.map((g) => g.r)) : ""}<div class="mbody">` + L.map((g) => g.list ? `
     <div class="dep">${badge(g.r, "lg")}<div class="dir">→ ${esc(g.h)}<small>${esc(net.R[g.r].l)}</small></div>
-      <div class="tt" data-k="${g.r}|${esc(g.h)}">${g.list.map((x, k) => { const w = x.t - nowF; if (x.na) return `<button type="button" class="chip na" data-follow="${x.pat}:${x.k}:${x.off}" title="Départ de ${hm(x.st)} non assuré (info trafic)"><span class="main"><s>${hm(x.st)}</s></span><small>NON ASSURÉ</small></button>`; return `<button type="button" class="chip${k === 0 && isToday && w <= 15 && w > -1 ? " soon" : ""}" data-follow="${x.pat}:${x.k}:${x.off}" title="${x.live ? "Temps réel, passage à " + hm(x.t) : "Horaire théorique, passage à " + hm(x.t)}"><span class="main">${dot(x.live)}${waitLabel(x.t, isToday)}</span>${x.live && Math.round(x.t) !== Math.round(x.st) ? `<small>${delayTxt(x.t, x.st)}</small>` : isToday && w >= 59.5 ? "" : isToday ? `<small>${hm(x.t)}</small>` : ""}</button>`; }).join("")}</div>
+      <div class="tt" data-k="${g.r}|${esc(g.h)}">${g.list.map((x, k) => { const w = x.t - nowF; if (x.na) return `<button type="button" class="chip na" data-follow="${x.pat}:${x.k}:${x.off}" title="Départ de ${hm(x.st)} supprimé (info trafic)"><span class="main"><s>${hm(x.st)}</s></span><small>SUPPRIMÉ</small></button>`; return `<button type="button" class="chip${k === 0 && isToday && w <= 15 && w > -1 ? " soon" : ""}" data-follow="${x.pat}:${x.k}:${x.off}" title="${x.live ? "Temps réel, passage à " + hm(x.t) : "Horaire théorique, passage à " + hm(x.t)}"><span class="main">${dot(x.live)}${waitLabel(x.t, isToday)}</span>${x.live && Math.round(x.t) !== Math.round(x.st) ? `<small>${delayTxt(x.t, x.st)}</small>` : isToday && w >= 59.5 ? "" : isToday ? `<small>${hm(x.t)}</small>` : ""}</button>`; }).join("")}</div>
       <button type="button" class="linkbtn open" data-r="${g.r}" data-d="${g.dir}">Fiche horaire de la ligne ${esc(net.R[g.r].s)} ${chevR}</button>
     </div>` : endRow(g)).join("") + `</div></div>`).join("") + `</div>`;
   res.querySelectorAll(".dep .tt[data-k]").forEach((e) => { const v = scr.get(e.dataset.k); if (v) e.scrollLeft = v; });
@@ -1912,8 +1912,8 @@ function runLi() {
   if (!vis.length) { res.innerHTML = `<div class="empty">Plus de départ après ${hm(t)} ce jour-là. Premier départ : ${hm(cols[0].first)}, dernier : ${hm(cols[cols.length - 1].first)}.</div>`; drawMap(); return; }
   const show = vis.slice(0, 60);
   res.innerHTML = `<div class="lbl" style="margin-bottom:8px">${cols.length} départs le ${fmtDateLong(iso)} · premier ${hm(cols[0].first)}, dernier ${hm(cols[cols.length - 1].first)}</div>
-  <div class="ttwrap"><table class="tt"><thead><tr><th>Arrêt</th>${show.map((c, k) => { const hh = hm(c.first).slice(0, 2); const nw = k === 0 || hm(show[k - 1].first).slice(0, 2) !== hh; return `<th${c.na ? ' class="na"' : ""} title="direction ${esc(c.h)}${c.na ? " · non assuré" : ""}">${nw ? hh + " h" : ""}</th>`; }).join("")}</tr></thead><tbody>
-  ${order.map((par) => `<tr><th title="${esc(pName(par))}">${esc(pName(par))}</th>${show.map((c) => c.cells.has(par) ? (() => { const [v, sc] = c.cells.get(par); return c.na ? `<td class="na" title="Départ non assuré (info trafic)">${hm(sc)}</td>` : `<td class="${c.lv ? "live" + (v - sc >= 2 ? " late" : "") : ""}" title="${c.lv ? "Temps réel, prévu " + hm(sc) : "Horaire théorique"}">${hm(v)}</td>`; })() : `<td class="no">·</td>`).join("")}</tr>`).join("")}
+  <div class="ttwrap"><table class="tt"><thead><tr><th>Arrêt</th>${show.map((c, k) => { const hh = hm(c.first).slice(0, 2); const nw = k === 0 || hm(show[k - 1].first).slice(0, 2) !== hh; return `<th${c.na ? ' class="na"' : ""} title="direction ${esc(c.h)}${c.na ? " · supprimé" : ""}">${nw ? hh + " h" : ""}</th>`; }).join("")}</tr></thead><tbody>
+  ${order.map((par) => `<tr><th title="${esc(pName(par))}">${esc(pName(par))}</th>${show.map((c) => c.cells.has(par) ? (() => { const [v, sc] = c.cells.get(par); return c.na ? `<td class="na" title="Départ supprimé (info trafic)">${hm(sc)}</td>` : `<td class="${c.lv ? "live" + (v - sc >= 2 ? " late" : "") : ""}" title="${c.lv ? "Temps réel, prévu " + hm(sc) : "Horaire théorique"}">${hm(v)}</td>`; })() : `<td class="no">·</td>`).join("")}</tr>`).join("")}
   </tbody></table></div>`;
   drawMap();
 }
@@ -2461,7 +2461,7 @@ function renderFollow() {
   const delay = Math.round(st.at(Math.min(nS - 1, next)) - st.sched(Math.min(nS - 1, next)));
   // pas de bouton quand le départ du terminus est encore loin (plus de 10 min)
   const b9 = isNA(pi, k, dk) || st.gps || st.state === "done" || (st.state === "before" && st.dp(0) - st.t > 10) || !feat("gps") || !feat("dedans") ? "" : BOARD.claim ? `<span class="b9 wait"><i class="b9spin"></i>Calage…</span>` : `<button type="button" class="b9" data-board>Je suis à bord</button>`;
-  $("#mb-status").innerHTML = isNA(pi, k, dk) ? `<span class="nast">Non assuré · info trafic</span>` : (st.gps ? `<i class="gpsdot"></i>À bord · position GPS${delay >= 1 ? " · retard " + delay + " min" : ""}` : `${dot(st.live)}${st.live ? `Temps réel · ${delay >= 1 ? "retard " + delay + " min" : delay <= -1 ? "avance " + -delay + " min" : "à l'heure"}` : "Horaire théorique (position estimée)"}`);
+  $("#mb-status").innerHTML = isNA(pi, k, dk) ? `<span class="nast">Supprimé · info trafic</span>` : (st.gps ? `<i class="gpsdot"></i>À bord · position GPS${delay >= 1 ? " · retard " + delay + " min" : ""}` : `${dot(st.live)}${st.live ? `Temps réel · ${delay >= 1 ? "retard " + delay + " min" : delay <= -1 ? "avance " + -delay + " min" : "à l'heure"}` : "Horaire théorique (position estimée)"}`);
   { const h9 = b9; const e9 = $("#mb-b9"); if (e9 && e9.dataset.html !== h9) { e9.innerHTML = h9; e9.dataset.html = h9; } };
   // ligne : arrêts passés, arrêt suivant, bus
   // en attente au terminus ou à un arrêt : bus immobile sur l'arrêt, halo lent, étiquette ; en route : chevrons
@@ -2533,8 +2533,8 @@ function renderFollow() {
   if (naTrip) {
     const fi = from ?? 0, par = net.Q[p.stops[fi]][0];
     const nx = departures(net, par, dk, Math.ceil(st.dp(fi)), 240).find((x) => !x.na && x.off === 0 && net.pats[x.pat].r === p.r && net.pats[x.pat].h === p.h && x.t > st.dp(fi));
-    hero = `<div class="mbh"><div class="r1"><div class="c"><span class="k">Prochain départ assuré</span><b>${esc(qName(p.stops[fi]))}</b></div><span class="eta">${nx ? hm(nx.t) : "—"}</span></div>
-      <div class="r2"><span>${nx ? (nx.t - t < 59.5 ? "dans " + Math.max(1, Math.round(nx.t - t)) + " min" : "à " + hm(nx.t)) : "Plus de départ assuré aujourd'hui"}</span>${nx ? `<button type="button" class="b9 na9" data-nafollow="${nx.pat}:${nx.k}:${dk}:${par}">Suivre ce ${modeOf(p.r) === "tram" ? "tram" : "bus"}</button>` : ""}</div></div>`;
+    hero = `<div class="mbh"><div class="r1"><div class="c"><span class="k">Prochain départ maintenu</span><b>${esc(qName(p.stops[fi]))}</b></div><span class="eta">${nx ? hm(nx.t) : "—"}</span></div>
+      <div class="r2"><span>${nx ? (nx.t - t < 59.5 ? "dans " + Math.max(1, Math.round(nx.t - t)) + " min" : "à " + hm(nx.t)) : "Plus de départ maintenu aujourd'hui"}</span>${nx ? `<button type="button" class="b9 na9" data-nafollow="${nx.pat}:${nx.k}:${dk}:${par}">Suivre ce ${modeOf(p.r) === "tram" ? "tram" : "bus"}</button>` : ""}</div></div>`;
   }
   // #28 : par où descendre à l'arrêt suivant (petit bandeau) ; plein écran à l'arrivée à l'arrêt de descente
   // en plein écran (option « Animation à chaque station ») : la scène s'affiche à l'approche de chaque station
@@ -2594,7 +2594,7 @@ function renderFollow() {
   // alertes de descente
   let banner = "";
   // #24 : course retirée par l'info trafic
-  if (naTrip) banner = `<div class="mbal na">${alertSvg}<div><b>Ce départ n'est pas assuré</b><span>Le départ de ${hm(st.dp(0))} de ${esc(qName(p.stops[0]))} est supprimé, selon l'info trafic.</span><button type="button" class="lnk" data-trlines="${p.r}">Voir l'info trafic ${chevR}</button></div></div>`;
+  if (naTrip) banner = `<div class="mbal na">${alertSvg}<div><b>Ce départ est supprimé</b><span>Selon l'info trafic, le départ de ${hm(st.dp(0))} de ${esc(qName(p.stops[0]))} n'aura pas lieu.</span><button type="button" class="lnk" data-trlines="${p.r}">Voir l'info trafic ${chevR}</button></div></div>`;
   else if (dest != null && S.follow.alert && st.state !== "before") {
     const dn = qName(p.stops[dest]);
     if (st.state !== "done" && st.atStop && st.i === dest || (st.state === "done" && dest === nS - 1)) {
