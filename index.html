@@ -704,6 +704,41 @@ body.p32cover .sheet { border-radius: 0; box-shadow: none; }
 /* bus en route : chevrons qui défilent jusqu'à l'arrêt suivant */
 .mbt-go { position: absolute; left: 67px; width: 12px; margin-left: -6px; border-radius: 6px; z-index: 0; background-color: var(--c); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='14' viewBox='0 0 12 14'%3E%3Cpath d='M3 4.5 6 7.5 9 4.5' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-size: 12px 14px; background-repeat: repeat-y; animation: flow .9s linear infinite; transition: top 1s linear, height 1s linear; -webkit-mask-image: linear-gradient(#000 80%, transparent); mask-image: linear-gradient(#000 80%, transparent); }
 .mbt-go.hide { display: none; }
+/* #74 : déviation hors GTFS dans Mon bus */
+.mbt-dev { position: absolute; left: 64px; width: 6px; background: repeating-linear-gradient(to bottom, var(--c) 0 6px, var(--surface) 6px 12px); }
+.mbt-fold { position: absolute; left: 92px; right: 8px; display: flex; flex-direction: column; justify-content: center; gap: 6px; padding: 6px 0; box-sizing: border-box; }
+.mbt-fold .fk { position: absolute; left: -33px; top: 30px; width: 16px; height: 16px; margin-top: -8px; border-radius: 50%; background: var(--surface); border: 2px solid var(--muted); box-sizing: border-box; }
+.mbt-fold .fk::after { content: ""; position: absolute; left: 3px; right: 3px; top: 5px; height: 2px; background: var(--muted); }
+.mbt-fold .fb { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 48px; text-align: left; padding: 7px 12px; border-radius: 12px; border: 1px solid var(--rule); background: var(--sunk); color: var(--muted); font-size: 13.5px; }
+.mbt-fold .fb span { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.mbt-fold .fb b { color: var(--ink); font-weight: 600; }
+.mbt-fold .fb small { font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mbt-fold .sk { min-height: 38px; display: flex; flex-direction: column; justify-content: center; padding-left: 4px; }
+.mbt-fold .sk s { color: var(--muted); text-decoration-color: var(--na, #d0242b); font-size: 15px; }
+.mbt-fold .sk small { color: var(--muted); font-size: 12.5px; }
+.mbt-fold .linkbtn { align-self: flex-start; }
+.mbr.prov .nd { border-style: dashed; border-width: 3px; width: 18px; height: 18px; }
+.mbr.prov .nd::after { content: ""; position: absolute; inset: 0; margin: auto; width: 6px; height: 6px; border-radius: 50%; background: var(--alert); }
+.mbr.prov.dest .nd::after { display: none; }
+.mbr .t small { display: block; font: 500 10.5px/1.3 var(--font-body); color: var(--muted); }
+.tagx.pv { background: color-mix(in srgb, var(--alert) 14%, var(--surface)); color: var(--accent-strong); border: 1px solid color-mix(in srgb, var(--alert) 40%, var(--surface)); }
+.mbr .devn { font-size: 12px; font-weight: 600; color: var(--accent-strong); white-space: nowrap; margin-right: 4px; }
+.mbdev { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 9px 12px; border-radius: 12px; border: 1px solid color-mix(in srgb, var(--alert) 40%, var(--rule)); background: color-mix(in srgb, var(--alert) 7%, var(--surface)); color: var(--ink); font-size: 13.5px; }
+.mbdev .dvi { color: var(--accent-strong); display: flex; }
+.mbdev .dvx { flex: 1; min-width: 0; display: flex; flex-direction: column; } .mbdev .dvx small { color: var(--muted); font-size: 12.5px; }
+.mbdev b { font-weight: 600; }
+/* #74 : arrêt non desservi / arrêt provisoire dans Passages */
+.devcard { border-radius: 14px; border: 1.5px solid color-mix(in srgb, var(--alert) 45%, var(--rule)); background: color-mix(in srgb, var(--alert) 6%, var(--surface)); padding: 13px 14px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+.devcard .dvk { display: flex; align-items: center; gap: 6px; color: var(--accent-strong); font: 700 11.5px/1.2 var(--font-body); letter-spacing: .07em; }
+.devcard .dvt { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.devcard .dvs { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 4px; }
+.devcard .dvs svg { width: 14px; height: 14px; }
+.devcard .dvl { margin-top: 10px; padding-top: 10px; border-top: 1px solid color-mix(in srgb, var(--alert) 25%, var(--rule)); font: 700 11px/1.2 var(--font-body); letter-spacing: .06em; color: var(--muted); }
+.devcard .dvr { display: flex; align-items: center; gap: 8px; font-size: 16px; }
+.devcard .subd { margin-top: 8px; display: grid; gap: 6px; } .devcard .subd .dir { font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 6px; } .devcard .subd .tt { display: flex; gap: 8px; overflow-x: auto; }
+.devcard .dvb { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.devcard .dvb .btn { flex: 1; height: 42px; }
+.devcard.prov .dvb { margin-top: 4px; }
 @keyframes flow { from { background-position: 0 0; } to { background-position: 0 14px; } }
 .tagx.wt { background: color-mix(in srgb, var(--c) 16%, var(--surface)); color: var(--ink); box-shadow: inset 0 0 0 1px var(--c); }
 .mbbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; border-top: 1px solid var(--rule); padding-top: 12px; }
@@ -1157,6 +1192,118 @@ function makeNet(D) {
   return net;
 }
 
+// ---------- #74 : déviations hors GTFS ----------
+// Chaque déviation (build/deviations.py, corrigée au besoin dans admin/) devient, pour chaque parcours de la
+// ligne et du sens qui passe par ses arrêts, un parcours « dévié » : mêmes arrêts avant et après, arrêts non
+// desservis retirés, arrêts provisoires ajoutés (nouveaux quais), tracé provisoire. Les courses concernées
+// (journées et heures de la déviation) passent sur ce parcours : leur calendrier est coupé en deux, les jours
+// déviés d'un côté, les autres de l'autre. Tout le reste de l'appli (passages, itinéraires, Mon bus, bus sur
+// le plan, temps réel) travaille donc sans rien savoir des déviations.
+// Heures : départ de l'arrêt avant la déviation + temps estimés de chaque tronçon (legs) ; les arrêts suivants
+// sont décalés d'autant (retard ou avance sur l'horaire habituel).
+function devApply(net, devs) {
+  if (net.devs) return net.devs;
+  const D = net.D, recs = [];
+  net.devs = recs; net.devMap = new Map(); net.provP = new Map();
+  const n0 = net.pats.length;
+  const sMemo = new Map(D.S.map((s, i) => [s, i]));
+  const svIdx = (s) => { let i = sMemo.get(s); if (i == null) { i = D.S.length; D.S.push(s); sMemo.set(s, i); } return i; };
+  const dM = (la1, lo1, la2, lo2) => { const r = Math.PI / 180, a = Math.sin((la2 - la1) * r / 2) ** 2 + Math.cos(la1 * r) * Math.cos(la2 * r) * Math.sin((lo2 - lo1) * r / 2) ** 2; return 2 * 6371000 * Math.asin(Math.sqrt(a)); };
+  const provKey = new Map();
+  const addPole = (v, ri, rec) => {
+    // arrêt d'une autre ligne : son quai le plus proche
+    if (v.pole) {
+      const pi = net.P.findIndex((p) => p[0] === v.pole);
+      if (pi >= 0) {
+        const q = net.P[pi][3].reduce((b, q) => !b || dM(net.Q[q][1], net.Q[q][2], v.lat, v.lon) < dM(net.Q[b][1], net.Q[b][2], v.lat, v.lon) ? q : b, null);
+        if (!net.pRoutes[pi].includes(ri)) net.pRoutes[pi] = [...net.pRoutes[pi], ri].sort((a, b) => a - b);
+        return q;
+      }
+    }
+    const kk = v.n + "|" + v.lat.toFixed(4) + "|" + v.lon.toFixed(4);
+    if (provKey.has(kk)) { const q = provKey.get(kk), p = net.Q[q][0]; if (!net.pRoutes[p].includes(ri)) net.pRoutes[p].push(ri); return q; }
+    // même nom à deux pas (l'autre sens, en face) : un seul arrêt, deux quais
+    let pIdx = [...net.provP.keys()].find((i) => net.P[i][0] === v.n && dM(net.P[i][1], net.P[i][2], v.lat, v.lon) < 150);
+    const q = net.Q.length;
+    if (pIdx != null) { net.P[pIdx][3].push(q); if (!net.pRoutes[pIdx].includes(ri)) net.pRoutes[pIdx].push(ri); }
+    else { pIdx = net.P.length; net.P.push([v.n, v.lat, v.lon, [q]]); net.pRoutes.push([ri]); }
+    net.Q.push([pIdx, v.lat, v.lon]); net.qp.push([]);
+    const fp = [];
+    for (let q2 = 0; q2 < q; q2++) {
+      const d = dM(v.lat, v.lon, net.Q[q2][1], net.Q[q2][2]); if (d > 450) continue;
+      const w = Math.max(1, Math.round(d * 1.25 / 75)); fp.push(q2, w); net.fp[q2].push(q, w);
+    }
+    net.fp.push(fp); net.nQ = net.Q.length;
+    const qp = new Int32Array(net.nQ); qp.set(net.qPole); qp[q] = pIdx; net.qPole = qp;
+    provKey.set(kk, q); if (!net.provP.has(pIdx)) net.provP.set(pIdx, { devs: [], a: v.a || null }); net.provP.get(pIdx).devs.push(rec);
+    return q;
+  };
+  for (const dv of devs || []) {
+    const ri = net.R.findIndex((r) => r.s === dv.r); if (ri < 0) continue;
+    let mask = "", any = false;
+    for (let k = 0; k < net.nd; k++) { const on = (dv.days || []).includes(net.isoOf(k)); mask += on ? "1" : "0"; any ||= on; }
+    if (!any || !(dv.legs || []).length) continue;
+    const skipN = new Set((dv.skip || []).map((s) => s.n));
+    const rec = { ...dv, ri, mask, pats: [], provQ: [] };
+    let provQ = null;
+    for (let pi = 0; pi < n0; pi++) {
+      const p = net.pats[pi]; if (p.r !== ri || p.dir !== dv.dir) continue;
+      const names = p.stops.map((q) => net.P[net.Q[q][0]][0]);
+      // bloc d'arrêts non desservis, entre a et b
+      let ia = -1, ib = p.nS;
+      if (dv.a != null) { ia = names.findIndex((n, i) => n === dv.a && i + 1 < p.nS && skipN.has(names[i + 1])); if (ia < 0) continue; }
+      let i = ia + 1; while (i < p.nS && skipN.has(names[i])) i++;
+      if (dv.b != null) { if (names[i] !== dv.b) continue; ib = i; } else if (i !== p.nS) continue;
+      if (ib - ia < 2) continue;
+      if (!provQ) { provQ = (dv.prov || []).map((v) => addPole(v, ri, rec)); rec.provQ = provQ; }
+      const nP = provQ.length, stops = [...p.stops.slice(0, ia + 1), ...provQ, ...p.stops.slice(ib)];
+      const nS = stops.length, i0 = ia, i1 = ia + nP + 1; // i1 = b dans le parcours dévié (nS si la déviation va jusqu'au bout)
+      // courses : celles des journées et heures de la déviation
+      const ks = [];
+      for (let k = 0; k < p.nT; k++) {
+        const o = k * p.nS, tA = ia >= 0 ? p.D[o + ia] : p.D[o];
+        if (dv.from != null && tA < dv.from) continue;
+        if (dv.to != null && tA >= dv.to) continue;
+        const s0 = D.S[p.sv[k]]; let on = "", off = "", hit = false;
+        for (let d = 0; d < net.nd; d++) { const a = s0.charCodeAt(d) === 49, m = mask.charCodeAt(d) === 49; on += a && m ? "1" : "0"; off += a && !m ? "1" : "0"; hit ||= a && m; }
+        if (hit) ks.push([k, svIdx(on), svIdx(off)]);
+      }
+      if (!ks.length) continue;
+      const nT = ks.length, A = new Int32Array(nT * nS), Dp = new Int32Array(nT * nS), sv = new Int32Array(nT), npi = net.pats.length;
+      const tot = dv.legs.reduce((a, b) => a + b, 0);
+      ks.forEach(([k, son, soff], kk) => {
+        const o = k * p.nS, n = kk * nS;
+        sv[kk] = son; p.sv[k] = soff;
+        for (let j = 0; j <= ia; j++) { A[n + j] = p.A[o + j]; Dp[n + j] = p.D[o + j]; }
+        // départ de a (ou, sans a, heure de départ habituelle du terminus pour le premier arrêt provisoire)
+        let t = ia >= 0 ? p.D[o + ia] : p.D[o];
+        for (let j = 0; j < nP; j++) { if (ia >= 0 || j > 0) t += dv.legs[ia >= 0 ? j : j - 1] || 0; A[n + ia + 1 + j] = Dp[n + ia + 1 + j] = Math.round(t); }
+        if (ib < p.nS) {
+          const delta = Math.round((ia >= 0 ? p.D[o + ia] : p.D[o]) + tot) - p.A[o + ib];
+          for (let j = ib; j < p.nS; j++) { const jj = j - ib + i1; A[n + jj] = p.A[o + j] + delta; Dp[n + jj] = p.D[o + j] + delta; }
+        }
+        for (let j = 1; j < nS; j++) { if (A[n + j] < Dp[n + j - 1]) A[n + j] = Dp[n + j - 1]; if (Dp[n + j] < A[n + j]) Dp[n + j] = A[n + j]; }
+        const dk = pi + ":" + k; if (!net.devMap.has(dk)) net.devMap.set(dk, []); net.devMap.get(dk).push([npi, kk]);
+      });
+      // tracé : celui du parcours jusqu'à a, le tracé provisoire, puis celui du parcours depuis b
+      const sh0 = p.sh >= 0 ? net.shapes[p.sh] : p.stops.map((q) => [net.Q[q][2], net.Q[q][1]]);
+      const near = (q, from) => { let b = from, bd = Infinity; for (let j = from; j < sh0.length; j++) { const d = (sh0[j][0] - net.Q[q][2]) ** 2 + (sh0[j][1] - net.Q[q][1]) ** 2; if (d < bd) { bd = d; b = j; } } return b; };
+      const ja = ia >= 0 ? near(p.stops[ia], 0) : -1, jb = ib < p.nS ? near(p.stops[ib], Math.max(0, ja)) : sh0.length;
+      const path = (dv.path && dv.path.length >= 2) ? dv.path : stops.slice(Math.max(0, i0), Math.min(nS, i1 + 1)).map((q) => [net.Q[q][2], net.Q[q][1]]);
+      const shp = [...sh0.slice(0, ja + 1), ...path, ...sh0.slice(jb)];
+      net.shapes.push(shp);
+      const np = { r: p.r, dir: p.dir, h: p.h, sh: net.shapes.length - 1, stops, nS, nT, A, D: Dp, sv, LA: null, LD: null, live: null,
+        dev: { rec, i0, i1, prov: new Set(provQ.map((_, j) => ia + 1 + j)), from: pi } };
+      net.pats.push(np);
+      stops.forEach((q, j) => net.qp[q].push(npi, j));
+      rec.pats.push([pi, npi]);
+      if (!rec.skipQ) rec.skipQ = p.stops.slice(ia + 1, ib);
+    }
+    if (rec.pats.length) recs.push(rec);
+  }
+  return recs;
+}
+
 // Horaires à utiliser pour un jour de service donné (temps réel si disponible)
 function arr(net, p, svcDay) { return svcDay === net.liveDay && p.LA ? [p.LA, p.LD] : [p.A, p.D]; }
 function isLive(net, p, k, svcDay) { return svcDay === net.liveDay && p.live && p.live[k] === 1; }
@@ -1176,6 +1323,8 @@ function applyRT(net, feed, liveDay, dayStartEpoch) {
       if (!hit) continue;
       byNum++;
     }
+    // #74 : course déviée ce jour-là → son parcours dévié
+    if (net.devMap && net.devMap.size) { const alt = (net.devMap.get(hit[0] + ":" + hit[1]) || []).find(([a, b]) => net.svcOn(net.pats[a].sv[b], liveDay) || net.svcOn(net.pats[a].sv[b], liveDay - 1)); if (alt) hit = alt; }
     const [pi, k] = hit, p = net.pats[pi];
     // jour de service : aujourd'hui, ou la veille pour une course d'après minuit
     let svc = liveDay;
@@ -1189,7 +1338,7 @@ function applyRT(net, feed, liveDay, dayStartEpoch) {
     for (const s of tu.stu || []) {
       let i = -1;
       if (s.stop_id && net.qByStopId.has(s.stop_id)) { const q = net.qByStopId.get(s.stop_id); i = p.stops.indexOf(q); }
-      if (i < 0 && s.seq) i = s.seq - 1;
+      if (i < 0 && s.seq && !p.dev) i = s.seq - 1; // #74 : parcours dévié, les numéros d'ordre ne correspondent plus
       if (i < 0 || i >= p.nS) continue;
       // en minutes, à la seconde près (LAf / LDf, pour placer le véhicule) ; LA / LD restent arrondis à la minute pour l'affichage
       const ev = (x, sched) => !x ? null : (x.time ? (x.time - base) / 60 : (x.delay !== undefined ? sched + x.delay / 60 : null));
@@ -1506,7 +1655,7 @@ function networkNight(net, day, t) {
   return null;
 }
 
-if (typeof module !== "undefined") module.exports = { makeNet, raptor, planDepart, planArrive, departures, firstTrip, applyRT, arr, isLive, stopLineDirs, lineDirService, networkNight, netServiceWindow, svcDayAt };
+if (typeof module !== "undefined") module.exports = { makeNet, devApply, raptor, planDepart, planArrive, departures, firstTrip, applyRT, arr, isLive, stopLineDirs, lineDirService, networkNight, netServiceWindow, svcDayAt };
 
 // Décodeur GTFS-RT minimal (protobuf) : TripUpdates et VehiclePositions.
 function pbRead(buf) {
@@ -2270,13 +2419,13 @@ function runPa() {
     <div class="dep ended">${badge(G.r, "lg")}<div class="dir">→ ${esc(G.h)}<small>${esc(net.R[G.r].l)}</small></div>
       <div class="endt big"><b>${G.end}</b><small>${G.sub}</small></div>
     </div>`;
-  if (!gs.length && !ended.length) { res.innerHTML = `<div class="empty">Aucun passage dans les 3 heures après ${hm(t0)} le ${fmtDateLong(iso)}.</div>`; drawMap(); return; }
+  if (!gs.length && !ended.length) { res.innerHTML = devStopBlock(S.paStop, day, t0, isToday) + `<div class="empty">Aucun passage dans les 3 heures après ${hm(t0)} le ${fmtDateLong(iso)}.</div>`; drawMap(); return; }
   const nowF = nowMinF();
   // défilement de chaque ligne gardé pendant les mises à jour ; remis au prochain passage en changeant d'arrêt ou d'onglet
   const scr = new Map();
   if (PA_SCR.stop === S.paStop && PA_SCR.view === S.view) res.querySelectorAll(".dep .tt[data-k]").forEach((e) => { if (e.scrollLeft) scr.set(e.dataset.k, e.scrollLeft); });
   if (!feat("pliage") && MFOLD.stop !== S.paStop) { MFOLD.clear(); MFOLD.stop = S.paStop; } // sans « Mémoire de l'affichage » : tout redéplié à chaque arrêt
-  res.innerHTML = subBlock(S.paStop, day, t0, isToday) + trNoteFor(net.pRoutes[S.paStop]).replace('class="trnote"', 'class="trnote" style="margin-bottom:10px"') + `<div class="legend-dots" style="margin:0 0 10px"><span>${dot(true)}temps réel</span><span>${dot(false)}horaire théorique</span><span>Touchez un horaire pour suivre le bus</span></div><div class="deps">` + byMode([...gs, ...ended], (g) => g.r).map(([mk, mn, L]) => `<div class="mgrp${mk && MFOLD.has(mk) ? " fold" : ""}">${mk ? modeFoldBtn(mk, mn, L.map((g) => g.r)) : ""}<div class="mbody">` + L.map((g) => g.list ? `
+  res.innerHTML = subBlock(S.paStop, day, t0, isToday) + devStopBlock(S.paStop, day, t0, isToday) + trNoteFor(net.pRoutes[S.paStop]).replace('class="trnote"', 'class="trnote" style="margin-bottom:10px"') + `<div class="legend-dots" style="margin:0 0 10px"><span>${dot(true)}temps réel</span><span>${dot(false)}horaire théorique</span><span>Touchez un horaire pour suivre le bus</span></div><div class="deps">` + byMode([...gs, ...ended], (g) => g.r).map(([mk, mn, L]) => `<div class="mgrp${mk && MFOLD.has(mk) ? " fold" : ""}">${mk ? modeFoldBtn(mk, mn, L.map((g) => g.r)) : ""}<div class="mbody">` + L.map((g) => g.list ? `
     <div class="dep">${badge(g.r, "lg")}<div class="dir">→ ${esc(g.h)}<small>${esc(net.R[g.r].l)}</small></div>
       <div class="tt" data-k="${g.r}|${esc(g.h)}">${g.list.map((x, k) => { const w = x.t - nowF; if (x.na) return `<button type="button" class="chip na" data-follow="${x.pat}:${x.k}:${x.off}" title="Départ de ${hm(x.st)} supprimé (info trafic)"><span class="main"><s>${hm(x.st)}</s></span><small>SUPPRIMÉ</small></button>`; return `<button type="button" class="chip${k === 0 && isToday && w <= 15 && w > -1 ? " soon" : ""}" data-follow="${x.pat}:${x.k}:${x.off}" title="${x.live ? "Temps réel, passage à " + hm(x.t) : "Horaire théorique, passage à " + hm(x.t)}"><span class="main">${dot(x.live)}${waitLabel(x.t, isToday)}</span>${x.live && Math.round(x.t) !== Math.round(x.st) ? `<small>${delayTxt(x.t, x.st)}</small>` : isToday && w >= 59.5 ? "" : isToday ? `<small>${hm(x.t)}</small>` : ""}</button>`; }).join("")}</div>
       <button type="button" class="linkbtn open" data-r="${g.r}" data-d="${g.dir}">Fiche horaire de la ligne ${esc(net.R[g.r].s)} ${chevR}</button>
@@ -2900,7 +3049,12 @@ function renderFollow() {
   if (!S.follow) { if (!S.guide) { el.innerHTML = `<div class="empty">Aucun bus suivi. Touchez un horaire dans Passages ou un bus sur le plan.</div>`; MB.key = ""; } return; }
   const { pi, k, dk, from } = S.follow, dest = S.follow.dest;
   const st = boardAdjust(tripState(pi, k, dk), pi, k, dk), p = st.p, R = net.R[p.r];
-  const key = [pi, k, dk, from, dest, !!S.guide].join(":");
+  const key = [pi, k, dk, from, dest, !!S.guide, !!MB.devOpen].join(":");
+  // #74 : course déviée : partie déviée en pointillés, arrêts non desservis repliés dans une ligne après l'arrêt a
+  const dv = p.dev, gA = dv ? dv.i0 : null, nSk = dv ? dv.rec.skip.length : 0;
+  const G = !dv ? 0 : MB.devOpen ? 58 + nSk * 44 + 44 : 70;
+  const rowT = (i) => i * ROWH + (dv && i > gA ? G : 0);
+  const yOf = (x) => !dv || x <= gA ? x * ROWH + ROWH / 2 : x >= gA + 1 ? x * ROWH + G + ROWH / 2 : gA * ROWH + ROWH / 2 + (x - gA) * (ROWH + G);
   // #45 : écran reconstruit s'il a disparu (contenu remplacé) ; la clé n'est posée qu'une fois l'écran construit,
   // sinon une erreur pendant la construction laissait un écran vide que plus rien ne reconstruisait
   if (MB.key === key && !$("#mb-track")) MB.key = "";
@@ -2913,24 +3067,28 @@ function renderFollow() {
       <div id="mb-banner"></div>
       <div id="mb-pd"></div>
       <div id="mb-sc"></div>
-      <div id="mb-hero"></div></div>
+      <div id="mb-hero"></div>${dv ? `<button type="button" class="mbdev" data-devtr="${esc(dv.rec.info)}:${p.r}"><span class="dvi">${coneSvg}</span><span class="dvx"><span><b>Déviation</b> · ${esc(dv.rec.t)}</span><small>Le ${modeOf(p.r) === "tram" ? "tram" : "bus"} ne passe pas par ${nSk} arrêt${nSk > 1 ? "s" : ""}${dv.rec.src === "admin" ? "" : ""}</small></span>${chevR}</button>` : ""}</div>
       <div class="mbt" id="mb-track" style="--c:${R.c};--ct:${R.t}">
-        <div class="mbt-rail" style="top:${ROWH / 2}px;height:${(p.nS - 1 - MB.first) * ROWH}px"></div>
+        <div class="mbt-rail" style="top:${ROWH / 2}px;height:${yOf(p.nS - 1) - ROWH / 2}px"></div>
+        ${dv ? `<div class="mbt-dev" style="top:${yOf(Math.max(0, gA))}px;height:${yOf(Math.min(p.nS - 1, dv.i1)) - yOf(Math.max(0, gA))}px"></div>` : ""}
         <div class="mbt-done" id="mb-done" style="top:${ROWH / 2}px"></div>
-        ${p.stops.slice(MB.first).map((q, j) => { const i = MB.first + j; return `<button type="button" class="mbr" data-i="${i}" style="top:${j * ROWH}px" aria-label="${dest === i ? "Ne plus marquer" : "Marquer comme arrêt de descente"} : ${esc(qName(q))}">
-          <span class="t">${hm(i === 0 ? st.dp(0) : st.at(i))}</span><span class="nd"></span>
-          <span class="nm"><span class="n1"><span class="nmt">${esc(qName(q))}</span>${from === i ? `<span class="tagx up">JE MONTE</span>` : ""}${dest === i ? `<span class="tagx">JE DESCENDS</span>` : ""}</span><span class="cxs" data-cx="${i}"></span></span></button>`; }).join("")}
+        ${dv ? `<div class="mbt-fold" style="top:${gA >= 0 ? rowT(gA) + ROWH : 0}px;height:${G}px"><i class="fk"></i>
+          <button type="button" class="fb" data-devfold aria-expanded="${!!MB.devOpen}"><span><b>${nSk} arrêt${nSk > 1 ? "s" : ""} non desservi${nSk > 1 ? "s" : ""}</b>${MB.devOpen ? "" : `<small>${esc(dv.rec.skip.map((x) => x.n).join(", "))}</small>`}</span><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2"><path d="${MB.devOpen ? "m3 9 4-4 4 4" : "m3 5 4 4 4-4"}"/></svg></button>
+          ${MB.devOpen ? dv.rec.skip.map((x) => `<div class="sk"><s>${esc(x.n)}</s>${x.rep ? `<small>Reporté à ${esc(x.rep)}</small>` : ""}</div>`).join("") + `<button type="button" class="linkbtn" data-devtr="${esc(dv.rec.info)}:${p.r}">Voir l'info trafic ${chevR}</button>` : ""}</div>` : ""}
+        ${p.stops.slice(MB.first).map((q, j) => { const i = MB.first + j, pv = dv && dv.prov.has(i); return `<button type="button" class="mbr${pv ? " prov" : ""}" data-i="${i}" style="top:${rowT(i)}px" aria-label="${dest === i ? "Ne plus marquer" : "Marquer comme arrêt de descente"} : ${esc(qName(q))}${pv ? " (arrêt provisoire)" : ""}">
+          <span class="t">${hm(i === 0 ? st.dp(0) : st.at(i))}${pv ? "<small>estimé</small>" : ""}</span><span class="nd"></span>
+          <span class="nm"><span class="n1"><span class="nmt">${esc(qName(q))}</span>${pv ? `<span class="tagx pv">PROVISOIRE</span>` : ""}${from === i ? `<span class="tagx up">JE MONTE</span>` : ""}${dest === i ? `<span class="tagx">JE DESCENDS</span>` : ""}</span><span class="cxs" data-cx="${i}"></span></span></button>`; }).join("")}
         <div class="mbt-go hide" id="mb-go"></div>
         <div class="mbt-bus" id="mb-bus" style="background:${R.c}">${busPicto(R.t, p.r)}</div>
       </div>
       <div class="mbbar" id="mb-bar"></div>`;
-    $("#mb-track").style.height = (p.nS - MB.first) * ROWH + "px";
+    $("#mb-track").style.height = rowT(p.nS - 1) + ROWH + "px";
     $("#fo-close").onclick = () => setSheet("half");
     sheetDragBind($("#mb-top"));
     $("#fo-back").onclick = () => go(S.guide ? "itineraire" : S.prevView && !["suivi"].includes(S.prevView) ? S.prevView : "accueil");
     el.querySelectorAll(".mbr").forEach((b) => b.onclick = () => { if (S.guide) return; const i = +b.dataset.i; if (S.follow.from != null && i <= S.follow.from) { toast("Choisissez un arrêt après votre arrêt de montée", 2500); return; } S.follow.dest = S.follow.dest === i ? null : i; if (S.follow.dest != null) askNotify(); renderFollow(); drawMap(); });
     // badges des correspondances (statiques), les temps sont ajoutés pour l'arrêt suivant et la descente
-    el.querySelectorAll("[data-cx]").forEach((c) => { const i = +c.dataset.cx; const rs = net.pRoutes[net.Q[p.stops[i]][0]].filter((r) => r !== p.r); c.dataset.base = rs.slice(0, 7).map((r) => badge(r, "sm", true)).join(""); c.innerHTML = c.dataset.base; });
+    el.querySelectorAll("[data-cx]").forEach((c) => { const i = +c.dataset.cx; const rs = net.pRoutes[net.Q[p.stops[i]][0]].filter((r) => r !== p.r); c.dataset.base = (dv && i === gA ? `<span class="devn">Début de la déviation</span>` : dv && i === dv.i1 ? `<span class="devn">Fin de la déviation</span>` : "") + rs.slice(0, 7).map((r) => badge(r, "sm", true)).join(""); c.innerHTML = c.dataset.base; });
     MB.key = key;
   }
   // --- mise à jour ---
@@ -2944,14 +3102,14 @@ function renderFollow() {
   // ligne : arrêts passés, arrêt suivant, bus
   // en attente au terminus ou à un arrêt : bus immobile sur l'arrêt, halo lent, étiquette ; en route : chevrons
   const waiting = st.state === "before" || st.atStop, waitAt = st.state === "before" ? 0 : st.i;
-  const busTop = ((st.state === "before" ? 0 : st.pos) - MB.first) * ROWH + ROWH / 2;
+  const busTop = yOf(st.state === "before" ? 0 : st.pos);
   $("#mb-bus").style.top = busTop + "px";
   $("#mb-bus").classList.toggle("hide", st.state === "done" || isNA(pi, k, dk));
   $("#mb-track").classList.toggle("na", isNA(pi, k, dk));
   $("#mb-bus").classList.toggle("wait", waiting);
   $("#mb-bus").classList.toggle("gps", !!st.gps);
   // les chevrons partent de sous le bus et s'arrêtent à l'arrêt suivant (#15 : jamais au-delà)
-  const goTop = busTop, goEnd = (next - MB.first) * ROWH + ROWH / 2 - 8;
+  const goTop = busTop, goEnd = yOf(next) - 8;
   const goEl = $("#mb-go"), showGo = feat("chevrons") && st.state === "running" && !st.atStop && goEnd - goTop >= 28; // pas « go » : c'est la fonction de navigation
   goEl.classList.toggle("hide", !showGo);
   if (showGo) { goEl.style.top = goTop + "px"; goEl.style.height = goEnd - goTop + "px"; }
@@ -3633,7 +3791,7 @@ async function loadExtra() {
   try {
     const u = await pushBase(); if (!u) return;
     const r = await fetch(u + "/extra", { cache: "no-cache" }); if (!r.ok) return;
-    const d = await r.json(); TR.extra = (d.infos || []).filter((x) => x && x.id && Array.isArray(x.lines)); EXTRA_POPS = d.popups || [];
+    const d = await r.json(); TR.extra = (d.infos || []).filter((x) => x && x.id && Array.isArray(x.lines)); EXTRA_POPS = d.popups || []; TR.devOv = d.devs || [];
     setTimeout(extraPop, 1200);
   } catch (e) {}
 }
@@ -3648,6 +3806,82 @@ function extraPop() {
   const b = document.querySelector("#updpop [data-poplien]");
   if (b) b.onclick = () => { $("#updpop").classList.remove("on"); const l = b.dataset.poplien; if (l.startsWith("#")) go(l.slice(1)); else location.href = l; };
 }
+// ---------- #74 : déviations hors GTFS ----------
+// deviations.json (build/deviations.py, à chaque relevé de l'info trafic) + corrections faites dans admin/ (/extra).
+// Appliquées une fois par ouverture de l'appli (devApply, engine.js) : courses déviées, arrêts provisoires, tracés.
+const coneSvg = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6l4 16H5z"/><path d="M3 21h18"/><path d="M7.5 10h9"/><path d="M6.3 15h11.4"/></svg>`;
+function devMerge(dv, o) {
+  if (!o) return dv;
+  if (o.off) return null;
+  const out = { ...dv, src: "admin" };
+  if (Array.isArray(o.path) && o.path.length > 1) out.path = o.path;
+  if (Array.isArray(o.prov)) out.prov = o.prov;
+  if (Array.isArray(o.legs) && o.legs.length === (out.prov || []).length + (out.b != null ? 1 : 0) - (out.a == null ? 1 : 0)) out.legs = o.legs;
+  return out;
+}
+async function loadDevs() {
+  if (net.devs) return;
+  try {
+    const r = await fetch("deviations.json?v=" + Math.floor(Date.now() / 60000), { cache: "no-cache" });
+    if (!r.ok) return;
+    const ov = new Map((TR.devOv || []).map((o) => [o.id, o]));
+    const list = ((await r.json()).devs || []).map((dv) => devMerge(dv, ov.get(dv.id))).filter(Boolean);
+    const n0 = net.P.length;
+    devApply(net, list);
+    for (let i = n0; i < net.P.length; i++) stopIdx.push({ i, n: norm(net.P[i][0]) });
+    if (typeof devMapSync === "function") devMapSync();
+  } catch (e) { errReport(e, "devs"); }
+}
+// déviations du jour (plan)
+const devToday = () => { const t = todayIdx(); return (net.devs || []).filter((r) => r.mask[t] === "1"); };
+// déviations d'un jour qui ne desservent plus cet arrêt
+const devSkipAt = (par, day) => (net.devs || []).filter((r) => r.mask[day] === "1" && r.skipQ && r.skipQ.some((q) => net.Q[q][0] === par));
+const devPeriod = (rec) => { const x = (TR.items || []).find((y) => y.id === rec.info); if (x && x.p) return x.p; const d = rec.days; return d.length === 1 ? fmtDateLong(d[0]) : "Du " + fmtDateLong(d[0]) + " au " + fmtDateLong(d[d.length - 1]); };
+// arrêt de report d'un arrêt non desservi : arrêt provisoire du même nom, sinon l'arrêt du réseau
+function devRepPole(rec, name) {
+  if (!name) return -1;
+  for (const q of rec.provQ || []) if (net.P[net.Q[q][0]][0] === name) return net.Q[q][0];
+  return net.P.findIndex((p) => p[0] === name);
+}
+function devStopBlock(par, day, t0, isToday) {
+  const recs = devSkipAt(par, day); let h = "";
+  const nowF = nowMinF(), P0 = net.P[par];
+  const prov = net.provP && net.provP.get(par);
+  if (prov) {
+    const r0 = prov.devs[0];
+    h += `<div class="devcard prov"><div class="dvk">${coneSvg}ARRÊT PROVISOIRE</div><b class="dvt">${esc(r0.t)}</b>${prov.a ? `<span class="dvs">${pinSvg}${esc(prov.a)}</span>` : ""}<span class="dvs">Heures de passage estimées</span>
+      <div class="dvb"><button type="button" class="linkbtn" data-devtr="${esc(r0.info)}:${r0.ri}">Voir l'info trafic ${chevR}</button></div></div>`;
+  }
+  const seen = new Set();
+  for (const rec of recs) {
+    const sk = rec.skip.find((s) => s.n === P0[0]) || {}, rp = devRepPole(rec, sk.rep);
+    const k = rec.info + ":" + rp; if (seen.has(k)) continue; seen.add(k);
+    let rep = "";
+    if (rp >= 0) {
+      const d = distM(P0[1], P0[2], net.P[rp][1], net.P[rp][2]), isProv = net.provP && net.provP.has(rp);
+      const g = new Map();
+      for (const x of departures(net, rp, day, t0, 240)) {
+        const p = net.pats[x.pat]; if (p.r !== rec.ri || (isToday && x.t < nowF - 0.5)) continue;
+        if (!g.has(p.h)) g.set(p.h, []); const L = g.get(p.h); if (L.length < 3) L.push(x);
+      }
+      rep = `<div class="dvl">ARRÊT DE REPORT LE PLUS PROCHE</div>
+        <div class="dvr"><b>${esc(net.P[rp][0])}</b>${isProv ? `<span class="tagx pv">PROVISOIRE</span>` : ""}</div>
+        <span class="dvs">${d < 30 ? "Sur place" : walkTxt(d)}</span>
+        ${[...g].map(([hd, L]) => `<div class="subd"><span class="dir">${badge(rec.ri, "sm", true)} → ${esc(hd)}</span><div class="tt">${L.map((x) => `<button type="button" class="chip" data-subfollow="${x.pat}:${x.k}:${x.off}:${rp}"><span class="main">${dot(x.live)}${waitLabel(x.t, isToday)}</span>${isToday && x.t - nowF < 59.5 ? `<small>${hm(x.t)}${net.pats[x.pat].dev && net.pats[x.pat].dev.prov.has(x.i) ? " · estimé" : ""}</small>` : ""}</button>`).join("")}</div></div>`).join("")}`;
+    }
+    h += `<div class="devcard"><div class="dvk">${coneSvg}ARRÊT NON DESSERVI</div><b class="dvt">${badge(rec.ri, "sm", true)} ${esc(rec.t)}</b><span class="dvs">${esc(devPeriod(rec))}</span>${rep}
+      <div class="dvb">${rp >= 0 ? `<button type="button" class="btn primary" data-devmap="${esc(rec.info)}">Voir sur le plan</button>` : ""}<button type="button" class="btn" data-devtr="${esc(rec.info)}:${rec.ri}">Info trafic</button></div></div>`;
+  }
+  return h;
+}
+document.addEventListener("click", (e) => {
+  const a = e.target.closest("[data-devtr]");
+  if (a) { const [id, ri] = a.dataset.devtr.split(":"); openTrafic({ lines: [+ri], open: id }); return; }
+  const m = e.target.closest("[data-devmap]");
+  if (m) { const x = (TR.items || []).find((y) => y.id === m.dataset.devmap); if (x) { openTrafic({ open: x.id }); setTimeout(() => trZoom(x), 60); } return; }
+  const f = e.target.closest("[data-devfold]");
+  if (f) { MB.devOpen = !MB.devOpen; MB.key = ""; renderFollow(); }
+});
 async function loadTrafic() {
   try {
     const r = await fetch("info-trafic.json?v=" + Math.floor(Date.now() / 60000), { cache: "no-cache" });
@@ -3656,6 +3890,7 @@ async function loadTrafic() {
   } catch (e) { /* page hébergée ailleurs (claude.ai) ou fichier absent : on garde l'état précédent */ }
   TR.done = true;
   await loadExtra();
+  await loadDevs();
   TR.items = [...(TR.base || []), ...(TR.extra || [])];
   trStMap(); trCancel(); trIndex(); buildGrid();
   if (S.view === "trafic") renderTrafic(); else rerender();
@@ -3770,7 +4005,7 @@ async function pushDisable() {
 }
 // identifiant GTFS d'une course (pour relire son temps réel côté service)
 let TRIPID = null;
-function tripIdOf(pi, k) { if (!TRIPID) { TRIPID = new Map(); for (const [id, [a, b]] of net.tripIdx) TRIPID.set(a + ":" + b, id); } return TRIPID.get(pi + ":" + k) || null; }
+function tripIdOf(pi, k) { if (!TRIPID) { TRIPID = new Map(); for (const [id, [a, b]] of net.tripIdx) TRIPID.set(a + ":" + b, id); for (const [o, l] of net.devMap || []) for (const [a, b] of l) TRIPID.set(a + ":" + b, TRIPID.get(o)); } return TRIPID.get(pi + ":" + k) || null; }
 const tick = () => new Promise((r) => setTimeout(r, 0));
 async function lastBusJobs() {
   const out = []; if (!MY.al.last) return out;
@@ -4610,6 +4845,7 @@ function highlight() {
     if (cut > 0) H.legs.push({ pts: segmentD(pi, 0, cut), c: net.R[p.r].c, faded: true });
     if (end > cut) H.legs.push({ pts: segmentD(pi, cut, end), c: net.R[p.r].c });
     if (dest != null && dest < p.nS - 1) H.legs.push({ pts: segmentD(pi, end, g.sOff[p.nS - 1]), c: net.R[p.r].c, faded: true });
+    if (p.dev) { const a = g.sOff[Math.max(0, p.dev.i0)], b = g.sOff[Math.min(p.nS - 1, p.dev.i1)]; if (b > a) H.legs.push({ pts: segmentD(pi, a, b), devdash: true }); }
     p.stops.forEach((q) => H.stops.push(net.Q[q][0]));
     if (dest != null) H.ends.push([net.Q[p.stops[dest]][0], "to"]);
   } else if (S.view === "trafic" && TR.zoom) {
@@ -4803,8 +5039,11 @@ function paint() {
     path(L.pts);
     if (L.walk) { ctx.setLineDash([1, 7]); ctx.strokeStyle = C.ink; ctx.lineWidth = 4; ctx.stroke(); ctx.setLineDash([]); }
     else if (L.faded) { ctx.globalAlpha = 0.35; ctx.strokeStyle = L.c; ctx.lineWidth = lw * 1.6; ctx.stroke(); ctx.globalAlpha = 1; }
+    else if (L.devdash) { ctx.save(); ctx.lineCap = "butt"; ctx.setLineDash([Math.max(3, lw * 1.1), Math.max(4, lw * 1.6)]); ctx.strokeStyle = C.surf; ctx.lineWidth = lw * 2.6 + 1; ctx.stroke(); ctx.restore(); }
     else { ctx.strokeStyle = C.surf; ctx.lineWidth = lw * 2.6 + 5; ctx.stroke(); ctx.strokeStyle = L.c; ctx.lineWidth = lw * 2.6; ctx.stroke(); }
   }
+  // #74 : déviations du jour hors GTFS : tracé provisoire en pointillés, arrêts non desservis barrés, arrêts provisoires
+  devPaint(hl, C, lw, z);
   const hs = new Set(hl.stops);
   const showAll = z > 1.7;
   const capP = new Set();
@@ -5322,6 +5561,50 @@ function clickMap(sx, sy) {
 }
 // rafraîchit la position des bus toutes les 2 s (1 s pendant un suivi), seulement si la page est visible
 setInterval(() => { if (!document.hidden && !ptrs.size && (showBuses || S.view === "suivi")) drawMap(); }, 1000);
+
+// ---------- #74 : déviations hors GTFS sur le plan ----------
+// Parcours déviés ajoutés après le chargement (devApply, une fois l'info trafic lue) : tracés et positions des nouveaux arrêts
+function devMapSync() {
+  for (let i = shapeOfPat.length; i < net.pats.length; i++) { const p = net.pats[i]; shapeOfPat.push(p.sh >= 0 ? net.shapes[p.sh] : p.stops.map((q) => [net.Q[q][2], net.Q[q][1]])); }
+  for (let i = WP.length; i < net.P.length; i++) WP.push(warp(PX(net.P[i][2]), PY(net.P[i][1])));
+  quayInfo = null; RTC.clear();
+  drawMap();
+}
+function devPaint(hl, C, lw, z) {
+  const recs = devToday(); if (!recs.length) return;
+  const al = css("--alert");
+  for (const rec of recs) {
+    const mine = hl.routes && hl.routes.has(rec.ri), tz = S.view === "trafic" && TR.zoom && TR.zoom.id === rec.info;
+    if (hl.routes && hl.routes.size && !mine && !tz) continue;
+    if (!mine && !tz && z < 1.3) continue; // de loin, seulement pour la ligne affichée
+    const c = net.R[rec.ri].c, w = Math.max(3, lw * (mine || tz ? 1.6 : 1));
+    if (rec.path && rec.path.length > 1) {
+      ctx.save(); ctx.lineCap = "round"; ctx.lineJoin = "round";
+      path(rec.path); ctx.strokeStyle = C.surf; ctx.lineWidth = w + 4; ctx.globalAlpha = 0.9; ctx.stroke(); ctx.globalAlpha = 1;
+      path(rec.path); ctx.setLineDash([0.01, w * 2.1]); ctx.strokeStyle = c; ctx.lineWidth = w * 1.15; ctx.stroke();
+      ctx.restore();
+    }
+    if (tz) continue; // vue « Voir sur le plan » de l'info trafic : arrêts barrés et de report déjà dessinés (hl.tr)
+    for (const q of rec.skipQ || []) {
+      const [x, y] = toS(...warp(PX(net.Q[q][2]), PY(net.Q[q][1])));
+      if (x < -20 || y < -20 || x > W + 20 || y > H + 20) continue;
+      ctx.beginPath(); ctx.arc(x, y, 7, 0, 7); ctx.fillStyle = C.surf; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = C.muted; ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x - 3.5, y - 3.5); ctx.lineTo(x + 3.5, y + 3.5); ctx.moveTo(x + 3.5, y - 3.5); ctx.lineTo(x - 3.5, y + 3.5); ctx.lineWidth = 2; ctx.strokeStyle = "#d0242b"; ctx.stroke();
+    }
+    for (const q of rec.provQ || []) {
+      const [x, y] = toS(...warp(PX(net.Q[q][2]), PY(net.Q[q][1])));
+      if (x < -20 || y < -20 || x > W + 20 || y > H + 20) continue;
+      ctx.beginPath(); ctx.arc(x, y, 9, 0, 7); ctx.fillStyle = C.surf; ctx.fill();
+      ctx.save(); ctx.setLineDash([3, 2.5]); ctx.lineWidth = 2.6; ctx.strokeStyle = al; ctx.stroke(); ctx.restore();
+      ctx.beginPath(); ctx.arc(x, y, 3.6, 0, 7); ctx.fillStyle = al; ctx.fill();
+      if (mine || tz || z > 2.2) {
+        const t = net.P[net.Q[q][0]][0];
+        ctx.font = `600 11.5px ${C.font}`; ctx.lineWidth = 3.5; ctx.strokeStyle = C.surf; ctx.fillStyle = C.ink;
+        ctx.strokeText(t, x + 13, y + 4); ctx.fillText(t, x + 13, y + 4);
+      }
+    }
+  }
+}
 
 
 // ---------- temps réel ----------

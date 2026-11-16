@@ -384,6 +384,7 @@ function highlight() {
     if (cut > 0) H.legs.push({ pts: segmentD(pi, 0, cut), c: net.R[p.r].c, faded: true });
     if (end > cut) H.legs.push({ pts: segmentD(pi, cut, end), c: net.R[p.r].c });
     if (dest != null && dest < p.nS - 1) H.legs.push({ pts: segmentD(pi, end, g.sOff[p.nS - 1]), c: net.R[p.r].c, faded: true });
+    if (p.dev) { const a = g.sOff[Math.max(0, p.dev.i0)], b = g.sOff[Math.min(p.nS - 1, p.dev.i1)]; if (b > a) H.legs.push({ pts: segmentD(pi, a, b), devdash: true }); }
     p.stops.forEach((q) => H.stops.push(net.Q[q][0]));
     if (dest != null) H.ends.push([net.Q[p.stops[dest]][0], "to"]);
   } else if (S.view === "trafic" && TR.zoom) {
@@ -577,8 +578,11 @@ function paint() {
     path(L.pts);
     if (L.walk) { ctx.setLineDash([1, 7]); ctx.strokeStyle = C.ink; ctx.lineWidth = 4; ctx.stroke(); ctx.setLineDash([]); }
     else if (L.faded) { ctx.globalAlpha = 0.35; ctx.strokeStyle = L.c; ctx.lineWidth = lw * 1.6; ctx.stroke(); ctx.globalAlpha = 1; }
+    else if (L.devdash) { ctx.save(); ctx.lineCap = "butt"; ctx.setLineDash([Math.max(3, lw * 1.1), Math.max(4, lw * 1.6)]); ctx.strokeStyle = C.surf; ctx.lineWidth = lw * 2.6 + 1; ctx.stroke(); ctx.restore(); }
     else { ctx.strokeStyle = C.surf; ctx.lineWidth = lw * 2.6 + 5; ctx.stroke(); ctx.strokeStyle = L.c; ctx.lineWidth = lw * 2.6; ctx.stroke(); }
   }
+  // #74 : déviations du jour hors GTFS : tracé provisoire en pointillés, arrêts non desservis barrés, arrêts provisoires
+  devPaint(hl, C, lw, z);
   const hs = new Set(hl.stops);
   const showAll = z > 1.7;
   const capP = new Set();
@@ -1096,3 +1100,47 @@ function clickMap(sx, sy) {
 }
 // rafraîchit la position des bus toutes les 2 s (1 s pendant un suivi), seulement si la page est visible
 setInterval(() => { if (!document.hidden && !ptrs.size && (showBuses || S.view === "suivi")) drawMap(); }, 1000);
+
+// ---------- #74 : déviations hors GTFS sur le plan ----------
+// Parcours déviés ajoutés après le chargement (devApply, une fois l'info trafic lue) : tracés et positions des nouveaux arrêts
+function devMapSync() {
+  for (let i = shapeOfPat.length; i < net.pats.length; i++) { const p = net.pats[i]; shapeOfPat.push(p.sh >= 0 ? net.shapes[p.sh] : p.stops.map((q) => [net.Q[q][2], net.Q[q][1]])); }
+  for (let i = WP.length; i < net.P.length; i++) WP.push(warp(PX(net.P[i][2]), PY(net.P[i][1])));
+  quayInfo = null; RTC.clear();
+  drawMap();
+}
+function devPaint(hl, C, lw, z) {
+  const recs = devToday(); if (!recs.length) return;
+  const al = css("--alert");
+  for (const rec of recs) {
+    const mine = hl.routes && hl.routes.has(rec.ri), tz = S.view === "trafic" && TR.zoom && TR.zoom.id === rec.info;
+    if (hl.routes && hl.routes.size && !mine && !tz) continue;
+    if (!mine && !tz && z < 1.3) continue; // de loin, seulement pour la ligne affichée
+    const c = net.R[rec.ri].c, w = Math.max(3, lw * (mine || tz ? 1.6 : 1));
+    if (rec.path && rec.path.length > 1) {
+      ctx.save(); ctx.lineCap = "round"; ctx.lineJoin = "round";
+      path(rec.path); ctx.strokeStyle = C.surf; ctx.lineWidth = w + 4; ctx.globalAlpha = 0.9; ctx.stroke(); ctx.globalAlpha = 1;
+      path(rec.path); ctx.setLineDash([0.01, w * 2.1]); ctx.strokeStyle = c; ctx.lineWidth = w * 1.15; ctx.stroke();
+      ctx.restore();
+    }
+    if (tz) continue; // vue « Voir sur le plan » de l'info trafic : arrêts barrés et de report déjà dessinés (hl.tr)
+    for (const q of rec.skipQ || []) {
+      const [x, y] = toS(...warp(PX(net.Q[q][2]), PY(net.Q[q][1])));
+      if (x < -20 || y < -20 || x > W + 20 || y > H + 20) continue;
+      ctx.beginPath(); ctx.arc(x, y, 7, 0, 7); ctx.fillStyle = C.surf; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = C.muted; ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x - 3.5, y - 3.5); ctx.lineTo(x + 3.5, y + 3.5); ctx.moveTo(x + 3.5, y - 3.5); ctx.lineTo(x - 3.5, y + 3.5); ctx.lineWidth = 2; ctx.strokeStyle = "#d0242b"; ctx.stroke();
+    }
+    for (const q of rec.provQ || []) {
+      const [x, y] = toS(...warp(PX(net.Q[q][2]), PY(net.Q[q][1])));
+      if (x < -20 || y < -20 || x > W + 20 || y > H + 20) continue;
+      ctx.beginPath(); ctx.arc(x, y, 9, 0, 7); ctx.fillStyle = C.surf; ctx.fill();
+      ctx.save(); ctx.setLineDash([3, 2.5]); ctx.lineWidth = 2.6; ctx.strokeStyle = al; ctx.stroke(); ctx.restore();
+      ctx.beginPath(); ctx.arc(x, y, 3.6, 0, 7); ctx.fillStyle = al; ctx.fill();
+      if (mine || tz || z > 2.2) {
+        const t = net.P[net.Q[q][0]][0];
+        ctx.font = `600 11.5px ${C.font}`; ctx.lineWidth = 3.5; ctx.strokeStyle = C.surf; ctx.fillStyle = C.ink;
+        ctx.strokeText(t, x + 13, y + 4); ctx.fillText(t, x + 13, y + 4);
+      }
+    }
+  }
+}

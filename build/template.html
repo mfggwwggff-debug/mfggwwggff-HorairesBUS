@@ -697,6 +697,41 @@ body.p32cover .sheet { border-radius: 0; box-shadow: none; }
 /* bus en route : chevrons qui défilent jusqu'à l'arrêt suivant */
 .mbt-go { position: absolute; left: 67px; width: 12px; margin-left: -6px; border-radius: 6px; z-index: 0; background-color: var(--c); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='14' viewBox='0 0 12 14'%3E%3Cpath d='M3 4.5 6 7.5 9 4.5' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-size: 12px 14px; background-repeat: repeat-y; animation: flow .9s linear infinite; transition: top 1s linear, height 1s linear; -webkit-mask-image: linear-gradient(#000 80%, transparent); mask-image: linear-gradient(#000 80%, transparent); }
 .mbt-go.hide { display: none; }
+/* #74 : déviation hors GTFS dans Mon bus */
+.mbt-dev { position: absolute; left: 64px; width: 6px; background: repeating-linear-gradient(to bottom, var(--c) 0 6px, var(--surface) 6px 12px); }
+.mbt-fold { position: absolute; left: 92px; right: 8px; display: flex; flex-direction: column; justify-content: center; gap: 6px; padding: 6px 0; box-sizing: border-box; }
+.mbt-fold .fk { position: absolute; left: -33px; top: 30px; width: 16px; height: 16px; margin-top: -8px; border-radius: 50%; background: var(--surface); border: 2px solid var(--muted); box-sizing: border-box; }
+.mbt-fold .fk::after { content: ""; position: absolute; left: 3px; right: 3px; top: 5px; height: 2px; background: var(--muted); }
+.mbt-fold .fb { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 48px; text-align: left; padding: 7px 12px; border-radius: 12px; border: 1px solid var(--rule); background: var(--sunk); color: var(--muted); font-size: 13.5px; }
+.mbt-fold .fb span { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.mbt-fold .fb b { color: var(--ink); font-weight: 600; }
+.mbt-fold .fb small { font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mbt-fold .sk { min-height: 38px; display: flex; flex-direction: column; justify-content: center; padding-left: 4px; }
+.mbt-fold .sk s { color: var(--muted); text-decoration-color: var(--na, #d0242b); font-size: 15px; }
+.mbt-fold .sk small { color: var(--muted); font-size: 12.5px; }
+.mbt-fold .linkbtn { align-self: flex-start; }
+.mbr.prov .nd { border-style: dashed; border-width: 3px; width: 18px; height: 18px; }
+.mbr.prov .nd::after { content: ""; position: absolute; inset: 0; margin: auto; width: 6px; height: 6px; border-radius: 50%; background: var(--alert); }
+.mbr.prov.dest .nd::after { display: none; }
+.mbr .t small { display: block; font: 500 10.5px/1.3 var(--font-body); color: var(--muted); }
+.tagx.pv { background: color-mix(in srgb, var(--alert) 14%, var(--surface)); color: var(--accent-strong); border: 1px solid color-mix(in srgb, var(--alert) 40%, var(--surface)); }
+.mbr .devn { font-size: 12px; font-weight: 600; color: var(--accent-strong); white-space: nowrap; margin-right: 4px; }
+.mbdev { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 9px 12px; border-radius: 12px; border: 1px solid color-mix(in srgb, var(--alert) 40%, var(--rule)); background: color-mix(in srgb, var(--alert) 7%, var(--surface)); color: var(--ink); font-size: 13.5px; }
+.mbdev .dvi { color: var(--accent-strong); display: flex; }
+.mbdev .dvx { flex: 1; min-width: 0; display: flex; flex-direction: column; } .mbdev .dvx small { color: var(--muted); font-size: 12.5px; }
+.mbdev b { font-weight: 600; }
+/* #74 : arrêt non desservi / arrêt provisoire dans Passages */
+.devcard { border-radius: 14px; border: 1.5px solid color-mix(in srgb, var(--alert) 45%, var(--rule)); background: color-mix(in srgb, var(--alert) 6%, var(--surface)); padding: 13px 14px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+.devcard .dvk { display: flex; align-items: center; gap: 6px; color: var(--accent-strong); font: 700 11.5px/1.2 var(--font-body); letter-spacing: .07em; }
+.devcard .dvt { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.devcard .dvs { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 4px; }
+.devcard .dvs svg { width: 14px; height: 14px; }
+.devcard .dvl { margin-top: 10px; padding-top: 10px; border-top: 1px solid color-mix(in srgb, var(--alert) 25%, var(--rule)); font: 700 11px/1.2 var(--font-body); letter-spacing: .06em; color: var(--muted); }
+.devcard .dvr { display: flex; align-items: center; gap: 8px; font-size: 16px; }
+.devcard .subd { margin-top: 8px; display: grid; gap: 6px; } .devcard .subd .dir { font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 6px; } .devcard .subd .tt { display: flex; gap: 8px; overflow-x: auto; }
+.devcard .dvb { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.devcard .dvb .btn { flex: 1; height: 42px; }
+.devcard.prov .dvb { margin-top: 4px; }
 @keyframes flow { from { background-position: 0 0; } to { background-position: 0 14px; } }
 .tagx.wt { background: color-mix(in srgb, var(--c) 16%, var(--surface)); color: var(--ink); box-shadow: inset 0 0 0 1px var(--c); }
 .mbbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; border-top: 1px solid var(--rule); padding-top: 12px; }
@@ -1792,13 +1827,13 @@ function runPa() {
     <div class="dep ended">${badge(G.r, "lg")}<div class="dir">→ ${esc(G.h)}<small>${esc(net.R[G.r].l)}</small></div>
       <div class="endt big"><b>${G.end}</b><small>${G.sub}</small></div>
     </div>`;
-  if (!gs.length && !ended.length) { res.innerHTML = `<div class="empty">Aucun passage dans les 3 heures après ${hm(t0)} le ${fmtDateLong(iso)}.</div>`; drawMap(); return; }
+  if (!gs.length && !ended.length) { res.innerHTML = devStopBlock(S.paStop, day, t0, isToday) + `<div class="empty">Aucun passage dans les 3 heures après ${hm(t0)} le ${fmtDateLong(iso)}.</div>`; drawMap(); return; }
   const nowF = nowMinF();
   // défilement de chaque ligne gardé pendant les mises à jour ; remis au prochain passage en changeant d'arrêt ou d'onglet
   const scr = new Map();
   if (PA_SCR.stop === S.paStop && PA_SCR.view === S.view) res.querySelectorAll(".dep .tt[data-k]").forEach((e) => { if (e.scrollLeft) scr.set(e.dataset.k, e.scrollLeft); });
   if (!feat("pliage") && MFOLD.stop !== S.paStop) { MFOLD.clear(); MFOLD.stop = S.paStop; } // sans « Mémoire de l'affichage » : tout redéplié à chaque arrêt
-  res.innerHTML = subBlock(S.paStop, day, t0, isToday) + trNoteFor(net.pRoutes[S.paStop]).replace('class="trnote"', 'class="trnote" style="margin-bottom:10px"') + `<div class="legend-dots" style="margin:0 0 10px"><span>${dot(true)}temps réel</span><span>${dot(false)}horaire théorique</span><span>Touchez un horaire pour suivre le bus</span></div><div class="deps">` + byMode([...gs, ...ended], (g) => g.r).map(([mk, mn, L]) => `<div class="mgrp${mk && MFOLD.has(mk) ? " fold" : ""}">${mk ? modeFoldBtn(mk, mn, L.map((g) => g.r)) : ""}<div class="mbody">` + L.map((g) => g.list ? `
+  res.innerHTML = subBlock(S.paStop, day, t0, isToday) + devStopBlock(S.paStop, day, t0, isToday) + trNoteFor(net.pRoutes[S.paStop]).replace('class="trnote"', 'class="trnote" style="margin-bottom:10px"') + `<div class="legend-dots" style="margin:0 0 10px"><span>${dot(true)}temps réel</span><span>${dot(false)}horaire théorique</span><span>Touchez un horaire pour suivre le bus</span></div><div class="deps">` + byMode([...gs, ...ended], (g) => g.r).map(([mk, mn, L]) => `<div class="mgrp${mk && MFOLD.has(mk) ? " fold" : ""}">${mk ? modeFoldBtn(mk, mn, L.map((g) => g.r)) : ""}<div class="mbody">` + L.map((g) => g.list ? `
     <div class="dep">${badge(g.r, "lg")}<div class="dir">→ ${esc(g.h)}<small>${esc(net.R[g.r].l)}</small></div>
       <div class="tt" data-k="${g.r}|${esc(g.h)}">${g.list.map((x, k) => { const w = x.t - nowF; if (x.na) return `<button type="button" class="chip na" data-follow="${x.pat}:${x.k}:${x.off}" title="Départ de ${hm(x.st)} supprimé (info trafic)"><span class="main"><s>${hm(x.st)}</s></span><small>SUPPRIMÉ</small></button>`; return `<button type="button" class="chip${k === 0 && isToday && w <= 15 && w > -1 ? " soon" : ""}" data-follow="${x.pat}:${x.k}:${x.off}" title="${x.live ? "Temps réel, passage à " + hm(x.t) : "Horaire théorique, passage à " + hm(x.t)}"><span class="main">${dot(x.live)}${waitLabel(x.t, isToday)}</span>${x.live && Math.round(x.t) !== Math.round(x.st) ? `<small>${delayTxt(x.t, x.st)}</small>` : isToday && w >= 59.5 ? "" : isToday ? `<small>${hm(x.t)}</small>` : ""}</button>`; }).join("")}</div>
       <button type="button" class="linkbtn open" data-r="${g.r}" data-d="${g.dir}">Fiche horaire de la ligne ${esc(net.R[g.r].s)} ${chevR}</button>
@@ -2422,7 +2457,12 @@ function renderFollow() {
   if (!S.follow) { if (!S.guide) { el.innerHTML = `<div class="empty">Aucun bus suivi. Touchez un horaire dans Passages ou un bus sur le plan.</div>`; MB.key = ""; } return; }
   const { pi, k, dk, from } = S.follow, dest = S.follow.dest;
   const st = boardAdjust(tripState(pi, k, dk), pi, k, dk), p = st.p, R = net.R[p.r];
-  const key = [pi, k, dk, from, dest, !!S.guide].join(":");
+  const key = [pi, k, dk, from, dest, !!S.guide, !!MB.devOpen].join(":");
+  // #74 : course déviée : partie déviée en pointillés, arrêts non desservis repliés dans une ligne après l'arrêt a
+  const dv = p.dev, gA = dv ? dv.i0 : null, nSk = dv ? dv.rec.skip.length : 0;
+  const G = !dv ? 0 : MB.devOpen ? 58 + nSk * 44 + 44 : 70;
+  const rowT = (i) => i * ROWH + (dv && i > gA ? G : 0);
+  const yOf = (x) => !dv || x <= gA ? x * ROWH + ROWH / 2 : x >= gA + 1 ? x * ROWH + G + ROWH / 2 : gA * ROWH + ROWH / 2 + (x - gA) * (ROWH + G);
   // #45 : écran reconstruit s'il a disparu (contenu remplacé) ; la clé n'est posée qu'une fois l'écran construit,
   // sinon une erreur pendant la construction laissait un écran vide que plus rien ne reconstruisait
   if (MB.key === key && !$("#mb-track")) MB.key = "";
@@ -2435,24 +2475,28 @@ function renderFollow() {
       <div id="mb-banner"></div>
       <div id="mb-pd"></div>
       <div id="mb-sc"></div>
-      <div id="mb-hero"></div></div>
+      <div id="mb-hero"></div>${dv ? `<button type="button" class="mbdev" data-devtr="${esc(dv.rec.info)}:${p.r}"><span class="dvi">${coneSvg}</span><span class="dvx"><span><b>Déviation</b> · ${esc(dv.rec.t)}</span><small>Le ${modeOf(p.r) === "tram" ? "tram" : "bus"} ne passe pas par ${nSk} arrêt${nSk > 1 ? "s" : ""}${dv.rec.src === "admin" ? "" : ""}</small></span>${chevR}</button>` : ""}</div>
       <div class="mbt" id="mb-track" style="--c:${R.c};--ct:${R.t}">
-        <div class="mbt-rail" style="top:${ROWH / 2}px;height:${(p.nS - 1 - MB.first) * ROWH}px"></div>
+        <div class="mbt-rail" style="top:${ROWH / 2}px;height:${yOf(p.nS - 1) - ROWH / 2}px"></div>
+        ${dv ? `<div class="mbt-dev" style="top:${yOf(Math.max(0, gA))}px;height:${yOf(Math.min(p.nS - 1, dv.i1)) - yOf(Math.max(0, gA))}px"></div>` : ""}
         <div class="mbt-done" id="mb-done" style="top:${ROWH / 2}px"></div>
-        ${p.stops.slice(MB.first).map((q, j) => { const i = MB.first + j; return `<button type="button" class="mbr" data-i="${i}" style="top:${j * ROWH}px" aria-label="${dest === i ? "Ne plus marquer" : "Marquer comme arrêt de descente"} : ${esc(qName(q))}">
-          <span class="t">${hm(i === 0 ? st.dp(0) : st.at(i))}</span><span class="nd"></span>
-          <span class="nm"><span class="n1"><span class="nmt">${esc(qName(q))}</span>${from === i ? `<span class="tagx up">JE MONTE</span>` : ""}${dest === i ? `<span class="tagx">JE DESCENDS</span>` : ""}</span><span class="cxs" data-cx="${i}"></span></span></button>`; }).join("")}
+        ${dv ? `<div class="mbt-fold" style="top:${gA >= 0 ? rowT(gA) + ROWH : 0}px;height:${G}px"><i class="fk"></i>
+          <button type="button" class="fb" data-devfold aria-expanded="${!!MB.devOpen}"><span><b>${nSk} arrêt${nSk > 1 ? "s" : ""} non desservi${nSk > 1 ? "s" : ""}</b>${MB.devOpen ? "" : `<small>${esc(dv.rec.skip.map((x) => x.n).join(", "))}</small>`}</span><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2"><path d="${MB.devOpen ? "m3 9 4-4 4 4" : "m3 5 4 4 4-4"}"/></svg></button>
+          ${MB.devOpen ? dv.rec.skip.map((x) => `<div class="sk"><s>${esc(x.n)}</s>${x.rep ? `<small>Reporté à ${esc(x.rep)}</small>` : ""}</div>`).join("") + `<button type="button" class="linkbtn" data-devtr="${esc(dv.rec.info)}:${p.r}">Voir l'info trafic ${chevR}</button>` : ""}</div>` : ""}
+        ${p.stops.slice(MB.first).map((q, j) => { const i = MB.first + j, pv = dv && dv.prov.has(i); return `<button type="button" class="mbr${pv ? " prov" : ""}" data-i="${i}" style="top:${rowT(i)}px" aria-label="${dest === i ? "Ne plus marquer" : "Marquer comme arrêt de descente"} : ${esc(qName(q))}${pv ? " (arrêt provisoire)" : ""}">
+          <span class="t">${hm(i === 0 ? st.dp(0) : st.at(i))}${pv ? "<small>estimé</small>" : ""}</span><span class="nd"></span>
+          <span class="nm"><span class="n1"><span class="nmt">${esc(qName(q))}</span>${pv ? `<span class="tagx pv">PROVISOIRE</span>` : ""}${from === i ? `<span class="tagx up">JE MONTE</span>` : ""}${dest === i ? `<span class="tagx">JE DESCENDS</span>` : ""}</span><span class="cxs" data-cx="${i}"></span></span></button>`; }).join("")}
         <div class="mbt-go hide" id="mb-go"></div>
         <div class="mbt-bus" id="mb-bus" style="background:${R.c}">${busPicto(R.t, p.r)}</div>
       </div>
       <div class="mbbar" id="mb-bar"></div>`;
-    $("#mb-track").style.height = (p.nS - MB.first) * ROWH + "px";
+    $("#mb-track").style.height = rowT(p.nS - 1) + ROWH + "px";
     $("#fo-close").onclick = () => setSheet("half");
     sheetDragBind($("#mb-top"));
     $("#fo-back").onclick = () => go(S.guide ? "itineraire" : S.prevView && !["suivi"].includes(S.prevView) ? S.prevView : "accueil");
     el.querySelectorAll(".mbr").forEach((b) => b.onclick = () => { if (S.guide) return; const i = +b.dataset.i; if (S.follow.from != null && i <= S.follow.from) { toast("Choisissez un arrêt après votre arrêt de montée", 2500); return; } S.follow.dest = S.follow.dest === i ? null : i; if (S.follow.dest != null) askNotify(); renderFollow(); drawMap(); });
     // badges des correspondances (statiques), les temps sont ajoutés pour l'arrêt suivant et la descente
-    el.querySelectorAll("[data-cx]").forEach((c) => { const i = +c.dataset.cx; const rs = net.pRoutes[net.Q[p.stops[i]][0]].filter((r) => r !== p.r); c.dataset.base = rs.slice(0, 7).map((r) => badge(r, "sm", true)).join(""); c.innerHTML = c.dataset.base; });
+    el.querySelectorAll("[data-cx]").forEach((c) => { const i = +c.dataset.cx; const rs = net.pRoutes[net.Q[p.stops[i]][0]].filter((r) => r !== p.r); c.dataset.base = (dv && i === gA ? `<span class="devn">Début de la déviation</span>` : dv && i === dv.i1 ? `<span class="devn">Fin de la déviation</span>` : "") + rs.slice(0, 7).map((r) => badge(r, "sm", true)).join(""); c.innerHTML = c.dataset.base; });
     MB.key = key;
   }
   // --- mise à jour ---
@@ -2466,14 +2510,14 @@ function renderFollow() {
   // ligne : arrêts passés, arrêt suivant, bus
   // en attente au terminus ou à un arrêt : bus immobile sur l'arrêt, halo lent, étiquette ; en route : chevrons
   const waiting = st.state === "before" || st.atStop, waitAt = st.state === "before" ? 0 : st.i;
-  const busTop = ((st.state === "before" ? 0 : st.pos) - MB.first) * ROWH + ROWH / 2;
+  const busTop = yOf(st.state === "before" ? 0 : st.pos);
   $("#mb-bus").style.top = busTop + "px";
   $("#mb-bus").classList.toggle("hide", st.state === "done" || isNA(pi, k, dk));
   $("#mb-track").classList.toggle("na", isNA(pi, k, dk));
   $("#mb-bus").classList.toggle("wait", waiting);
   $("#mb-bus").classList.toggle("gps", !!st.gps);
   // les chevrons partent de sous le bus et s'arrêtent à l'arrêt suivant (#15 : jamais au-delà)
-  const goTop = busTop, goEnd = (next - MB.first) * ROWH + ROWH / 2 - 8;
+  const goTop = busTop, goEnd = yOf(next) - 8;
   const goEl = $("#mb-go"), showGo = feat("chevrons") && st.state === "running" && !st.atStop && goEnd - goTop >= 28; // pas « go » : c'est la fonction de navigation
   goEl.classList.toggle("hide", !showGo);
   if (showGo) { goEl.style.top = goTop + "px"; goEl.style.height = goEnd - goTop + "px"; }
@@ -3155,7 +3199,7 @@ async function loadExtra() {
   try {
     const u = await pushBase(); if (!u) return;
     const r = await fetch(u + "/extra", { cache: "no-cache" }); if (!r.ok) return;
-    const d = await r.json(); TR.extra = (d.infos || []).filter((x) => x && x.id && Array.isArray(x.lines)); EXTRA_POPS = d.popups || [];
+    const d = await r.json(); TR.extra = (d.infos || []).filter((x) => x && x.id && Array.isArray(x.lines)); EXTRA_POPS = d.popups || []; TR.devOv = d.devs || [];
     setTimeout(extraPop, 1200);
   } catch (e) {}
 }
@@ -3170,6 +3214,82 @@ function extraPop() {
   const b = document.querySelector("#updpop [data-poplien]");
   if (b) b.onclick = () => { $("#updpop").classList.remove("on"); const l = b.dataset.poplien; if (l.startsWith("#")) go(l.slice(1)); else location.href = l; };
 }
+// ---------- #74 : déviations hors GTFS ----------
+// deviations.json (build/deviations.py, à chaque relevé de l'info trafic) + corrections faites dans admin/ (/extra).
+// Appliquées une fois par ouverture de l'appli (devApply, engine.js) : courses déviées, arrêts provisoires, tracés.
+const coneSvg = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6l4 16H5z"/><path d="M3 21h18"/><path d="M7.5 10h9"/><path d="M6.3 15h11.4"/></svg>`;
+function devMerge(dv, o) {
+  if (!o) return dv;
+  if (o.off) return null;
+  const out = { ...dv, src: "admin" };
+  if (Array.isArray(o.path) && o.path.length > 1) out.path = o.path;
+  if (Array.isArray(o.prov)) out.prov = o.prov;
+  if (Array.isArray(o.legs) && o.legs.length === (out.prov || []).length + (out.b != null ? 1 : 0) - (out.a == null ? 1 : 0)) out.legs = o.legs;
+  return out;
+}
+async function loadDevs() {
+  if (net.devs) return;
+  try {
+    const r = await fetch("deviations.json?v=" + Math.floor(Date.now() / 60000), { cache: "no-cache" });
+    if (!r.ok) return;
+    const ov = new Map((TR.devOv || []).map((o) => [o.id, o]));
+    const list = ((await r.json()).devs || []).map((dv) => devMerge(dv, ov.get(dv.id))).filter(Boolean);
+    const n0 = net.P.length;
+    devApply(net, list);
+    for (let i = n0; i < net.P.length; i++) stopIdx.push({ i, n: norm(net.P[i][0]) });
+    if (typeof devMapSync === "function") devMapSync();
+  } catch (e) { errReport(e, "devs"); }
+}
+// déviations du jour (plan)
+const devToday = () => { const t = todayIdx(); return (net.devs || []).filter((r) => r.mask[t] === "1"); };
+// déviations d'un jour qui ne desservent plus cet arrêt
+const devSkipAt = (par, day) => (net.devs || []).filter((r) => r.mask[day] === "1" && r.skipQ && r.skipQ.some((q) => net.Q[q][0] === par));
+const devPeriod = (rec) => { const x = (TR.items || []).find((y) => y.id === rec.info); if (x && x.p) return x.p; const d = rec.days; return d.length === 1 ? fmtDateLong(d[0]) : "Du " + fmtDateLong(d[0]) + " au " + fmtDateLong(d[d.length - 1]); };
+// arrêt de report d'un arrêt non desservi : arrêt provisoire du même nom, sinon l'arrêt du réseau
+function devRepPole(rec, name) {
+  if (!name) return -1;
+  for (const q of rec.provQ || []) if (net.P[net.Q[q][0]][0] === name) return net.Q[q][0];
+  return net.P.findIndex((p) => p[0] === name);
+}
+function devStopBlock(par, day, t0, isToday) {
+  const recs = devSkipAt(par, day); let h = "";
+  const nowF = nowMinF(), P0 = net.P[par];
+  const prov = net.provP && net.provP.get(par);
+  if (prov) {
+    const r0 = prov.devs[0];
+    h += `<div class="devcard prov"><div class="dvk">${coneSvg}ARRÊT PROVISOIRE</div><b class="dvt">${esc(r0.t)}</b>${prov.a ? `<span class="dvs">${pinSvg}${esc(prov.a)}</span>` : ""}<span class="dvs">Heures de passage estimées</span>
+      <div class="dvb"><button type="button" class="linkbtn" data-devtr="${esc(r0.info)}:${r0.ri}">Voir l'info trafic ${chevR}</button></div></div>`;
+  }
+  const seen = new Set();
+  for (const rec of recs) {
+    const sk = rec.skip.find((s) => s.n === P0[0]) || {}, rp = devRepPole(rec, sk.rep);
+    const k = rec.info + ":" + rp; if (seen.has(k)) continue; seen.add(k);
+    let rep = "";
+    if (rp >= 0) {
+      const d = distM(P0[1], P0[2], net.P[rp][1], net.P[rp][2]), isProv = net.provP && net.provP.has(rp);
+      const g = new Map();
+      for (const x of departures(net, rp, day, t0, 240)) {
+        const p = net.pats[x.pat]; if (p.r !== rec.ri || (isToday && x.t < nowF - 0.5)) continue;
+        if (!g.has(p.h)) g.set(p.h, []); const L = g.get(p.h); if (L.length < 3) L.push(x);
+      }
+      rep = `<div class="dvl">ARRÊT DE REPORT LE PLUS PROCHE</div>
+        <div class="dvr"><b>${esc(net.P[rp][0])}</b>${isProv ? `<span class="tagx pv">PROVISOIRE</span>` : ""}</div>
+        <span class="dvs">${d < 30 ? "Sur place" : walkTxt(d)}</span>
+        ${[...g].map(([hd, L]) => `<div class="subd"><span class="dir">${badge(rec.ri, "sm", true)} → ${esc(hd)}</span><div class="tt">${L.map((x) => `<button type="button" class="chip" data-subfollow="${x.pat}:${x.k}:${x.off}:${rp}"><span class="main">${dot(x.live)}${waitLabel(x.t, isToday)}</span>${isToday && x.t - nowF < 59.5 ? `<small>${hm(x.t)}${net.pats[x.pat].dev && net.pats[x.pat].dev.prov.has(x.i) ? " · estimé" : ""}</small>` : ""}</button>`).join("")}</div></div>`).join("")}`;
+    }
+    h += `<div class="devcard"><div class="dvk">${coneSvg}ARRÊT NON DESSERVI</div><b class="dvt">${badge(rec.ri, "sm", true)} ${esc(rec.t)}</b><span class="dvs">${esc(devPeriod(rec))}</span>${rep}
+      <div class="dvb">${rp >= 0 ? `<button type="button" class="btn primary" data-devmap="${esc(rec.info)}">Voir sur le plan</button>` : ""}<button type="button" class="btn" data-devtr="${esc(rec.info)}:${rec.ri}">Info trafic</button></div></div>`;
+  }
+  return h;
+}
+document.addEventListener("click", (e) => {
+  const a = e.target.closest("[data-devtr]");
+  if (a) { const [id, ri] = a.dataset.devtr.split(":"); openTrafic({ lines: [+ri], open: id }); return; }
+  const m = e.target.closest("[data-devmap]");
+  if (m) { const x = (TR.items || []).find((y) => y.id === m.dataset.devmap); if (x) { openTrafic({ open: x.id }); setTimeout(() => trZoom(x), 60); } return; }
+  const f = e.target.closest("[data-devfold]");
+  if (f) { MB.devOpen = !MB.devOpen; MB.key = ""; renderFollow(); }
+});
 async function loadTrafic() {
   try {
     const r = await fetch("info-trafic.json?v=" + Math.floor(Date.now() / 60000), { cache: "no-cache" });
@@ -3178,6 +3298,7 @@ async function loadTrafic() {
   } catch (e) { /* page hébergée ailleurs (claude.ai) ou fichier absent : on garde l'état précédent */ }
   TR.done = true;
   await loadExtra();
+  await loadDevs();
   TR.items = [...(TR.base || []), ...(TR.extra || [])];
   trStMap(); trCancel(); trIndex(); buildGrid();
   if (S.view === "trafic") renderTrafic(); else rerender();
@@ -3292,7 +3413,7 @@ async function pushDisable() {
 }
 // identifiant GTFS d'une course (pour relire son temps réel côté service)
 let TRIPID = null;
-function tripIdOf(pi, k) { if (!TRIPID) { TRIPID = new Map(); for (const [id, [a, b]] of net.tripIdx) TRIPID.set(a + ":" + b, id); } return TRIPID.get(pi + ":" + k) || null; }
+function tripIdOf(pi, k) { if (!TRIPID) { TRIPID = new Map(); for (const [id, [a, b]] of net.tripIdx) TRIPID.set(a + ":" + b, id); for (const [o, l] of net.devMap || []) for (const [a, b] of l) TRIPID.set(a + ":" + b, TRIPID.get(o)); } return TRIPID.get(pi + ":" + k) || null; }
 const tick = () => new Promise((r) => setTimeout(r, 0));
 async function lastBusJobs() {
   const out = []; if (!MY.al.last) return out;
