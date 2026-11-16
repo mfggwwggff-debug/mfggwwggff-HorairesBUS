@@ -30,18 +30,24 @@ jobs:
       - name: Relever l'info trafic
         run: python build/infotrafic.py > info-trafic.new.json
 
+      - name: Déviations hors GTFS (#74)
+        # arrêts non desservis, arrêts provisoires, tracé (OSRM) et temps estimés ; en cas d'échec on garde l'ancien fichier
+        run: python build/deviations.py info-trafic.new.json > deviations.new.json || cp deviations.json deviations.new.json || echo {\"devs\":[]} > deviations.new.json
+
       - name: Publier si quelque chose a changé
         run: |
           # on compare sans l'horodatage
           strip() { python -c "import json,sys; d=json.load(open(sys.argv[1])); d.pop('at',None); print(json.dumps(d,sort_keys=True))" "$1" 2>/dev/null; }
-          if [ -f info-trafic.json ] && [ "$(strip info-trafic.json)" = "$(strip info-trafic.new.json)" ]; then
-            echo "Info trafic inchangée."
+          ch=0
+          if [ -f info-trafic.json ] && [ "$(strip info-trafic.json)" = "$(strip info-trafic.new.json)" ]; then rm info-trafic.new.json; else mv info-trafic.new.json info-trafic.json; ch=1; fi
+          if [ -f deviations.json ] && [ "$(strip deviations.json)" = "$(strip deviations.new.json)" ]; then rm deviations.new.json; else mv deviations.new.json deviations.json; ch=1; fi
+          if [ "$ch" = 0 ]; then
+            echo "Info trafic et déviations inchangées."
             exit 0
           fi
-          mv info-trafic.new.json info-trafic.json
           git config user.name "info-trafic-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add info-trafic.json build/trafic-archive.json
+          git add info-trafic.json deviations.json build/trafic-archive.json
           git commit -m "Info trafic : mise à jour"
           for i in 1 2 3; do git pull --rebase -q && git push -q && exit 0; sleep 5; done
           exit 1

@@ -42,7 +42,7 @@ out = os.path.join(root, "index.html")
 if test:
     # même page, servie depuis test/ : les fichiers partagés sont un dossier plus haut
     for a, b in (('href="manifest.webmanifest"', 'href="../manifest.webmanifest"'), ('href="apple-touch-icon.png"', 'href="../apple-touch-icon.png"'),
-                 ('"icon-192.png"', '"../icon-192.png"'), ('"info-trafic.json?v="', '"../info-trafic.json?v="'),
+                 ('"icon-192.png"', '"../icon-192.png"'), ('"info-trafic.json?v="', '"../info-trafic.json?v="'), ('"deviations.json?v="', '"../deviations.json?v="'),
                  ('"plans/', '"../plans/'), ("'plans/", "'../plans/"), ('register("sw.js")', 'register("../sw.js")')):
         t = t.replace(a, b)
     t = t.replace("<title>", "<title>[TEST] ", 1)
