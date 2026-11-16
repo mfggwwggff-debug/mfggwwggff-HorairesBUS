@@ -3587,6 +3587,32 @@
     "sur": true
    },
    "attendu": null
+  },
+  "f91683339d|U5": {
+   "vu": "2026-11-16",
+   "t": "Suite à des travaux, votre bus est dévié secteur Farman en direction de Parc Expositions",
+   "p": "",
+   "lines": [
+    "U5"
+   ],
+   "rt": true,
+   "b": [
+    {
+     "r": [
+      [
+       "Arrêts non desservis : Ader, INSPE, Hoche",
+       0
+      ]
+     ]
+    }
+   ],
+   "auto": {
+    "grav": "deviation",
+    "nat": "perturbation",
+    "portee": "ligne",
+    "sur": true
+   },
+   "attendu": null
   }
  }
 }

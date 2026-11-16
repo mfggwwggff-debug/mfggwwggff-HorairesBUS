@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-16T10:25:22Z",
+ "at": "2026-11-16T10:30:22Z",
  "items": [
   {
    "id": "aba75f03db",
@@ -489,8 +489,8 @@
    ]
   },
   {
-   "id": "f660a10d14",
-   "t": "Suite à des travaux, votre bus effectue son terminus à l'arrêt IUT",
+   "id": "f91683339d",
+   "t": "Suite à des travaux, votre bus est dévié secteur Farman en direction de Parc Expositions",
    "lines": [
     "U5"
    ],
@@ -501,7 +501,7 @@
     {
      "r": [
       [
-       "Arrêts non desservis : Parc, ESI, Ader, INSPE, Hoche, Parc Expositions",
+       "Arrêts non desservis : Ader, INSPE, Hoche",
        0
       ]
      ]
