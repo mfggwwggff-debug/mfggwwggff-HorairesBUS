@@ -26,6 +26,7 @@ root = os.path.dirname(here)
 OSRM = "https://router.project-osrm.org/route/v1/driving/"
 DWELL = 0.4            # min, temps d'arrêt à un arrêt provisoire
 SAME_M = 80            # un arrêt « déplacé » à moins de 80 m de son quai du GTFS : déjà dans les horaires
+SMALL_M = 150          # arrêts seulement décalés de quelques mètres (tous à moins de 150 m) : pas une déviation
 HORIZON = 40           # jours couverts pour les infos qui reviennent (« tous les dimanches »)
 TODAY = dt.date.fromisoformat(os.environ["DEV_TODAY"]) if os.environ.get("DEV_TODAY") else dt.date.today()
 
@@ -189,6 +190,8 @@ def build(items, old):
     for x in items:
         c = x.get("c") or {}
         if c.get("cond") or c.get("nat") == "info": continue  # « seulement en cas de congestion », simples infos
+        # « Report de l'arrêt … » : arrêt décalé de quelques mètres, le bus garde son trajet ; l'info trafic suffit (16 nov.)
+        if re.match(r"^reports? (?:de |des |du )?(?:l |la |le |les )?arrets?\b", key(x.get("t"))): continue
         w = when(x)
         if not w: continue
         es = list(entries(x))
@@ -223,6 +226,13 @@ def build(items, old):
                             if q is None or dist(Q[q][1], Q[q][2], Q[main["stops"][idx]][1], Q[main["stops"][idx]][2]) < SAME_M: continue
                         touched[idx] = {"n": n, "to": e["to"]}
                 if not touched: continue
+                # tous les arrêts touchés sont seulement décalés (à moins de 150 m) : pas une déviation
+                def moved(i):
+                    t, q = touched[i], Q[main["stops"][i]]
+                    if "geo" in t: return dist(q[1], q[2], t["geo"]["lat"], t["geo"]["lon"])
+                    tn = pole_named(t["to"]["stop"]) or t["to"]["stop"]; qq = rep_quai(main, i, t["to"], tn)
+                    return dist(q[1], q[2], Q[qq][1], Q[qq][2]) if qq is not None else 1e9
+                if all(moved(i) <= SMALL_M for i in touched): continue
                 idxs = sorted(touched)
                 # blocs d'arrêts qui se suivent
                 blocks, cur = [], [idxs[0]]
