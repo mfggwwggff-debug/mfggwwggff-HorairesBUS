@@ -145,6 +145,17 @@ footer.src a { color: inherit; }
 .note { font-size: 13.5px; color: var(--muted); padding: 10px 12px; border-radius: 10px; background: var(--sunk); border-left: 3px solid var(--rule); }
 .note.warn { border-left-color: var(--theo); }
 .empty { color: var(--muted); padding: 14px 4px; text-align: center; font-size: 14px; }
+/* Chargement : infini à boucles rondes (comme le logo), gris, parcouru par un trait ; n'apparaît qu'après 0,3 s */
+.ldr { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 28px 8px; color: var(--muted); font-size: 13.5px; opacity: 0; animation: ldrIn .25s ease .3s forwards; }
+.ldr svg { width: 64px; height: 36px; overflow: visible; }
+.ldr .lt { fill: none; stroke: color-mix(in srgb, var(--muted) 30%, transparent); stroke-width: 12; stroke-linecap: round; }
+.ldr .lr { fill: none; stroke: var(--muted); stroke-width: 12; stroke-linecap: round; stroke-dasharray: 70 330; animation: ldrRun 1.6s linear infinite; }
+.ldr.sm { flex-direction: row; padding: 10px 12px; gap: 10px; font-size: 13px; }
+.ldr.sm svg { width: 34px; height: 19px; }
+.ldr.ov { position: absolute; inset: 0; justify-content: center; pointer-events: none; }
+@keyframes ldrIn { to { opacity: 1; } }
+@keyframes ldrRun { to { stroke-dashoffset: -400; } }
+@media (prefers-reduced-motion: reduce) { .ldr .lr { animation-duration: 4s; } }
 .card { border: 1px solid var(--rule); border-radius: var(--r); background: var(--surface); overflow: hidden; }
 
 /* quand ? (date et heure repliables) */
@@ -1320,6 +1331,8 @@ async function geoSearch(q) {
   try { const r = await fetch(u); const d = await r.json(); const out = (d.features || []).filter((f) => GR_INSEE.has(String(f.properties.citycode))).slice(0, 5).map((f) => ({ kind: "adr", label: f.properties.name, sub: [f.properties.postcode, f.properties.city].filter(Boolean).join(" "), lat: f.geometry.coordinates[1], lon: f.geometry.coordinates[0] })); GEOC.set(q, out); return out; } catch (e) { return []; }
 }
 // #39 : lieux d'intérêt (écoles, musées, magasins, restaurants…) relevés dans OpenStreetMap (lieux.json, tâche « Lieux (OSM) »)
+const LDR_D = "M83.8 50A33.8 33.8 0 1 0 16.2 50A33.8 33.8 0 1 0 83.8 50A33.8 33.8 0 1 1 151.4 50A33.8 33.8 0 1 1 83.8 50";
+const loader = (t, cls) => `<div class="ldr${cls ? " " + cls : ""}" role="status"><svg viewBox="4 6 159.6 88" aria-hidden="true"><path class="lt" d="${LDR_D}"/><path class="lr" pathLength="400" d="${LDR_D}"/></svg><span>${t || "Chargement…"}</span></div>`;
 const LIEUX = { st: 0, l: null, c: [], k: [], wait: [] };
 function lieuxLoad(cb) {
   if (LIEUX.st === 2) return cb && cb();
@@ -1378,10 +1391,11 @@ function picker(root, onPick, opts = {}) {
       if (opts.places && q.length >= 2) {
         if (LIEUX.st !== 2) lieuxLoad(() => { if (box.classList.contains("on") && document.activeElement === inp) render(); });
         const L = lieuxFind(inp.value, 5);
+        if (!L.length && LIEUX.st === 1) html += `<div class="sg-h lbl">Lieux</div>${loader("Chargement des lieux…", "sm")}`;
         if (L.length) { html += `<div class="sg-h lbl">Lieux</div>`; L.forEach((v) => { html += prow(v, items.length); items.push({ place: v }); }); }
       }
       if (opts.places && q.length >= 3) {
-        html += `<div class="sg-h lbl" data-adrh>Adresses</div><div class="sg-wait" data-adr>Recherche…</div>`;
+        html += `<div class="sg-h lbl" data-adrh>Adresses</div><div data-adr>${loader("Recherche des adresses…", "sm")}</div>`;
         const my = ++gseq, raw = inp.value.trim();
         setTimeout(async () => {
           if (my !== gseq) return;
@@ -3162,6 +3176,7 @@ async function loadTrafic() {
     if (!r.ok) throw new Error("HTTP " + r.status);
     const d = await r.json(); TR.base = d.items || []; TR.at = d.at || null; TR.src = d.src || ""; TR.ok = true;
   } catch (e) { /* page hébergée ailleurs (claude.ai) ou fichier absent : on garde l'état précédent */ }
+  TR.done = true;
   await loadExtra();
   TR.items = [...(TR.base || []), ...(TR.extra || [])];
   trStMap(); trCancel(); trIndex(); buildGrid();
@@ -3589,7 +3604,7 @@ function renderTrafic() {
   let h = `<div class="vhead"><h2>Info trafic</h2></div>`;
   if (!TR.ok) {
     head.innerHTML = h;
-    res.innerHTML = `<div class="empty">${/claude/.test(location.hostname) ? "L'info trafic ne peut pas être chargée dans cette page hébergée sur claude.ai. Elle fonctionne sur la version GitHub." : "Info trafic indisponible pour le moment."}</div>`;
+    res.innerHTML = !TR.done ? loader("Chargement de l'info trafic…") : `<div class="empty">${/claude/.test(location.hostname) ? "L'info trafic ne peut pas être chargée dans cette page hébergée sur claude.ai. Elle fonctionne sur la version GitHub." : "Info trafic indisponible pour le moment."}</div>`;
     $("#tr-src").innerHTML = "";
   } else {
     const act = trActive();
@@ -3646,7 +3661,7 @@ function renderPlans() {
   const res = $("#pl-res");
   const site = PL.src || "https://www.grandreims-mobilites.fr/fr/w48-Telecharger-les-plans-du-reseau.html";
   if (!PL.list) {
-    res.innerHTML = PL.err ? `<div class="empty" style="grid-column:1/-1">${/claude/.test(location.hostname) ? "Les plans ne peuvent pas être chargés dans cette page hébergée sur claude.ai. Ils sont dans la version GitHub." : "Plans indisponibles pour le moment."} <a href="${site}" target="_blank" rel="noopener">Voir sur le site du réseau</a></div>` : `<div class="empty" style="grid-column:1/-1">Chargement…</div>`;
+    res.innerHTML = PL.err ? `<div class="empty" style="grid-column:1/-1">${/claude/.test(location.hostname) ? "Les plans ne peuvent pas être chargés dans cette page hébergée sur claude.ai. Ils sont dans la version GitHub." : "Plans indisponibles pour le moment."} <a href="${site}" target="_blank" rel="noopener">Voir sur le site du réseau</a></div>` : `<div style="grid-column:1/-1">${loader("Chargement des plans…")}</div>`;
     if (!PL.err && !PL.loading) { PL.loading = true; loadPlans(); }
     return;
   }
@@ -3661,7 +3676,7 @@ function openPlan(id, page) {
   let el = $("#plv");
   if (!el) { el = document.createElement("div"); el.id = "plv"; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); document.body.appendChild(el); }
   el.innerHTML = `<div class="plv-top"><button type="button" class="icon-btn" id="plv-x" aria-label="Fermer">${backSvg}</button><div class="plv-t"><b>${esc(P.title.replace(/\s*\(.*\)\s*$/, ""))}</b>${P.pages.length > 1 ? `<small>Page ${page + 1} / ${P.pages.length}</small>` : ""}</div><a class="btn small" href="${esc(P.pdf)}" target="_blank" rel="noopener">PDF</a></div>
-    <div class="plv-stage" id="plv-st"><img id="plv-img" alt="${esc(P.title)}" src="plans/${esc(P.thumb)}" draggable="false"></div>
+    <div class="plv-stage" id="plv-st"><img id="plv-img" alt="${esc(P.title)}" src="plans/${esc(P.thumb)}" draggable="false">${loader("Chargement du plan…", "ov")}</div>
     <div class="plv-ctl">${P.pages.length > 1 ? `<button type="button" class="icon-btn" id="plv-prev" aria-label="Page précédente" ${page ? "" : "disabled"}>‹</button>` : ""}<button type="button" class="icon-btn" id="plv-out" aria-label="Dézoomer">−</button><button type="button" class="icon-btn" id="plv-fit" aria-label="Plan entier"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 6V2h4M14 6V2h-4M2 10v4h4M14 10v4h-4"/></svg></button><button type="button" class="icon-btn" id="plv-in" aria-label="Zoomer">+</button>${P.pages.length > 1 ? `<button type="button" class="icon-btn" id="plv-next" aria-label="Page suivante" ${page < P.pages.length - 1 ? "" : "disabled"}>›</button>` : ""}</div>`;
   el.classList.add("on");
   const st = $("#plv-st"), img = $("#plv-img"), V = { s: 1, x: 0, y: 0, w: pg.w || 2600, h: pg.h || 1800 };
@@ -3669,7 +3684,7 @@ function openPlan(id, page) {
   const fit = () => { const r = st.getBoundingClientRect(); V.s = Math.min(r.width / V.w, r.height / V.h); V.x = (r.width - V.w * V.s) / 2; V.y = (r.height - V.h * V.s) / 2; apply(); };
   const zoom = (f, cx, cy) => { const r = st.getBoundingClientRect(); cx = cx ?? r.width / 2; cy = cy ?? r.height / 2; const fitS = Math.min(r.width / V.w, r.height / V.h); const ns = Math.max(fitS * 0.8, Math.min(3, V.s * f)); V.x = cx - (cx - V.x) * ns / V.s; V.y = cy - (cy - V.y) * ns / V.s; V.s = ns; apply(); };
   fit();
-  const full = new Image(); full.onload = () => { img.src = full.src; }; full.src = "plans/" + pg.src;
+  const full = new Image(); const ldOff = () => { const l = st.querySelector(".ldr"); if (l) l.remove(); }; full.onload = () => { img.src = full.src; ldOff(); }; full.onerror = ldOff; full.src = "plans/" + pg.src;
   const ptr = new Map(); let pinch = null;
   const P0 = (e) => { const r = st.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
   st.onpointerdown = (e) => { st.setPointerCapture(e.pointerId); ptr.set(e.pointerId, P0(e)); if (ptr.size === 2) { const [a, b] = [...ptr.values()]; pinch = { d: Math.hypot(a[0] - b[0], a[1] - b[1]), s: V.s }; } };
