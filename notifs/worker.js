@@ -290,6 +290,9 @@ const eq = (a, b) => { // comparaison à temps constant
   for (let i = 0; i < Math.max(a.length, b.length); i++) d |= (a.charCodeAt(i) || 0) ^ (b.charCodeAt(i) || 0);
   return d === 0;
 };
+// #74 : correction d'une déviation (admin/) → telle que lue par l'appli
+function devRow(x) { let d = {}; try { d = JSON.parse(x.data || "{}"); } catch {} return { id: x.id, maj: x.maj, ...d }; }
+
 async function admin(req, env, b, now) {
   const want = String(env.ADMIN_KEY || "");
   if (!want) return json({ error: "Aucune clé d'accès n'est réglée sur le service (secret ADMIN_KEY)." }, 503);
@@ -319,6 +322,24 @@ async function admin(req, env, b, now) {
     });
     return json({ ok: true, phones, jobs: jobs.n, habits: habits.n, traficAt: tr ? +tr.v : 0, rt, rtSub, now });
   }
+
+  // #74 : déviations hors GTFS corrigées à la main (tracé, arrêts provisoires, temps) ou masquées
+  if (op === "devs") return json({ ok: true, devs: ((await env.DB.prepare("SELECT * FROM devs_main ORDER BY maj DESC LIMIT 300").all()).results || []).map(devRow) });
+  if (op === "devSave") {
+    const id = clip(b.id, 160), d = b.dev || {};
+    if (!id) return json({ error: "Déviation inconnue." }, 400);
+    const pt = (p) => Array.isArray(p) && p.length === 2 && p.every((v) => typeof v === "number" && isFinite(v)) ? [Math.round(p[0] * 1e5) / 1e5, Math.round(p[1] * 1e5) / 1e5] : null;
+    const out = { st: ["ok", "main", "off"].includes(d.st) ? d.st : "ok" };
+    if (out.st === "off") out.off = true;
+    if (Array.isArray(d.path)) { const p = d.path.map(pt).filter(Boolean).slice(0, 3000); if (p.length > 1) out.path = p; }
+    if (Array.isArray(d.prov)) out.prov = d.prov.slice(0, 20).map((v) => ({ n: clip(v.n, 60) || "Arrêt provisoire", lat: +v.lat, lon: +v.lon, a: clip(v.a, 120) || undefined, pole: clip(v.pole, 60) || undefined })).filter((v) => isFinite(v.lat) && isFinite(v.lon));
+    if (Array.isArray(d.legs)) out.legs = d.legs.slice(0, 21).map((x) => Math.max(0, Math.min(120, +x || 0)));
+    const data = JSON.stringify(out);
+    if (data.length > 150000) return json({ error: "Tracé trop long." }, 400);
+    await env.DB.prepare("INSERT INTO devs_main (id, data, maj) VALUES (?, ?, ?) ON CONFLICT(id) DO UPDATE SET data = excluded.data, maj = excluded.maj").bind(id, data, now).run();
+    return json({ ok: true });
+  }
+  if (op === "devDel") { await env.DB.prepare("DELETE FROM devs_main WHERE id = ?").bind(clip(b.id, 160)).run(); return json({ ok: true }); }
 
   // #53 : infos ajoutées à la main
   if (op === "infos") return json({ ok: true, infos: ((await env.DB.prepare("SELECT * FROM infos_main ORDER BY fin < ?, debut DESC LIMIT 100").bind(now).all()).results || []) });
@@ -449,10 +470,11 @@ async function handle(req, env) {
   // #53 : infos trafic ajoutées à la main et pop-ups en cours, lus par l'appli à l'ouverture
   if (req.method === "GET" && path === "/extra") {
     const now = Date.now();
-    const [inf, pop] = await Promise.all([
+    const [inf, pop, dv] = await Promise.all([
       env.DB.prepare("SELECT * FROM infos_main WHERE fin > ? ORDER BY debut").bind(now).all(),
-      env.DB.prepare("SELECT * FROM popups WHERE debut <= ? AND fin > ? ORDER BY debut").bind(now, now).all()]);
-    const r = json({ ok: true, at: now, infos: (inf.results || []).map(infoItem), popups: (pop.results || []).map((x) => ({ id: "p" + x.id + "-" + x.maj, t: x.t, txt: x.txt, btn: x.btn || "", lien: x.lien || "" })) });
+      env.DB.prepare("SELECT * FROM popups WHERE debut <= ? AND fin > ? ORDER BY debut").bind(now, now).all(),
+      env.DB.prepare("SELECT * FROM devs_main").all().catch(() => ({ results: [] }))]);
+    const r = json({ ok: true, at: now, devs: (dv.results || []).map(devRow).filter((d) => d.st !== "ok"), infos: (inf.results || []).map(infoItem), popups: (pop.results || []).map((x) => ({ id: "p" + x.id + "-" + x.maj, t: x.t, txt: x.txt, btn: x.btn || "", lien: x.lien || "" })) });
     const h = new Headers(r.headers); h.set("Cache-Control", "public, max-age=30"); return new Response(r.body, { status: 200, headers: h });
   }
   if (req.method !== "POST") return json({ error: "méthode" }, 405);

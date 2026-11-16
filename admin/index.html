@@ -9,6 +9,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
 <style>
 /* Outil d'envoi des notifications (#40). Page à part, liée depuis nulle part, ouverte avec la clé
    d'accès du service (secret ADMIN_KEY du Worker). DA de l'appli : DM Sans, orange du réseau. */
@@ -87,6 +89,33 @@ th{font-size:11.5px;text-transform:uppercase;letter-spacing:.3px;color:var(--dim
 .note.good{background:#eaf7ef;color:#14663a;border:1px solid #bfe3cd}
 @media (prefers-color-scheme:dark){.note.err{background:#3a1b1d;color:#ffc9cb;border-color:#5d2a2d}.note.good{background:#15301f;color:#b7e8c9;border-color:#245a39}}
 .hide{display:none}
+/* #74 : déviations hors GTFS */
+.card.wide{width:min(1340px,calc(100vw - 24px));position:relative;left:50%;transform:translateX(-50%)}
+.dvwrap{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
+.dvlist{flex:1 1 250px;max-width:300px;display:flex;flex-direction:column;gap:8px}
+.dvi{display:block;width:100%;text-align:left;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-weight:500}
+.dvi.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--card))}
+.dvi b{display:flex;gap:6px;align-items:center;font-size:14.5px}.dvi small{display:block;color:var(--dim);font-size:12.5px;margin:2px 0 6px}
+.lc{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:20px;padding:0 5px;border-radius:5px;font-size:12px;font-weight:700;flex:0 0 auto}
+.st{display:inline-block;font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:10px}
+.st.auto{background:#fff1d6;color:#8a5a00}.st.ok{background:#e3f4ea;color:#17693c}.st.main{background:#e6eefc;color:#1a4fa8}.st.off{background:var(--bg);color:var(--dim);border:1px solid var(--line)}
+.dved{flex:999 1 640px;min-width:0}
+.dvtabs{display:flex;gap:6px;margin:12px 0 0;flex-wrap:wrap}
+.dvtabs button{padding:6px 14px;border-radius:18px;background:var(--bg);color:var(--ink);border:1px solid var(--line);font-weight:500}
+.dvtabs button[aria-selected="true"]{background:var(--ink);color:var(--card);border-color:var(--ink);font-weight:700}
+.dvcols{display:flex;flex-wrap:wrap;gap:14px;margin-top:14px}
+.dvplan{flex:1 1 300px;min-width:0}.dvplan img{width:100%;border-radius:10px;border:1px solid var(--line);display:block}
+.dvph{height:420px;border-radius:10px;border:1px dashed var(--line);display:flex;align-items:center;justify-content:center;color:var(--dim);text-align:center;padding:20px;font-size:13.5px}
+.dvmapc{flex:2 1 440px;min-width:0}
+#dv-map{height:440px;border-radius:10px;border:1px solid var(--line)}
+.dvk{font-size:12px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.3px;margin-bottom:6px;display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
+.dvk .row button{padding:5px 10px;font-size:12.5px}
+.dvtab td,.dvtab th{text-align:left}.dvtab input{padding:5px 8px;max-width:220px}
+.dvest{background:var(--bg);border-radius:12px;padding:12px 14px;font-size:13.5px;line-height:1.55}
+.wp{width:14px;height:14px;border-radius:50%;background:#fff;border:3px solid #1a5fd0;box-sizing:border-box;cursor:grab}
+.pv{width:22px;height:22px;border-radius:50%;background:#fff;border:3px dashed var(--accent);box-sizing:border-box;position:relative;cursor:grab}
+.pv::after{content:"";position:absolute;inset:0;margin:auto;width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.pvl{white-space:nowrap;font:700 12px "DM Sans",sans-serif;color:var(--accent-strong);text-shadow:0 0 3px #fff,0 0 3px #fff;margin:-4px 0 0 18px}
 footer{color:var(--dim);font-size:12px;text-align:center;margin-top:18px}
 </style>
 </head>
@@ -224,6 +253,12 @@ footer{color:var(--dim);font-size:12px;text-align:center;margin-top:18px}
   <div class="card">
     <h2>Téléphones abonnés</h2>
     <div id="phones">Chargement…</div>
+  </div>
+
+  <div class="card wide" id="dv">
+    <h2>Déviations hors GTFS</h2>
+    <p class="sub" style="margin:-6px 0 12px">Tirées de l'info trafic à chaque relevé : arrêts non desservis, arrêts provisoires, tracé calculé sur les rues et heures estimées. Vérifiez le tracé avec le plan de report ; corrigez-le si besoin (glisser les points bleus, toucher le plan pour en ajouter, clic droit pour en retirer), puis validez. L'appli prend la correction à sa prochaine ouverture.</p>
+    <div class="dvwrap"><div class="dvlist" id="dv-list">Chargement…</div><div class="dved" id="dv-ed"><p class="sub">Choisissez une déviation.</p></div></div>
   </div>
 
   <footer>Les téléphones n'ont ni nom ni compte : seul un identifiant tiré au hasard.</footer>
@@ -467,7 +502,7 @@ async function load(quiet) {
   try {
     const [e, j, s, er] = await Promise.all([call("etat"), call("envois"), call("stats"), call("erreurs")]);
     showEtat(e); showEnvois(j.envois); showStats(s.stats); showErrs(er.erreurs);
-    if (!load.n53) { load.n53 = 1; loadInfos(); loadPops(); }
+    if (!load.n53) { load.n53 = 1; loadInfos(); loadPops(); dvLoad(); }
     return true;
   } catch (err) {
     if (err.code === 401 || err.code === 429) { gate(err.message); return false; }
@@ -519,6 +554,157 @@ $("send").onclick = async () => {
   } catch (e) { flash(e.message, true); }
   $("send").disabled = false;
 };
+
+// ---------- #74 : déviations hors GTFS ----------
+// deviations.json (build/deviations.py) ; corrections gardées par le service (devs_main) et lues par l'appli (/extra).
+const DV = { list: [], ov: new Map(), info: new Map(), D: null, cur: null, ed: null, map: null, lay: null };
+const mDist = (a, b) => { const r = Math.PI / 180, x = Math.sin((b[1] - a[1]) * r / 2) ** 2 + Math.cos(a[1] * r) * Math.cos(b[1] * r) * Math.sin((b[0] - a[0]) * r / 2) ** 2; return 2 * 6371000 * Math.asin(Math.sqrt(x)); };
+const pLen = (p) => p.reduce((s, x, i) => s + (i ? mDist(p[i - 1], x) : 0), 0);
+async function dvLoad() {
+  try {
+    const nc = { cache: "no-cache" }, v = "?v=" + Date.now();
+    const [d, it, ov] = await Promise.all([fetch("../deviations.json" + v, nc).then((r) => r.json()), fetch("../info-trafic.json" + v, nc).then((r) => r.json()), call("devs")]);
+    DV.list = d.devs || []; DV.info = new Map((it.items || []).map((x) => [x.id, x])); DV.ov = new Map((ov.devs || []).map((o) => [o.id, o]));
+    if (!DV.D) DV.D = await (await fetch("../build/data.json", { cache: "force-cache" })).json();
+    dvList();
+  } catch (e) { $("dv-list").textContent = "Impossible de lire les déviations : " + e.message; }
+}
+const dvSt = (d) => { const o = DV.ov.get(d.id); return !o ? ["auto", "Tracé automatique · à vérifier"] : o.st === "off" ? ["off", "Masquée dans l'appli"] : o.st === "main" ? ["main", "Corrigé à la main"] : ["ok", "Validé"]; };
+const dvLine = (s) => { const r = (DV.D.R || []).find((x) => x.s === s) || { c: "#555", t: "#fff" }; return `<span class="lc" style="background:${r.c};color:${r.t}">${esc(s)}</span>`; };
+const dvWhen = (d) => { const x = DV.info.get(d.info); if (x && x.p) return x.p; return d.days.length === 1 ? d.days[0] : d.days[0] + " → " + d.days[d.days.length - 1]; };
+function dvList() {
+  const g = new Map(); for (const d of DV.list) { const k = d.info + "|" + d.r; if (!g.has(k)) g.set(k, []); g.get(k).push(d); }
+  $("dv-list").innerHTML = [...g.values()].map((L) => { const d = L[0], st = L.map(dvSt), w = st.find((x) => x[0] === "auto") || st[0];
+    return `<button type="button" class="dvi${DV.cur && L.some((x) => x.id === DV.cur.id) ? " on" : ""}" data-dv="${esc(d.id)}"><b>${dvLine(d.r)} ${esc(d.t)}</b><small>${esc(dvWhen(d))}</small><span class="st ${w[0]}">${w[1]}</span></button>`; }).join("") || `<p class="sub">Aucune déviation dans l'info trafic.</p>`;
+  $("dv-list").querySelectorAll("[data-dv]").forEach((b) => b.onclick = () => dvOpen(b.dataset.dv));
+}
+// parcours du GTFS (ligne, sens) qui passe par les arrêts de la déviation : positions et horaire habituel de a à b
+function dvPat(d) {
+  const D = DV.D, ri = D.R.findIndex((r) => r.s === d.r), skip = new Set(d.skip.map((x) => x.n));
+  for (const [r, dir, h, sh, stops, trs] of D.PAT) {
+    if (r !== ri || dir !== d.dir) continue;
+    const nm = stops.map((q) => D.P[D.Q[q][0]][0]);
+    const i0 = d.a != null ? nm.findIndex((n, i) => n === d.a && skip.has(nm[i + 1])) : -1; if (d.a != null && i0 < 0) continue;
+    let i = i0 + 1; while (i < nm.length && skip.has(nm[i])) i++;
+    const i1 = d.b != null ? (nm[i] === d.b ? i : -1) : nm.length; if (i1 < 0) continue;
+    const pts = stops.map((q) => [D.Q[q][2], D.Q[q][1]]);
+    let sched = null;
+    if (i0 >= 0 && i1 < nm.length) { const tt = trs.map((t) => { const two = t[1] === 1; let acc = 0, j = 2, a = 0, dd = 0, ta = 0, tb = 0; for (let k = 0; k < stops.length; k++) { acc += t[j++]; a = acc; dd = a; if (two) { acc += t[j++]; dd = acc; } if (k === i0) ta = dd; if (k === i1) tb = a; } return tb - ta; }).sort((x, y) => x - y); sched = tt[tt.length >> 1]; }
+    return { nm, pts, i0, i1, sched };
+  }
+  return null;
+}
+function dvSimplify(p, tol) { // Douglas-Peucker sur [lon, lat], tolérance en mètres
+  if (p.length < 3) return p.slice();
+  const keep = new Uint8Array(p.length); keep[0] = keep[p.length - 1] = 1;
+  const st = [[0, p.length - 1]];
+  const off = (x, a, b) => { const kx = 71500, ky = 111200, ax = a[0] * kx, ay = a[1] * ky, bx = b[0] * kx - ax, by = b[1] * ky - ay, px = x[0] * kx - ax, py = x[1] * ky - ay, L = bx * bx + by * by || 1, t = Math.max(0, Math.min(1, (px * bx + py * by) / L)); return Math.hypot(px - t * bx, py - t * by); };
+  while (st.length) { const [i, j] = st.pop(); let m = 0, k = -1; for (let x = i + 1; x < j; x++) { const dd = off(p[x], p[i], p[j]); if (dd > m) { m = dd; k = x; } } if (m > tol) { keep[k] = 1; st.push([i, k], [k, j]); } }
+  return p.filter((_, i) => keep[i]);
+}
+function dvOpen(id) {
+  const d = DV.list.find((x) => x.id === id); if (!d) return;
+  DV.cur = d; dvList();
+  const o = DV.ov.get(id) || {}, pat = dvPat(d);
+  const path = (o.path || d.path || []).map((x) => x.slice());
+  let wp = dvSimplify(path, 25); if (wp.length > 16) wp = dvSimplify(path, 60);
+  DV.ed = { d, pat, path, wp: wp.slice(1, -1), prov: (o.prov || d.prov || []).map((v) => ({ ...v })), dirty: false, routed: true };
+  const sib = DV.list.filter((x) => x.info === d.info && x.r === d.r);
+  const imgs = ((DV.info.get(d.info) || {}).b || []).filter((b) => b.img).map((b) => b.img);
+  $("dv-ed").innerHTML = `<div class="row" style="gap:10px">${dvLine(d.r)}<b style="font-size:18px">${esc(d.t)}</b><span class="sub" style="margin:0">${esc(dvWhen(d))}</span><span class="st ${dvSt(d)[0]}">${dvSt(d)[1]}</span></div>
+    <div class="dvtabs" role="tablist" aria-label="Sens">${sib.map((x) => `<button type="button" role="tab" aria-selected="${x.id === d.id}" data-dv="${esc(x.id)}">→ ${esc(x.h)}</button>`).join("")}</div>
+    <div class="dvcols"><div class="dvplan"><div class="dvk">Plan de report du réseau</div>${imgs.length ? imgs.map((u) => `<a href="${esc(u)}" target="_blank" rel="noopener"><img src="${esc(u)}" alt="Plan de report de la déviation"></a>`).join("") : `<div class="dvph">Pas de plan de report pour cette info.</div>`}</div>
+    <div class="dvmapc"><div class="dvk"><span>Tracé provisoire</span><span class="row"><button type="button" class="plain" id="dv-road">Caler sur les rues</button><button type="button" class="plain" id="dv-addp">+ Arrêt provisoire</button></span></div><div id="dv-map"></div></div></div>
+    <div class="dvcols" style="align-items:flex-start"><div style="flex:3 1 460px;min-width:0;overflow-x:auto" id="dv-tab"></div><div class="dvest" style="flex:1 1 240px" id="dv-est"></div></div>
+    <div class="row" style="justify-content:flex-end;margin-top:14px"><button type="button" class="plain" id="dv-auto">Revenir au tracé automatique</button><button type="button" class="ghost" id="dv-off">Ne pas afficher cette déviation</button><button type="button" id="dv-ok">Valider le tracé</button></div>`;
+  $("dv-ed").querySelectorAll(".dvtabs [data-dv]").forEach((b) => b.onclick = () => dvOpen(b.dataset.dv));
+  $("dv-road").onclick = dvRoad; $("dv-addp").onclick = () => { const c = DV.map.getCenter(); DV.ed.prov.push({ n: "Arrêt provisoire", lat: c.lat, lon: c.lng }); DV.ed.dirty = true; dvDraw(); };
+  $("dv-ok").onclick = () => dvSave(DV.ed.dirty ? "main" : "ok");
+  $("dv-off").onclick = () => dvSave("off");
+  $("dv-auto").onclick = async () => { if (!confirm("Revenir au tracé et aux arrêts calculés automatiquement ?")) return; try { await call("devDel", { id: d.id }); DV.ov.delete(d.id); flash("Tracé automatique remis."); dvOpen(d.id); } catch (e) { flash(e.message, true); } };
+  if (!window.L) { setTimeout(() => dvOpen(id), 400); return; }
+  if (DV.map) { DV.map.remove(); DV.map = null; }
+  DV.map = L.map("dv-map", { zoomControl: true });
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "© OpenStreetMap" }).addTo(DV.map);
+  DV.lay = L.layerGroup().addTo(DV.map);
+  DV.map.on("click", (e) => { dvAddWp([e.latlng.lng, e.latlng.lat]); });
+  dvDraw(true);
+}
+const dvEnds = () => { const e = DV.ed, p = e.pat; return { a: p && p.i0 >= 0 ? p.pts[p.i0] : null, b: p && p.i1 < p.nm.length ? p.pts[p.i1] : null }; };
+function dvAddWp(pt) { // inséré là où il allonge le moins le tracé
+  const e = DV.ed, { a, b } = dvEnds(), all = [a, ...e.wp, b].filter(Boolean);
+  let best = 0, bc = Infinity; for (let i = 0; i < all.length - 1; i++) { const c = mDist(all[i], pt) + mDist(pt, all[i + 1]) - mDist(all[i], all[i + 1]); if (c < bc) { bc = c; best = i; } }
+  e.wp.splice(a ? best : best + 1, 0, pt); dvStraight(); dvDraw();
+}
+function dvStraight() { const e = DV.ed, { a, b } = dvEnds(); e.path = [a, ...e.wp, b].filter(Boolean); e.dirty = true; e.routed = false; }
+async function dvRoad() {
+  const e = DV.ed, { a, b } = dvEnds(), pts = [a, ...e.wp, b].filter(Boolean);
+  try {
+    const j = await (await fetch("https://router.project-osrm.org/route/v1/driving/" + pts.map((p) => p[0].toFixed(6) + "," + p[1].toFixed(6)).join(";") + "?overview=full&geometries=geojson")).json();
+    if (j.code !== "Ok") throw new Error(j.code);
+    e.path = j.routes[0].geometry.coordinates.map((p) => [Math.round(p[0] * 1e5) / 1e5, Math.round(p[1] * 1e5) / 1e5]); e.dirty = true; e.routed = true; dvDraw();
+  } catch (er) { flash("Calcul sur les rues impossible : " + er.message, true); }
+}
+// temps de chaque tronçon : même vitesse moyenne que le calcul automatique, longueurs du tracé corrigé
+function dvLegs() {
+  const e = DV.ed, d = e.d, path = e.path, { a, b } = dvEnds();
+  const cum = [0]; for (let i = 1; i < path.length; i++) cum.push(cum[i - 1] + mDist(path[i - 1], path[i]));
+  const at = (pt) => { let bi = 0, bd = Infinity; path.forEach((x, i) => { const dd = mDist(x, pt); if (dd < bd) { bd = dd; bi = i; } }); return cum[bi]; };
+  e.prov.sort((x, y) => at([x.lon, x.lat]) - at([y.lon, y.lat]));
+  const stops = [...(a ? [0] : []), ...e.prov.map((v) => at([v.lon, v.lat])), ...(b ? [cum[cum.length - 1]] : [])];
+  const v = (d.legd || []).reduce((s, x) => s + x, 0) / Math.max(0.5, (d.legs || []).reduce((s, x) => s + x, 0)) || 250;
+  const legs = []; for (let i = 1; i < stops.length; i++) legs.push(Math.round((Math.max(0, stops[i] - stops[i - 1]) / v + (i < stops.length - 1 || !b ? 0.4 : 0)) * 100) / 100);
+  return legs;
+}
+function dvDraw(fit) {
+  const e = DV.ed, d = e.d, p = e.pat, lay = DV.lay, ll = (x) => [x[1], x[0]], { a, b } = dvEnds();
+  const col = ((DV.D.R || []).find((x) => x.s === d.r) || { c: "#555" }).c;
+  lay.clearLayers();
+  if (p) {
+    const lo = Math.max(0, p.i0), hi = Math.min(p.nm.length - 1, p.i1);
+    L.polyline(p.pts.slice(Math.max(0, lo - 1), hi + 2).map(ll), { color: "#8a929d", weight: 5, opacity: .55 }).addTo(lay);
+    for (let i = Math.max(0, lo - 1); i <= Math.min(p.nm.length - 1, hi + 1); i++) {
+      const sk = i > p.i0 && i < p.i1;
+      L.circleMarker(ll(p.pts[i]), { radius: 6, color: sk ? "#d0242b" : col, weight: 3, fillColor: "#fff", fillOpacity: 1 }).bindTooltip(p.nm[i] + (sk ? " · non desservi" : ""), { direction: "top" }).addTo(lay);
+    }
+  }
+  L.polyline(e.path.map(ll), { color: "#fff", weight: 9, opacity: .9 }).addTo(lay);
+  L.polyline(e.path.map(ll), { color: col, weight: 6, dashArray: "2 10", lineCap: "round" }).addTo(lay);
+  e.wp.forEach((w, i) => {
+    const m = L.marker(ll(w), { draggable: true, icon: L.divIcon({ className: "", html: '<div class="wp"></div>', iconSize: [14, 14], iconAnchor: [7, 7] }) }).addTo(lay);
+    m.on("dragend", () => { const q = m.getLatLng(); e.wp[i] = [q.lng, q.lat]; dvStraight(); dvDraw(); });
+    m.on("contextmenu", () => { e.wp.splice(i, 1); dvStraight(); dvDraw(); });
+  });
+  e.prov.forEach((v, i) => {
+    const m = L.marker([v.lat, v.lon], { draggable: true, icon: L.divIcon({ className: "", html: `<div class="pv"></div><div class="pvl">${esc(v.n)}</div>`, iconSize: [22, 22], iconAnchor: [11, 11] }) }).addTo(lay);
+    m.on("dragend", () => { const q = m.getLatLng(); v.lat = q.lat; v.lon = q.lng; delete v.pole; e.dirty = true; dvDraw(); });
+  });
+  if (fit) { const all = [...e.path, ...(p ? p.pts.slice(Math.max(0, p.i0), Math.min(p.nm.length, p.i1 + 1)) : [])]; if (all.length) DV.map.fitBounds(L.latLngBounds(all.map(ll)).pad(0.15)); }
+  // tableau des arrêts et estimation
+  const legs = dvLegs(), tot = legs.reduce((s, x) => s + x, 0);
+  let cum = 0; const tprov = e.prov.map((_, i) => { cum += legs[a ? i : i - 1] || 0; return Math.round(cum); });
+  const st = (cls, t) => `<span class="st ${cls}">${t}</span>`;
+  $("dv-tab").innerHTML = `<table class="dvtab"><thead><tr><th>Arrêt</th><th>État</th><th>Report</th><th>Heure</th></tr></thead><tbody>
+    ${d.a ? `<tr><td><b>${esc(d.a)}</b></td><td>${st("ok", "desservi")}</td><td>début de la déviation</td><td>départ</td></tr>` : ""}
+    ${d.skip.map((s) => `<tr><td>${esc(s.n)}</td><td>${st("off", "non desservi")}</td><td>${esc(s.rep || "—")}</td><td>—</td></tr>`).join("")}
+    ${e.prov.map((v, i) => `<tr><td><input type="text" value="${esc(v.n)}" data-pn="${i}" aria-label="Nom de l'arrêt provisoire"></td><td>${st("auto", "provisoire")}</td><td>${esc(v.a || v.pole || "")}</td><td>+${tprov[i]} min <button type="button" class="plain" data-pdel="${i}" aria-label="Retirer cet arrêt provisoire">Retirer</button></td></tr>`).join("")}
+    ${d.b ? `<tr><td><b>${esc(d.b)}</b></td><td>${st("ok", "desservi")}</td><td>fin de la déviation</td><td>+${Math.round(tot)} min</td></tr>` : ""}</tbody></table>`;
+  $("dv-tab").querySelectorAll("[data-pn]").forEach((x) => x.onchange = () => { e.prov[+x.dataset.pn].n = x.value.trim() || "Arrêt provisoire"; e.dirty = true; setTimeout(() => dvDraw()); });
+  $("dv-tab").querySelectorAll("[data-pdel]").forEach((x) => x.onclick = () => { e.prov.splice(+x.dataset.pdel, 1); e.dirty = true; dvDraw(); });
+  const L0 = pLen(e.path), Lo = p && p.i0 >= 0 && p.i1 < p.nm.length ? pLen(p.pts.slice(p.i0, p.i1 + 1)) : null;
+  $("dv-est").innerHTML = `<b>Estimation des heures</b><br>Longueur de la déviation : <b>${(L0 / 1000).toFixed(1).replace(".", ",")} km</b>${Lo ? ` (parcours habituel : ${(Lo / 1000).toFixed(1).replace(".", ",")} km à vol d'oiseau)` : ""}<br>
+    Temps estimé : <b>${Math.round(tot)} min</b>${p && p.sched != null ? ` (horaire habituel : ${p.sched} min, soit ${tot - p.sched >= 0 ? "+" : ""}${Math.round(tot - p.sched)} min)` : ""}<br>
+    Calcul : temps routier ${d.osrm ? "OSRM (vitesse maximale des rues)" : "en ligne droite (OSRM indisponible au relevé)"} × ${String(d.coef || 1).replace(".", ",")}, coefficient calé sur l'horaire du parcours habituel ; 0,4 min par arrêt provisoire.${e.routed ? "" : `<br><span style="color:var(--accent-strong)">Tracé modifié en ligne droite : « Caler sur les rues » pour suivre la voirie.</span>`}`;
+}
+async function dvSave(st) {
+  const e = DV.ed, d = e.d;
+  if (st === "off" && !confirm("Ne plus afficher cette déviation dans l'appli (les horaires habituels reviennent) ?")) return;
+  try {
+    await call("devSave", { id: d.id, dev: st === "main" ? { st, path: e.path, prov: e.prov, legs: dvLegs() } : { st } });
+    DV.ov.set(d.id, st === "main" ? { id: d.id, st, path: e.path, prov: e.prov, legs: dvLegs() } : { id: d.id, st }); flash(st === "off" ? "Déviation masquée dans l'appli." : st === "main" ? "Correction enregistrée : l'appli la prendra à sa prochaine ouverture." : "Tracé validé.");
+    e.dirty = false; dvList(); dvOpen(d.id);
+  } catch (er) { flash(er.message, true); }
+}
 
 prev();
 if (KEY) enter(KEY); else gate();

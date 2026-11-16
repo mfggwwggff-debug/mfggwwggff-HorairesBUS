@@ -17,3 +17,5 @@ CREATE TABLE IF NOT EXISTS erreurs (sig TEXT PRIMARY KEY, msg TEXT, src TEXT, st
 -- #53 : infos trafic ajoutées à la main et pop-ups à l'ouverture (page admin/)
 CREATE TABLE IF NOT EXISTS infos_main (id INTEGER PRIMARY KEY AUTOINCREMENT, t TEXT, txt TEXT, lines TEXT, niv TEXT, rt INTEGER DEFAULT 0, debut INTEGER, fin INTEGER, cree INTEGER, maj INTEGER);
 CREATE TABLE IF NOT EXISTS popups (id INTEGER PRIMARY KEY AUTOINCREMENT, t TEXT, txt TEXT, btn TEXT, lien TEXT, debut INTEGER, fin INTEGER, cree INTEGER, maj INTEGER);
+-- #74 : déviations hors GTFS corrigées ou masquées dans la page admin/ (id = celui de deviations.json)
+CREATE TABLE IF NOT EXISTS devs_main (id TEXT PRIMARY KEY, data TEXT, maj INTEGER);

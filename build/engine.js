@@ -52,6 +52,118 @@ function makeNet(D) {
   return net;
 }
 
+// ---------- #74 : déviations hors GTFS ----------
+// Chaque déviation (build/deviations.py, corrigée au besoin dans admin/) devient, pour chaque parcours de la
+// ligne et du sens qui passe par ses arrêts, un parcours « dévié » : mêmes arrêts avant et après, arrêts non
+// desservis retirés, arrêts provisoires ajoutés (nouveaux quais), tracé provisoire. Les courses concernées
+// (journées et heures de la déviation) passent sur ce parcours : leur calendrier est coupé en deux, les jours
+// déviés d'un côté, les autres de l'autre. Tout le reste de l'appli (passages, itinéraires, Mon bus, bus sur
+// le plan, temps réel) travaille donc sans rien savoir des déviations.
+// Heures : départ de l'arrêt avant la déviation + temps estimés de chaque tronçon (legs) ; les arrêts suivants
+// sont décalés d'autant (retard ou avance sur l'horaire habituel).
+function devApply(net, devs) {
+  if (net.devs) return net.devs;
+  const D = net.D, recs = [];
+  net.devs = recs; net.devMap = new Map(); net.provP = new Map();
+  const n0 = net.pats.length;
+  const sMemo = new Map(D.S.map((s, i) => [s, i]));
+  const svIdx = (s) => { let i = sMemo.get(s); if (i == null) { i = D.S.length; D.S.push(s); sMemo.set(s, i); } return i; };
+  const dM = (la1, lo1, la2, lo2) => { const r = Math.PI / 180, a = Math.sin((la2 - la1) * r / 2) ** 2 + Math.cos(la1 * r) * Math.cos(la2 * r) * Math.sin((lo2 - lo1) * r / 2) ** 2; return 2 * 6371000 * Math.asin(Math.sqrt(a)); };
+  const provKey = new Map();
+  const addPole = (v, ri, rec) => {
+    // arrêt d'une autre ligne : son quai le plus proche
+    if (v.pole) {
+      const pi = net.P.findIndex((p) => p[0] === v.pole);
+      if (pi >= 0) {
+        const q = net.P[pi][3].reduce((b, q) => !b || dM(net.Q[q][1], net.Q[q][2], v.lat, v.lon) < dM(net.Q[b][1], net.Q[b][2], v.lat, v.lon) ? q : b, null);
+        if (!net.pRoutes[pi].includes(ri)) net.pRoutes[pi] = [...net.pRoutes[pi], ri].sort((a, b) => a - b);
+        return q;
+      }
+    }
+    const kk = v.n + "|" + v.lat.toFixed(4) + "|" + v.lon.toFixed(4);
+    if (provKey.has(kk)) { const q = provKey.get(kk), p = net.Q[q][0]; if (!net.pRoutes[p].includes(ri)) net.pRoutes[p].push(ri); return q; }
+    // même nom à deux pas (l'autre sens, en face) : un seul arrêt, deux quais
+    let pIdx = [...net.provP.keys()].find((i) => net.P[i][0] === v.n && dM(net.P[i][1], net.P[i][2], v.lat, v.lon) < 150);
+    const q = net.Q.length;
+    if (pIdx != null) { net.P[pIdx][3].push(q); if (!net.pRoutes[pIdx].includes(ri)) net.pRoutes[pIdx].push(ri); }
+    else { pIdx = net.P.length; net.P.push([v.n, v.lat, v.lon, [q]]); net.pRoutes.push([ri]); }
+    net.Q.push([pIdx, v.lat, v.lon]); net.qp.push([]);
+    const fp = [];
+    for (let q2 = 0; q2 < q; q2++) {
+      const d = dM(v.lat, v.lon, net.Q[q2][1], net.Q[q2][2]); if (d > 450) continue;
+      const w = Math.max(1, Math.round(d * 1.25 / 75)); fp.push(q2, w); net.fp[q2].push(q, w);
+    }
+    net.fp.push(fp); net.nQ = net.Q.length;
+    const qp = new Int32Array(net.nQ); qp.set(net.qPole); qp[q] = pIdx; net.qPole = qp;
+    provKey.set(kk, q); if (!net.provP.has(pIdx)) net.provP.set(pIdx, { devs: [], a: v.a || null }); net.provP.get(pIdx).devs.push(rec);
+    return q;
+  };
+  for (const dv of devs || []) {
+    const ri = net.R.findIndex((r) => r.s === dv.r); if (ri < 0) continue;
+    let mask = "", any = false;
+    for (let k = 0; k < net.nd; k++) { const on = (dv.days || []).includes(net.isoOf(k)); mask += on ? "1" : "0"; any ||= on; }
+    if (!any || !(dv.legs || []).length) continue;
+    const skipN = new Set((dv.skip || []).map((s) => s.n));
+    const rec = { ...dv, ri, mask, pats: [], provQ: [] };
+    let provQ = null;
+    for (let pi = 0; pi < n0; pi++) {
+      const p = net.pats[pi]; if (p.r !== ri || p.dir !== dv.dir) continue;
+      const names = p.stops.map((q) => net.P[net.Q[q][0]][0]);
+      // bloc d'arrêts non desservis, entre a et b
+      let ia = -1, ib = p.nS;
+      if (dv.a != null) { ia = names.findIndex((n, i) => n === dv.a && i + 1 < p.nS && skipN.has(names[i + 1])); if (ia < 0) continue; }
+      let i = ia + 1; while (i < p.nS && skipN.has(names[i])) i++;
+      if (dv.b != null) { if (names[i] !== dv.b) continue; ib = i; } else if (i !== p.nS) continue;
+      if (ib - ia < 2) continue;
+      if (!provQ) { provQ = (dv.prov || []).map((v) => addPole(v, ri, rec)); rec.provQ = provQ; }
+      const nP = provQ.length, stops = [...p.stops.slice(0, ia + 1), ...provQ, ...p.stops.slice(ib)];
+      const nS = stops.length, i0 = ia, i1 = ia + nP + 1; // i1 = b dans le parcours dévié (nS si la déviation va jusqu'au bout)
+      // courses : celles des journées et heures de la déviation
+      const ks = [];
+      for (let k = 0; k < p.nT; k++) {
+        const o = k * p.nS, tA = ia >= 0 ? p.D[o + ia] : p.D[o];
+        if (dv.from != null && tA < dv.from) continue;
+        if (dv.to != null && tA >= dv.to) continue;
+        const s0 = D.S[p.sv[k]]; let on = "", off = "", hit = false;
+        for (let d = 0; d < net.nd; d++) { const a = s0.charCodeAt(d) === 49, m = mask.charCodeAt(d) === 49; on += a && m ? "1" : "0"; off += a && !m ? "1" : "0"; hit ||= a && m; }
+        if (hit) ks.push([k, svIdx(on), svIdx(off)]);
+      }
+      if (!ks.length) continue;
+      const nT = ks.length, A = new Int32Array(nT * nS), Dp = new Int32Array(nT * nS), sv = new Int32Array(nT), npi = net.pats.length;
+      const tot = dv.legs.reduce((a, b) => a + b, 0);
+      ks.forEach(([k, son, soff], kk) => {
+        const o = k * p.nS, n = kk * nS;
+        sv[kk] = son; p.sv[k] = soff;
+        for (let j = 0; j <= ia; j++) { A[n + j] = p.A[o + j]; Dp[n + j] = p.D[o + j]; }
+        // départ de a (ou, sans a, heure de départ habituelle du terminus pour le premier arrêt provisoire)
+        let t = ia >= 0 ? p.D[o + ia] : p.D[o];
+        for (let j = 0; j < nP; j++) { if (ia >= 0 || j > 0) t += dv.legs[ia >= 0 ? j : j - 1] || 0; A[n + ia + 1 + j] = Dp[n + ia + 1 + j] = Math.round(t); }
+        if (ib < p.nS) {
+          const delta = Math.round((ia >= 0 ? p.D[o + ia] : p.D[o]) + tot) - p.A[o + ib];
+          for (let j = ib; j < p.nS; j++) { const jj = j - ib + i1; A[n + jj] = p.A[o + j] + delta; Dp[n + jj] = p.D[o + j] + delta; }
+        }
+        for (let j = 1; j < nS; j++) { if (A[n + j] < Dp[n + j - 1]) A[n + j] = Dp[n + j - 1]; if (Dp[n + j] < A[n + j]) Dp[n + j] = A[n + j]; }
+        const dk = pi + ":" + k; if (!net.devMap.has(dk)) net.devMap.set(dk, []); net.devMap.get(dk).push([npi, kk]);
+      });
+      // tracé : celui du parcours jusqu'à a, le tracé provisoire, puis celui du parcours depuis b
+      const sh0 = p.sh >= 0 ? net.shapes[p.sh] : p.stops.map((q) => [net.Q[q][2], net.Q[q][1]]);
+      const near = (q, from) => { let b = from, bd = Infinity; for (let j = from; j < sh0.length; j++) { const d = (sh0[j][0] - net.Q[q][2]) ** 2 + (sh0[j][1] - net.Q[q][1]) ** 2; if (d < bd) { bd = d; b = j; } } return b; };
+      const ja = ia >= 0 ? near(p.stops[ia], 0) : -1, jb = ib < p.nS ? near(p.stops[ib], Math.max(0, ja)) : sh0.length;
+      const path = (dv.path && dv.path.length >= 2) ? dv.path : stops.slice(Math.max(0, i0), Math.min(nS, i1 + 1)).map((q) => [net.Q[q][2], net.Q[q][1]]);
+      const shp = [...sh0.slice(0, ja + 1), ...path, ...sh0.slice(jb)];
+      net.shapes.push(shp);
+      const np = { r: p.r, dir: p.dir, h: p.h, sh: net.shapes.length - 1, stops, nS, nT, A, D: Dp, sv, LA: null, LD: null, live: null,
+        dev: { rec, i0, i1, prov: new Set(provQ.map((_, j) => ia + 1 + j)), from: pi } };
+      net.pats.push(np);
+      stops.forEach((q, j) => net.qp[q].push(npi, j));
+      rec.pats.push([pi, npi]);
+      if (!rec.skipQ) rec.skipQ = p.stops.slice(ia + 1, ib);
+    }
+    if (rec.pats.length) recs.push(rec);
+  }
+  return recs;
+}
+
 // Horaires à utiliser pour un jour de service donné (temps réel si disponible)
 function arr(net, p, svcDay) { return svcDay === net.liveDay && p.LA ? [p.LA, p.LD] : [p.A, p.D]; }
 function isLive(net, p, k, svcDay) { return svcDay === net.liveDay && p.live && p.live[k] === 1; }
@@ -71,6 +183,8 @@ function applyRT(net, feed, liveDay, dayStartEpoch) {
       if (!hit) continue;
       byNum++;
     }
+    // #74 : course déviée ce jour-là → son parcours dévié
+    if (net.devMap && net.devMap.size) { const alt = (net.devMap.get(hit[0] + ":" + hit[1]) || []).find(([a, b]) => net.svcOn(net.pats[a].sv[b], liveDay) || net.svcOn(net.pats[a].sv[b], liveDay - 1)); if (alt) hit = alt; }
     const [pi, k] = hit, p = net.pats[pi];
     // jour de service : aujourd'hui, ou la veille pour une course d'après minuit
     let svc = liveDay;
@@ -84,7 +198,7 @@ function applyRT(net, feed, liveDay, dayStartEpoch) {
     for (const s of tu.stu || []) {
       let i = -1;
       if (s.stop_id && net.qByStopId.has(s.stop_id)) { const q = net.qByStopId.get(s.stop_id); i = p.stops.indexOf(q); }
-      if (i < 0 && s.seq) i = s.seq - 1;
+      if (i < 0 && s.seq && !p.dev) i = s.seq - 1; // #74 : parcours dévié, les numéros d'ordre ne correspondent plus
       if (i < 0 || i >= p.nS) continue;
       // en minutes, à la seconde près (LAf / LDf, pour placer le véhicule) ; LA / LD restent arrondis à la minute pour l'affichage
       const ev = (x, sched) => !x ? null : (x.time ? (x.time - base) / 60 : (x.delay !== undefined ? sched + x.delay / 60 : null));
@@ -401,4 +515,4 @@ function networkNight(net, day, t) {
   return null;
 }
 
-if (typeof module !== "undefined") module.exports = { makeNet, raptor, planDepart, planArrive, departures, firstTrip, applyRT, arr, isLive, stopLineDirs, lineDirService, networkNight, netServiceWindow, svcDayAt };
+if (typeof module !== "undefined") module.exports = { makeNet, devApply, raptor, planDepart, planArrive, departures, firstTrip, applyRT, arr, isLive, stopLineDirs, lineDirService, networkNight, netServiceWindow, svcDayAt };
