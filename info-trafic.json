@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-16T05:20:29Z",
+ "at": "2026-11-16T05:30:26Z",
  "items": [
   {
    "id": "aba75f03db",
@@ -489,6 +489,60 @@
    ]
   },
   {
+   "id": "16eb3530f2",
+   "t": "En raison de contraintes d'exploitation, certains départs ne sont pas assurés aujourd'hui :",
+   "lines": [
+    "U24"
+   ],
+   "p": "",
+   "start": null,
+   "end": null,
+   "b": [],
+   "rt": true,
+   "sec": "temps reel",
+   "since": "2026-11-16",
+   "c": {
+    "effets": [
+     "non_assure"
+    ],
+    "grav": "genant",
+    "niv": 2,
+    "pastille": true,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": []
+  },
+  {
+   "id": "16eb3530f2",
+   "t": "En raison de contraintes d'exploitation, certains départs ne sont pas assurés aujourd'hui :",
+   "lines": [
+    "U21"
+   ],
+   "p": "",
+   "start": null,
+   "end": null,
+   "b": [],
+   "rt": true,
+   "sec": "temps reel",
+   "since": "2026-11-16",
+   "c": {
+    "effets": [
+     "non_assure"
+    ],
+    "grav": "genant",
+    "niv": 2,
+    "pastille": true,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": []
+  },
+  {
    "id": "e7810d9a3b",
    "t": "Report de l'arrêt Stade de Muire vers P+R Thillois",
    "lines": [
@@ -919,6 +973,76 @@
    "st": []
   },
   {
+   "id": "25a156ef9e",
+   "t": "Report de l'arrêt Tinqueux Mairie vers P+R Thillois",
+   "lines": [
+    "U1"
+   ],
+   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 18 décembre 2026",
+   "start": "2026-10-19",
+   "end": "2026-12-18",
+   "b": [
+    {
+     "l": "U1",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "TINQUEUX MAIRIE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "P+R THILLOIS",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "50 mètres avant l'arrêt",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne",
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": [
+    [
+     "TINQUEUX MAIRIE",
+     "Tinqueux Mairie"
+    ]
+   ]
+  },
+  {
    "id": "391d31b0d6",
    "t": "Travaux rue des Sablières à Champigny",
    "lines": [
@@ -1084,221 +1208,6 @@
     [
      "arrêt REDONT",
      "Redont"
-    ]
-   ]
-  },
-  {
-   "id": "25a156ef9e",
-   "t": "Report de l'arrêt Tinqueux Mairie vers P+R Thillois",
-   "lines": [
-    "U1"
-   ],
-   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 18 décembre 2026",
-   "start": "2026-10-19",
-   "end": "2026-12-18",
-   "b": [
-    {
-     "l": "U1",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "TINQUEUX MAIRIE",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "P+R THILLOIS",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "50 mètres avant l'arrêt",
-       1
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne",
-   "since": "2026-11-11",
-   "c": {
-    "effets": [
-     "deplacement"
-    ],
-    "grav": "mineur",
-    "niv": 1,
-    "pastille": false,
-    "nat": "perturbation",
-    "cond": false,
-    "portee": "ligne",
-    "sur": true
-   },
-   "st": [
-    [
-     "TINQUEUX MAIRIE",
-     "Tinqueux Mairie"
-    ]
-   ]
-  },
-  {
-   "id": "2f036d5c93",
-   "t": "Travaux rue Pierre Maître et rue de Courcelles",
-   "lines": [
-    "U7"
-   ],
-   "p": "A partir du lundi 19 octobre 2026 jusqu'au dimanche 21 février 2027",
-   "start": "2026-10-19",
-   "end": "2027-02-21",
-   "b": [
-    {
-     "l": "U7",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "VERRERIES",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "HOPITAL DEBRE",
-       1
-      ],
-      [
-       " est reporté à l'",
-       0
-      ],
-      [
-       "arrêt VERRERIES de la ligne U7 vers BOUTREAUX",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "U7",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "PONT ST BRICE",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "HOPITAL DEBRE",
-       1
-      ],
-      [
-       " est reporté à l'",
-       0
-      ],
-      [
-       "arrêt VERRERIES de la ligne U7 vers BOUTREAUX",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "U7",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "PONT ST BRICE",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "BOUTREAUX",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "au 14 rue Pierre Maitre",
-       1
-      ]
-     ],
-     "geo": {
-      "lat": 49.262776,
-      "lon": 4.005758,
-      "a": "14 rue Pierre Maitre",
-      "k": "14 rue Pierre Maitre|PONT ST BRICE"
-     }
-    },
-    {
-     "img": "https://prod.deviations.info/carte/grandreims/public/img/86603.jpg"
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne",
-   "since": "2026-11-11",
-   "c": {
-    "effets": [
-     "deplacement"
-    ],
-    "grav": "mineur",
-    "niv": 1,
-    "pastille": false,
-    "nat": "perturbation",
-    "cond": false,
-    "portee": "ligne",
-    "sur": true
-   },
-   "st": [
-    [
-     "VERRERIES",
-     "Verreries"
-    ],
-    [
-     "arrêt VERRERIES de la ligne U7 vers BOUTREAUX",
-     "Verreries"
-    ],
-    [
-     "PONT ST BRICE",
-     "Pont St Brice"
     ]
    ]
   },
@@ -1483,6 +1392,151 @@
     [
      "FOLLE PEINE",
      "Folle Peine"
+    ]
+   ]
+  },
+  {
+   "id": "2f036d5c93",
+   "t": "Travaux rue Pierre Maître et rue de Courcelles",
+   "lines": [
+    "U7"
+   ],
+   "p": "A partir du lundi 19 octobre 2026 jusqu'au dimanche 21 février 2027",
+   "start": "2026-10-19",
+   "end": "2027-02-21",
+   "b": [
+    {
+     "l": "U7",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "VERRERIES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "HOPITAL DEBRE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt VERRERIES de la ligne U7 vers BOUTREAUX",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U7",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "PONT ST BRICE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "HOPITAL DEBRE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt VERRERIES de la ligne U7 vers BOUTREAUX",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U7",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "PONT ST BRICE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "BOUTREAUX",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "au 14 rue Pierre Maitre",
+       1
+      ]
+     ],
+     "geo": {
+      "lat": 49.262776,
+      "lon": 4.005758,
+      "a": "14 rue Pierre Maitre",
+      "k": "14 rue Pierre Maitre|PONT ST BRICE"
+     }
+    },
+    {
+     "img": "https://prod.deviations.info/carte/grandreims/public/img/86603.jpg"
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne",
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": [
+    [
+     "VERRERIES",
+     "Verreries"
+    ],
+    [
+     "arrêt VERRERIES de la ligne U7 vers BOUTREAUX",
+     "Verreries"
+    ],
+    [
+     "PONT ST BRICE",
+     "Pont St Brice"
     ]
    ]
   },

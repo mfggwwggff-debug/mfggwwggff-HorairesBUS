@@ -3527,6 +3527,40 @@
     "sur": true
    },
    "attendu": null
+  },
+  "16eb3530f2|U24": {
+   "vu": "2026-11-16",
+   "t": "En raison de contraintes d'exploitation, certains départs ne sont pas assurés aujourd'hui :",
+   "p": "",
+   "lines": [
+    "U24"
+   ],
+   "rt": true,
+   "b": [],
+   "auto": {
+    "grav": "genant",
+    "nat": "perturbation",
+    "portee": "ligne",
+    "sur": true
+   },
+   "attendu": null
+  },
+  "16eb3530f2|U21": {
+   "vu": "2026-11-16",
+   "t": "En raison de contraintes d'exploitation, certains départs ne sont pas assurés aujourd'hui :",
+   "p": "",
+   "lines": [
+    "U21"
+   ],
+   "rt": true,
+   "b": [],
+   "auto": {
+    "grav": "genant",
+    "nat": "perturbation",
+    "portee": "ligne",
+    "sur": true
+   },
+   "attendu": null
   }
  }
 }
