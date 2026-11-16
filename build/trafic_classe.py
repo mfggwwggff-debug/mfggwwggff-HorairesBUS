@@ -112,14 +112,19 @@ def classe(item, nb_lignes_reseau=29):
         # rien de reconnu : visible quand même, à vérifier. En temps réel, le réseau l'a mise dans son encadré
         # « en direct » : on la traite comme gênante plutôt que de la cacher.
         grav, nat, sur = ("genant", "perturbation", False) if rt else ("mineur", "perturbation", False)
-    if cond and nat == "perturbation":
+    if cond and nat == "perturbation" and not rt:
         # « seulement en cas de congestion » : simple info. Quand le réseau active la déviation, il publie une info
         # en temps réel à part, classée normalement.
         grav, nat = "aucune", "info"
+    if rt:
+        # règle du 16 nov. : une info de l'encadré temps réel est toujours au moins une perturbation gênante,
+        # et une interruption si le message en parle (gravité « bloquant », déjà donnée par l'effet).
+        if grav != "bloquant": grav = "genant"
+        nat, sur = "perturbation", sur or bool(effets)
     niv = GRAV[grav]
     pastille = grav in ("bloquant", "genant", "deviation")
 
-    if nat == "technique": portee = "aucune"
+    if "technique" in effets and not gene: portee = "aucune"   # panne du temps réel, de Kif&go… : pas tout le réseau
     elif not lignes and (RESEAU.search(tout) or (rt and gene)): portee = "reseau"
     elif len(lignes) >= max(12, nb_lignes_reseau * 0.6): portee = "reseau"
     elif len(lignes) > 1: portee = "lignes"

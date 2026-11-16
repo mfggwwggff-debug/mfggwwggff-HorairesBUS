@@ -727,8 +727,8 @@
     "sur": true
    },
    "attendu": {
-    "grav": "aucune",
-    "nat": "technique",
+    "grav": "genant",
+    "nat": "perturbation",
     "portee": "aucune"
    }
   },
@@ -3017,8 +3017,8 @@
    "rt": true,
    "b": [],
    "attendu": {
-    "grav": "aucune",
-    "nat": "info",
+    "grav": "genant",
+    "nat": "perturbation",
     "portee": "ligne"
    }
   },
@@ -3273,8 +3273,8 @@
     }
    ],
    "attendu": {
-    "grav": "aucune",
-    "nat": "technique",
+    "grav": "genant",
+    "nat": "perturbation",
     "portee": "aucune"
    }
   },
@@ -3472,7 +3472,11 @@
     "portee": "ligne",
     "sur": true
    },
-   "attendu": null
+   "attendu": {
+    "grav": "genant",
+    "nat": "perturbation",
+    "portee": "ligne"
+   }
   },
   "16eb3530f2|U20": {
    "vu": "2026-11-16",
@@ -3526,7 +3530,11 @@
     "portee": "ligne",
     "sur": true
    },
-   "attendu": null
+   "attendu": {
+    "grav": "genant",
+    "nat": "perturbation",
+    "portee": "ligne"
+   }
   },
   "16eb3530f2|U24": {
    "vu": "2026-11-16",
@@ -3543,7 +3551,11 @@
     "portee": "ligne",
     "sur": true
    },
-   "attendu": null
+   "attendu": {
+    "grav": "genant",
+    "nat": "perturbation",
+    "portee": "ligne"
+   }
   },
   "16eb3530f2|U21": {
    "vu": "2026-11-16",
@@ -3560,7 +3572,11 @@
     "portee": "ligne",
     "sur": true
    },
-   "attendu": null
+   "attendu": {
+    "grav": "genant",
+    "nat": "perturbation",
+    "portee": "ligne"
+   }
   },
   "f660a10d14|U5": {
    "vu": "2026-11-16",
@@ -3586,7 +3602,11 @@
     "portee": "ligne",
     "sur": true
    },
-   "attendu": null
+   "attendu": {
+    "grav": "genant",
+    "nat": "perturbation",
+    "portee": "ligne"
+   }
   },
   "f91683339d|U5": {
    "vu": "2026-11-16",
@@ -3612,7 +3632,11 @@
     "portee": "ligne",
     "sur": true
    },
-   "attendu": null
+   "attendu": {
+    "grav": "genant",
+    "nat": "perturbation",
+    "portee": "ligne"
+   }
   },
   "f2cfc03dd2|U5": {
    "vu": "2026-11-16",
@@ -3778,7 +3802,11 @@
     "portee": "ligne",
     "sur": true
    },
-   "attendu": null
+   "attendu": {
+    "grav": "mineur",
+    "nat": "perturbation",
+    "portee": "ligne"
+   }
   }
  }
 }
