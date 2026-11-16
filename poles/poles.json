@@ -1,0 +1,197 @@
+{
+ "v": 1,
+ "poles": [
+  {
+   "id": "belges",
+   "name": "Belges",
+   "lat": 49.2741955,
+   "lon": 4.018711,
+   "stops": [
+    "84",
+    "85",
+    "86",
+    "87",
+    "88",
+    "89"
+   ],
+   "lines": [
+    "E1",
+    "T1",
+    "T2",
+    "U22",
+    "U3"
+   ],
+   "az": 0,
+   "glb": "belges.glb",
+   "mb": 4.6,
+   "thumb": "belges.jpg"
+  },
+  {
+   "id": "comedie",
+   "name": "Comédie",
+   "lat": 49.250471,
+   "lon": 4.020372,
+   "stops": [
+    "146",
+    "147",
+    "149",
+    "150"
+   ],
+   "lines": [
+    "T1",
+    "T2",
+    "U1",
+    "U7",
+    "U8"
+   ],
+   "az": 0,
+   "glb": "comedie.glb",
+   "mb": 2.7,
+   "thumb": "comedie.jpg"
+  },
+  {
+   "id": "franchet-d-esperey",
+   "name": "Franchet d'Espèrey",
+   "lat": 49.242676,
+   "lon": 4.014819,
+   "stops": [
+    "298",
+    "299",
+    "300",
+    "301",
+    "302",
+    "303"
+   ],
+   "lines": [
+    "T1",
+    "T2",
+    "U5",
+    "U7"
+   ],
+   "az": 0,
+   "glb": "franchet-d-esperey.glb",
+   "mb": 3.0,
+   "thumb": "franchet-d-esperey.jpg"
+  },
+  {
+   "id": "gare-centre",
+   "name": "Gare Centre",
+   "lat": 49.2584,
+   "lon": 4.0256,
+   "stops": [
+    "1173",
+    "1175",
+    "346",
+    "347",
+    "348",
+    "349",
+    "350",
+    "351",
+    "352"
+   ],
+   "lines": [
+    "O1",
+    "O2",
+    "T1",
+    "T2",
+    "U1",
+    "U20",
+    "U3",
+    "U4",
+    "U7",
+    "U8"
+   ],
+   "az": 48,
+   "glb": "gare-centre.glb",
+   "mb": 3.8,
+   "thumb": "gare-centre.jpg"
+  },
+  {
+   "id": "neufchatel",
+   "name": "Neufchâtel",
+   "lat": 49.284571,
+   "lon": 4.026942,
+   "stops": [
+    "1158",
+    "1159",
+    "580",
+    "581",
+    "582"
+   ],
+   "lines": [
+    "T1",
+    "T2",
+    "U22",
+    "U4"
+   ],
+   "az": 0,
+   "glb": "neufchatel.glb",
+   "mb": 2.7,
+   "thumb": "neufchatel.jpg"
+  },
+  {
+   "id": "opera-cathedrale",
+   "name": "Opéra-Cathédrale",
+   "lat": 49.254351,
+   "lon": 4.03107,
+   "stops": [
+    "1063",
+    "1176",
+    "1205",
+    "590",
+    "591",
+    "596",
+    "597",
+    "602",
+    "603",
+    "711",
+    "712",
+    "944",
+    "948"
+   ],
+   "lines": [
+    "C",
+    "E2",
+    "E3",
+    "E4",
+    "E5",
+    "O1",
+    "O2",
+    "T1",
+    "T2",
+    "U1",
+    "U2",
+    "U22",
+    "U23",
+    "U8"
+   ],
+   "az": 0,
+   "glb": "opera-cathedrale.glb",
+   "mb": 8.0,
+   "thumb": "opera-cathedrale.jpg"
+  },
+  {
+   "id": "vesle",
+   "name": "Vesle",
+   "lat": 49.2524805,
+   "lon": 4.026039,
+   "stops": [
+    "835",
+    "836",
+    "837",
+    "838"
+   ],
+   "lines": [
+    "T1",
+    "T2",
+    "U1",
+    "U7",
+    "U8"
+   ],
+   "az": 0,
+   "glb": "vesle.glb",
+   "mb": 5.2,
+   "thumb": "vesle.jpg"
+  }
+ ]
+}
