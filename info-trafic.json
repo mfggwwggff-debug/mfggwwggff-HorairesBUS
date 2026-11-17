@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-17T09:40:18Z",
+ "at": "2026-11-17T09:55:23Z",
  "items": [
   {
    "id": "aba75f03db",
@@ -489,25 +489,11 @@
    ]
   },
   {
-   "id": "055e4c1b08",
-   "t": "Manifestation en cours au centre ville, votre bus effectue une déviation",
+   "id": "09d22d709c",
+   "t": "Manifestation en cours, votre bus est dévié secteur Bd de la Paix",
    "lines": [
     "C",
-    "O1",
-    "O2",
-    "U1",
-    "U2",
-    "U20",
-    "U21",
-    "U22",
-    "U23",
-    "U24",
-    "U3",
-    "U4",
-    "U6",
-    "U7",
-    "U8",
-    "U9"
+    "U1"
    ],
    "p": "",
    "start": null,
