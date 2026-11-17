@@ -767,6 +767,9 @@ body.p32cover .sheet { border-radius: 0; box-shadow: none; }
 .devcard .dvb { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
 .devcard .dvb .btn { flex: 1; height: 42px; }
 .devcard.prov .dvb { margin-top: 4px; }
+.devnote { display: flex; gap: 8px; align-items: flex-start; padding: 9px 12px; margin-bottom: 10px; border-radius: 12px; background: color-mix(in srgb, var(--alert) 7%, var(--surface)); border: 1px solid color-mix(in srgb, var(--alert) 35%, var(--rule)); font-size: 13.5px; line-height: 1.35; color: var(--ink); }
+.devnote > svg { flex: 0 0 auto; color: var(--accent-strong); margin-top: 1px; }
+.devnote span { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; } .devnote small { flex-basis: 100%; color: var(--muted); font-size: 12.5px; }
 @keyframes flow { from { background-position: 0 0; } to { background-position: 0 14px; } }
 .tagx.wt { background: color-mix(in srgb, var(--c) 16%, var(--surface)); color: var(--ink); box-shadow: inset 0 0 0 1px var(--c); }
 .mbbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; border-top: 1px solid var(--rule); padding-top: 12px; }
@@ -2280,6 +2283,9 @@ function endedLines(stop, act, day, t, horizon) {
   const out = [];
   for (const [key, L] of stopLineDirs(net, stop)) {
     if (busy.has(key)) continue;
+    // #74 : arrêt non desservi à cause d'une déviation : la reprise vient de l'info trafic
+    const dv = devSkipAt(stop, day).find((r) => r.ri === L.r && r.dir === L.dir);
+    if (dv) { out.push({ r: L.r, h: L.h, dir: L.dir, end: "Arrêt non desservi (déviation)", sub: devReprise(dv, day, t), next: null }); continue; }
     const st = lineDirService(net, L.items, day, t, horizon);
     if (st.state === "end") out.push({ r: L.r, h: L.h, dir: L.dir, end: "Service terminé", sub: repriseTxt(st, day, true), next: st.next });
     else if (st.state === "none" && L.r !== SUBR) out.push({ r: L.r, h: L.h, dir: L.dir, end: "Pas de service aujourd'hui", sub: repriseTxt(st, day, false), next: st.next });
@@ -3956,6 +3962,47 @@ async function loadDevs() {
     if (typeof devMapSync === "function") devMapSync();
   } catch (e) { errReport(e, "devs"); }
 }
+// reprise d'un arrêt non desservi : fin de la déviation (heure du jour, ou lendemain de sa dernière journée)
+function devReprise(rec, day, t) {
+  const iso = net.isoOf(day), on = new Set(rec.days);
+  if (rec.to != null && t < rec.to) return "reprise à " + hmFr(rec.to);
+  let d = new Date(iso + "T12:00:00Z"); const next = () => new Date(d.getTime() + 864e5);
+  while (on.has(next().toISOString().slice(0, 10))) d = next();
+  let last = d.toISOString().slice(0, 10);
+  // la liste des journées s'arrête à 40 jours : la fin annoncée par l'info trafic fait foi
+  if (last === rec.days[rec.days.length - 1] && !/^(?:tous|chaque)/i.test(rec.t || "")) { if (rec.end && rec.end > last) last = rec.end; else if (!rec.end) return "fin non communiquée"; }
+  const r = new Date(Date.parse(last + "T12:00:00Z") + 864e5).toISOString().slice(0, 10), k = Math.round((Date.parse(r) - Date.parse(iso)) / 864e5);
+  if (k === 1) return "reprise demain";
+  if (k < 7) return "reprise " + weekdayOf(day + k);
+  return "reprise le " + fmtDateLong(r).replace(/^\S+ /, "").replace(/^1 /, "1er ");
+}
+// #74 : arrêts simplement reportés (pas une déviation) : « Attention, arrêt déplacé 100 mètres avant »
+const DEV_RX = /l['’]arr[eê]t (.+?) dans (?:le sens (.+?)|les deux sens) (?:est|sont) ((?:report|d[ée]plac)\S*)\s*(.*)$/i;
+function trActiveOn(x, iso) {
+  if (x.start && iso < x.start) return false;
+  if (x.end && iso > x.end) return false;
+  if (!x.start) { const m = (x.t + " " + (x.p || "")).toLowerCase().match(/(?:tous les|chaque) (lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)/); if (m) return JOURS[new Date(iso + "T12:00:00").getDay()] === m[1]; }
+  return true;
+}
+function stopReportNote(par, day) {
+  const iso = net.isoOf(day), name = norm(net.P[par][0]), devInfos = new Set(devSkipAt(par, day).map((r) => r.info)), seen = new Set();
+  let h = "";
+  for (const x of TR.items || []) {
+    if (devInfos.has(x.id) || !trActiveOn(x, iso) || (x.c && x.c.cond)) continue;
+    const st = new Map((x.st || []).map(([a, b]) => [norm(a), b]));
+    for (const b of x.b || []) {
+      if (!b.l) continue;
+      const m = ("" + (b.r || []).map((r) => r[0]).join("")).trim().match(DEV_RX); if (!m) continue;
+      const nm = norm(st.get(norm(m[1])) || m[1]); if (nm !== name) continue;
+      const rs = b.l.split(",").map((s) => net.R.findIndex((r) => r.s === s.trim())).filter((r) => r >= 0 && net.pRoutes[par].includes(r));
+      if (!rs.length) continue;
+      const verb = /^d/i.test(m[3]) ? "déplacé" : "reporté", rest = m[4].replace(/\s*\.\s*$/, ""), k = rs.join() + "|" + (m[2] || "") + "|" + rest;
+      if (seen.has(k)) continue; seen.add(k);
+      h += `<div class="devnote" role="note">${coneSvg}<span>${rs.map((r) => badge(r, "sm", true)).join("")}<b>Attention, arrêt ${verb}</b> ${esc(rest.replace(/\b[A-ZÀ-Ý][A-ZÀ-Ý'’-]{2,}\b/g, (w) => w[0] + w.slice(1).toLowerCase()))}${m[2] ? `<small>sens ${esc(m[2].replace(/\S+/g, (w) => w.length > 2 ? w[0] + w.slice(1).toLowerCase() : w.toLowerCase()))}</small>` : `<small>dans les deux sens</small>`}</span></div>`;
+    }
+  }
+  return h;
+}
 // déviations du jour (plan)
 const devToday = () => { const t = todayIdx(); return (net.devs || []).filter((r) => r.mask[t] === "1"); };
 // déviations d'un jour qui ne desservent plus cet arrêt
@@ -3968,7 +4015,7 @@ function devRepPole(rec, name) {
   return net.P.findIndex((p) => p[0] === name);
 }
 function devStopBlock(par, day, t0, isToday) {
-  const recs = devSkipAt(par, day); let h = "";
+  const recs = devSkipAt(par, day); let h = stopReportNote(par, day);
   const nowF = nowMinF(), P0 = net.P[par];
   const prov = net.provP && net.provP.get(par);
   if (prov) {

@@ -150,6 +150,8 @@ def when(x):
     days = [d for d in days if d >= TODAY - dt.timedelta(days=1) and d <= TODAY + dt.timedelta(days=HORIZON)]
     if not days: return None
     w["days"] = [d.isoformat() for d in days]
+    # dernière journée annoncée (au-delà des 40 jours couverts) : pour « reprise le … » ; None si pas de fin connue
+    w["end"] = x.get("end") if x.get("start") else None
     return w
 
 
@@ -309,7 +311,7 @@ def make_dev(x, w, line, p, bl, touched, cache):
     d = {"id": did, "info": x["id"], "t": x.get("t") or "", "r": line, "dir": p["dir"], "h": p["h"],
          "a": names[ia] if ia is not None else None, "b": names[ib] if ib is not None else None,
          "skip": skip, "prov": [{k: v for k, v in pv.items() if k != "from"} for pv in prov],
-         "days": w["days"], "from": w["from"], "to": w["to"], "src": "auto", "ck": ck}
+         "days": w["days"], "end": w.get("end"), "from": w["from"], "to": w["to"], "src": "auto", "ck": ck}
     if ck in cache and (cache[ck].get("osrm") or not OSRM_OK):
         for k in ("path", "legs", "legd", "coef", "osrm"): d[k] = cache[ck][k]
         return d
