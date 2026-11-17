@@ -689,6 +689,7 @@ body.p32cover .sheet { border-radius: 0; box-shadow: none; }
 .mbal svg { width: 22px; height: 22px; flex: none; }
 .mbal div { display: flex; flex-direction: column; }
 .mbal b { font-size: var(--fs-b); } .mbal span { font-size: var(--fs-s); opacity: .92; }
+.mbal span.ask { font-weight: 700; opacity: 1; margin-top: 2px; } /* « Pensez à demander l'arrêt » (hors tram) */
 .mbal.hot { animation: glow 1.2s ease-in-out 6; } /* audit B3 : ~7 s puis fixe */
 @keyframes glow { 0%, 100% { background: var(--accent-fill); } 50% { background: color-mix(in srgb, var(--accent-fill) 78%, #ff9a6b); } }
 .mbt { position: relative; margin: 0 -4px; }
@@ -959,6 +960,8 @@ body.p32cover .sheet { border-radius: 0; box-shadow: none; }
 .tk-k { font: 700 var(--fs-m)/1 var(--font-body); letter-spacing: .12em; text-transform: uppercase; opacity: .9; }
 .tk-t { font: 700 var(--fs-3xl)/1.08 var(--font-display); }
 .tk-s { display: inline-flex; gap: 8px; align-items: center; font-weight: 600; background: rgb(0 0 0 / .14); border-radius: 999px; padding: 7px 14px; }
+.tk-ask { display: inline-flex; gap: 8px; align-items: center; font: 700 var(--fs-l)/1.2 var(--font-body); background: #fff; color: var(--deep); border-radius: 999px; padding: 8px 16px; }
+.tk-ask svg { width: 20px; height: 20px; flex: none; }
 .tk-next { width: 100%; background: #fff; color: var(--deep); border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; text-align: left; font-size: var(--fs-m); }
 .tk-next .tk-line { display: flex; gap: 8px; align-items: center; font-size: var(--fs-l); }
 .tk-card { width: 100%; background: #fff; color: var(--deep); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 8px; text-align: left; }
@@ -2285,6 +2288,7 @@ function takeover(o) {
     <span class="tk-k">${esc(o.kicker)}</span>
     <span class="tk-t">${esc(o.title)}</span>
     ${o.sub ? `<span class="tk-s">${o.sub}</span>` : ""}
+    ${o.ask ? `<span class="tk-ask">${bellSvg.replace('width="40" height="40"', 'width="20" height="20"')}${esc(o.ask)}</span>` : ""}
     ${o.next ? `<div class="tk-next">${o.next}</div>` : ""}
     ${o.conns ? `<div class="tk-card"><span class="lbl">${esc(o.connTitle || "Correspondances")}</span><div class="tk-grid">${o.conns}</div></div>` : ""}
     <button type="button" class="tk-ok">J'ai compris</button>
@@ -2736,21 +2740,21 @@ function renderFollow() {
   // #24 : course retirée par l'info trafic
   if (naTrip) banner = `<div class="mbal na">${alertSvg}<div><b>Ce départ est supprimé</b><span>Selon l'info trafic, le départ de ${hm(st.dp(0))} de ${esc(qName(p.stops[0]))} n'aura pas lieu.</span><button type="button" class="lnk" data-trlines="${p.r}">Voir l'info trafic ${chevR}</button></div></div>`;
   else if (dest != null && S.follow.alert && st.state !== "before") {
-    const dn = qName(p.stops[dest]);
+    const dn = qName(p.stops[dest]), ask = isTramR(p.r) ? "" : "Pensez à demander l'arrêt"; // hors tram : le bus ne s'arrête que si on le demande
     if (st.state !== "done" && st.atStop && st.i === dest || (st.state === "done" && dest === nS - 1)) {
       banner = `<div class="mbal hot">${bellSvg}<div><b>Vous êtes arrivé</b><span>${esc(dn)}</span></div></div>`;
       if (!S.guide) ping(key + ":arr", "Vous êtes arrivé", dn, false, "board");
     } else if (next === dest && st.i < dest) {
       banner = `<div class="mbal hot">${bellSvg}<div><b>Descendez au prochain arrêt</b><span>${esc(dn)} · ${st.at(dest) - t < 0.6 ? "à l'approche" : "dans " + Math.round(st.at(dest) - t) + " min"}</span></div></div>`;
       const nx = S.guide ? guideNextInfo() : null;
-      if (ping(key + ":down", "Descendez au prochain arrêt", dn + (nx ? " · ensuite " + nx.txt : ""), true, "off")) {
+      if (ping(key + ":down", "Descendez au prochain arrêt", dn + (ask ? " · " + ask : "") + (nx ? " · ensuite " + nx.txt : ""), true, "off")) {
         const cs = connsAt(net.Q[p.stops[dest]][0], st.at(dest), p.r, 3);
         takeover({ kicker: "Prochain arrêt", title: "Descendez à " + dn, sub: `${badge(p.r, "sm", true)} ${st.at(dest) - t < 0.6 ? "à l'approche" : "dans " + Math.round(st.at(dest) - t) + " min"} · arrivée ${hm(st.at(dest))}`,
-          next: nx ? nx.html : "", conns: nx ? "" : connCards(cs), connTitle: "Correspondances à " + dn });
+          ask, next: nx ? nx.html : "", conns: nx ? "" : connCards(cs), connTitle: "Correspondances à " + dn });
       }
     } else if (next === dest - 1) {
-      banner = `<div class="mbal">${bellSvg}<div><b>Préparez-vous à descendre</b><span>Plus que 2 arrêts avant ${esc(dn)}</span></div></div>`;
-      ping(key + ":prep", "Préparez-vous à descendre", "Plus que 2 arrêts avant " + dn, false, "pre");
+      banner = `<div class="mbal">${bellSvg}<div><b>Préparez-vous à descendre</b><span>Plus que 2 arrêts avant ${esc(dn)}</span>${ask ? `<span class="ask">${ask}</span>` : ""}</div></div>`;
+      ping(key + ":prep", "Préparez-vous à descendre", "Plus que 2 arrêts avant " + dn + (ask ? " · " + ask : ""), false, "pre");
     }
   }
   // #11 « Mon bus arrive » : X min avant son passage à mon arrêt de montée (réglage dans Mon profil)
@@ -2764,9 +2768,9 @@ function renderFollow() {
     if (MY.al.arrive && from != null && !S.guide && st.state !== "done" && (st.state === "before" || st.pos < from - 0.05) && st.at(from) - t > MY.al.arriveMin)
       px.push({ at: ms(st.at(from) - MY.al.arriveMin), title: `Votre ${R.s} arrive`, body: `${qName(p.stops[from])} · dans ${MY.al.arriveMin} min`, tag: "come", url: "./#suivi" });
     if (MY.al.desc !== false && dest != null && S.follow.alert && st.state !== "done") {
-      const dn = qName(p.stops[dest]), gone = (j) => st.state !== "before" && st.i >= j;
-      if (dest >= 2 && !gone(dest - 2)) px.push({ at: ms(st.at(dest - 2) + 0.3), title: "Préparez-vous à descendre", body: "Plus que 2 arrêts avant " + dn, tag: "desc", url: "./#suivi" });
-      if (dest >= 1 && !gone(dest - 1)) px.push({ at: ms(st.at(dest - 1) + 0.3), title: "Descendez au prochain arrêt", body: dn, tag: "desc", url: "./#suivi" });
+      const dn = qName(p.stops[dest]), ask = isTramR(p.r) ? "" : " · Pensez à demander l'arrêt", gone = (j) => st.state !== "before" && st.i >= j;
+      if (dest >= 2 && !gone(dest - 2)) px.push({ at: ms(st.at(dest - 2) + 0.3), title: "Préparez-vous à descendre", body: "Plus que 2 arrêts avant " + dn + ask, tag: "desc", url: "./#suivi" });
+      if (dest >= 1 && !gone(dest - 1)) px.push({ at: ms(st.at(dest - 1) + 0.3), title: "Descendez au prochain arrêt", body: dn + ask, tag: "desc", url: "./#suivi" });
     }
     S.follow.px = px; }
   if ($("#mb-banner").dataset.html !== banner) { $("#mb-banner").innerHTML = banner; $("#mb-banner").dataset.html = banner; }
