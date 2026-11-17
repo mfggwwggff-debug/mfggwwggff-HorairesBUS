@@ -3308,6 +3308,10 @@ function devMerge(dv, o) {
   if (!o) return dv;
   if (o.off) return null;
   const out = { ...dv, src: "admin" };
+  // début, fin et arrêts non desservis choisis dans admin/ (la déviation peut commencer plus tôt)
+  if ("a" in o) out.a = o.a;
+  if ("b" in o) out.b = o.b;
+  if (Array.isArray(o.skip)) out.skip = o.skip;
   if (Array.isArray(o.path) && o.path.length > 1) out.path = o.path;
   if (Array.isArray(o.prov)) out.prov = o.prov;
   if (Array.isArray(o.legs) && o.legs.length === (out.prov || []).length + (out.b != null ? 1 : 0) - (out.a == null ? 1 : 0)) out.legs = o.legs;
@@ -3319,7 +3323,10 @@ async function loadDevs() {
     const r = await fetch("deviations.json?v=" + Math.floor(Date.now() / 60000), { cache: "no-cache" });
     if (!r.ok) return;
     const ov = new Map((TR.devOv || []).map((o) => [o.id, o]));
-    const list = ((await r.json()).devs || []).map((dv) => devMerge(dv, ov.get(dv.id))).filter(Boolean);
+    const auto = (await r.json()).devs || [], ids = new Set(auto.map((d) => d.id));
+    // + déviations créées dans admin/ pour un sens que l'info trafic ne cite pas (st « new »)
+    const extra = (TR.devOv || []).filter((o) => o.st === "new" && !ids.has(o.id) && o.r && Array.isArray(o.days)).map((o) => devMerge({ id: o.id, info: o.info, t: o.t || "", r: o.r, dir: o.dir, h: o.h, a: null, b: null, skip: [], prov: [], days: o.days, from: o.from ?? null, to: o.to ?? null }, o));
+    const list = [...auto.map((dv) => devMerge(dv, ov.get(dv.id))), ...extra].filter(Boolean);
     const n0 = net.P.length;
     devApply(net, list);
     for (let i = n0; i < net.P.length; i++) stopIdx.push({ i, n: norm(net.P[i][0]) });

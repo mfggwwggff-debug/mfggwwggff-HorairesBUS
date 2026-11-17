@@ -116,6 +116,12 @@ th{font-size:11.5px;text-transform:uppercase;letter-spacing:.3px;color:var(--dim
 .dvk{font-size:12px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.3px;margin-bottom:6px;display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
 .dvk .row button{padding:5px 10px;font-size:12.5px}
 .dvtab td,.dvtab th{text-align:left}.dvtab input{padding:5px 8px;max-width:220px}
+.dvab{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}.dvab label{flex:1 1 260px;display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.3px}
+.dvab small{font-weight:500;text-transform:none;letter-spacing:0}.dvab select{font-size:14px}
+.dvnone{margin-top:12px;padding:14px;border:1px dashed var(--line);border-radius:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.dvnone p{margin:0;color:var(--dim)}
+.tgl{padding:4px 10px;font-size:12px;border-radius:10px;background:#fde7e7;color:#a61b21;border:1px solid #f3c3c3;font-weight:700}.tgl.on{background:#e3f4ea;color:#17693c;border-color:#bfe3cc}
+.dvtabs .st{margin-left:6px;font-size:11px}
+.dvpop{display:flex;flex-direction:column;gap:6px;margin-top:8px}.dvpop button{padding:6px 10px;font-size:13px}
 .dvest{background:var(--bg);border-radius:12px;padding:12px 14px;font-size:13.5px;line-height:1.55}
 .wp{width:14px;height:14px;border-radius:50%;background:#fff;border:3px solid #1a5fd0;box-sizing:border-box;cursor:grab}
 .pv{width:22px;height:22px;border-radius:50%;background:#fff;border:3px dashed var(--accent);box-sizing:border-box;position:relative;cursor:grab}
@@ -571,43 +577,48 @@ $("send").onclick = async () => {
 
 // ---------- #74 : déviations hors GTFS ----------
 // deviations.json (build/deviations.py) ; corrections gardées par le service (devs_main) et lues par l'appli (/extra).
-const DV = { list: [], ov: new Map(), info: new Map(), D: null, cur: null, ed: null, map: null, lay: null };
+// L'éditeur montre toujours les deux sens de la ligne : on corrige un sens à la fois, l'autre reste visible en
+// léger. Par sens : début et fin de la déviation (arrêts desservis juste avant / après, au choix), arrêts habituels
+// gardés ou non desservis entre les deux, arrêts provisoires, tracé (points à glisser, calage sur les rues).
+const DV = { list: [], ov: new Map(), info: new Map(), D: null, G: null, map: null, lay: null };
 const mDist = (a, b) => { const r = Math.PI / 180, x = Math.sin((b[1] - a[1]) * r / 2) ** 2 + Math.cos(a[1] * r) * Math.cos(b[1] * r) * Math.sin((b[0] - a[0]) * r / 2) ** 2; return 2 * 6371000 * Math.asin(Math.sqrt(x)); };
 const pLen = (p) => p.reduce((s, x, i) => s + (i ? mDist(p[i - 1], x) : 0), 0);
 async function dvLoad() {
   try {
     const nc = { cache: "no-cache" }, v = "?v=" + Date.now();
     const [d, it, ov] = await Promise.all([fetch("../deviations.json" + v, nc).then((r) => r.json()), fetch("../info-trafic.json" + v, nc).then((r) => r.json()), call("devs")]);
-    DV.list = d.devs || []; DV.info = new Map((it.items || []).map((x) => [x.id, x])); DV.ov = new Map((ov.devs || []).map((o) => [o.id, o]));
+    DV.info = new Map((it.items || []).map((x) => [x.id, x])); DV.ov = new Map((ov.devs || []).map((o) => [o.id, o]));
+    const auto = d.devs || [], ids = new Set(auto.map((x) => x.id));
+    DV.list = [...auto, ...[...DV.ov.values()].filter((o) => o.st === "new" && !ids.has(o.id) && o.r).map((o) => ({ ...o, manual: true }))];
     if (!DV.D) DV.D = await (await fetch("../build/data.json", { cache: "force-cache" })).json();
     dvList();
   } catch (e) { $("dv-list").textContent = "Impossible de lire les déviations : " + e.message; }
 }
-const dvSt = (d) => { const o = DV.ov.get(d.id); return !o ? ["auto", "Tracé automatique · à vérifier"] : o.st === "off" ? ["off", "Masquée dans l'appli"] : o.st === "main" ? ["main", "Corrigé à la main"] : ["ok", "Validé"]; };
+const dvSt = (d) => { const o = DV.ov.get(d.id); return d.manual ? ["main", "Ajoutée à la main"] : !o ? ["auto", "Tracé automatique · à vérifier"] : o.st === "off" ? ["off", "Masquée dans l'appli"] : o.st === "main" ? ["main", "Corrigé à la main"] : ["ok", "Validé"]; };
 const dvLine = (s) => { const r = (DV.D.R || []).find((x) => x.s === s) || { c: "#555", t: "#fff" }; return `<span class="lc" style="background:${r.c};color:${r.t}">${esc(s)}</span>`; };
 const dvWhen = (d) => { const x = DV.info.get(d.info); if (x && x.p) return x.p; return d.days.length === 1 ? d.days[0] : d.days[0] + " → " + d.days[d.days.length - 1]; };
 function dvList() {
   const g = new Map(); for (const d of DV.list) { const k = d.info + "|" + d.r; if (!g.has(k)) g.set(k, []); g.get(k).push(d); }
   $("dv-list").innerHTML = [...g.values()].map((L) => { const d = L[0], st = L.map(dvSt), w = st.find((x) => x[0] === "auto") || st[0];
-    return `<button type="button" class="dvi${DV.cur && L.some((x) => x.id === DV.cur.id) ? " on" : ""}" data-dv="${esc(d.id)}"><b>${dvLine(d.r)} ${esc(d.t)}</b><small>${esc(dvWhen(d))}</small><span class="st ${w[0]}">${w[1]}</span></button>`; }).join("") || `<p class="sub">Aucune déviation dans l'info trafic.</p>`;
+    return `<button type="button" class="dvi${DV.G && DV.G.info === d.info && DV.G.r === d.r ? " on" : ""}" data-dv="${esc(d.id)}"><b>${dvLine(d.r)} ${esc(d.t)}</b><small>${esc(dvWhen(d))}</small><span class="st ${w[0]}">${w[1]}</span></button>`; }).join("") || `<p class="sub">Aucune déviation dans l'info trafic.</p>`;
   $("dv-list").querySelectorAll("[data-dv]").forEach((b) => b.onclick = () => dvOpen(b.dataset.dv));
   const nAuto = DV.list.filter((d) => dvSt(d)[0] === "auto").length; $("tb-dev").textContent = nAuto ? String(nAuto) : ""; $("tb-dev").title = nAuto ? nAuto + " tracé(s) à vérifier" : "";
 }
-// parcours du GTFS (ligne, sens) qui passe par les arrêts de la déviation : positions et horaire habituel de a à b
-function dvPat(d) {
-  const D = DV.D, ri = D.R.findIndex((r) => r.s === d.r), skip = new Set(d.skip.map((x) => x.n));
-  for (const [r, dir, h, sh, stops, trs] of D.PAT) {
-    if (r !== ri || dir !== d.dir) continue;
-    const nm = stops.map((q) => D.P[D.Q[q][0]][0]);
-    const i0 = d.a != null ? nm.findIndex((n, i) => n === d.a && skip.has(nm[i + 1])) : -1; if (d.a != null && i0 < 0) continue;
-    let i = i0 + 1; while (i < nm.length && skip.has(nm[i])) i++;
-    const i1 = d.b != null ? (nm[i] === d.b ? i : -1) : nm.length; if (i1 < 0) continue;
-    const pts = stops.map((q) => [D.Q[q][2], D.Q[q][1]]);
-    let sched = null;
-    if (i0 >= 0 && i1 < nm.length) { const tt = trs.map((t) => { const two = t[1] === 1; let acc = 0, j = 2, a = 0, dd = 0, ta = 0, tb = 0; for (let k = 0; k < stops.length; k++) { acc += t[j++]; a = acc; dd = a; if (two) { acc += t[j++]; dd = acc; } if (k === i0) ta = dd; if (k === i1) tb = a; } return tb - ta; }).sort((x, y) => x - y); sched = tt[tt.length >> 1]; }
-    return { nm, pts, i0, i1, sched };
-  }
-  return null;
+function dvShape(i) { const f = DV.D.SH[i]; if (!f) return null; const out = []; let x = 0, y = 0; for (let j = 0; j < f.length; j += 2) { x += f[j]; y += f[j + 1]; out.push([x / 1e5, y / 1e5]); } return out; }
+// parcours du GTFS (ligne, sens) : celui qui passe par a puis b, sinon celui qui a le plus de courses
+function dvPat(r, dir, a, b) {
+  const D = DV.D, ri = D.R.findIndex((x) => x.s === r);
+  const ps = D.PAT.filter((p) => p[0] === ri && p[1] === dir).map(([, , h, sh, stops, trs]) => ({ h, sh, stops, trs, nm: stops.map((q) => D.P[D.Q[q][0]][0]), pts: stops.map((q) => [D.Q[q][2], D.Q[q][1]]) }));
+  if (!ps.length) return null;
+  const ok = (p) => (a == null || p.nm.includes(a)) && (b == null || p.nm.includes(b));
+  const p = ps.filter(ok).sort((x, y) => y.trs.length - x.trs.length)[0] || ps.sort((x, y) => y.trs.length - x.trs.length)[0];
+  p.shape = (p.sh >= 0 && dvShape(p.sh)) || p.pts;
+  return p;
+}
+function dvSched(p, i0, i1) {
+  if (i0 < 0 || i1 >= p.nm.length) return null;
+  const tt = p.trs.map((t) => { const two = t[1] === 1; let acc = 0, j = 2, ta = 0, tb = 0; for (let k = 0; k < p.stops.length; k++) { acc += t[j++]; const a = acc; let dd = a; if (two) { acc += t[j++]; dd = acc; } if (k === i0) ta = dd; if (k === i1) tb = a; } return tb - ta; }).filter((x) => x > 0).sort((x, y) => x - y);
+  return tt.length ? tt[tt.length >> 1] : null;
 }
 function dvSimplify(p, tol) { // Douglas-Peucker sur [lon, lat], tolérance en mètres
   if (p.length < 3) return p.slice();
@@ -617,109 +628,221 @@ function dvSimplify(p, tol) { // Douglas-Peucker sur [lon, lat], tolérance en m
   while (st.length) { const [i, j] = st.pop(); let m = 0, k = -1; for (let x = i + 1; x < j; x++) { const dd = off(p[x], p[i], p[j]); if (dd > m) { m = dd; k = x; } } if (m > tol) { keep[k] = 1; st.push([i, k], [k, j]); } }
   return p.filter((_, i) => keep[i]);
 }
+// flèches du sens de circulation (même calcul que l'appli, engine.js devArrows)
+function dvArrows(path, other, step = 110, side = 30) {
+  if (path.length < 2) return [];
+  const kx = 71500, ky = 111200, P = path.map(([x, y]) => [x * kx, -y * ky]), O = other.map(([x, y]) => [x * kx, -y * ky]);
+  const near = (x, y) => { for (let i = 1; i < O.length; i++) { const [ax, ay] = O[i - 1], bx = O[i][0] - ax, by = O[i][1] - ay, L = bx * bx + by * by || 1, t = Math.max(0, Math.min(1, ((x - ax) * bx + (y - ay) * by) / L)); if (Math.hypot(x - ax - t * bx, y - ay - t * by) < side) return true; } return false; };
+  const out = []; let next = step * 0.5;
+  for (let i = 1, acc = 0; i < P.length; i++) {
+    const [ax, ay] = P[i - 1], dx = P[i][0] - ax, dy = P[i][1] - ay, L = Math.hypot(dx, dy);
+    while (L > 0 && next <= acc + L) { const t = (next - acc) / L, x = ax + dx * t, y = ay + dy * t; if (!near(x, y)) out.push([x / kx, -y / ky, Math.atan2(dy, dx)]); next += step; }
+    acc += L;
+  }
+  return out;
+}
+// ---- état d'un sens ----
+function dvSide(G, dir) {
+  const dv = DV.list.find((x) => x.info === G.info && x.r === G.r && x.dir === dir) || null;
+  const o = dv ? DV.ov.get(dv.id) || null : null;
+  const eff = dv ? { ...dv, ...(o && !o.off ? Object.fromEntries(["a", "b", "skip", "prov", "path", "legs"].filter((k) => k in o).map((k) => [k, o[k]])) : {}) } : null;
+  const p = dvPat(G.r, dir, eff && eff.a, eff && eff.b); if (!p) return null;
+  const S = { dir, h: p.h, p, dv, o, id: dv ? dv.id : `${G.info}:${G.r}:${dir}:manuel`, auto: !!(dv && !dv.manual), off: !!(o && o.st === "off"), exists: !!eff, dirty: false, routed: true };
+  S.ia = -1; S.ib = p.nm.length; S.keep = new Set(); S.prov = []; S.path = []; S.wp = [];
+  if (eff) {
+    const keepN = new Set((eff.prov || []).filter((v) => v.keep).map((v) => v.pole || v.n)), skipN = new Set((eff.skip || []).map((x) => x.n));
+    const okN = (n) => skipN.has(n) || keepN.has(n);
+    if (eff.a != null) S.ia = p.nm.findIndex((n, i) => n === eff.a && okN(p.nm[i + 1])); if (S.ia < -1) S.ia = -1;
+    if (eff.b != null) { let i = S.ia + 1; while (i < p.nm.length && okN(p.nm[i]) && p.nm[i] !== eff.b) i++; S.ib = p.nm[i] === eff.b ? i : p.nm.indexOf(eff.b, S.ia + 1); }
+    for (let i = S.ia + 1; i < S.ib; i++) if (keepN.has(p.nm[i])) S.keep.add(i);
+    S.prov = (eff.prov || []).filter((v) => !v.keep).map((v) => ({ ...v }));
+    S.path = (eff.path || []).map((x) => x.slice());
+    let wp = dvSimplify(S.path, 25); if (wp.length > 16) wp = dvSimplify(S.path, 60); S.wp = wp.slice(1, -1);
+    S.v = dv.legd && dv.legs ? dv.legd.reduce((a, b) => a + b, 0) / Math.max(0.5, dv.legs.reduce((a, b) => a + b, 0)) : null;
+  }
+  return S;
+}
+const dvA = (S) => S.ia >= 0 ? S.p.pts[S.ia] : null, dvB = (S) => S.ib < S.p.nm.length ? S.p.pts[S.ib] : null;
 function dvOpen(id) {
   const d = DV.list.find((x) => x.id === id); if (!d) return;
-  DV.cur = d; dvList();
-  const o = DV.ov.get(id) || {}, pat = dvPat(d);
-  const path = (o.path || d.path || []).map((x) => x.slice());
-  let wp = dvSimplify(path, 25); if (wp.length > 16) wp = dvSimplify(path, 60);
-  DV.ed = { d, pat, path, wp: wp.slice(1, -1), prov: (o.prov || d.prov || []).map((v) => ({ ...v })), dirty: false, routed: true };
-  const sib = DV.list.filter((x) => x.info === d.info && x.r === d.r);
-  const imgs = ((DV.info.get(d.info) || {}).b || []).filter((b) => b.img).map((b) => b.img);
-  $("dv-ed").innerHTML = `<div class="row" style="gap:10px">${dvLine(d.r)}<b style="font-size:18px">${esc(d.t)}</b><span class="sub" style="margin:0">${esc(dvWhen(d))}</span><span class="st ${dvSt(d)[0]}">${dvSt(d)[1]}</span></div>
-    <div class="dvtabs" role="tablist" aria-label="Sens">${sib.map((x) => `<button type="button" role="tab" aria-selected="${x.id === d.id}" data-dv="${esc(x.id)}">→ ${esc(x.h)}</button>`).join("")}</div>
+  const G = { info: d.info, r: d.r, t: d.t, days: d.days, from: d.from ?? null, to: d.to ?? null, cur: d.dir, S: {} };
+  for (const dir of [0, 1]) { const S = dvSide(G, dir); if (S) G.S[dir] = S; }
+  DV.G = G; dvList(); dvRender(true);
+}
+function dvRender(fit) {
+  const G = DV.G, S = G.S[G.cur];
+  const imgs = ((DV.info.get(G.info) || {}).b || []).filter((b) => b.img).map((b) => b.img);
+  const stOf = (x) => !x.exists ? ["off", "pas de déviation"] : x.off ? ["off", "masquée"] : x.dv && x.dv.manual ? ["main", "ajoutée à la main"] : x.o && x.o.st === "main" ? ["main", "corrigé"] : x.o && x.o.st === "ok" ? ["ok", "validé"] : ["auto", "à vérifier"];
+  const n = S.p.nm.length, opt = (i, sel) => `<option value="${i}"${i === sel ? " selected" : ""}>${esc(S.p.nm[i])}</option>`;
+  const edit = S.exists && !S.off;
+  $("dv-ed").innerHTML = `<div class="row" style="gap:10px">${dvLine(G.r)}<b style="font-size:18px">${esc(G.t)}</b><span class="sub" style="margin:0">${esc(dvWhen(S.dv || DV.list.find((x) => x.info === G.info && x.r === G.r)))}</span></div>
+    <div class="dvtabs" role="tablist" aria-label="Sens">${[0, 1].filter((k) => G.S[k]).map((k) => `<button type="button" role="tab" aria-selected="${k === G.cur}" data-dir="${k}">→ ${esc(G.S[k].h)} <span class="st ${stOf(G.S[k])[0]}">${stOf(G.S[k])[1]}</span></button>`).join("")}</div>
+    ${edit ? `<div class="dvab"><label>Début de la déviation <small>dernier arrêt desservi avant</small><select id="dv-a"><option value="-1"${S.ia < 0 ? " selected" : ""}>(aucun : départ d'un arrêt provisoire)</option>${S.p.nm.map((_, i) => i < S.ib ? opt(i, S.ia) : "").join("")}</select></label>
+      <label>Fin de la déviation <small>premier arrêt desservi après</small><select id="dv-b">${S.p.nm.map((_, i) => i > S.ia ? opt(i, S.ib) : "").join("")}<option value="${n}"${S.ib >= n ? " selected" : ""}>(aucun : terminus provisoire)</option></select></label></div>` :
+      `<div class="dvnone"><p>${S.off ? "La déviation de ce sens est masquée : l'appli garde les horaires habituels." : "Pas de déviation dans ce sens pour cette info."}</p><button type="button" id="dv-new">${S.off ? "Réafficher la déviation" : "Créer une déviation dans ce sens"}</button></div>`}
     <div class="dvcols"><div class="dvplan"><div class="dvk">Plan de report du réseau</div>${imgs.length ? imgs.map((u) => `<a href="${esc(u)}" target="_blank" rel="noopener"><img src="${esc(u)}" alt="Plan de report de la déviation"></a>`).join("") : `<div class="dvph">Pas de plan de report pour cette info.</div>`}</div>
-    <div class="dvmapc"><div class="dvk"><span>Tracé provisoire</span><span class="row"><button type="button" class="plain" id="dv-road">Caler sur les rues</button><button type="button" class="plain" id="dv-addp">+ Arrêt provisoire</button></span></div><div id="dv-map"></div></div></div>
-    <div class="dvcols" style="align-items:flex-start"><div style="flex:3 1 460px;min-width:0;overflow-x:auto" id="dv-tab"></div><div class="dvest" style="flex:1 1 240px" id="dv-est"></div></div>
-    <div class="row" style="justify-content:flex-end;margin-top:14px"><button type="button" class="plain" id="dv-auto">Revenir au tracé automatique</button><button type="button" class="ghost" id="dv-off">Ne pas afficher cette déviation</button><button type="button" id="dv-ok">Valider le tracé</button></div>`;
-  $("dv-ed").querySelectorAll(".dvtabs [data-dv]").forEach((b) => b.onclick = () => dvOpen(b.dataset.dv));
-  $("dv-road").onclick = dvRoad; $("dv-addp").onclick = () => { const c = DV.map.getCenter(); DV.ed.prov.push({ n: "Arrêt provisoire", lat: c.lat, lon: c.lng }); DV.ed.dirty = true; dvDraw(); };
-  $("dv-ok").onclick = () => dvSave(DV.ed.dirty ? "main" : "ok");
-  $("dv-off").onclick = () => dvSave("off");
-  $("dv-auto").onclick = async () => { if (!confirm("Revenir au tracé et aux arrêts calculés automatiquement ?")) return; try { await call("devDel", { id: d.id }); DV.ov.delete(d.id); flash("Tracé automatique remis."); dvOpen(d.id); } catch (e) { flash(e.message, true); } };
-  if (!window.L) { setTimeout(() => dvOpen(id), 400); return; }
+    <div class="dvmapc"><div class="dvk"><span>Tracé · sens → ${esc(S.h)} <span class="sub" style="text-transform:none;letter-spacing:0;font-weight:500">(l'autre sens en clair)</span></span>${edit ? `<span class="row"><button type="button" class="plain" id="dv-road">Caler sur les rues</button><button type="button" class="plain" id="dv-addp">+ Arrêt provisoire</button></span>` : ""}</div><div id="dv-map"></div>
+    ${edit ? `<p class="sub" style="margin:6px 0 0">Glisser les points bleus ; toucher le plan pour en ajouter ; clic droit sur un point pour le retirer. Toucher un arrêt pour en faire le début ou la fin, ou le garder sur le tracé.</p>` : ""}</div></div>
+    ${edit ? `<div class="dvcols" style="align-items:flex-start"><div style="flex:3 1 460px;min-width:0;overflow-x:auto" id="dv-tab"></div><div class="dvest" style="flex:1 1 240px" id="dv-est"></div></div>` : ""}
+    <div class="row" style="justify-content:flex-end;margin-top:14px">${S.auto && S.o ? `<button type="button" class="plain" id="dv-auto">Revenir au tracé automatique</button>` : ""}${edit ? `<button type="button" class="ghost" id="dv-off">${S.auto ? "Masquer la déviation de ce sens" : "Supprimer la déviation de ce sens"}</button><button type="button" id="dv-ok">Valider ce sens</button>` : ""}</div>`;
+  $("dv-ed").querySelectorAll("[data-dir]").forEach((b) => b.onclick = () => { G.cur = +b.dataset.dir; dvRender(true); });
+  if (edit) {
+    $("dv-a").onchange = () => dvSetEnd("a", +$("dv-a").value);
+    $("dv-b").onchange = () => dvSetEnd("b", +$("dv-b").value);
+    $("dv-road").onclick = dvRoad;
+    $("dv-addp").onclick = () => { const c = DV.map.getCenter(); S.prov.push({ n: "Arrêt provisoire", lat: c.lat, lon: c.lng }); S.dirty = true; dvDraw(); };
+    $("dv-ok").onclick = () => dvSave(S.dirty || !S.auto ? (S.auto ? "main" : "new") : "ok");
+    $("dv-off").onclick = () => S.auto ? dvSave("off") : dvDelete("Supprimer la déviation ajoutée dans ce sens ?");
+  } else if ($("dv-new")) $("dv-new").onclick = () => S.off ? dvDelete(null) : dvCreate();
+  if ($("dv-auto")) $("dv-auto").onclick = () => dvDelete("Revenir au tracé et aux arrêts calculés automatiquement pour ce sens ?");
+  if (!window.L) { setTimeout(() => dvRender(fit), 400); return; }
   if (DV.map) { DV.map.remove(); DV.map = null; }
   DV.map = L.map("dv-map", { zoomControl: true });
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "© OpenStreetMap" }).addTo(DV.map);
   DV.lay = L.layerGroup().addTo(DV.map);
-  DV.map.on("click", (e) => { dvAddWp([e.latlng.lng, e.latlng.lat]); });
-  dvDraw(true);
+  if (edit) DV.map.on("click", (e) => dvAddWp([e.latlng.lng, e.latlng.lat]));
+  $("dv-map").onclick = (e) => { const b = e.target.closest("[data-act]"); if (!b) return; const [act, i] = b.dataset.act.split(":"); DV.map.closePopup(); if (act === "a" || act === "b") dvSetEnd(act, +i); else if (act === "keep") { S.keep.has(+i) ? S.keep.delete(+i) : S.keep.add(+i); S.dirty = true; dvDraw(); } };
+  dvDraw(fit);
 }
-const dvEnds = () => { const e = DV.ed, p = e.pat; return { a: p && p.i0 >= 0 ? p.pts[p.i0] : null, b: p && p.i1 < p.nm.length ? p.pts[p.i1] : null }; };
+// nouvelle déviation dans un sens que l'info ne cite pas : par défaut, les arrêts de ce sens les plus proches du tracé de l'autre sens
+function dvCreate() {
+  const G = DV.G, S = G.S[G.cur], O = G.S[1 - G.cur];
+  const ref = O && O.exists && O.path.length ? O.path : null, p = S.p;
+  const nearest = (pt) => p.pts.reduce((b, x, i) => mDist(x, pt) < mDist(p.pts[b], pt) ? i : b, 0);
+  let ia = ref ? nearest(ref[ref.length - 1]) : Math.floor(p.nm.length / 2) - 1, ib = ref ? nearest(ref[0]) : ia + 2;
+  if (ia > ib) [ia, ib] = [ib, ia]; if (ib - ia < 2) ib = Math.min(p.nm.length - 1, ia + 2);
+  Object.assign(S, { exists: true, off: false, ia, ib, keep: new Set(), prov: [], wp: [], dirty: true });
+  S.path = [dvA(S), dvB(S)].filter(Boolean); S.routed = false;
+  dvRender(true);
+}
+function dvSetEnd(which, i) {
+  const S = DV.G.S[DV.G.cur], n = S.p.nm.length;
+  // le tracé part désormais de plus loin : l'ancien début (ou l'ancienne fin) devient un point de passage
+  if (which === "a") { if (i >= S.ib) return flash("Le début doit être avant la fin.", true); if (i < S.ia && S.ia >= 0) S.wp.unshift(S.p.pts[S.ia].slice()); S.ia = i; }
+  else { if (i <= S.ia) return flash("La fin doit être après le début.", true); if (i > S.ib && S.ib < n) S.wp.push(S.p.pts[S.ib].slice()); S.ib = Math.min(i, n); }
+  for (const k of [...S.keep]) if (k <= S.ia || k >= S.ib) S.keep.delete(k);
+  dvStraight(); dvRender(false);
+}
 function dvAddWp(pt) { // inséré là où il allonge le moins le tracé
-  const e = DV.ed, { a, b } = dvEnds(), all = [a, ...e.wp, b].filter(Boolean);
+  const S = DV.G.S[DV.G.cur], a = dvA(S), b = dvB(S), all = [a, ...S.wp, b].filter(Boolean);
   let best = 0, bc = Infinity; for (let i = 0; i < all.length - 1; i++) { const c = mDist(all[i], pt) + mDist(pt, all[i + 1]) - mDist(all[i], all[i + 1]); if (c < bc) { bc = c; best = i; } }
-  e.wp.splice(a ? best : best + 1, 0, pt); dvStraight(); dvDraw();
+  S.wp.splice(a ? best : best + 1, 0, pt); dvStraight(); dvDraw();
 }
-function dvStraight() { const e = DV.ed, { a, b } = dvEnds(); e.path = [a, ...e.wp, b].filter(Boolean); e.dirty = true; e.routed = false; }
+function dvStraight() { const S = DV.G.S[DV.G.cur]; S.path = [dvA(S), ...S.wp, dvB(S)].filter(Boolean); S.dirty = true; S.routed = false; }
 async function dvRoad() {
-  const e = DV.ed, { a, b } = dvEnds(), pts = [a, ...e.wp, b].filter(Boolean);
+  const S = DV.G.S[DV.G.cur], pts = [dvA(S), ...S.wp, dvB(S)].filter(Boolean);
+  if (pts.length < 2) return flash("Il faut au moins deux points.", true);
   try {
     const j = await (await fetch("https://router.project-osrm.org/route/v1/driving/" + pts.map((p) => p[0].toFixed(6) + "," + p[1].toFixed(6)).join(";") + "?overview=full&geometries=geojson")).json();
     if (j.code !== "Ok") throw new Error(j.code);
-    e.path = j.routes[0].geometry.coordinates.map((p) => [Math.round(p[0] * 1e5) / 1e5, Math.round(p[1] * 1e5) / 1e5]); e.dirty = true; e.routed = true; dvDraw();
+    S.path = j.routes[0].geometry.coordinates.map((p) => [Math.round(p[0] * 1e5) / 1e5, Math.round(p[1] * 1e5) / 1e5]); S.dirty = true; S.routed = true; dvDraw();
   } catch (er) { flash("Calcul sur les rues impossible : " + er.message, true); }
 }
-// temps de chaque tronçon : même vitesse moyenne que le calcul automatique, longueurs du tracé corrigé
-function dvLegs() {
-  const e = DV.ed, d = e.d, path = e.path, { a, b } = dvEnds();
+// arrêts desservis sur le tracé (provisoires + habituels gardés), dans l'ordre du tracé, et temps de chaque tronçon
+function dvStops(S) {
+  const path = S.path.length > 1 ? S.path : [dvA(S), dvB(S)].filter(Boolean);
   const cum = [0]; for (let i = 1; i < path.length; i++) cum.push(cum[i - 1] + mDist(path[i - 1], path[i]));
-  const at = (pt) => { let bi = 0, bd = Infinity; path.forEach((x, i) => { const dd = mDist(x, pt); if (dd < bd) { bd = dd; bi = i; } }); return cum[bi]; };
-  e.prov.sort((x, y) => at([x.lon, x.lat]) - at([y.lon, y.lat]));
-  const stops = [...(a ? [0] : []), ...e.prov.map((v) => at([v.lon, v.lat])), ...(b ? [cum[cum.length - 1]] : [])];
-  const v = (d.legd || []).reduce((s, x) => s + x, 0) / Math.max(0.5, (d.legs || []).reduce((s, x) => s + x, 0)) || 250;
-  const legs = []; for (let i = 1; i < stops.length; i++) legs.push(Math.round((Math.max(0, stops[i] - stops[i - 1]) / v + (i < stops.length - 1 || !b ? 0.4 : 0)) * 100) / 100);
-  return legs;
+  const at = (pt) => { let bi = 0, bd = Infinity; path.forEach((x, i) => { const dd = mDist(x, pt); if (dd < bd) { bd = dd; bi = i; } }); return cum[bi] || 0; };
+  const mid = [...S.prov.map((v) => ({ ...v })), ...[...S.keep].map((i) => ({ n: S.p.nm[i], pole: S.p.nm[i], lat: S.p.pts[i][1], lon: S.p.pts[i][0], keep: true }))];
+  mid.forEach((v) => v._d = at([v.lon, v.lat])); mid.sort((x, y) => x._d - y._d);
+  const a = dvA(S), b = dvB(S), marks = [...(a ? [0] : []), ...mid.map((v) => v._d), ...(b ? [cum[cum.length - 1] || 0] : [])];
+  let v = S.v;
+  if (!v) { const sch = dvSched(S.p, S.ia, S.ib), L0 = S.ia >= 0 && S.ib < S.p.nm.length ? pLen(S.p.pts.slice(S.ia, S.ib + 1)) * 1.25 : 0; v = sch && L0 ? L0 / sch : 250; }
+  const legs = []; for (let i = 1; i < marks.length; i++) legs.push(Math.round((Math.max(0, marks[i] - marks[i - 1]) / v + (i < marks.length - 1 || !b ? 0.4 : 0)) * 100) / 100);
+  return { mid: mid.map(({ _d, ...x }) => x), legs, path };
 }
 function dvDraw(fit) {
-  const e = DV.ed, d = e.d, p = e.pat, lay = DV.lay, ll = (x) => [x[1], x[0]], { a, b } = dvEnds();
-  const col = ((DV.D.R || []).find((x) => x.s === d.r) || { c: "#555" }).c;
+  const G = DV.G, S = G.S[G.cur], O = G.S[1 - G.cur], lay = DV.lay, ll = (x) => [x[1], x[0]], p = S.p, n = p.nm.length;
+  const col = ((DV.D.R || []).find((x) => x.s === G.r) || { c: "#555" }).c, edit = S.exists && !S.off;
   lay.clearLayers();
-  if (p) {
-    const lo = Math.max(0, p.i0), hi = Math.min(p.nm.length - 1, p.i1);
-    L.polyline(p.pts.slice(Math.max(0, lo - 1), hi + 2).map(ll), { color: "#8a929d", weight: 5, opacity: .55 }).addTo(lay);
-    for (let i = Math.max(0, lo - 1); i <= Math.min(p.nm.length - 1, hi + 1); i++) {
-      const sk = i > p.i0 && i < p.i1;
-      L.circleMarker(ll(p.pts[i]), { radius: 6, color: sk ? "#d0242b" : col, weight: 3, fillColor: "#fff", fillOpacity: 1 }).bindTooltip(p.nm[i] + (sk ? " · non desservi" : ""), { direction: "top" }).addTo(lay);
-    }
+  const arrow = (lo, la, an, c, op) => L.marker([la, lo], { interactive: false, icon: L.divIcon({ className: "", html: `<svg width="18" height="18" viewBox="-9 -9 18 18" style="transform:rotate(${an * 180 / Math.PI}deg);opacity:${op}"><path d="M-6 -5 L5 0 L-6 5 L-3 0 Z" fill="${c}" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>`, iconSize: [18, 18], iconAnchor: [9, 9] }) }).addTo(lay);
+  // secteur affiché : quelques arrêts avant le début et après la fin
+  const lo = Math.max(0, (S.exists ? S.ia : Math.floor(n / 2)) - 3), hi = Math.min(n - 1, (S.exists ? S.ib : Math.floor(n / 2)) + 3);
+  const sector = p.pts.slice(lo, hi + 1);
+  const box = L.latLngBounds(sector.map(ll)).pad(0.6);
+  // l'autre sens, en clair : tracé effectif (déviation) ou habituel dans le secteur, avec ses flèches
+  let oPath = [];
+  if (O) {
+    oPath = O.exists && !O.off && O.path.length > 1 ? O.path : O.p.shape.filter((x) => box.contains(ll(x)));
+    const oUse = O.exists && !O.off && O.path.length > 1;
+    L.polyline(oPath.map(ll), { color: col, weight: 4, opacity: .35, dashArray: oUse ? "2 9" : null, interactive: false }).addTo(lay);
+    for (const [x, y, an] of dvArrows(oPath, S.exists ? S.path : p.shape)) if (box.contains([y, x])) arrow(x, y, an, col, .45);
   }
-  L.polyline(e.path.map(ll), { color: "#fff", weight: 9, opacity: .9 }).addTo(lay);
-  L.polyline(e.path.map(ll), { color: col, weight: 6, dashArray: "2 10", lineCap: "round" }).addTo(lay);
-  e.wp.forEach((w, i) => {
-    const m = L.marker(ll(w), { draggable: true, icon: L.divIcon({ className: "", html: '<div class="wp"></div>', iconSize: [14, 14], iconAnchor: [7, 7] }) }).addTo(lay);
-    m.on("dragend", () => { const q = m.getLatLng(); e.wp[i] = [q.lng, q.lat]; dvStraight(); dvDraw(); });
-    m.on("contextmenu", () => { e.wp.splice(i, 1); dvStraight(); dvDraw(); });
-  });
-  e.prov.forEach((v, i) => {
-    const m = L.marker([v.lat, v.lon], { draggable: true, icon: L.divIcon({ className: "", html: `<div class="pv"></div><div class="pvl">${esc(v.n)}</div>`, iconSize: [22, 22], iconAnchor: [11, 11] }) }).addTo(lay);
-    m.on("dragend", () => { const q = m.getLatLng(); v.lat = q.lat; v.lon = q.lng; delete v.pole; e.dirty = true; dvDraw(); });
-  });
-  if (fit) { const all = [...e.path, ...(p ? p.pts.slice(Math.max(0, p.i0), Math.min(p.nm.length, p.i1 + 1)) : [])]; if (all.length) DV.map.fitBounds(L.latLngBounds(all.map(ll)).pad(0.15)); }
+  // ce sens : parcours habituel dans le secteur (gris) puis tracé dévié (pointillés) et ses flèches
+  const usual = p.shape.filter((x) => box.contains(ll(x)));
+  L.polyline(usual.map(ll), { color: "#8a929d", weight: 5, opacity: .5, interactive: false }).addTo(lay);
+  if (!S.exists || S.off) for (const [x, y, an] of dvArrows(usual, oPath)) arrow(x, y, an, "#6b737e", .9);
+  const { mid, path } = S.exists ? dvStops(S) : { mid: [], path: [] };
+  if (edit && path.length > 1) {
+    L.polyline(path.map(ll), { color: "#fff", weight: 9, opacity: .9, interactive: false }).addTo(lay);
+    L.polyline(path.map(ll), { color: col, weight: 6, dashArray: "2 10", lineCap: "round", interactive: false }).addTo(lay);
+    for (const [x, y, an] of dvArrows(path, oPath)) arrow(x, y, an, col, 1);
+  }
+  for (let i = lo; i <= hi; i++) {
+    const inside = edit && i > S.ia && i < S.ib, kept = S.keep.has(i), sk = inside && !kept, end = edit && (i === S.ia || i === S.ib);
+    const m = L.circleMarker(ll(p.pts[i]), { radius: end ? 8 : 6, color: sk ? "#d0242b" : col, weight: end ? 4 : 3, fillColor: "#fff", fillOpacity: 1 }).addTo(lay);
+    m.bindTooltip(p.nm[i] + (i === S.ia && edit ? " · début" : i === S.ib && edit ? " · fin" : sk ? " · non desservi" : kept ? " · gardé sur le tracé" : ""), { direction: "top" });
+    if (edit) m.bindPopup(`<b>${esc(p.nm[i])}</b><div class="dvpop">${i < S.ib ? `<button type="button" data-act="a:${i}">Début ici</button>` : ""}${i > S.ia ? `<button type="button" data-act="b:${i}">Fin ici</button>` : ""}${inside ? `<button type="button" data-act="keep:${i}">${kept ? "Non desservi" : "Desservi sur le tracé"}</button>` : ""}</div>`);
+  }
+  if (edit) {
+    S.wp.forEach((w, i) => {
+      const m = L.marker(ll(w), { draggable: true, icon: L.divIcon({ className: "", html: '<div class="wp"></div>', iconSize: [14, 14], iconAnchor: [7, 7] }) }).addTo(lay);
+      m.on("dragend", () => { const q = m.getLatLng(); S.wp[i] = [q.lng, q.lat]; dvStraight(); dvDraw(); });
+      m.on("contextmenu", () => { S.wp.splice(i, 1); dvStraight(); dvDraw(); });
+    });
+    S.prov.forEach((v) => {
+      const m = L.marker([v.lat, v.lon], { draggable: true, icon: L.divIcon({ className: "", html: `<div class="pv"></div><div class="pvl">${esc(v.n)}</div>`, iconSize: [22, 22], iconAnchor: [11, 11] }) }).addTo(lay);
+      m.on("dragend", () => { const q = m.getLatLng(); v.lat = q.lat; v.lon = q.lng; delete v.pole; S.dirty = true; dvDraw(); });
+    });
+  }
+  if (fit) DV.map.fitBounds(L.latLngBounds([...sector, ...path].map(ll)).pad(0.12));
+  if (!edit) return;
   // tableau des arrêts et estimation
-  const legs = dvLegs(), tot = legs.reduce((s, x) => s + x, 0);
-  let cum = 0; const tprov = e.prov.map((_, i) => { cum += legs[a ? i : i - 1] || 0; return Math.round(cum); });
-  const st = (cls, t) => `<span class="st ${cls}">${t}</span>`;
-  $("dv-tab").innerHTML = `<table class="dvtab"><thead><tr><th>Arrêt</th><th>État</th><th>Report</th><th>Heure</th></tr></thead><tbody>
-    ${d.a ? `<tr><td><b>${esc(d.a)}</b></td><td>${st("ok", "desservi")}</td><td>début de la déviation</td><td>départ</td></tr>` : ""}
-    ${d.skip.map((s) => `<tr><td>${esc(s.n)}</td><td>${st("off", "non desservi")}</td><td>${esc(s.rep || "—")}</td><td>—</td></tr>`).join("")}
-    ${e.prov.map((v, i) => `<tr><td><input type="text" value="${esc(v.n)}" data-pn="${i}" aria-label="Nom de l'arrêt provisoire"></td><td>${st("auto", "provisoire")}</td><td>${esc(v.a || v.pole || "")}</td><td>+${tprov[i]} min <button type="button" class="plain" data-pdel="${i}" aria-label="Retirer cet arrêt provisoire">Retirer</button></td></tr>`).join("")}
-    ${d.b ? `<tr><td><b>${esc(d.b)}</b></td><td>${st("ok", "desservi")}</td><td>fin de la déviation</td><td>+${Math.round(tot)} min</td></tr>` : ""}</tbody></table>`;
-  $("dv-tab").querySelectorAll("[data-pn]").forEach((x) => x.onchange = () => { e.prov[+x.dataset.pn].n = x.value.trim() || "Arrêt provisoire"; e.dirty = true; setTimeout(() => dvDraw()); });
-  $("dv-tab").querySelectorAll("[data-pdel]").forEach((x) => x.onclick = () => { e.prov.splice(+x.dataset.pdel, 1); e.dirty = true; dvDraw(); });
-  const L0 = pLen(e.path), Lo = p && p.i0 >= 0 && p.i1 < p.nm.length ? pLen(p.pts.slice(p.i0, p.i1 + 1)) : null;
-  $("dv-est").innerHTML = `<b>Estimation des heures</b><br>Longueur de la déviation : <b>${(L0 / 1000).toFixed(1).replace(".", ",")} km</b>${Lo ? ` (parcours habituel : ${(Lo / 1000).toFixed(1).replace(".", ",")} km à vol d'oiseau)` : ""}<br>
-    Temps estimé : <b>${Math.round(tot)} min</b>${p && p.sched != null ? ` (horaire habituel : ${p.sched} min, soit ${tot - p.sched >= 0 ? "+" : ""}${Math.round(tot - p.sched)} min)` : ""}<br>
-    Calcul : temps routier ${d.osrm ? "OSRM (vitesse maximale des rues)" : "en ligne droite (OSRM indisponible au relevé)"} × ${String(d.coef || 1).replace(".", ",")}, coefficient calé sur l'horaire du parcours habituel ; 0,4 min par arrêt provisoire.${e.routed ? "" : `<br><span style="color:var(--accent-strong)">Tracé modifié en ligne droite : « Caler sur les rues » pour suivre la voirie.</span>`}`;
+  const { legs } = dvStops(S), tot = legs.reduce((s, x) => s + x, 0), a = dvA(S), b = dvB(S);
+  let cum = 0; const tm = mid.map((_, i) => { cum += legs[a ? i : i - 1] || 0; return Math.round(cum); });
+  const st = (cls, t) => `<span class="st ${cls}">${t}</span>`, reps = [...mid, ...(b ? [{ n: p.nm[S.ib], lat: b[1], lon: b[0] }] : [])];
+  const repOf = (i) => reps.length ? reps.reduce((x, y) => mDist([y.lon, y.lat], p.pts[i]) < mDist([x.lon, x.lat], p.pts[i]) ? y : x).n : "—";
+  const rows = [];
+  if (S.ia >= 0) rows.push(`<tr><td><b>${esc(p.nm[S.ia])}</b></td><td>${st("ok", "desservi")}</td><td>début de la déviation</td><td>départ</td></tr>`);
+  for (let i = S.ia + 1; i < S.ib; i++) { const k = S.keep.has(i), j = mid.findIndex((v) => v.keep && v.n === p.nm[i]);
+    rows.push(`<tr><td>${esc(p.nm[i])}</td><td><button type="button" class="tgl${k ? " on" : ""}" data-keep="${i}" aria-pressed="${k}">${k ? "desservi sur le tracé" : "non desservi"}</button></td><td>${k ? "" : esc("reporté à " + repOf(i))}</td><td>${k ? "+" + tm[j] + " min" : "—"}</td></tr>`); }
+  S.prov.forEach((v, i) => { const j = mid.findIndex((x) => !x.keep && x.lat === v.lat && x.lon === v.lon);
+    rows.push(`<tr><td><input type="text" value="${esc(v.n)}" data-pn="${i}" aria-label="Nom de l'arrêt provisoire"></td><td>${st("auto", "provisoire")}</td><td>${esc(v.a || v.pole || "")}</td><td>+${tm[j] ?? 0} min <button type="button" class="plain" data-pdel="${i}" aria-label="Retirer cet arrêt provisoire">Retirer</button></td></tr>`); });
+  if (b) rows.push(`<tr><td><b>${esc(p.nm[S.ib])}</b></td><td>${st("ok", "desservi")}</td><td>fin de la déviation</td><td>+${Math.round(tot)} min</td></tr>`);
+  $("dv-tab").innerHTML = `<table class="dvtab"><thead><tr><th>Arrêt (sens → ${esc(S.h)})</th><th>État</th><th>Report</th><th>Heure</th></tr></thead><tbody>${rows.join("")}</tbody></table>`;
+  $("dv-tab").querySelectorAll("[data-keep]").forEach((x) => x.onclick = () => { const i = +x.dataset.keep; S.keep.has(i) ? S.keep.delete(i) : S.keep.add(i); S.dirty = true; dvDraw(); });
+  $("dv-tab").querySelectorAll("[data-pn]").forEach((x) => x.onchange = () => { S.prov[+x.dataset.pn].n = x.value.trim() || "Arrêt provisoire"; S.dirty = true; setTimeout(() => dvDraw()); });
+  $("dv-tab").querySelectorAll("[data-pdel]").forEach((x) => x.onclick = () => { S.prov.splice(+x.dataset.pdel, 1); S.dirty = true; dvDraw(); });
+  const L0 = pLen(path), sch = dvSched(p, S.ia, S.ib), d = S.dv || {};
+  $("dv-est").innerHTML = `<b>Estimation des heures</b><br>Longueur du tracé : <b>${(L0 / 1000).toFixed(1).replace(".", ",")} km</b><br>
+    Temps estimé : <b>${Math.round(tot)} min</b>${sch != null ? ` (horaire habituel : ${sch} min, soit ${tot - sch >= 0 ? "+" : ""}${Math.round(tot - sch)} min)` : ""}<br>
+    ${d.osrm != null ? `Calcul : temps routier ${d.osrm ? "OSRM (vitesse maximale des rues)" : "en ligne droite"} × ${String(d.coef || 1).replace(".", ",")}, calé sur l'horaire habituel ; ` : "Calcul : vitesse moyenne de l'horaire habituel ; "}0,4 min par arrêt.${S.routed ? "" : `<br><span style="color:var(--accent-strong)">Tracé en ligne droite : « Caler sur les rues » pour suivre la voirie.</span>`}`;
+}
+async function dvDelete(msg) {
+  const S = DV.G.S[DV.G.cur];
+  if (msg && !confirm(msg)) return;
+  try { await call("devDel", { id: S.id }); DV.ov.delete(S.id); if (!S.auto) DV.list = DV.list.filter((x) => x.id !== S.id); flash("C'est fait : l'appli le prendra à sa prochaine ouverture."); dvAfter(); } catch (e) { flash(e.message, true); }
 }
 async function dvSave(st) {
-  const e = DV.ed, d = e.d;
-  if (st === "off" && !confirm("Ne plus afficher cette déviation dans l'appli (les horaires habituels reviennent) ?")) return;
+  const G = DV.G, S = G.S[G.cur];
+  if (st === "off" && !confirm("Masquer la déviation de ce sens (les horaires habituels reviennent) ?")) return;
+  let dev = { st };
+  if (st === "main" || st === "new") {
+    const { mid, legs, path } = dvStops(S), n = S.p.nm.length, reps = [...mid, ...(S.ib < n ? [{ n: S.p.nm[S.ib], lat: S.p.pts[S.ib][1], lon: S.p.pts[S.ib][0] }] : [])];
+    if (path.length < 2) return flash("Le tracé est vide.", true);
+    const skip = []; for (let i = S.ia + 1; i < S.ib; i++) if (!S.keep.has(i)) skip.push({ n: S.p.nm[i], rep: reps.length ? reps.reduce((x, y) => mDist([y.lon, y.lat], S.p.pts[i]) < mDist([x.lon, x.lat], S.p.pts[i]) ? y : x).n : null });
+    dev = { st, a: S.ia >= 0 ? S.p.nm[S.ia] : null, b: S.ib < n ? S.p.nm[S.ib] : null, skip, prov: mid, path, legs };
+    if (st === "new") Object.assign(dev, { info: G.info, t: G.t, r: G.r, dir: S.dir, h: S.h, days: G.days, from: G.from, to: G.to });
+  }
   try {
-    await call("devSave", { id: d.id, dev: st === "main" ? { st, path: e.path, prov: e.prov, legs: dvLegs() } : { st } });
-    DV.ov.set(d.id, st === "main" ? { id: d.id, st, path: e.path, prov: e.prov, legs: dvLegs() } : { id: d.id, st }); flash(st === "off" ? "Déviation masquée dans l'appli." : st === "main" ? "Correction enregistrée : l'appli la prendra à sa prochaine ouverture." : "Tracé validé.");
-    e.dirty = false; dvList(); dvOpen(d.id);
+    await call("devSave", { id: S.id, dev });
+    DV.ov.set(S.id, { id: S.id, ...dev, off: st === "off" || undefined });
+    if (st === "new" && !DV.list.some((x) => x.id === S.id)) DV.list.push({ id: S.id, ...dev, manual: true });
+    flash(st === "off" ? "Déviation masquée dans l'appli pour ce sens." : st === "ok" ? "Tracé validé." : "Correction enregistrée : l'appli la prendra à sa prochaine ouverture.");
+    dvAfter();
   } catch (er) { flash(er.message, true); }
 }
+function dvAfter() { const G = DV.G, cur = G.cur; for (const dir of [0, 1]) { const S = dvSide(G, dir); if (S) G.S[dir] = S; } G.cur = cur; dvList(); dvRender(false); }
 
 // ---------- onglets ----------
 const TABS = ["bord", "notifs", "trafic", "dev"];

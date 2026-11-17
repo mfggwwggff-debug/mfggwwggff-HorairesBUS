@@ -329,11 +329,21 @@ async function admin(req, env, b, now) {
     const id = clip(b.id, 160), d = b.dev || {};
     if (!id) return json({ error: "Déviation inconnue." }, 400);
     const pt = (p) => Array.isArray(p) && p.length === 2 && p.every((v) => typeof v === "number" && isFinite(v)) ? [Math.round(p[0] * 1e5) / 1e5, Math.round(p[1] * 1e5) / 1e5] : null;
-    const out = { st: ["ok", "main", "off"].includes(d.st) ? d.st : "ok" };
+    const out = { st: ["ok", "main", "off", "new"].includes(d.st) ? d.st : "ok" };
+    // début / fin de la déviation et arrêts non desservis (choisis dans admin/)
+    if ("a" in d) out.a = d.a == null ? null : clip(d.a, 60);
+    if ("b" in d) out.b = d.b == null ? null : clip(d.b, 60);
+    if (Array.isArray(d.skip)) out.skip = d.skip.slice(0, 40).map((x) => ({ n: clip(x.n, 60), rep: clip(x.rep, 60) || null })).filter((x) => x.n);
+    // déviation créée dans un sens que l'info ne cite pas : tout ce qu'il faut pour l'appli
+    if (out.st === "new") {
+      out.info = clip(d.info, 40); out.t = clip(d.t, 120); out.r = clip(d.r, 10); out.dir = d.dir === 1 ? 1 : 0; out.h = clip(d.h, 60);
+      out.days = (Array.isArray(d.days) ? d.days : []).slice(0, 120).filter((x) => /^\d{4}-\d{2}-\d{2}$/.test(x));
+      out.from = Number.isFinite(d.from) ? d.from : null; out.to = Number.isFinite(d.to) ? d.to : null;
+    }
     if (out.st === "off") out.off = true;
     if (Array.isArray(d.path)) { const p = d.path.map(pt).filter(Boolean).slice(0, 3000); if (p.length > 1) out.path = p; }
-    if (Array.isArray(d.prov)) out.prov = d.prov.slice(0, 20).map((v) => ({ n: clip(v.n, 60) || "Arrêt provisoire", lat: +v.lat, lon: +v.lon, a: clip(v.a, 120) || undefined, pole: clip(v.pole, 60) || undefined })).filter((v) => isFinite(v.lat) && isFinite(v.lon));
-    if (Array.isArray(d.legs)) out.legs = d.legs.slice(0, 21).map((x) => Math.max(0, Math.min(120, +x || 0)));
+    if (Array.isArray(d.prov)) out.prov = d.prov.slice(0, 40).map((v) => ({ n: clip(v.n, 60) || "Arrêt provisoire", lat: +v.lat, lon: +v.lon, a: clip(v.a, 120) || undefined, pole: clip(v.pole, 60) || undefined, keep: v.keep ? true : undefined })).filter((v) => isFinite(v.lat) && isFinite(v.lon));
+    if (Array.isArray(d.legs)) out.legs = d.legs.slice(0, 41).map((x) => Math.max(0, Math.min(120, +x || 0)));
     const data = JSON.stringify(out);
     if (data.length > 150000) return json({ error: "Tracé trop long." }, 400);
     await env.DB.prepare("INSERT INTO devs_main (id, data, maj) VALUES (?, ?, ?) ON CONFLICT(id) DO UPDATE SET data = excluded.data, maj = excluded.maj").bind(id, data, now).run();

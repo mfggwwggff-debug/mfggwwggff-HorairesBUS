@@ -104,6 +104,9 @@ function devApply(net, devs) {
     for (let k = 0; k < net.nd; k++) { const on = (dv.days || []).includes(net.isoOf(k)); mask += on ? "1" : "0"; any ||= on; }
     if (!any || !(dv.legs || []).length) continue;
     const skipN = new Set((dv.skip || []).map((s) => s.n));
+    // arrêts habituels gardés sur le tracé dévié (corrigé dans admin/ : la déviation commence plus tôt) : `keep`
+    const keepN = new Set((dv.prov || []).filter((v) => v.keep).map((v) => v.pole || v.n));
+    const okN = (n) => skipN.has(n) || keepN.has(n);
     const rec = { ...dv, ri, mask, pats: [], provQ: [] };
     let provQ = null;
     for (let pi = 0; pi < n0; pi++) {
@@ -111,10 +114,11 @@ function devApply(net, devs) {
       const names = p.stops.map((q) => net.P[net.Q[q][0]][0]);
       // bloc d'arrêts non desservis, entre a et b
       let ia = -1, ib = p.nS;
-      if (dv.a != null) { ia = names.findIndex((n, i) => n === dv.a && i + 1 < p.nS && skipN.has(names[i + 1])); if (ia < 0) continue; }
-      let i = ia + 1; while (i < p.nS && skipN.has(names[i])) i++;
+      if (dv.a != null) { ia = names.findIndex((n, i) => n === dv.a && i + 1 < p.nS && okN(names[i + 1])); if (ia < 0) continue; }
+      let i = ia + 1; while (i < p.nS && okN(names[i]) && names[i] !== dv.b) i++;
       if (dv.b != null) { if (names[i] !== dv.b) continue; ib = i; } else if (i !== p.nS) continue;
-      if (ib - ia < 2) continue;
+      if (ib - ia < 2 && !(dv.prov || []).length) continue;
+      if (ib - ia < 1) continue;
       if (!provQ) { provQ = (dv.prov || []).map((v) => addPole(v, ri, rec)); rec.provQ = provQ; }
       const nP = provQ.length, stops = [...p.stops.slice(0, ia + 1), ...provQ, ...p.stops.slice(ib)];
       const nS = stops.length, i0 = ia, i1 = ia + nP + 1; // i1 = b dans le parcours dévié (nS si la déviation va jusqu'au bout)
@@ -153,15 +157,37 @@ function devApply(net, devs) {
       const shp = [...sh0.slice(0, ja + 1), ...path, ...sh0.slice(jb)];
       net.shapes.push(shp);
       const np = { r: p.r, dir: p.dir, h: p.h, sh: net.shapes.length - 1, stops, nS, nT, A, D: Dp, sv, LA: null, LD: null, live: null,
-        dev: { rec, i0, i1, prov: new Set(provQ.map((_, j) => ia + 1 + j)), from: pi } };
+        dev: { rec, i0, i1, prov: new Set(provQ.map((_, j) => ia + 1 + j).filter((_, j) => !(dv.prov[j] || {}).keep)), from: pi } };
       net.pats.push(np);
       stops.forEach((q, j) => net.qp[q].push(npi, j));
       rec.pats.push([pi, npi]);
-      if (!rec.skipQ) rec.skipQ = p.stops.slice(ia + 1, ib);
+      if (!rec.skipQ) rec.skipQ = p.stops.slice(ia + 1, ib).filter((q) => skipN.has(net.P[net.Q[q][0]][0]));
+      if (!rec.path) rec.path = path;
     }
     if (rec.pats.length) recs.push(rec);
   }
+  // flèches du sens de circulation le long du tracé dévié, sauf là où l'autre sens passe à côté
+  for (const rec of recs) {
+    const o = recs.find((x) => x !== rec && x.info === rec.info && x.ri === rec.ri && x.dir !== rec.dir);
+    let other = o && o.path;
+    if (!other) { const op = net.pats.slice(0, n0).filter((p) => p.r === rec.ri && p.dir !== rec.dir).sort((a, b) => b.nT - a.nT)[0]; if (op) other = op.sh >= 0 ? net.shapes[op.sh] : op.stops.map((q) => [net.Q[q][2], net.Q[q][1]]); }
+    rec.arrows = devArrows(rec.path || [], other || []);
+  }
   return recs;
+}
+// Points [lon, lat, angle (radians, sens écran : x vers l'est, y vers le sud)] tous les ~110 m le long de `path`,
+// sauf à moins de 30 m de `other` (les deux sens côte à côte : pas besoin de flèche).
+function devArrows(path, other, step = 110, side = 30) {
+  if (path.length < 2) return [];
+  const kx = 71500, ky = 111200, P = path.map(([x, y]) => [x * kx, -y * ky]), O = other.map(([x, y]) => [x * kx, -y * ky]);
+  const near = (x, y) => { for (let i = 1; i < O.length; i++) { const [ax, ay] = O[i - 1], bx = O[i][0] - ax, by = O[i][1] - ay, L = bx * bx + by * by || 1, t = Math.max(0, Math.min(1, ((x - ax) * bx + (y - ay) * by) / L)); if (Math.hypot(x - ax - t * bx, y - ay - t * by) < side) return true; } return false; };
+  const out = []; let next = step * 0.5;
+  for (let i = 1, acc = 0; i < P.length; i++) {
+    const [ax, ay] = P[i - 1], dx = P[i][0] - ax, dy = P[i][1] - ay, L = Math.hypot(dx, dy);
+    while (L > 0 && next <= acc + L) { const t = (next - acc) / L, x = ax + dx * t, y = ay + dy * t; if (!near(x, y)) out.push([x / kx, -y / ky, Math.atan2(dy, dx)]); next += step; }
+    acc += L;
+  }
+  return out;
 }
 
 // Horaires à utiliser pour un jour de service donné (temps réel si disponible)
@@ -515,4 +541,4 @@ function networkNight(net, day, t) {
   return null;
 }
 
-if (typeof module !== "undefined") module.exports = { makeNet, devApply, raptor, planDepart, planArrive, departures, firstTrip, applyRT, arr, isLive, stopLineDirs, lineDirService, networkNight, netServiceWindow, svcDayAt };
+if (typeof module !== "undefined") module.exports = { makeNet, devApply, devArrows, raptor, planDepart, planArrive, departures, firstTrip, applyRT, arr, isLive, stopLineDirs, lineDirService, networkNight, netServiceWindow, svcDayAt };

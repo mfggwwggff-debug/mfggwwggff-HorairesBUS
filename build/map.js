@@ -1122,6 +1122,16 @@ function devPaint(hl, C, lw, z) {
       path(rec.path); ctx.strokeStyle = C.surf; ctx.lineWidth = w + 4; ctx.globalAlpha = 0.9; ctx.stroke(); ctx.globalAlpha = 1;
       path(rec.path); ctx.setLineDash([0.01, w * 2.1]); ctx.strokeStyle = c; ctx.lineWidth = w * 1.15; ctx.stroke();
       ctx.restore();
+      // flèches du sens de circulation (pas là où l'autre sens passe à côté)
+      const s = Math.max(4.5, w * 1.05);
+      for (const [lo, la, an] of rec.arrows || []) {
+        const [x, y] = toS(...warp(PX(lo), PY(la)));
+        if (x < -20 || y < -20 || x > W + 20 || y > H + 20) continue;
+        ctx.save(); ctx.translate(x, y); ctx.rotate(an);
+        ctx.beginPath(); ctx.moveTo(-s, -s * 0.85); ctx.lineTo(s * 0.75, 0); ctx.lineTo(-s, s * 0.85); ctx.lineTo(-s * 0.45, 0); ctx.closePath();
+        ctx.lineJoin = "round"; ctx.lineWidth = 2.5; ctx.strokeStyle = C.surf; ctx.stroke(); ctx.fillStyle = c; ctx.fill();
+        ctx.restore();
+      }
     }
     if (tz) continue; // vue « Voir sur le plan » de l'info trafic : arrêts barrés et de report déjà dessinés (hl.tr)
     for (const q of rec.skipQ || []) {
