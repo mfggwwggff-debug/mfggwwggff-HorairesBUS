@@ -676,8 +676,10 @@ body.p32cover .sheet { border-radius: 0; box-shadow: none; }
 .wv i:nth-child(2) { animation-delay: .6s; } .wv i:nth-child(3) { animation-delay: 1.2s; }
 .wv span { position: absolute; inset: 0; margin: auto; width: 30px; height: 30px; border-radius: 50%; background: var(--ct); display: grid; place-items: center; }
 @keyframes wave { 0% { transform: scale(.35); opacity: .7; } 100% { transform: scale(1.25); opacity: 0; } }
-.crs { border: 1px solid var(--rule); border-radius: 14px; overflow: hidden; margin-top: 8px; }
-.cr { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; padding: 9px 12px; border-top: 1px solid var(--rule); }
+/* 17 nov. : liste bornée à ~4,5 lignes et qui défile seule (sinon, à un pôle de 18 correspondances, le haut fixe
+   sortait de l'écran sans pouvoir descendre) ; pan-y ici, car .mbtop est en touch-action: none sur téléphone */
+.crs { border: 1px solid var(--rule); border-radius: 14px; overflow: hidden auto; margin-top: 8px; max-height: min(198px, 34vh); overscroll-behavior: contain; touch-action: pan-y; -webkit-overflow-scrolling: touch; }
+.cr { display: grid; grid-template-columns: auto 1fr auto; gap: 7px; align-items: center; padding: 9px 12px; border-top: 1px solid var(--rule); }
 .cr:first-child { border-top: 0; }
 .cr .d { font-weight: 600; font-size: var(--fs-m); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cr .w { display: flex; gap: 6px; align-items: center; }
@@ -2529,7 +2531,7 @@ function connsDir(par, t, exclR) {
 }
 const connChipsDir = (cs) => cs.map((c) => `<span class="cx cxd">${badge(c.r, "sm", true)}<span class="cd">${esc(c.h)}</span><b>${waitLabel(c.x.t, true)}</b></span>`).join("");
 const connChips = (cs) => cs.map((G) => `<span class="cx">${badge(G.r, "sm", true)}<b>${waitLabel(G.list[0].t, true)}</b></span>`).join("");
-const connRows = (cs) => cs.map((G) => `<div class="cr">${badge(G.r)}<span class="d">→ ${esc(G.h)}</span><span class="w">${dot(G.list[0].live)}<b>${waitLabel(G.list[0].t, true)}</b>${G.list[1] ? `<small>${waitLabel(G.list[1].t, true)}</small>` : ""}</span></div>`).join("");
+const connRows = (cs) => cs.map((G) => `<div class="cr">${badge(G.r)}<span class="d">→\u202f${esc(G.h)}</span><span class="w">${dot(G.list[0].live)}<b>${waitLabel(G.list[0].t, true)}</b>${G.list[1] ? `<small>${waitLabel(G.list[1].t, true)}</small>` : ""}</span></div>`).join("");
 const connCards = (cs) => cs.slice(0, 3).map((G) => `<div class="tc">${badge(G.r)}<b>${waitLabel(G.list[0].t, true)}</b><small>→ ${esc(G.h)}</small></div>`).join("");
 
 // --- rendu du suivi (structure construite une fois, puis mise à jour chaque seconde) ---
@@ -2720,7 +2722,7 @@ function renderFollow() {
     const k28 = [pi, k, dk, dest].join(":"), c = !A28.seen.has(k28) && !(scC && scC.i === dest) ? coAt(pi, dest) : null; // déjà montré dans la page en plein écran
     if (c) { A28.seen.add(k28); openA28(c, true); }
   }
-  if ($("#mb-hero").dataset.html !== hero) { $("#mb-hero").innerHTML = hero; $("#mb-hero").dataset.html = hero; const nf = $("#mb-hero [data-nafollow]"); if (nf) nf.onclick = () => { const [a, b, c, d] = nf.dataset.nafollow.split(":").map(Number); startFollow(a, b, c, d); }; }
+  if ($("#mb-hero").dataset.html !== hero) { const crY = $("#mb-hero .crs")?.scrollTop || 0; $("#mb-hero").innerHTML = hero; if (crY) { const cr = $("#mb-hero .crs"); if (cr) cr.scrollTop = crY; } $("#mb-hero").dataset.html = hero; const nf = $("#mb-hero [data-nafollow]"); if (nf) nf.onclick = () => { const [a, b, c, d] = nf.dataset.nafollow.split(":").map(Number); startFollow(a, b, c, d); }; }
   // alertes de descente
   let banner = "";
   // #24 : course retirée par l'info trafic
