@@ -195,7 +195,13 @@ function arr(net, p, svcDay) { return svcDay === net.liveDay && p.LA ? [p.LA, p.
 function isLive(net, p, k, svcDay) { return svcDay === net.liveDay && p.live && p.live[k] === 1; }
 
 // Applique un flux GTFS-RT décodé. dayStartEpoch(k) = epoch (s) de minuit du jour de service k.
-function applyRT(net, feed, liveDay, dayStartEpoch) {
+// 17 nov. : une course absente d'un relevé garde sa dernière prévision quelques minutes (RT_KEEP), au lieu de
+// repasser en gris jusqu'au relevé suivant — le flux ne contient pas toujours les mêmes courses d'un relevé à l'autre
+const RT_KEEP = 150000;
+function applyRT(net, feed, liveDay, dayStartEpoch, nowMs) {
+  const now = nowMs || Date.now(), sameDay = net.liveDay === liveDay;
+  const prev = sameDay ? net.pats.map((p) => p.live ? { LA: p.LA, LD: p.LD, LAf: p.LAf, LDf: p.LDf, live: p.live, conf: p.conf, dly: p.dly } : null) : [];
+  if (!sameDay || !net.rtSeen) net.rtSeen = new Map();
   net.pats.forEach((p) => { p.LA = null; p.LD = null; p.LAf = null; p.LDf = null; p.live = null; p.conf = null; });
   net.liveDay = liveDay; net.rtVer = (net.rtVer || 0) + 1;
   let matched = 0, total = 0, byNum = 0;
@@ -256,8 +262,23 @@ function applyRT(net, feed, liveDay, dayStartEpoch) {
     if (tsMin != null) for (const [i, [, d]] of upd) if (d <= tsMin + 0.05 && i > conf) conf = i;
     p.conf[k] = conf;
     p.live[k] = 1; matched++;
+    net.rtSeen.set(pi + ":" + k, now);
   }
-  return { matched, total, byNum };
+  // courses suivies au relevé précédent mais absentes de celui-ci : dernière prévision gardée RT_KEEP
+  let kept = 0;
+  prev.forEach((o, pi) => {
+    if (!o) return;
+    const p = net.pats[pi];
+    for (let k = 0; k < p.nT; k++) {
+      if (o.live[k] !== 1 || (p.live && p.live[k] === 1)) continue;
+      const seen = net.rtSeen.get(pi + ":" + k);
+      if (!seen || now - seen > RT_KEEP) { net.rtSeen.delete(pi + ":" + k); continue; }
+      if (!p.live) { p.LA = Int32Array.from(p.A); p.LD = Int32Array.from(p.D); p.LAf = Float64Array.from(p.A); p.LDf = Float64Array.from(p.D); p.live = new Uint8Array(p.nT); p.conf = new Int16Array(p.nT).fill(-1); p.dly = new Float32Array(p.nT); }
+      for (let i = 0, o0 = k * p.nS; i < p.nS; i++) { p.LA[o0 + i] = o.LA[o0 + i]; p.LD[o0 + i] = o.LD[o0 + i]; p.LAf[o0 + i] = o.LAf[o0 + i]; p.LDf[o0 + i] = o.LDf[o0 + i]; }
+      p.conf[k] = o.conf[k]; p.dly[k] = o.dly ? o.dly[k] : 0; p.live[k] = 1; kept++;
+    }
+  });
+  return { matched, total, byNum, kept };
 }
 
 function firstTrip(net, p, i, ready, day) {

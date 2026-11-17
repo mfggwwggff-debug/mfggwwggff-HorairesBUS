@@ -1412,7 +1412,13 @@ function arr(net, p, svcDay) { return svcDay === net.liveDay && p.LA ? [p.LA, p.
 function isLive(net, p, k, svcDay) { return svcDay === net.liveDay && p.live && p.live[k] === 1; }
 
 // Applique un flux GTFS-RT décodé. dayStartEpoch(k) = epoch (s) de minuit du jour de service k.
-function applyRT(net, feed, liveDay, dayStartEpoch) {
+// 17 nov. : une course absente d'un relevé garde sa dernière prévision quelques minutes (RT_KEEP), au lieu de
+// repasser en gris jusqu'au relevé suivant — le flux ne contient pas toujours les mêmes courses d'un relevé à l'autre
+const RT_KEEP = 150000;
+function applyRT(net, feed, liveDay, dayStartEpoch, nowMs) {
+  const now = nowMs || Date.now(), sameDay = net.liveDay === liveDay;
+  const prev = sameDay ? net.pats.map((p) => p.live ? { LA: p.LA, LD: p.LD, LAf: p.LAf, LDf: p.LDf, live: p.live, conf: p.conf, dly: p.dly } : null) : [];
+  if (!sameDay || !net.rtSeen) net.rtSeen = new Map();
   net.pats.forEach((p) => { p.LA = null; p.LD = null; p.LAf = null; p.LDf = null; p.live = null; p.conf = null; });
   net.liveDay = liveDay; net.rtVer = (net.rtVer || 0) + 1;
   let matched = 0, total = 0, byNum = 0;
@@ -1473,8 +1479,23 @@ function applyRT(net, feed, liveDay, dayStartEpoch) {
     if (tsMin != null) for (const [i, [, d]] of upd) if (d <= tsMin + 0.05 && i > conf) conf = i;
     p.conf[k] = conf;
     p.live[k] = 1; matched++;
+    net.rtSeen.set(pi + ":" + k, now);
   }
-  return { matched, total, byNum };
+  // courses suivies au relevé précédent mais absentes de celui-ci : dernière prévision gardée RT_KEEP
+  let kept = 0;
+  prev.forEach((o, pi) => {
+    if (!o) return;
+    const p = net.pats[pi];
+    for (let k = 0; k < p.nT; k++) {
+      if (o.live[k] !== 1 || (p.live && p.live[k] === 1)) continue;
+      const seen = net.rtSeen.get(pi + ":" + k);
+      if (!seen || now - seen > RT_KEEP) { net.rtSeen.delete(pi + ":" + k); continue; }
+      if (!p.live) { p.LA = Int32Array.from(p.A); p.LD = Int32Array.from(p.D); p.LAf = Float64Array.from(p.A); p.LDf = Float64Array.from(p.D); p.live = new Uint8Array(p.nT); p.conf = new Int16Array(p.nT).fill(-1); p.dly = new Float32Array(p.nT); }
+      for (let i = 0, o0 = k * p.nS; i < p.nS; i++) { p.LA[o0 + i] = o.LA[o0 + i]; p.LD[o0 + i] = o.LD[o0 + i]; p.LAf[o0 + i] = o.LAf[o0 + i]; p.LDf[o0 + i] = o.LDf[o0 + i]; }
+      p.conf[k] = o.conf[k]; p.dly[k] = o.dly ? o.dly[k] : 0; p.live[k] = 1; kept++;
+    }
+  });
+  return { matched, total, byNum, kept };
 }
 
 function firstTrip(net, p, i, ready, day) {
@@ -5827,33 +5848,51 @@ function rtLabel() {
   else if (RT.err) { rtEl.className = "rt err"; rtEl.lastChild.textContent = "Théorique"; }
 }
 rtEl.addEventListener("click", () => { toast(RT.ok ? `${RT.n} courses suivies en temps réel. Actualisation toutes les 30 s.` : RT.err, 5000); pollRT(); });
-let rtTimer = 0;
+let rtTimer = 0, rtSeq = 0, rtStart = 0, rtFails = 0;
+// 17 nov. : la boucle du temps réel pouvait mourir en silence. Le délai de 12 s était levé dès les en-têtes reçus ;
+// si le corps ne finissait pas d'arriver (réseau coupé par l'iPhone en arrière-plan, proxy lent), la lecture restait
+// suspendue pour toujours et aucun relevé n'était plus programmé : les courses parties depuis restaient grises
+// jusqu'à un redémarrage. Désormais : délai sur toute la lecture, un seul relevé à la fois (le plus récent gagne),
+// nouvel essai rapide après un échec, et une veille qui relance la boucle si elle s'est arrêtée.
 async function pollRT() {
   clearTimeout(rtTimer);
   if (SIMU) { RT.ok = false; RT.err = "Simulation d'heure : temps réel coupé."; rtLabel(); return; }
+  const seq = ++rtSeq; rtStart = Date.now();
+  const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 15000);
+  let next = 30000;
   try {
-    const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 12000);
-    const r = await fetch(RT_URL, { cache: "no-store", signal: ctl.signal }); clearTimeout(to);
+    const r = await fetch(RT_URL, { cache: "no-store", signal: ctl.signal });
     if (!r.ok) throw new Error("HTTP " + r.status);
-    const feed = decodeFeed(new Uint8Array(await r.arrayBuffer()));
+    const buf = await r.arrayBuffer();
+    clearTimeout(to);
+    if (seq !== rtSeq) return; // un relevé plus récent a été lancé entre-temps : il prend la main
+    const feed = decodeFeed(new Uint8Array(buf));
     const today = todayIdx();
     if (today < 0 || today >= net.nd) throw new Error("date hors du fichier d'horaires");
     const st = applyRT(net, feed, today, parisMidnightEpoch);
     try { trAutoDelays(); } catch (e) { errReport(e); }
-    RT.ok = true; RT.at = Date.now(); RT.n = st.matched; RT.err = "";
+    RT.ok = true; RT.at = Date.now(); RT.n = st.matched + st.kept; RT.err = ""; rtFails = 0;
     { const d = rtEl.firstElementChild; if (d) { d.style.animation = "none"; d.offsetWidth; d.style.animation = ""; } } // audit B3 : battement à chaque relevé
-    rtEl.title = `${st.matched} courses suivies en temps réel sur ${st.total} annoncées.`;
+    rtEl.title = `${st.matched} courses suivies en temps réel sur ${st.total} annoncées${st.kept ? ` (+ ${st.kept} du relevé précédent)` : ""}.`;
     rerender();
   } catch (e) {
-    RT.ok = false;
-    RT.err = /claude/.test(location.hostname) ? "Le temps réel ne peut pas être chargé dans cette page hébergée sur claude.ai. Utilisez la version GitHub." : "Flux temps réel injoignable pour le moment (" + (e.message || e) + "). Nouvel essai dans 30 s.";
-    rtEl.title = RT.err;
-    // un échec ponctuel ne fait plus repasser en théorique (le bus sautait puis revenait) : on garde le dernier flux 3 min
-    if (net.liveDay >= 0 && !(RT.at && Date.now() - RT.at < 180000)) { net.pats.forEach((p) => { p.LA = p.LD = p.live = null; }); net.liveDay = -1; rerender(); }
+    clearTimeout(to);
+    if (seq !== rtSeq) return;
+    rtFails++; next = rtFails <= 3 ? 5000 : 30000; // échec ponctuel (souvent au retour dans l'appli) : on réessaie vite
+    const msg = e && e.name === "AbortError" ? "délai dépassé" : (e.message || e);
+    // un échec ponctuel ne fait plus repasser en théorique : on garde le dernier flux 3 min
+    if (!(RT.at && Date.now() - RT.at < 180000)) {
+      RT.ok = false;
+      RT.err = /claude/.test(location.hostname) ? "Le temps réel ne peut pas être chargé dans cette page hébergée sur claude.ai. Utilisez la version GitHub." : "Flux temps réel injoignable pour le moment (" + msg + "). Nouvel essai dans " + next / 1000 + " s.";
+      rtEl.title = RT.err;
+      if (net.liveDay >= 0) { net.pats.forEach((p) => { p.LA = p.LD = p.live = null; }); net.liveDay = -1; rerender(); }
+    }
   }
   rtLabel();
-  rtTimer = setTimeout(pollRT, 30000);
+  rtTimer = setTimeout(pollRT, next);
 }
+// veille : relevé en retard de plus de 50 s (boucle arrêtée, minuterie gelée par l'iPhone) → on relance
+setInterval(() => { if (!document.hidden && !SIMU && Date.now() - rtStart > 50000) pollRT(); }, 10000);
 // ---------- fin de service du réseau ----------
 const moonSvg = (n) => `<svg width="${n}" height="${n}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${n > 20 ? 1.9 : 2}" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M19.5 14.6A8 8 0 1 1 9.4 4.5a6.4 6.4 0 0 0 10.1 10.1z"/>${n > 20 ? `<path d="M17 3.5v3M15.5 5h3"/>` : ""}</svg>`;
 function nightPop() {
@@ -6116,6 +6155,7 @@ setInterval(() => { if (S.view !== "suivi" && (S.guide || (S.follow && S.follow.
 if ("serviceWorker" in navigator && !/claude/.test(location.hostname)) navigator.serviceWorker.register("sw.js").then((r) => { swReg = r; }).catch(() => {});
 setInterval(() => { if (!document.hidden && S.view !== "suivi" && !RT.ok) rerender(); }, 30000);
 document.addEventListener("visibilitychange", () => { if (!document.hidden) { pollRT(); loadTrafic(); rerender(); checkNight(); } });
+window.addEventListener("pageshow", (e) => { if (e.persisted) pollRT(); }); // retour depuis le cache de page (Safari)
 pollRT();
 loadTrafic();
 setInterval(() => { if (!document.hidden) loadTrafic(); }, 5 * 60000);
