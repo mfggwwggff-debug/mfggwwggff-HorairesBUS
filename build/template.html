@@ -1334,14 +1334,13 @@ const FEATS = [
     ["inbus", "Détection du bus", "Propose de suivre le bus où vous êtes."]]],
   ["Info trafic", [
     ["bang", "Signal des perturbations", "Un « ! » sur l'onglet Info trafic."],
-    ["perturbe", "Alerte réseau perturbé", "Message en cas de neige, grève…"],
-    ["mesl", "Mes lignes d'abord", "En tête d'Info trafic et Lignes & plans."]]],
+    ["perturbe", "Alerte réseau perturbé", "Message en cas de neige, grève…"]]],
   ["Sons", [
     ["sons", "Sons de l'appli", "Suivent le volume du téléphone."]]],
   ["Partage", [
     ["partage", "Partager mon trajet", "Envoie votre heure d'arrivée par message."]]]];
 // toujours actives (choix du 9 nov.) : plus d'interrupteur
-const FEAT_ON = new Set(["gps", "dedans", "retour", "plein", "centre", "parmode", "pliage", "plus", "nuit"]);
+const FEAT_ON = new Set(["gps", "dedans", "retour", "plein", "centre", "parmode", "pliage", "plus", "nuit", "mesl"]);
 const MY = { ft: store.get("myFeats") || {}, lines: store.get("myLines") || [], names: store.get("stopNames") || {}, walk: store.get("myWalk") || "normal", al:Object.assign({ trafic: true, last: true, arrive: true, arriveMin: 5, scope: "mine", desc: true, quiet: false, qFrom: "22:30", qTo: "06:30", push: false, habit: true, hab: [] }, store.get("myAlerts") || {}) };
 const saveMy = () => { store.set("myFeats", MY.ft); store.set("myLines", MY.lines); store.set("stopNames", MY.names); store.set("myWalk", MY.walk); store.set("myAlerts", MY.al); pushSoon(); };
 // #45 : réglage « Marche » (WALKPREF dans engine.js)
@@ -3721,12 +3720,10 @@ function renderProfile(page) {
     <div class="pcard" data-plist="trips">${fav.trips.length ? fav.trips.map(([a, b]) => { const tn = MY.names[tripKey(a, b)]; return `<div class="prow" data-pk="${esc(tripKey(a, b))}"><span class="grip" aria-label="Déplacer">${grip}</span><span class="pn"><b>${esc(tn || (MY.names[a] || a) + " → " + (MY.names[b] || b))}</b>${tn ? `<small>${esc(a)} → ${esc(b)}</small>` : ""}</span><button type="button" class="pact" data-pa="ren" aria-label="Renommer">${penSvg}</button><button type="button" class="pact" data-pa="del" aria-label="Supprimer">${xSvg}</button></div>`; }).join("") : `<div class="prow"><span class="pn"><small>Enregistrez un trajet depuis l'onglet Itinéraire.</small></span></div>`}</div>
     <h3>Mes lignes</h3>
     <div class="pcard plines">${groups.map(([m, f]) => { const ids = net.R.map((r, i) => [r, i]).filter(([r, i]) => f(r) && shownR(i)).map(([, i]) => i); return `<div class="plg">${modeIcon(m)}${ids.map((i) => `<button type="button" class="plb" data-myl="${i}" aria-pressed="${MY.lines.includes(i)}">${badge(i, "sm", true)}</button>`).join("")}</div>`; }).join("")}</div>
-    <p class="pnote">En premier dans Info trafic et Lignes & plans.</p>
     <h3>Itinéraires</h3>
     <div class="pcard">
       <div class="prow"><span class="pn"><b>Marche</b><small>${WALK_TXT[MY.walk] || WALK_TXT.normal}</small><span class="seg alseg">${WALK_SEG.map(([k, t]) => `<button type="button" data-walk="${k}" aria-pressed="${(MY.walk || "normal") === k}">${t}</button>`).join("")}</span></span></div>
     </div>
-    <p class="pnote">« Le moins possible » écarte les trajets qui marchent beaucoup pour gagner une minute.</p>
     <h3>Mes alertes</h3>
     ${alPushCard()}
     <div class="pcard">
@@ -3740,10 +3737,9 @@ function renderProfile(page) {
     <div class="pcard">
       <div class="prow"><span class="pn"><b>Pas d'alerte la nuit</b><small>De <select class="psel" data-alq="qFrom">${qOpts(MY.al.qFrom, 20, 24)}</select> à <select class="psel" data-alq="qTo">${qOpts(MY.al.qTo, 5, 10)}</select></small><small style="display:block;margin-top:4px">Sauf dernier bus et vos bus</small></span>${tg("quiet")}</div>
     </div>
-    <p class="pnote">${alPushOn() ? "Un service garde un identifiant anonyme, ces réglages et, quelques semaines, le fait qu'une alerte a bien été reçue ; tout est effacé si vous coupez." : "Sans activation : appli ouverte seulement."}</p>
+    ${alPushOn() ? `<p class="pnote">Un service garde un identifiant anonyme, ces réglages et, quelques semaines, le fait qu'une alerte a bien été reçue ; tout est effacé si vous coupez.</p>` : ""}
     <h3>Fonctionnalités</h3>
-    ${FEATS.map(([cat, list]) => `<div class="pcat">${cat}</div><div class="pcard">${list.map(([k, t, d]) => `<div class="prow"><span class="pn"><b>${t}</b><small>${d}</small></span><button type="button" class="tg" data-ft="${k}" aria-pressed="${feat(k)}" aria-label="Activer"></button></div>`).join("")}</div>`).join("")}
-    <p class="pnote">Toutes actives au départ.</p>`;
+    ${FEATS.map(([cat, list]) => `<div class="pcat">${cat}</div><div class="pcard">${list.map(([k, t]) => `<div class="prow"><span class="pn"><b>${t}</b></span><button type="button" class="tg" data-ft="${k}" aria-pressed="${feat(k)}" aria-label="Activer"></button></div>`).join("")}</div>`).join("")}`;
   $("#prof-x").onclick = () => el.classList.remove("on");
   el.querySelectorAll("[data-pg]").forEach((b) => b.onclick = () => renderProfile(b.dataset.pg));
   el.querySelectorAll("[data-myl]").forEach((b) => b.onclick = () => { const i = +b.dataset.myl; MY.lines = MY.lines.includes(i) ? MY.lines.filter((x) => x !== i) : [...MY.lines, i]; saveMy(); b.setAttribute("aria-pressed", MY.lines.includes(i)); buildGrid(); if (S.view === "trafic") renderTrafic(); });
