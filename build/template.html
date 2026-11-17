@@ -405,9 +405,10 @@ table.tt td.live.late { color: var(--late); }
 .gpsdot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--gps); margin-right: 6px; vertical-align: 1px; }
 /* Mon bus : haut fixe (en-tête, alertes, carte « Prochain arrêt ») et plein écran */
 .mbtop { position: sticky; top: 0; z-index: 5; background: var(--surface); margin: -6px -16px 0; padding: 6px 16px 8px; display: flex; flex-direction: column; gap: 12px; }
-/* 17 nov. : Safari combine touch-action avec celui des parents : un parent en « none » empêchait la liste des
-   correspondances (.crs, pan-y) de défiler. Les deux parents de la liste sont en pan-y, tout le reste du haut en none. */
-@media (max-width: 760px) { .mbtop, #mb-hero { touch-action: pan-y; } .mbtop > :not(#mb-hero), #mb-hero > :not(.crs) { touch-action: none; } }
+/* 17 nov. (2) : le haut de Mon bus reste sans geste natif, liste des correspondances comprise : sur iPhone, le
+   défilement natif d'une liste dans ce haut collant faisait clignoter l'écran entre le suivi et le plan. La liste
+   défile à la main (crsScroll), le reste du haut fait glisser le volet. */
+@media (max-width: 760px) { .mbtop, .mbtop .crs { touch-action: none; } }
 #fo-close { display: none; }
 @media (max-width: 899px) {
   body.mbfull .sheet { top: 0 !important; bottom: 0; z-index: 30; border-radius: 0; padding-top: var(--sat); transition: none; }
@@ -686,7 +687,7 @@ body.p32cover .sheet { border-radius: 0; box-shadow: none; }
 @keyframes wave { 0% { transform: scale(.35); opacity: .7; } 100% { transform: scale(1.25); opacity: 0; } }
 /* 17 nov. : liste bornée à ~4,5 lignes et qui défile seule (sinon, à un pôle de 18 correspondances, le haut fixe
    sortait de l'écran sans pouvoir descendre) ; pan-y ici, car .mbtop est en touch-action: none sur téléphone */
-.crs { border: 1px solid var(--rule); border-radius: 14px; overflow: hidden auto; margin-top: 8px; max-height: min(198px, 34vh); overscroll-behavior: contain; touch-action: pan-y; -webkit-overflow-scrolling: touch; }
+.crs { border: 1px solid var(--rule); border-radius: 14px; overflow: hidden auto; margin-top: 8px; max-height: min(198px, 34vh); overscroll-behavior: contain; }
 .cr { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; padding: 9px 12px; border-top: 1px solid var(--rule); }
 .cr:first-child { border-top: 0; }
 .cr .d { font-weight: 600; font-size: var(--fs-m); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -1621,6 +1622,35 @@ let sheetDragBind = () => {};
   sheetDragBind = (el) => bind(el, false);
   $("#grab").addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSheet(sheetState === "full" ? "half" : "full"); } });
   window.addEventListener("resize", () => { if (isMobile()) setSheet(sheetState, true); else { sheet.style.top = ""; sheet.style.transform = ""; } });
+})();
+
+// 17 nov. (2) : liste des correspondances de Mon bus, défilée au doigt par le script (pas de défilement natif dans
+// le haut collant : sur iPhone il se propageait au volet et à la page, d'où un clignotement entre suivi et plan).
+// La liste peut être reconstruite pendant le geste (#mb-hero), on la relit donc à chaque mouvement.
+let crsRaf = 0;
+(function crsScroll() {
+  let g = null;
+  const list = () => $("#mb-hero .crs");
+  document.addEventListener("pointerdown", (e) => {
+    if (e.pointerType === "mouse") return; // à la souris : molette et barre de défilement natives
+    const sc = e.target.closest("#mb-top .crs"); if (!sc || sc.scrollHeight <= sc.clientHeight + 2) return;
+    cancelAnimationFrame(crsRaf);
+    const t = performance.now(); g = { id: e.pointerId, y: e.clientY, top: sc.scrollTop, ly: e.clientY, lt: t, v: 0 };
+  }, { passive: true });
+  document.addEventListener("pointermove", (e) => {
+    if (!g || e.pointerId !== g.id) return; const sc = list(); if (!sc) return;
+    sc.scrollTop = g.top - (e.clientY - g.y);
+    const t = performance.now(), dt = t - g.lt; if (dt > 0) { g.v = 0.7 * ((g.ly - e.clientY) / dt) + 0.3 * g.v; g.ly = e.clientY; g.lt = t; }
+  }, { passive: true });
+  const end = (e) => {
+    if (!g || e.pointerId !== g.id) return;
+    let v = performance.now() - g.lt > 80 ? 0 : g.v; g = null; // doigt arrêté avant de lever : pas d'élan
+    if (RM.matches || Math.abs(v) < 0.15) return;
+    let last = performance.now();
+    const step = (t) => { const sc = list(); if (!sc) return; const dt = Math.min(32, t - last); last = t; sc.scrollTop += v * dt; v *= Math.pow(0.995, dt); if (Math.abs(v) > 0.02) crsRaf = requestAnimationFrame(step); };
+    crsRaf = requestAnimationFrame(step);
+  };
+  document.addEventListener("pointerup", end); document.addEventListener("pointercancel", end);
 })();
 
 // #44 : clavier du téléphone. `html, body` sont en `overflow: hidden` et `height: 100%`, donc figés sur la
