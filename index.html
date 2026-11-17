@@ -686,7 +686,7 @@ body.p32cover .sheet { border-radius: 0; box-shadow: none; }
 /* 17 nov. : liste bornée à ~4,5 lignes et qui défile seule (sinon, à un pôle de 18 correspondances, le haut fixe
    sortait de l'écran sans pouvoir descendre) ; pan-y ici, car .mbtop est en touch-action: none sur téléphone */
 .crs { border: 1px solid var(--rule); border-radius: 14px; overflow: hidden auto; margin-top: 8px; max-height: min(198px, 34vh); overscroll-behavior: contain; touch-action: pan-y; -webkit-overflow-scrolling: touch; }
-.cr { display: grid; grid-template-columns: auto 1fr auto; gap: 7px; align-items: center; padding: 9px 12px; border-top: 1px solid var(--rule); }
+.cr { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; padding: 9px 12px; border-top: 1px solid var(--rule); }
 .cr:first-child { border-top: 0; }
 .cr .d { font-weight: 600; font-size: var(--fs-m); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cr .w { display: flex; gap: 6px; align-items: center; }
@@ -856,6 +856,9 @@ body.p32cover .sheet { border-radius: 0; box-shadow: none; }
 .sc28.anim .chip28 { animation: l28f .35s ease 4.7s both; }
 @media (prefers-reduced-motion: reduce) { .sc28.anim * { animation-duration: 0s !important; animation-delay: 0s !important; } }
 #mb-sc:empty { display: none; }
+/* 17 nov. : les emplacements vides du haut de Mon bus (guidage, bandeau, « par où descendre ») prenaient chacun
+   un écart de 12 px (gap du flex) : jusqu'à 48 px de vide entre l'en-tête et la carte « Arrivée imminente » */
+#gd-card:empty, #mb-banner:empty, #mb-pd:empty { display: none; }
 #mb-sc { margin: 0 -16px; display: grid; grid-template-rows: 0fr; opacity: 0; transform: translateY(-10px); transition: grid-template-rows .5s cubic-bezier(.2,.7,.2,1), opacity .4s ease, transform .5s cubic-bezier(.2,.7,.2,1); cursor: pointer; }
 #mb-sc.open { grid-template-rows: 1fr; opacity: 1; transform: none; }
 /* pendant l'encart, la carte « Arrivée imminente / À l'arrêt » (redondante) se replie */
@@ -3149,7 +3152,7 @@ function connsDir(par, t, exclR) {
 }
 const connChipsDir = (cs) => cs.map((c) => `<span class="cx cxd">${badge(c.r, "sm", true)}<span class="cd">${esc(c.h)}</span><b>${waitLabel(c.x.t, true)}</b></span>`).join("");
 const connChips = (cs) => cs.map((G) => `<span class="cx">${badge(G.r, "sm", true)}<b>${waitLabel(G.list[0].t, true)}</b></span>`).join("");
-const connRows = (cs) => cs.map((G) => `<div class="cr">${badge(G.r)}<span class="d">→\u202f${esc(G.h)}</span><span class="w">${dot(G.list[0].live)}<b>${waitLabel(G.list[0].t, true)}</b>${G.list[1] ? `<small>${waitLabel(G.list[1].t, true)}</small>` : ""}</span></div>`).join("");
+const connRows = (cs) => cs.map((G) => `<div class="cr">${badge(G.r)}<span class="d">→ ${esc(G.h)}</span><span class="w">${dot(G.list[0].live)}<b>${waitLabel(G.list[0].t, true)}</b>${G.list[1] ? `<small>${waitLabel(G.list[1].t, true)}</small>` : ""}</span></div>`).join("");
 const connCards = (cs) => cs.slice(0, 3).map((G) => `<div class="tc">${badge(G.r)}<b>${waitLabel(G.list[0].t, true)}</b><small>→ ${esc(G.h)}</small></div>`).join("");
 
 // --- rendu du suivi (structure construite une fois, puis mise à jour chaque seconde) ---
