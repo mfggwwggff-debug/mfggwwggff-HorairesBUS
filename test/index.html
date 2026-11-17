@@ -749,9 +749,9 @@ body.p32cover .sheet { border-radius: 0; box-shadow: none; }
 .mbr.prov .nd { border-style: dashed; border-width: 3px; width: 18px; height: 18px; }
 .mbr.prov .nd::after { content: ""; position: absolute; inset: 0; margin: auto; width: 6px; height: 6px; border-radius: 50%; background: var(--alert); }
 .mbr.prov.dest .nd::after { display: none; }
+.mbr.prov .nmt { color: var(--accent-strong); }
 .mbr .t small { display: block; font: 500 var(--fs-xs)/1.3 var(--font-body); color: var(--muted); }
 .tagx.pv { background: color-mix(in srgb, var(--alert) 14%, var(--surface)); color: var(--accent-strong); border: 1px solid color-mix(in srgb, var(--alert) 40%, var(--surface)); }
-.mbr .devn { font-size: var(--fs-s); font-weight: 600; color: var(--accent-strong); white-space: nowrap; margin-right: 4px; }
 .mbdev { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 9px 12px; border-radius: 12px; border: 1px solid color-mix(in srgb, var(--alert) 40%, var(--rule)); background: color-mix(in srgb, var(--alert) 7%, var(--surface)); color: var(--ink); font-size: var(--fs-m); }
 .mbdev .dvi { color: var(--accent-strong); display: flex; }
 .mbdev .dvx { flex: 1; min-width: 0; display: flex; flex-direction: column; } .mbdev .dvx small { color: var(--muted); font-size: var(--fs-s); }
@@ -3228,7 +3228,7 @@ function renderFollow() {
           ${MB.devOpen ? dv.rec.skip.map((x) => `<div class="sk"><s>${esc(x.n)}</s>${x.rep ? `<small>Reporté à ${esc(x.rep)}</small>` : ""}</div>`).join("") + `<button type="button" class="linkbtn" data-devtr="${esc(dv.rec.info)}:${p.r}">Voir l'info trafic ${chevR}</button>` : ""}</div>` : ""}
         ${p.stops.slice(MB.first).map((q, j) => { const i = MB.first + j, pv = dv && dv.prov.has(i); return `<button type="button" class="mbr${pv ? " prov" : ""}" data-i="${i}" style="top:${rowT(i)}px" aria-label="${dest === i ? "Ne plus marquer" : "Marquer comme arrêt de descente"} : ${esc(qName(q))}${pv ? " (arrêt provisoire)" : ""}">
           <span class="t">${hm(i === 0 ? st.dp(0) : st.at(i))}${pv ? "<small>estimé</small>" : ""}</span><span class="nd"></span>
-          <span class="nm"><span class="n1"><span class="nmt">${esc(qName(q))}</span>${pv ? `<span class="tagx pv">PROVISOIRE</span>` : ""}${from === i ? `<span class="tagx up">JE MONTE</span>` : ""}${dest === i ? `<span class="tagx">JE DESCENDS</span>` : ""}</span><span class="cxs" data-cx="${i}"></span></span></button>`; }).join("")}
+          <span class="nm"><span class="n1"><span class="nmt">${esc(qName(q))}</span>${from === i ? `<span class="tagx up">JE MONTE</span>` : ""}${dest === i ? `<span class="tagx">JE DESCENDS</span>` : ""}</span><span class="cxs" data-cx="${i}"></span></span></button>`; }).join("")}
         <div class="mbt-go hide" id="mb-go"></div>
         <div class="mbt-bus" id="mb-bus" style="background:${R.c}">${busPicto(R.t, p.r)}</div>
       </div>
@@ -3239,7 +3239,7 @@ function renderFollow() {
     $("#fo-back").onclick = () => go(S.guide ? "itineraire" : S.prevView && !["suivi"].includes(S.prevView) ? S.prevView : "accueil");
     el.querySelectorAll(".mbr").forEach((b) => b.onclick = () => { if (S.guide) return; const i = +b.dataset.i; if (S.follow.from != null && i <= S.follow.from) { toast("Choisissez un arrêt après votre arrêt de montée", 2500); return; } S.follow.dest = S.follow.dest === i ? null : i; if (S.follow.dest != null) askNotify(); renderFollow(); drawMap(); });
     // badges des correspondances (statiques), les temps sont ajoutés pour l'arrêt suivant et la descente
-    el.querySelectorAll("[data-cx]").forEach((c) => { const i = +c.dataset.cx; const rs = net.pRoutes[net.Q[p.stops[i]][0]].filter((r) => r !== p.r); c.dataset.base = (dv && i === gA ? `<span class="devn">Début de la déviation</span>` : dv && i === dv.i1 ? `<span class="devn">Fin de la déviation</span>` : "") + rs.slice(0, 7).map((r) => badge(r, "sm", true)).join(""); c.innerHTML = c.dataset.base; });
+    el.querySelectorAll("[data-cx]").forEach((c) => { const i = +c.dataset.cx; const rs = net.pRoutes[net.Q[p.stops[i]][0]].filter((r) => r !== p.r); c.dataset.base = rs.slice(0, 7).map((r) => badge(r, "sm", true)).join(""); c.innerHTML = c.dataset.base; });
     MB.key = key;
   }
   // --- mise à jour ---
