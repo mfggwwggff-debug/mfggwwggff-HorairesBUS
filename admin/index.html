@@ -591,6 +591,7 @@ async function dvLoad() {
     const auto = d.devs || [], ids = new Set(auto.map((x) => x.id));
     DV.list = [...auto, ...[...DV.ov.values()].filter((o) => o.st === "new" && !ids.has(o.id) && o.r).map((o) => ({ ...o, manual: true }))];
     if (!DV.D) DV.D = await (await fetch("../build/data.json", { cache: "force-cache" })).json();
+    if (!DV.S) DV.S = await dvStopsAll();
     dvList();
   } catch (e) { $("dv-list").textContent = "Impossible de lire les déviations : " + e.message; }
 }
@@ -603,6 +604,15 @@ function dvList() {
     return `<button type="button" class="dvi${DV.G && DV.G.info === d.info && DV.G.r === d.r ? " on" : ""}" data-dv="${esc(d.id)}"><b>${dvLine(d.r)} ${esc(d.t)}</b><small>${esc(dvWhen(d))}</small><span class="st ${w[0]}">${w[1]}</span></button>`; }).join("") || `<p class="sub">Aucune déviation dans l'info trafic.</p>`;
   $("dv-list").querySelectorAll("[data-dv]").forEach((b) => b.onclick = () => dvOpen(b.dataset.dv));
   const nAuto = DV.list.filter((d) => dvSt(d)[0] === "auto").length; $("tb-dev").textContent = nAuto ? String(nAuto) : ""; $("tb-dev").title = nAuto ? nAuto + " tracé(s) à vérifier" : "";
+}
+// tous les arrêts du GTFS (arrets-gtfs.json, même sans ligne), avec les lignes qui les desservent
+async function dvStopsAll() {
+  const D = DV.D, lines = new Map();
+  for (const [r, , , , stops] of D.PAT) for (const q of stops) { const id = D.QI[q]; if (!lines.has(id)) lines.set(id, new Set()); lines.get(id).add(D.R[r].s); }
+  let s = null;
+  try { s = (await (await fetch("../arrets-gtfs.json?v=" + Date.now(), { cache: "no-cache" })).json()).s; } catch {}
+  if (!s) s = D.Q.map((x, i) => [D.P[x[0]][0], x[1], x[2], 1, D.QI[i]]); // pas encore publié : arrêts desservis seulement
+  return s.map(([n, lat, lon, u, sid]) => ({ n, lat, lon, u: !!u, sid: String(sid), l: [...(lines.get(String(sid)) || [])].sort() }));
 }
 function dvShape(i) { const f = DV.D.SH[i]; if (!f) return null; const out = []; let x = 0, y = 0; for (let j = 0; j < f.length; j += 2) { x += f[j]; y += f[j + 1]; out.push([x / 1e5, y / 1e5]); } return out; }
 // parcours du GTFS (ligne, sens) : celui qui passe par a puis b, sinon celui qui a le plus de courses
@@ -687,7 +697,7 @@ function dvRender(fit) {
       `<div class="dvnone"><p>${S.off ? "La déviation de ce sens est masquée : l'appli garde les horaires habituels." : "Pas de déviation dans ce sens pour cette info."}</p><button type="button" id="dv-new">${S.off ? "Réafficher la déviation" : "Créer une déviation dans ce sens"}</button></div>`}
     <div class="dvcols"><div class="dvplan"><div class="dvk">Plan de report du réseau</div>${imgs.length ? imgs.map((u) => `<a href="${esc(u)}" target="_blank" rel="noopener"><img src="${esc(u)}" alt="Plan de report de la déviation"></a>`).join("") : `<div class="dvph">Pas de plan de report pour cette info.</div>`}</div>
     <div class="dvmapc"><div class="dvk"><span>Tracé · sens → ${esc(S.h)} <span class="sub" style="text-transform:none;letter-spacing:0;font-weight:500">(l'autre sens en clair)</span></span>${edit ? `<span class="row"><button type="button" class="plain" id="dv-road">Caler sur les rues</button><button type="button" class="plain" id="dv-addp">+ Arrêt provisoire</button></span>` : ""}</div><div id="dv-map"></div>
-    ${edit ? `<p class="sub" style="margin:6px 0 0">Glisser les points bleus ; toucher le plan pour en ajouter ; clic droit sur un point pour le retirer. Toucher un arrêt pour en faire le début ou la fin, ou le garder sur le tracé.</p>` : ""}</div></div>
+    ${edit ? `<p class="sub" style="margin:6px 0 0">Glisser les points bleus ; toucher le plan pour en ajouter ; clic droit sur un point pour le retirer. Toucher un arrêt de la ligne pour en faire le début ou la fin, ou le garder sur le tracé. Les petits ronds gris sont les autres arrêts du GTFS (en tirets : sans ligne) : les toucher pour en faire un arrêt provisoire, avec les correspondances de ses lignes.</p>` : ""}</div></div>
     ${edit ? `<div class="dvcols" style="align-items:flex-start"><div style="flex:3 1 460px;min-width:0;overflow-x:auto" id="dv-tab"></div><div class="dvest" style="flex:1 1 240px" id="dv-est"></div></div>` : ""}
     <div class="row" style="justify-content:flex-end;margin-top:14px">${S.auto && S.o ? `<button type="button" class="plain" id="dv-auto">Revenir au tracé automatique</button>` : ""}${edit ? `<button type="button" class="ghost" id="dv-off">${S.auto ? "Masquer la déviation de ce sens" : "Supprimer la déviation de ce sens"}</button><button type="button" id="dv-ok">Valider ce sens</button>` : ""}</div>`;
   $("dv-ed").querySelectorAll("[data-dir]").forEach((b) => b.onclick = () => { G.cur = +b.dataset.dir; dvRender(true); });
@@ -706,7 +716,8 @@ function dvRender(fit) {
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "© OpenStreetMap" }).addTo(DV.map);
   DV.lay = L.layerGroup().addTo(DV.map);
   if (edit) DV.map.on("click", (e) => dvAddWp([e.latlng.lng, e.latlng.lat]));
-  $("dv-map").onclick = (e) => { const b = e.target.closest("[data-act]"); if (!b) return; const [act, i] = b.dataset.act.split(":"); DV.map.closePopup(); if (act === "a" || act === "b") dvSetEnd(act, +i); else if (act === "keep") { S.keep.has(+i) ? S.keep.delete(+i) : S.keep.add(+i); S.dirty = true; dvDraw(); } };
+  $("dv-map").onclick = (e) => { const b = e.target.closest("[data-act]"); if (!b) return; const [act, i] = b.dataset.act.split(":"); DV.map.closePopup(); if (act === "a" || act === "b") dvSetEnd(act, +i); else if (act === "use") { const x = DV.vis[+i]; if (x) { S.prov.push({ n: x.n, lat: x.lat, lon: x.lon, sid: x.sid, ...(x.u ? { pole: x.n } : {}), a: x.l.length ? "arrêt des lignes " + x.l.join(", ") : "arrêt du GTFS sans ligne" }); S.dirty = true; dvDraw(); } }
+    else if (act === "keep") { S.keep.has(+i) ? S.keep.delete(+i) : S.keep.add(+i); S.dirty = true; dvDraw(); } };
   dvDraw(fit);
 }
 // nouvelle déviation dans un sens que l'info ne cite pas : par défaut, les arrêts de ce sens les plus proches du tracé de l'autre sens
@@ -790,6 +801,14 @@ function dvDraw(fit) {
     if (edit) m.bindPopup(`<b>${esc(p.nm[i])}</b><div class="dvpop">${i < S.ib ? `<button type="button" data-act="a:${i}">Début ici</button>` : ""}${i > S.ia ? `<button type="button" data-act="b:${i}">Fin ici</button>` : ""}${inside ? `<button type="button" data-act="keep:${i}">${kept ? "Non desservi" : "Desservi sur le tracé"}</button>` : ""}</div>`);
   }
   if (edit) {
+    // arrêts du GTFS autour (hors parcours affiché) : un clic pour en faire un arrêt provisoire
+    const mine = new Set(p.stops.map((q) => DV.D.QI[q]));
+    DV.vis = (DV.S || []).filter((x) => !mine.has(x.sid) && box.contains([x.lat, x.lon]));
+    DV.vis.forEach((x, k) => {
+      const m = L.circleMarker([x.lat, x.lon], { radius: x.u ? 5 : 4.5, color: x.u ? "#5b6472" : "#9aa2ad", weight: 2, dashArray: x.u ? null : "2 2", fillColor: x.u ? "#fff" : "#eef0f2", fillOpacity: 1 }).addTo(lay);
+      m.bindTooltip(x.n + (x.l.length ? " · " + x.l.join(", ") : " · sans ligne"), { direction: "top" });
+      m.bindPopup(`<b>${esc(x.n)}</b><div class="sub" style="margin:2px 0 0">${x.l.length ? "Lignes : " + esc(x.l.join(", ")) : "Arrêt du GTFS sans ligne"}</div><div class="dvpop"><button type="button" data-act="use:${k}">Utiliser comme arrêt provisoire</button></div>`);
+    });
     S.wp.forEach((w, i) => {
       const m = L.marker(ll(w), { draggable: true, icon: L.divIcon({ className: "", html: '<div class="wp"></div>', iconSize: [14, 14], iconAnchor: [7, 7] }) }).addTo(lay);
       m.on("dragend", () => { const q = m.getLatLng(); S.wp[i] = [q.lng, q.lat]; dvStraight(); dvDraw(); });
@@ -797,7 +816,7 @@ function dvDraw(fit) {
     });
     S.prov.forEach((v) => {
       const m = L.marker([v.lat, v.lon], { draggable: true, icon: L.divIcon({ className: "", html: `<div class="pv"></div><div class="pvl">${esc(v.n)}</div>`, iconSize: [22, 22], iconAnchor: [11, 11] }) }).addTo(lay);
-      m.on("dragend", () => { const q = m.getLatLng(); v.lat = q.lat; v.lon = q.lng; delete v.pole; S.dirty = true; dvDraw(); });
+      m.on("dragend", () => { const q = m.getLatLng(); v.lat = q.lat; v.lon = q.lng; delete v.pole; delete v.sid; S.dirty = true; dvDraw(); });
     });
   }
   if (fit) DV.map.fitBounds(L.latLngBounds([...sector, ...path].map(ll)).pad(0.12));

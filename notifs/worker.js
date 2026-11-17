@@ -342,7 +342,7 @@ async function admin(req, env, b, now) {
     }
     if (out.st === "off") out.off = true;
     if (Array.isArray(d.path)) { const p = d.path.map(pt).filter(Boolean).slice(0, 3000); if (p.length > 1) out.path = p; }
-    if (Array.isArray(d.prov)) out.prov = d.prov.slice(0, 40).map((v) => ({ n: clip(v.n, 60) || "Arrêt provisoire", lat: +v.lat, lon: +v.lon, a: clip(v.a, 120) || undefined, pole: clip(v.pole, 60) || undefined, keep: v.keep ? true : undefined })).filter((v) => isFinite(v.lat) && isFinite(v.lon));
+    if (Array.isArray(d.prov)) out.prov = d.prov.slice(0, 40).map((v) => ({ n: clip(v.n, 60) || "Arrêt provisoire", lat: +v.lat, lon: +v.lon, a: clip(v.a, 120) || undefined, pole: clip(v.pole, 60) || undefined, sid: clip(v.sid, 40) || undefined, keep: v.keep ? true : undefined })).filter((v) => isFinite(v.lat) && isFinite(v.lon));
     if (Array.isArray(d.legs)) out.legs = d.legs.slice(0, 41).map((x) => Math.max(0, Math.min(120, +x || 0)));
     const data = JSON.stringify(out);
     if (data.length > 150000) return json({ error: "Tracé trop long." }, 400);

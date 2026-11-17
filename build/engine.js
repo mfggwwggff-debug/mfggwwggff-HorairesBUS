@@ -80,10 +80,14 @@ function devApply(net, devs) {
         return q;
       }
     }
+    // arrêt du GTFS choisi dans admin/ (stop_id) : son quai s'il est dans les horaires
+    if (v.sid != null && net.D.QI) { const q = net.D.QI.indexOf(String(v.sid)); if (q >= 0) { const p = net.Q[q][0]; if (!net.pRoutes[p].includes(ri)) net.pRoutes[p] = [...net.pRoutes[p], ri].sort((a, b) => a - b); return q; } }
     const kk = v.n + "|" + v.lat.toFixed(4) + "|" + v.lon.toFixed(4);
     if (provKey.has(kk)) { const q = provKey.get(kk), p = net.Q[q][0]; if (!net.pRoutes[p].includes(ri)) net.pRoutes[p].push(ri); return q; }
     // même nom à deux pas (l'autre sens, en face) : un seul arrêt, deux quais
+    // ou un arrêt du réseau du même nom tout près (quai du GTFS sans ligne) : correspondances avec ses lignes
     let pIdx = [...net.provP.keys()].find((i) => net.P[i][0] === v.n && dM(net.P[i][1], net.P[i][2], v.lat, v.lon) < 150);
+    if (pIdx == null) { const j = net.P.findIndex((p) => p[0] === v.n && dM(p[1], p[2], v.lat, v.lon) < 150); if (j >= 0) pIdx = j; }
     const q = net.Q.length;
     if (pIdx != null) { net.P[pIdx][3].push(q); if (!net.pRoutes[pIdx].includes(ri)) net.pRoutes[pIdx].push(ri); }
     else { pIdx = net.P.length; net.P.push([v.n, v.lat, v.lon, [q]]); net.pRoutes.push([ri]); }
