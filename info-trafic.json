@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-17T12:05:31Z",
+ "at": "2026-11-17T12:55:31Z",
  "items": [
   {
    "id": "aba75f03db",
@@ -489,40 +489,6 @@
    ]
   },
   {
-   "id": "f8feabe17f",
-   "t": "Horaires en temps réel Kif&go en dysfonctionnement",
-   "lines": [],
-   "p": "",
-   "start": null,
-   "end": null,
-   "b": [
-    {
-     "r": [
-      [
-       "Nous vous invitons à consulter les horaires en temps réel sur notre site internet",
-       0
-      ]
-     ]
-    }
-   ],
-   "rt": true,
-   "sec": "temps reel",
-   "since": "2026-11-11",
-   "c": {
-    "effets": [
-     "technique"
-    ],
-    "grav": "genant",
-    "niv": 2,
-    "pastille": true,
-    "nat": "perturbation",
-    "cond": false,
-    "portee": "aucune",
-    "sur": true
-   },
-   "st": []
-  },
-  {
    "id": "16eb3530f2",
    "t": "En raison de contraintes d'exploitation, certains départs ne sont pas assurés aujourd'hui :",
    "lines": [
@@ -594,6 +560,40 @@
      "Fac des Sciences"
     ]
    ]
+  },
+  {
+   "id": "f8feabe17f",
+   "t": "Horaires en temps réel Kif&go en dysfonctionnement",
+   "lines": [],
+   "p": "",
+   "start": null,
+   "end": null,
+   "b": [
+    {
+     "r": [
+      [
+       "Nous vous invitons à consulter les horaires en temps réel sur notre site internet",
+       0
+      ]
+     ]
+    }
+   ],
+   "rt": true,
+   "sec": "temps reel",
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "technique"
+    ],
+    "grav": "genant",
+    "niv": 2,
+    "pastille": true,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "aucune",
+    "sur": true
+   },
+   "st": []
   },
   {
    "id": "f2cfc03dd2",
