@@ -664,6 +664,7 @@ function dvSide(G, dir) {
 }
 const dvA = (S) => S.ia >= 0 ? S.p.pts[S.ia] : null, dvB = (S) => S.ib < S.p.nm.length ? S.p.pts[S.ib] : null;
 function dvOpen(id) {
+  DV.view = null;
   const d = DV.list.find((x) => x.id === id); if (!d) return;
   const G = { info: d.info, r: d.r, t: d.t, days: d.days, from: d.from ?? null, to: d.to ?? null, cur: d.dir, S: {} };
   for (const dir of [0, 1]) { const S = dvSide(G, dir); if (S) G.S[dir] = S; }
@@ -675,6 +676,10 @@ function dvRender(fit) {
   const stOf = (x) => !x.exists ? ["off", "pas de déviation"] : x.off ? ["off", "masquée"] : x.dv && x.dv.manual ? ["main", "ajoutée à la main"] : x.o && x.o.st === "main" ? ["main", "corrigé"] : x.o && x.o.st === "ok" ? ["ok", "validé"] : ["auto", "à vérifier"];
   const n = S.p.nm.length, opt = (i, sel) => `<option value="${i}"${i === sel ? " selected" : ""}>${esc(S.p.nm[i])}</option>`;
   const edit = S.exists && !S.off;
+  // le plan est recréé : on garde sa vue (sinon, sans cadrage, Leaflet reste gris et ne répond plus)
+  let view = null;
+  if (DV.map) { try { view = { c: DV.map.getCenter(), z: DV.map.getZoom() }; } catch {} try { DV.map.remove(); } catch {} DV.map = null; }
+  if (view) DV.view = view;
   $("dv-ed").innerHTML = `<div class="row" style="gap:10px">${dvLine(G.r)}<b style="font-size:18px">${esc(G.t)}</b><span class="sub" style="margin:0">${esc(dvWhen(S.dv || DV.list.find((x) => x.info === G.info && x.r === G.r)))}</span></div>
     <div class="dvtabs" role="tablist" aria-label="Sens">${[0, 1].filter((k) => G.S[k]).map((k) => `<button type="button" role="tab" aria-selected="${k === G.cur}" data-dir="${k}">→ ${esc(G.S[k].h)} <span class="st ${stOf(G.S[k])[0]}">${stOf(G.S[k])[1]}</span></button>`).join("")}</div>
     ${edit ? `<div class="dvab"><label>Début de la déviation <small>dernier arrêt desservi avant</small><select id="dv-a"><option value="-1"${S.ia < 0 ? " selected" : ""}>(aucun : départ d'un arrêt provisoire)</option>${S.p.nm.map((_, i) => i < S.ib ? opt(i, S.ia) : "").join("")}</select></label>
@@ -696,8 +701,8 @@ function dvRender(fit) {
   } else if ($("dv-new")) $("dv-new").onclick = () => S.off ? dvDelete(null) : dvCreate();
   if ($("dv-auto")) $("dv-auto").onclick = () => dvDelete("Revenir au tracé et aux arrêts calculés automatiquement pour ce sens ?");
   if (!window.L) { setTimeout(() => dvRender(fit), 400); return; }
-  if (DV.map) { DV.map.remove(); DV.map = null; }
   DV.map = L.map("dv-map", { zoomControl: true });
+  if (!fit && DV.view) DV.map.setView(DV.view.c, DV.view.z); else fit = true;
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "© OpenStreetMap" }).addTo(DV.map);
   DV.lay = L.layerGroup().addTo(DV.map);
   if (edit) DV.map.on("click", (e) => dvAddWp([e.latlng.lng, e.latlng.lat]));
