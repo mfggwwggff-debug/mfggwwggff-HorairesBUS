@@ -3807,6 +3807,56 @@
     "nat": "perturbation",
     "portee": "ligne"
    }
+  },
+  "055e4c1b08|C,O1,O2,U1,U2,U20,U21,U22,U23,U24,U3,U4,U6,U7,U8,U9": {
+   "vu": "2026-11-17",
+   "t": "Manifestation en cours au centre ville, votre bus effectue une déviation",
+   "p": "",
+   "lines": [
+    "C",
+    "O1",
+    "O2",
+    "U1",
+    "U2",
+    "U20",
+    "U21",
+    "U22",
+    "U23",
+    "U24",
+    "U3",
+    "U4",
+    "U6",
+    "U7",
+    "U8",
+    "U9"
+   ],
+   "rt": true,
+   "b": [],
+   "auto": {
+    "grav": "genant",
+    "nat": "perturbation",
+    "portee": "lignes",
+    "sur": true
+   },
+   "attendu": null
+  },
+  "09d22d709c|C,U1": {
+   "vu": "2026-11-17",
+   "t": "Manifestation en cours, votre bus est dévié secteur Bd de la Paix",
+   "p": "",
+   "lines": [
+    "C",
+    "U1"
+   ],
+   "rt": true,
+   "b": [],
+   "auto": {
+    "grav": "genant",
+    "nat": "perturbation",
+    "portee": "lignes",
+    "sur": true
+   },
+   "attendu": null
   }
  }
 }
