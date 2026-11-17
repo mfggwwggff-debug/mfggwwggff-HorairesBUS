@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-17T16:55:24Z",
+ "at": "2026-11-17T17:00:25Z",
  "items": [
   {
    "id": "aba75f03db",
@@ -493,7 +493,8 @@
    "t": "Accident de la circulation",
    "lines": [
     "T1",
-    "T2"
+    "T2",
+    "U21"
    ],
    "p": "",
    "start": null,
@@ -506,6 +507,14 @@
        0
       ]
      ]
+    },
+    {
+     "r": [
+      [
+       "U21 ne dessert pas l'arrêt Polyclinique dans les 2 sens",
+       0
+      ]
+     ]
     }
    ],
    "rt": true,
@@ -514,7 +523,8 @@
    "c": {
     "effets": [
      "blocage",
-     "nouveaute"
+     "nouveaute",
+     "deviation"
     ],
     "grav": "genant",
     "niv": 2,
