@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-16T18:25:25Z",
+ "at": "2026-11-17T04:49:17Z",
  "items": [
   {
    "id": "aba75f03db",
@@ -1121,12 +1121,12 @@
     "nat": "perturbation",
     "cond": false,
     "portee": "ligne",
-    "sur": false
+    "sur": true
    },
    "st": [
     [
      "TRESLON",
-     null
+     "Treslon"
     ]
    ]
   },
