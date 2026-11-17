@@ -3857,6 +3857,33 @@
     "sur": true
    },
    "attendu": null
+  },
+  "23a08383c2|T1,T2": {
+   "vu": "2026-11-17",
+   "t": "Accident de la circulation",
+   "p": "",
+   "lines": [
+    "T1",
+    "T2"
+   ],
+   "rt": true,
+   "b": [
+    {
+     "r": [
+      [
+       "Les arrêts Polyclinique et Bezannes tgv sont desservis par un bus de substitution",
+       0
+      ]
+     ]
+    }
+   ],
+   "auto": {
+    "grav": "genant",
+    "nat": "perturbation",
+    "portee": "lignes",
+    "sur": true
+   },
+   "attendu": null
   }
  }
 }
