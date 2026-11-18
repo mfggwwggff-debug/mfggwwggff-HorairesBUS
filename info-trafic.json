@@ -1,7 +1,118 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-18T09:44:44Z",
+ "at": "2026-11-18T10:55:21Z",
  "items": [
+  {
+   "id": "d94ce9c029",
+   "t": "Report de l'arrêt Muette",
+   "lines": [
+    "U24"
+   ],
+   "p": "A partir du lundi 23 novembre 2026 jusqu'au jeudi 31 décembre 2026",
+   "start": "2026-11-23",
+   "end": "2026-12-31",
+   "b": [
+    {
+     "l": "U24",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "MUETTE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "RENAULT",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "80 mètres avant l'arrêt, au 3 rue du Jardin Petit",
+       1
+      ]
+     ],
+     "geo": {
+      "lat": 49.226363,
+      "lon": 3.986161,
+      "a": "80 mètres avant l'arrêt, au 3 rue du Jardin Petit",
+      "k": "rue du Jardin Petit|MUETTE"
+     }
+    },
+    {
+     "l": "U24",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "MUETTE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "SAINT-BRICE MAIRIE",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "80 mètres avant l'arrêt, au 3 rue du Jardin Petit",
+       1
+      ]
+     ],
+     "geo": {
+      "lat": 49.226363,
+      "lon": 3.986161,
+      "a": "80 mètres avant l'arrêt, au 3 rue du Jardin Petit",
+      "k": "rue du Jardin Petit|MUETTE"
+     }
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne",
+   "since": "2026-11-18",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": [
+    [
+     "MUETTE",
+     "Muette"
+    ]
+   ]
+  },
   {
    "id": "aba75f03db",
    "t": "Corrida de Cormontreuil",
@@ -742,6 +853,80 @@
    "st": []
   },
   {
+   "id": "e7810d9a3b",
+   "t": "Report de l'arrêt Stade de Muire vers P+R Thillois",
+   "lines": [
+    "U1"
+   ],
+   "p": "A partir du lundi 16 novembre 2026 jusqu'au lundi 30 novembre 2026",
+   "start": "2026-11-16",
+   "end": "2026-11-30",
+   "b": [
+    {
+     "l": "U1",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "STADE DE MUIRE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "P+R THILLOIS",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt ISLE DE FRANCE",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne",
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": [
+    [
+     "STADE DE MUIRE",
+     "Stade de Muire"
+    ],
+    [
+     "arrêt ISLE DE FRANCE",
+     "Isle de France"
+    ]
+   ]
+  },
+  {
    "id": "f2cfc03dd2",
    "t": "Travaux rue Gabriel Voisin",
    "lines": [
@@ -951,80 +1136,6 @@
     [
      "arrêt PARC EXPOSITIONS de la ligne U6 vers Gare Centre",
      "Parc Expositions"
-    ]
-   ]
-  },
-  {
-   "id": "e7810d9a3b",
-   "t": "Report de l'arrêt Stade de Muire vers P+R Thillois",
-   "lines": [
-    "U1"
-   ],
-   "p": "A partir du lundi 16 novembre 2026 jusqu'au lundi 30 novembre 2026",
-   "start": "2026-11-16",
-   "end": "2026-11-30",
-   "b": [
-    {
-     "l": "U1",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "STADE DE MUIRE",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "P+R THILLOIS",
-       1
-      ],
-      [
-       " est reporté à l'",
-       0
-      ],
-      [
-       "arrêt ISLE DE FRANCE",
-       1
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne",
-   "since": "2026-11-11",
-   "c": {
-    "effets": [
-     "deplacement"
-    ],
-    "grav": "mineur",
-    "niv": 1,
-    "pastille": false,
-    "nat": "perturbation",
-    "cond": false,
-    "portee": "ligne",
-    "sur": true
-   },
-   "st": [
-    [
-     "STADE DE MUIRE",
-     "Stade de Muire"
-    ],
-    [
-     "arrêt ISLE DE FRANCE",
-     "Isle de France"
     ]
    ]
   },
@@ -2541,6 +2652,106 @@
    ]
   },
   {
+   "id": "f118b20ae9",
+   "t": "Report de l'arrêt D'Orves vers C.C Cormontreuil",
+   "lines": [
+    "O2",
+    "U5"
+   ],
+   "p": "A partir du lundi 28 septembre 2026 jusqu'au jeudi 31 décembre 2026",
+   "start": "2026-09-28",
+   "end": "2026-12-31",
+   "b": [
+    {
+     "l": "O2",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "D'ORVES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "C.C. CORMONTREUIL",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "200 mètres avant, face au 61 Bld du Président Wilson (ancien arrêt de la ligne 2)",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U5",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "D'ORVES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "PARC DES EXPOSITIONS",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "200 mètres avant, face au 61 Bld du Président Wilson (ancien arrêt de la ligne 2)",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne",
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "lignes",
+    "sur": true
+   },
+   "st": [
+    [
+     "D'ORVES",
+     "D'Orves"
+    ]
+   ]
+  },
+  {
    "id": "f168938f84",
    "t": "Report des arrêts Alexandre 1er",
    "lines": [
@@ -2648,106 +2859,6 @@
     [
      "ALEXANDRE 1ER",
      "Alexandre 1er"
-    ]
-   ]
-  },
-  {
-   "id": "f118b20ae9",
-   "t": "Report de l'arrêt D'Orves vers C.C Cormontreuil",
-   "lines": [
-    "O2",
-    "U5"
-   ],
-   "p": "A partir du lundi 28 septembre 2026 jusqu'au jeudi 31 décembre 2026",
-   "start": "2026-09-28",
-   "end": "2026-12-31",
-   "b": [
-    {
-     "l": "O2",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "D'ORVES",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "C.C. CORMONTREUIL",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "200 mètres avant, face au 61 Bld du Président Wilson (ancien arrêt de la ligne 2)",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "U5",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "D'ORVES",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "PARC DES EXPOSITIONS",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "200 mètres avant, face au 61 Bld du Président Wilson (ancien arrêt de la ligne 2)",
-       1
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne",
-   "since": "2026-11-11",
-   "c": {
-    "effets": [
-     "deplacement"
-    ],
-    "grav": "mineur",
-    "niv": 1,
-    "pastille": false,
-    "nat": "perturbation",
-    "cond": false,
-    "portee": "lignes",
-    "sur": true
-   },
-   "st": [
-    [
-     "D'ORVES",
-     "D'Orves"
     ]
    ]
   },

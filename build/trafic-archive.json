@@ -3920,6 +3920,88 @@
     "sur": true
    },
    "attendu": null
+  },
+  "d94ce9c029|U24": {
+   "vu": "2026-11-18",
+   "t": "Report de l'arrêt Muette",
+   "p": "A partir du lundi 23 novembre 2026 jusqu'au jeudi 31 décembre 2026",
+   "lines": [
+    "U24"
+   ],
+   "rt": false,
+   "b": [
+    {
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "MUETTE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "RENAULT",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "80 mètres avant l'arrêt, au 3 rue du Jardin Petit",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "MUETTE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "SAINT-BRICE MAIRIE",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "80 mètres avant l'arrêt, au 3 rue du Jardin Petit",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "auto": {
+    "grav": "mineur",
+    "nat": "perturbation",
+    "portee": "ligne",
+    "sur": true
+   },
+   "attendu": null
   }
  }
 }
