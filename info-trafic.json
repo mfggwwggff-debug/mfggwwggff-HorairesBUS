@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-18T11:55:33Z",
+ "at": "2026-11-18T14:20:32Z",
  "items": [
   {
    "id": "d94ce9c029",
@@ -1067,121 +1067,6 @@
    ]
   },
   {
-   "id": "bcf248c5c4",
-   "t": "Reports des arrêts Rethel et Thierot vers Cormontreuil Blancs Monts",
-   "lines": [
-    "U4"
-   ],
-   "p": "A partir du mardi 10 novembre 2026 jusqu'au vendredi 20 novembre 2026",
-   "start": "2026-11-10",
-   "end": "2026-11-20",
-   "b": [
-    {
-     "l": "U4",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "RETHEL",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "BLANCS MONTS",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "au 179 rue de Neufchâtel",
-       1
-      ]
-     ],
-     "geo": {
-      "lat": 49.278661,
-      "lon": 4.026916,
-      "a": "179 rue de Neufchâtel",
-      "k": "179 rue de Neufchâtel|RETHEL"
-     }
-    },
-    {
-     "l": "U4",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "THIEROT",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "BLANCS MONTS",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "au 179 rue de Neufchâtel",
-       1
-      ]
-     ],
-     "geo": {
-      "lat": 49.278661,
-      "lon": 4.026916,
-      "a": "179 rue de Neufchâtel",
-      "k": "179 rue de Neufchâtel|THIEROT"
-     }
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne",
-   "since": "2026-11-11",
-   "c": {
-    "effets": [
-     "deplacement"
-    ],
-    "grav": "mineur",
-    "niv": 1,
-    "pastille": false,
-    "nat": "perturbation",
-    "cond": false,
-    "portee": "ligne",
-    "sur": true
-   },
-   "st": [
-    [
-     "RETHEL",
-     "Rethel"
-    ],
-    [
-     "THIEROT",
-     "Thierot"
-    ]
-   ]
-  },
-  {
    "id": "e1166714f6",
    "t": "Nouveaux arrêts ESI ligne U5",
    "lines": [
@@ -1239,6 +1124,78 @@
     [
      "ESI",
      "ESI"
+    ]
+   ]
+  },
+  {
+   "id": "1539d33ccb",
+   "t": "Travaux de voirie à Treslon",
+   "lines": [
+    "E6"
+   ],
+   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 16 avril 2027",
+   "start": "2026-10-19",
+   "end": "2027-04-16",
+   "b": [
+    {
+     "l": "",
+     "r": [
+      [
+       "Forte perturbation sur les horaires de la ligne durant cette période",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "E6",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "TRESLON",
+       1
+      ],
+      [
+       " dans les deux sens est non desservi par la ligne, mais reste desservi par le",
+       0
+      ],
+      [
+       "Transport A la Demande",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne",
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "horaires",
+     "deviation"
+    ],
+    "grav": "genant",
+    "niv": 2,
+    "pastille": true,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": [
+    [
+     "TRESLON",
+     "Treslon"
     ]
    ]
   },
@@ -1351,223 +1308,6 @@
     [
      "FOLLE PEINE",
      "Folle Peine"
-    ]
-   ]
-  },
-  {
-   "id": "1539d33ccb",
-   "t": "Travaux de voirie à Treslon",
-   "lines": [
-    "E6"
-   ],
-   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 16 avril 2027",
-   "start": "2026-10-19",
-   "end": "2027-04-16",
-   "b": [
-    {
-     "l": "",
-     "r": [
-      [
-       "Forte perturbation sur les horaires de la ligne durant cette période",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "E6",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "TRESLON",
-       1
-      ],
-      [
-       " dans les deux sens est non desservi par la ligne, mais reste desservi par le",
-       0
-      ],
-      [
-       "Transport A la Demande",
-       1
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne",
-   "since": "2026-11-11",
-   "c": {
-    "effets": [
-     "horaires",
-     "deviation"
-    ],
-    "grav": "genant",
-    "niv": 2,
-    "pastille": true,
-    "nat": "perturbation",
-    "cond": false,
-    "portee": "ligne",
-    "sur": true
-   },
-   "st": [
-    [
-     "TRESLON",
-     "Treslon"
-    ]
-   ]
-  },
-  {
-   "id": "2f036d5c93",
-   "t": "Travaux rue Pierre Maître et rue de Courcelles",
-   "lines": [
-    "U7"
-   ],
-   "p": "A partir du lundi 19 octobre 2026 jusqu'au dimanche 21 février 2027",
-   "start": "2026-10-19",
-   "end": "2027-02-21",
-   "b": [
-    {
-     "l": "U7",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "VERRERIES",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "HOPITAL DEBRE",
-       1
-      ],
-      [
-       " est reporté à l'",
-       0
-      ],
-      [
-       "arrêt VERRERIES de la ligne U7 vers BOUTREAUX",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "U7",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "PONT ST BRICE",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "HOPITAL DEBRE",
-       1
-      ],
-      [
-       " est reporté à l'",
-       0
-      ],
-      [
-       "arrêt VERRERIES de la ligne U7 vers BOUTREAUX",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "U7",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "PONT ST BRICE",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "BOUTREAUX",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "au 14 rue Pierre Maitre",
-       1
-      ]
-     ],
-     "geo": {
-      "lat": 49.262776,
-      "lon": 4.005758,
-      "a": "14 rue Pierre Maitre",
-      "k": "14 rue Pierre Maitre|PONT ST BRICE"
-     }
-    },
-    {
-     "img": "https://prod.deviations.info/carte/grandreims/public/img/86603.jpg"
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne",
-   "since": "2026-11-11",
-   "c": {
-    "effets": [
-     "deplacement"
-    ],
-    "grav": "mineur",
-    "niv": 1,
-    "pastille": false,
-    "nat": "perturbation",
-    "cond": false,
-    "portee": "ligne",
-    "sur": true
-   },
-   "st": [
-    [
-     "VERRERIES",
-     "Verreries"
-    ],
-    [
-     "arrêt VERRERIES de la ligne U7 vers BOUTREAUX",
-     "Verreries"
-    ],
-    [
-     "PONT ST BRICE",
-     "Pont St Brice"
     ]
    ]
   },
@@ -1741,24 +1481,24 @@
    ]
   },
   {
-   "id": "25a156ef9e",
-   "t": "Report de l'arrêt Tinqueux Mairie vers P+R Thillois",
+   "id": "2f036d5c93",
+   "t": "Travaux rue Pierre Maître et rue de Courcelles",
    "lines": [
-    "U1"
+    "U7"
    ],
-   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 18 décembre 2026",
+   "p": "A partir du lundi 19 octobre 2026 jusqu'au dimanche 21 février 2027",
    "start": "2026-10-19",
-   "end": "2026-12-18",
+   "end": "2027-02-21",
    "b": [
     {
-     "l": "U1",
+     "l": "U7",
      "r": [
       [
        "L'arrêt ",
        0
       ],
       [
-       "TINQUEUX MAIRIE",
+       "VERRERIES",
        1
       ],
       [
@@ -1766,7 +1506,65 @@
        0
       ],
       [
-       "P+R THILLOIS",
+       "HOPITAL DEBRE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt VERRERIES de la ligne U7 vers BOUTREAUX",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U7",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "PONT ST BRICE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "HOPITAL DEBRE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt VERRERIES de la ligne U7 vers BOUTREAUX",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U7",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "PONT ST BRICE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "BOUTREAUX",
        1
       ],
       [
@@ -1774,10 +1572,19 @@
        0
       ],
       [
-       "50 mètres avant l'arrêt",
+       "au 14 rue Pierre Maitre",
        1
       ]
-     ]
+     ],
+     "geo": {
+      "lat": 49.262776,
+      "lon": 4.005758,
+      "a": "14 rue Pierre Maitre",
+      "k": "14 rue Pierre Maitre|PONT ST BRICE"
+     }
+    },
+    {
+     "img": "https://prod.deviations.info/carte/grandreims/public/img/86603.jpg"
     },
     {
      "r": [
@@ -1805,8 +1612,16 @@
    },
    "st": [
     [
-     "TINQUEUX MAIRIE",
-     "Tinqueux Mairie"
+     "VERRERIES",
+     "Verreries"
+    ],
+    [
+     "arrêt VERRERIES de la ligne U7 vers BOUTREAUX",
+     "Verreries"
+    ],
+    [
+     "PONT ST BRICE",
+     "Pont St Brice"
     ]
    ]
   },
