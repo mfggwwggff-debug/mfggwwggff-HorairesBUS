@@ -4056,6 +4056,23 @@
     "sur": true
    },
    "attendu": null
+  },
+  "7e29839e6a|U2": {
+   "vu": "2026-11-19",
+   "t": "Suite à un accident, le terminus C.C.Champfleury n'est pas desservi",
+   "p": "",
+   "lines": [
+    "U2"
+   ],
+   "rt": true,
+   "b": [],
+   "auto": {
+    "grav": "genant",
+    "nat": "perturbation",
+    "portee": "ligne",
+    "sur": true
+   },
+   "attendu": null
   }
  }
 }
