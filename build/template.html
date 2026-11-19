@@ -3385,6 +3385,10 @@ async function loadDevs() {
     devApply(net, list);
     for (let i = n0; i < net.P.length; i++) stopIdx.push({ i, n: norm(net.P[i][0]) });
     if (typeof devMapSync === "function") devMapSync();
+    // 19 nov. : le premier relevé du temps réel arrive souvent avant les déviations (chargées après l'info trafic) ;
+    // ses prévisions tombaient sur les courses d'origine, retirées du jour, et les lignes déviées (U3, U5, U7…)
+    // restaient en théorique jusqu'au relevé suivant. On réapplique tout de suite le dernier relevé.
+    if (typeof rtReapply === "function") rtReapply();
   } catch (e) { errReport(e, "devs"); }
 }
 // cause courte d'une déviation pour Mon bus : « travaux », « marché »… sinon le titre de l'info
@@ -4117,6 +4121,7 @@ async function pollRT() {
     const today = todayIdx();
     if (today < 0 || today >= net.nd) throw new Error("date hors du fichier d'horaires");
     const st = applyRT(net, feed, today, parisMidnightEpoch);
+    RT.feed = feed; RT.day = today; // gardé pour rtReapply (déviations chargées après ce relevé)
     try { trAutoDelays(); } catch (e) { errReport(e); }
     RT.ok = true; RT.at = Date.now(); RT.n = st.matched + st.kept; RT.err = ""; rtFails = 0;
     { const d = rtEl.firstElementChild; if (d) { d.style.animation = "none"; d.offsetWidth; d.style.animation = ""; } } // audit B3 : battement à chaque relevé
@@ -4137,6 +4142,16 @@ async function pollRT() {
   }
   rtLabel();
   rtTimer = setTimeout(pollRT, next);
+}
+// réapplique le dernier relevé (s'il est encore frais) une fois les déviations chargées
+function rtReapply() {
+  if (!RT.feed || !RT.ok || SIMU || RT.day !== todayIdx() || Date.now() - RT.at > 180000) return;
+  try {
+    const st = applyRT(net, RT.feed, RT.day, parisMidnightEpoch);
+    try { trAutoDelays(); } catch (e) { errReport(e); }
+    RT.n = st.matched + st.kept;
+    rtEl.title = `${st.matched} courses suivies en temps réel sur ${st.total} annoncées${st.kept ? ` (+ ${st.kept} du relevé précédent)` : ""}.`;
+  } catch (e) { errReport(e, "rt"); }
 }
 // veille : relevé en retard de plus de 50 s (boucle arrêtée, minuterie gelée par l'iPhone) → on relance
 setInterval(() => { if (!document.hidden && !SIMU && Date.now() - rtStart > 50000) pollRT(); }, 10000);

@@ -412,7 +412,10 @@ table.tt td.live.late { color: var(--late); }
 .gpsdot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--gps); margin-right: 6px; vertical-align: 1px; }
 /* Mon bus : haut fixe (en-tête, alertes, carte « Prochain arrêt ») et plein écran */
 .mbtop { position: sticky; top: 0; z-index: 5; background: var(--surface); margin: -6px -16px 0; padding: 6px 16px 8px; display: flex; flex-direction: column; gap: 12px; }
-@media (max-width: 760px) { .mbtop { touch-action: none; } }
+/* 17 nov. (2) : le haut de Mon bus reste sans geste natif, liste des correspondances comprise : sur iPhone, le
+   défilement natif d'une liste dans ce haut collant faisait clignoter l'écran entre le suivi et le plan. La liste
+   défile à la main (crsScroll), le reste du haut fait glisser le volet. */
+@media (max-width: 760px) { .mbtop, .mbtop .crs { touch-action: none; } }
 #fo-close { display: none; }
 @media (max-width: 899px) {
   body.mbfull .sheet { top: 0 !important; bottom: 0; z-index: 30; border-radius: 0; padding-top: var(--sat); transition: none; }
@@ -495,7 +498,13 @@ canvas#map:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px
 #prof .habw.off .hab { opacity: .55; }
 #prof .tg.sm { width: 40px; height: 24px; }
 #prof .tg.sm::after { width: 18px; height: 18px; }
-#prof .tg.sm[aria-pressed="true"]::after { left: 19px; }
+#prof .tg.sm[aria-pressed="true"]::after { transform: translateX(16px); } /* 17 nov. : left 19px + translateX(18px) du grand interrupteur faisait sortir le rond */
+/* 17 nov. : interrupteur général en haut à droite, à côté du titre ; la liste des bus prend toute la largeur dessous,
+   leurs interrupteurs alignés sur le bord droit de celui du titre */
+#prof .prow.habrow { flex-wrap: wrap; align-items: flex-start; }
+#prof .prow.habrow > .tg { margin-top: 2px; }
+#prof .prow.habrow > .habs { flex: 0 0 100%; margin-top: 2px; }
+#prof .habw > .tg.sm { margin-right: 3px; }
 #prof .hadd { border: 0; background: none; color: var(--accent-strong); font: inherit; font-weight: 600; font-size: var(--fs-m); padding: 4px 0; text-align: left; }
 #prof .hsec { font-weight: 700; font-size: var(--fs-m); margin: 16px 2px 7px; }
 #prof .hsec small { font-weight: 400; color: var(--muted); }
@@ -685,7 +694,7 @@ body.p32cover .sheet { border-radius: 0; box-shadow: none; }
 @keyframes wave { 0% { transform: scale(.35); opacity: .7; } 100% { transform: scale(1.25); opacity: 0; } }
 /* 17 nov. : liste bornée à ~4,5 lignes et qui défile seule (sinon, à un pôle de 18 correspondances, le haut fixe
    sortait de l'écran sans pouvoir descendre) ; pan-y ici, car .mbtop est en touch-action: none sur téléphone */
-.crs { border: 1px solid var(--rule); border-radius: 14px; overflow: hidden auto; margin-top: 8px; max-height: min(198px, 34vh); overscroll-behavior: contain; touch-action: pan-y; -webkit-overflow-scrolling: touch; }
+.crs { border: 1px solid var(--rule); border-radius: 14px; overflow: hidden auto; margin-top: 8px; max-height: min(198px, 34vh); overscroll-behavior: contain; }
 .cr { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; padding: 9px 12px; border-top: 1px solid var(--rule); }
 .cr:first-child { border-top: 0; }
 .cr .d { font-weight: 600; font-size: var(--fs-m); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -2237,7 +2246,9 @@ function sheetInsetBottom() { if (!isMobile()) return 0; const H = $("#app").cli
 let sheetDragBind = () => {};
 (function sheetDrag() {
   let y0 = 0, top0 = 0, t0 = 0, dragging = false, moved = false, tapOk = true;
-  const start = (e) => { if (!isMobile() || sheetState === "cover") return; if (e.target.closest("button, input, a, [data-board]")) return; dragging = true; moved = false; tapOk = !e.currentTarget.dataset.notap; y0 = e.clientY; top0 = sheetCurTop(); sheet.classList.remove("anim"); sheet.style.transform = ""; sheet.style.top = top0 + "px"; t0 = performance.now(); sheet.classList.add("dragging"); e.currentTarget.setPointerCapture(e.pointerId); };
+  const start = (e) => { if (!isMobile() || sheetState === "cover") return; if (e.target.closest("button, input, a, [data-board]")) return;
+    // 17 nov. : la liste des correspondances de Mon bus défile seule ; glisser dessus ne doit pas descendre le volet
+    { const sc = e.target.closest(".crs"); if (sc && sc.scrollHeight > sc.clientHeight + 2) return; } dragging = true; moved = false; tapOk = !e.currentTarget.dataset.notap; y0 = e.clientY; top0 = sheetCurTop(); sheet.classList.remove("anim"); sheet.style.transform = ""; sheet.style.top = top0 + "px"; t0 = performance.now(); sheet.classList.add("dragging"); e.currentTarget.setPointerCapture(e.pointerId); };
   const move = (e) => { if (!dragging) return; const dy = e.clientY - y0; if (Math.abs(dy) > 4) moved = true; const T = sheetTops(); sheet.style.transform = `translateY(${Math.max(T.full - 20, Math.min(T.peek + 40, top0 + dy)) - top0}px)`; };
   const end = (e) => {
     if (!dragging) return; dragging = false; sheet.classList.remove("dragging");
@@ -2254,6 +2265,35 @@ let sheetDragBind = () => {};
   sheetDragBind = (el) => bind(el, false);
   $("#grab").addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSheet(sheetState === "full" ? "half" : "full"); } });
   window.addEventListener("resize", () => { if (isMobile()) setSheet(sheetState, true); else { sheet.style.top = ""; sheet.style.transform = ""; } });
+})();
+
+// 17 nov. (2) : liste des correspondances de Mon bus, défilée au doigt par le script (pas de défilement natif dans
+// le haut collant : sur iPhone il se propageait au volet et à la page, d'où un clignotement entre suivi et plan).
+// La liste peut être reconstruite pendant le geste (#mb-hero), on la relit donc à chaque mouvement.
+let crsRaf = 0;
+(function crsScroll() {
+  let g = null;
+  const list = () => $("#mb-hero .crs");
+  document.addEventListener("pointerdown", (e) => {
+    if (e.pointerType === "mouse") return; // à la souris : molette et barre de défilement natives
+    const sc = e.target.closest("#mb-top .crs"); if (!sc || sc.scrollHeight <= sc.clientHeight + 2) return;
+    cancelAnimationFrame(crsRaf);
+    const t = performance.now(); g = { id: e.pointerId, y: e.clientY, top: sc.scrollTop, ly: e.clientY, lt: t, v: 0 };
+  }, { passive: true });
+  document.addEventListener("pointermove", (e) => {
+    if (!g || e.pointerId !== g.id) return; const sc = list(); if (!sc) return;
+    sc.scrollTop = g.top - (e.clientY - g.y);
+    const t = performance.now(), dt = t - g.lt; if (dt > 0) { g.v = 0.7 * ((g.ly - e.clientY) / dt) + 0.3 * g.v; g.ly = e.clientY; g.lt = t; }
+  }, { passive: true });
+  const end = (e) => {
+    if (!g || e.pointerId !== g.id) return;
+    let v = performance.now() - g.lt > 80 ? 0 : g.v; g = null; // doigt arrêté avant de lever : pas d'élan
+    if (RM.matches || Math.abs(v) < 0.15) return;
+    let last = performance.now();
+    const step = (t) => { const sc = list(); if (!sc) return; const dt = Math.min(32, t - last); last = t; sc.scrollTop += v * dt; v *= Math.pow(0.995, dt); if (Math.abs(v) > 0.02) crsRaf = requestAnimationFrame(step); };
+    crsRaf = requestAnimationFrame(step);
+  };
+  document.addEventListener("pointerup", end); document.addEventListener("pointercancel", end);
 })();
 
 // #44 : clavier du téléphone. `html, body` sont en `overflow: hidden` et `height: 100%`, donc figés sur la
@@ -3988,6 +4028,10 @@ async function loadDevs() {
     devApply(net, list);
     for (let i = n0; i < net.P.length; i++) stopIdx.push({ i, n: norm(net.P[i][0]) });
     if (typeof devMapSync === "function") devMapSync();
+    // 19 nov. : le premier relevé du temps réel arrive souvent avant les déviations (chargées après l'info trafic) ;
+    // ses prévisions tombaient sur les courses d'origine, retirées du jour, et les lignes déviées (U3, U5, U7…)
+    // restaient en théorique jusqu'au relevé suivant. On réapplique tout de suite le dernier relevé.
+    if (typeof rtReapply === "function") rtReapply();
   } catch (e) { errReport(e, "devs"); }
 }
 // cause courte d'une déviation pour Mon bus : « travaux », « marché »… sinon le titre de l'info
@@ -4376,7 +4420,7 @@ function renderProfile(page) {
     <h3>Mes alertes</h3>
     ${alPushCard()}
     <div class="pcard">
-      <div class="prow"><span class="pn"><b>Mon bus habituel</b><small>Prévenu avant son passage, retard compris</small><span class="habs">${MY.al.hab.map((h, k) => habRow(h, k)).join("")}<button type="button" class="hadd" data-hab="new">+ Ajouter un bus</button></span></span>${tg("habit")}</div>
+      <div class="prow habrow"><span class="pn"><b>Mon bus habituel</b><small>Prévenu avant son passage, retard compris</small></span>${tg("habit")}<span class="habs">${MY.al.hab.map((h, k) => habRow(h, k)).join("")}<button type="button" class="hadd" data-hab="new">+ Ajouter un bus</button></span></div>
       <div class="prow"><span class="pn"><b>Perturbations</b><small>Nouvelles infos trafic${MY.al.scope !== "all" ? ", et celles de tout le réseau" : ""}</small><span class="seg alseg"><button type="button" data-alscope="mine" aria-pressed="${MY.al.scope !== "all"}">Mes lignes</button><button type="button" data-alscope="all" aria-pressed="${MY.al.scope === "all"}">Tout le réseau</button></span>${MY.al.scope !== "all" ? (MY.lines.length ? `<small style="display:flex;flex-wrap:wrap;gap:4px;margin-top:7px">${MY.lines.map((i) => badge(i, "sm", true)).join("")}</small>` : `<small style="display:block;margin-top:5px">Choisissez vos lignes juste au-dessus.</small>`) : ""}</span>${tg("trafic")}</div>
       <div class="prow"><span class="pn"><b>Dernier bus de mes trajets</b><small>Le soir, 30 min avant</small></span>${tg("last")}</div>
       <div class="prow"><span class="pn"><b>Mon bus arrive</b><small>Pendant un suivi, <select class="psel" data-almin>${[3, 5, 10, 15].map((m) => `<option${m === MY.al.arriveMin ? " selected" : ""}>${m}</option>`).join("")}</select> min avant</small></span>${tg("arrive")}</div>
@@ -4546,7 +4590,7 @@ function renderTrafic() {
         + (byLine.length ? byLine.map(trItem).join("") : `<div class="empty" style="padding:6px 4px">Pas d'autre perturbation annoncée.</div>`)
         + (infos.length ? `<div class="trsec" style="margin-top:10px"><h3>Infos</h3><small>nouveaux arrêts, marchés…</small></div>` + infos.map(trItem).join("") : "") : "");
     const at = TR.at ? new Date(TR.at).toLocaleString("fr-FR", { timeZone: "Europe/Paris", weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }) : "";
-    $("#tr-src").innerHTML = `Source : <a href="${esc(TR.src || "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html")}" target="_blank" rel="noopener">grandreims-mobilites.fr</a>, relevée automatiquement dès qu’elle change sur le site (quelques minutes).${at ? ` Dernier changement : ${esc(at)}.` : ""}`;
+    $("#tr-src").innerHTML = `Source : <a href="${esc(TR.src || "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html")}" target="_blank" rel="noopener">grandreims-mobilites.fr</a>.${at ? ` Dernier changement : ${esc(at)}.` : ""}`;
     if (TR.open) { const el = res.querySelector(`[data-id="${CSS.escape(TR.open)}"]`); if (el) setTimeout(() => el.scrollIntoView({ block: "nearest" }), 50); }
   }
   head.querySelectorAll("[data-f]").forEach((b) => b.onclick = () => { const r = +b.dataset.f; TR.filter = TR.filter && TR.filter.length === 1 && TR.filter[0] === r ? null : [r]; TR.open = null; renderTrafic(); if (TR.filter) fitLine(TR.filter[0]); else fitHome(); drawMap(); });
@@ -5876,6 +5920,7 @@ async function pollRT() {
     const today = todayIdx();
     if (today < 0 || today >= net.nd) throw new Error("date hors du fichier d'horaires");
     const st = applyRT(net, feed, today, parisMidnightEpoch);
+    RT.feed = feed; RT.day = today; // gardé pour rtReapply (déviations chargées après ce relevé)
     try { trAutoDelays(); } catch (e) { errReport(e); }
     RT.ok = true; RT.at = Date.now(); RT.n = st.matched + st.kept; RT.err = ""; rtFails = 0;
     { const d = rtEl.firstElementChild; if (d) { d.style.animation = "none"; d.offsetWidth; d.style.animation = ""; } } // audit B3 : battement à chaque relevé
@@ -5896,6 +5941,16 @@ async function pollRT() {
   }
   rtLabel();
   rtTimer = setTimeout(pollRT, next);
+}
+// réapplique le dernier relevé (s'il est encore frais) une fois les déviations chargées
+function rtReapply() {
+  if (!RT.feed || !RT.ok || SIMU || RT.day !== todayIdx() || Date.now() - RT.at > 180000) return;
+  try {
+    const st = applyRT(net, RT.feed, RT.day, parisMidnightEpoch);
+    try { trAutoDelays(); } catch (e) { errReport(e); }
+    RT.n = st.matched + st.kept;
+    rtEl.title = `${st.matched} courses suivies en temps réel sur ${st.total} annoncées${st.kept ? ` (+ ${st.kept} du relevé précédent)` : ""}.`;
+  } catch (e) { errReport(e, "rt"); }
 }
 // veille : relevé en retard de plus de 50 s (boucle arrêtée, minuterie gelée par l'iPhone) → on relance
 setInterval(() => { if (!document.hidden && !SIMU && Date.now() - rtStart > 50000) pollRT(); }, 10000);
