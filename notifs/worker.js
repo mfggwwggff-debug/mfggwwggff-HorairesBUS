@@ -213,7 +213,17 @@ export function rtIds(u8) {
 export function prepRef(j, now) {
   const codes = [];
   j.t.forEach((row, sv) => { if (row) for (const c of row.split(" ")) { const [num, s] = c.split("."); codes.push([num, j.suf[+s], sv]); } });
-  return { at: now, v: j.v, d0: j.d0, nd: j.nd, S: j.S, codes };
+  return { at: now, v: j.v, d0: j.d0, nd: j.nd, S: j.S, codes, w: j.w || null };
+}
+// 19 nov. : des courses devraient-elles rouler maintenant ? (plages de rt-ref.json, tranches de 5 min sur 30 h)
+export function rtEnService(ref, now) {
+  if (!ref || !ref.w) return null;
+  const iso = parisIso(now), y = +ref.d0.slice(0, 4), m = +ref.d0.slice(4, 6) - 1, d = +ref.d0.slice(6, 8);
+  const k = Math.round((Date.UTC(+iso.slice(0, 4), +iso.slice(5, 7) - 1, +iso.slice(8, 10)) - Date.UTC(y, m, d)) / 864e5);
+  const hm = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Paris", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(now)).split(":");
+  const s = Math.floor((+hm[0] * 60 + +hm[1]) / 5);
+  const on = (sv, kk) => kk >= 0 && kk < ref.nd && ref.S[sv].charCodeAt(kk) === 49;
+  return ref.w.some((row, sv) => (on(sv, k) && row.charCodeAt(s) === 49) || (on(sv, k - 1) && s + 288 < 360 && row.charCodeAt(s + 288) === 49));
 }
 const parisIso = (ms) => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Paris", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(ms));
 // Compte les courses du flux qui correspondent aux horaires : identifiant complet, ou numéro seul (repli de l'appli)
@@ -243,16 +253,25 @@ async function rtSante(env, now) {
       e.statut = !e.total ? "vide" : !e.matched ? "panne" : e.exact < e.matched ? "repli" : "ok";
     }
   }
+  // 19 nov. : un flux vide ou injoignable pendant que des bus roulent est aussi une panne (avant : seule une
+  // liste de courses non reconnues alertait, et un flux vide en pleine soirée passait pour la nuit)
+  e.service = rtEnService(REF, now);
+  if (e.statut === "vide" && e.service) e.statut = "coupe";
+  const grave = (x) => x.statut === "panne" || x.statut === "coupe" || (x.statut === "injoignable" && x.service);
+  e.cle = grave(e) ? "grave" : e.statut;
   // en panne depuis quand (deux relevés de suite, soit 10 min, avant d'alerter)
-  e.depuis = e.statut === old.statut ? (old.depuis || now) : now;
+  e.depuis = e.cle === (old.cle || old.statut) ? (old.depuis || now) : now;
   e.alerte = old.alerte || 0;
   const cible = await kv("rtAlerteSub");
   const st = [];
   if (cible) {
     const sub = await env.DB.prepare("SELECT * FROM subs WHERE id = ?").bind(cible).first();
     let m = null;
-    if (e.statut === "panne" && !e.alerte && now - e.depuis >= 9 * 60000) {
-      m = { title: "Temps réel en panne", body: `Aucune des ${e.total} courses du flux ne correspond aux horaires de l'appli.`, url: "./", tag: "rt" };
+    if (e.cle === "grave" && !e.alerte && now - e.depuis >= 9 * 60000) {
+      const body = e.statut === "panne" ? `Aucune des ${e.total} courses du flux ne correspond aux horaires de l'appli.`
+        : e.statut === "coupe" ? "Le flux ne contient plus aucune course alors que des bus circulent."
+        : "Le flux temps réel ne répond plus alors que des bus circulent.";
+      m = { title: "Temps réel en panne", body, url: "./", tag: "rt" };
       e.alerte = now;
     } else if (e.alerte && (e.statut === "ok" || e.statut === "repli")) {
       m = { title: "Temps réel rétabli", body: `${e.matched} courses suivies sur ${e.total}.`, url: "./", tag: "rt" };

@@ -352,7 +352,8 @@ function showEtat(e) {
 // #46 : le service relit le flux toutes les 5 min et le compare aux horaires de l'appli
 const RT_ST = {
   ok: ["good", "Fonctionne"], repli: ["good", "Fonctionne, par le numéro de course"],
-  panne: ["err", "En panne : aucune course reconnue"], vide: ["", "Aucune course annoncée (nuit ou flux vide)"],
+  panne: ["err", "En panne : aucune course reconnue"], vide: ["", "Aucune course annoncée (pas de bus en service)"],
+  coupe: ["err", "En panne : flux vide alors que des bus circulent"],
   injoignable: ["err", "Flux injoignable"], "sans-horaires": ["err", "Liste des courses (rt-ref.json) introuvable"],
 };
 function showRT(rt, rtSub, mine) {
@@ -360,7 +361,7 @@ function showRT(rt, rtSub, mine) {
   else {
     const [cls, txt] = RT_ST[rt.statut] || ["", rt.statut];
     const pc = rt.total ? Math.round((rt.matched / rt.total) * 100) : 0;
-    $("rt").innerHTML = `<div class="note ${cls}" style="margin-bottom:8px"><b>${esc(txt)}</b>${rt.statut === "panne" ? " depuis " + esc(heure(rt.depuis)) : ""}</div>
+    $("rt").innerHTML = `<div class="note ${cls}" style="margin-bottom:8px"><b>${esc(txt)}</b>${rt.cle === "grave" || rt.statut === "panne" ? " depuis " + esc(heure(rt.depuis)) : ""}</div>
       <div class="nums"><span><b>${rt.matched}</b> suivie${rt.matched > 1 ? "s" : ""} sur <b>${rt.total}</b> annoncée${rt.total > 1 ? "s" : ""}</span>
         ${rt.matched > rt.exact ? `<span><b>${rt.matched - rt.exact}</b> par le numéro seul</span>` : ""}
         <span class="m" style="margin-left:auto">relevé à ${esc(heure(rt.at))}${rt.v ? " · horaires " + esc(rt.v) : ""}</span></div>

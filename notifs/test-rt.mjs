@@ -35,7 +35,7 @@ const sent = [];
 globalThis.fetch = async (u, o) => {
   const s = String(u && u.url ? u.url : u);
   if (s.startsWith("https://push.test/")) { sent.push(s); return new Response(null, { status: 201 }); }
-  if (s.includes("gtfs-rt")) return new Response(feedOf(FLUX));
+  if (s.includes("gtfs-rt")) { if (FLUX === null) throw new Error("injoignable"); return new Response(feedOf(FLUX)); }
   if (s.includes("rt-ref.json")) return new Response(JSON.stringify(REF));
   if (s.includes("grandreims-mobilites")) return new Response("<html></html>");
   throw new Error("appel réseau inattendu : " + s);
@@ -56,8 +56,6 @@ ok("flux conforme : ok, 120 sur 120", e.rt.statut === "ok" && e.rt.matched === 1
 FLUX = ids.map((x) => x.replace(/-[^-]+$/, "-2026_SEPT-_REZO-Semaine-99"));
 await tick(5); e = await adm("etat");
 ok("calendrier renuméroté : repli par le numéro", e.rt.statut === "repli" && e.rt.matched === 120 && e.rt.exact === 0, e.rt);
-FLUX = []; await tick(10); e = await adm("etat");
-ok("flux vide : « vide », pas de panne", e.rt.statut === "vide", e.rt);
 
 console.log("Alerte de panne");
 ok("téléphone inconnu refusé", !!(await adm("rtAlerte", { sub: "zzzz" })).error);
@@ -75,6 +73,22 @@ ok("envois journalisés en « rt »", j.envois.filter((x) => x.kind === "rt").le
 await adm("rtAlerte", { sub: "" });
 FLUX = ["1-x"]; for (const m of [40, 45, 50, 55]) await tick(m);
 ok("plus personne choisi : aucune alerte", sent.length === 2, sent);
+
+console.log("Flux vide ou injoignable pendant le service (19 nov.)");
+FLUX = []; await tick(60); e = await adm("etat");
+ok("flux vide à 14 h : « coupe »", e.rt.statut === "coupe" && e.rt.service === true, e.rt);
+await tick(780); e = await adm("etat"); // 3 h du matin le lendemain
+ok("flux vide à 3 h du matin : « vide », pas de panne", e.rt.statut === "vide" && e.rt.service === false, e.rt);
+FLUX = null; await tick(785); e = await adm("etat");
+ok("injoignable la nuit : pas grave", e.rt.statut === "injoignable" && e.rt.cle !== "grave", e.rt);
+await adm("rtAlerte", { sub: a1.id });
+FLUX = []; for (const m of [1440, 1445]) await tick(m);
+ok("flux vide en journée : pas d'alerte avant 10 min", sent.length === 2, sent);
+await tick(1450); ok("10 min : alerte « en panne »", sent.length === 3, sent);
+FLUX = null; await tick(1455); ok("vide puis injoignable : même panne, pas de seconde alerte", sent.length === 3, sent);
+FLUX = ids; await tick(1460); ok("retour : « rétabli »", sent.length === 4, sent);
+FLUX = null; for (const m of [1465, 1470, 1475]) await tick(m);
+ok("injoignable en journée : alerte après 10 min", sent.length === 5, sent);
 
 console.log("Erreurs de l'appli (#45)");
 const err = (m, id) => post("/err", { msg: m, src: "index.html:3:120", stack: "TypeError: " + m, vue: "suivi · O1", app: "2026-11-15 · 20261111", ua: "iPhone", anon: id });

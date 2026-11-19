@@ -59,7 +59,15 @@ if not test:
         for pi, pat in enumerate(D["PAT"]):
             for t, code in zip(pat[5], D["TI"]["t"][pi].split(" ")):
                 by.setdefault(t[0], []).append(code)
+        # 19 nov. : plages où des courses roulent, par calendrier, en tranches de 5 min sur 30 h (0 h → 6 h le
+        # lendemain) : le service d'alertes repère un flux vide ou injoignable alors que des bus devraient rouler
+        w = [bytearray(b"0" * 360) for _ in D["S"]]
+        for pat in D["PAT"]:
+            for tr in pat[5]:
+                a0, a1 = tr[2], tr[2] + sum(tr[3:])
+                for s in range(max(0, a0 // 5), min(359, a1 // 5) + 1):
+                    w[tr[0]][s] = 49
         ref = {"v": feed.get("version"), "d0": D["d0"], "nd": D["nd"], "S": D["S"], "suf": D["TI"]["suf"],
-               "t": [" ".join(by.get(i, [])) for i in range(len(D["S"]))]}
+               "t": [" ".join(by.get(i, [])) for i in range(len(D["S"]))], "w": [x.decode() for x in w]}
         open(os.path.join(root, "rt-ref.json"), "w", encoding="utf-8").write(json.dumps(ref, ensure_ascii=False, separators=(",", ":")))
 print(os.path.relpath(out, root), "reconstruit :", feed)
