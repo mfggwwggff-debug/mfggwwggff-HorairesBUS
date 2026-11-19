@@ -4073,6 +4073,23 @@
     "sur": true
    },
    "attendu": null
+  },
+  "c91cac0ced|U21": {
+   "vu": "2026-11-19",
+   "t": "Suite à un accident, votre bus est dévié de l'arrêt Cervantès à l'arrêt Golf, en direction de Gare TGV",
+   "p": "",
+   "lines": [
+    "U21"
+   ],
+   "rt": true,
+   "b": [],
+   "auto": {
+    "grav": "genant",
+    "nat": "perturbation",
+    "portee": "ligne",
+    "sur": true
+   },
+   "attendu": null
   }
  }
 }
