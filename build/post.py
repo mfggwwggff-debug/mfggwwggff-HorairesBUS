@@ -640,11 +640,19 @@ def bundle(frags, rank, step=8.0, snap=SNAP):
     return res
 
 
-def parallel_lines(data, step=8.0, dedupe=45.0, near=14.0, slot_m=10.0, oneway=50.0):
+# Lignes occasionnelles (bus de substitution du tram, navette de Noël) : masquées dans l'appli les jours où
+# elles ne circulent pas. Le plan a donc deux jeux de faisceaux : LN sans elles (aucun trou entre les autres
+# lignes) et LNX avec toutes les lignes, utilisé seulement les jours où l'une d'elles circule.
+OCCAS = ("SUB", "NOEL")
+
+
+def parallel_lines(data, step=8.0, dedupe=45.0, near=14.0, slot_m=10.0, oneway=50.0, skip=()):
     # largeur relative de chaque ligne dans un faisceau (mêmes rapports que lineK dans map.js)
     global WGT
     WGT = [1.4 if r.get("m") == 1 else 1.0 if r["s"] in ("O1", "O2", "U1", "U2") else 0.72 for r in data["R"]]
     R, PAT, SH, Q = data["R"], data["PAT"], data["SH"], data["Q"]
+    if skip:
+        PAT = [p for p in PAT if R[p[0]]["s"] not in skip]
     shapes = [decode_shape(f) for f in SH]
     # polylignes par ligne, la plus fréquentée d'abord ; coupées aux arrêts de départ et d'arrivée
     per_route = defaultdict(dict)
@@ -924,9 +932,15 @@ def finalize(data):
     text_colors(data)
     user_traces(data)
     tram_paths(data)
-    nf, npts = parallel_lines(data)
+    data.pop("LNX", None)
+    occ = [r["s"] for r in data["R"] if r["s"] in OCCAS]
+    if occ:  # avec toutes les lignes (jours où une ligne occasionnelle circule), puis sans elles
+        parallel_lines(data)
+        clean_ln(data)
+        data["LNX"] = data["LN"]
+    nf, npts = parallel_lines(data, skip=OCCAS)
     clean_ln(data)
-    print("tronçons du plan", nf, "points", npts)
+    print("tronçons du plan", nf, "points", npts, ("(+ jeu avec " + ", ".join(occ) + ")") if occ else "")
     return data
 
 

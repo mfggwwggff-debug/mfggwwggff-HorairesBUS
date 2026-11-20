@@ -405,7 +405,10 @@ function highlight() {
 // Données préparées par build/post.py : par ligne, des tronçons de tracé et, en chaque point, une place
 // dans le faisceau (slot). On décale chaque point de slot × écartement, perpendiculairement au tracé.
 const LN = [];
-(net.D.LN || []).forEach(([r, c, sl, ow]) => {
+// LN : faisceaux sans les lignes occasionnelles (SUB, navette de Noël) ; LNX : avec toutes les lignes, pris
+// seulement si l'une d'elles est affichée aujourd'hui (sinon sa place resterait vide entre les autres lignes)
+const LN_SRC = net.D.LNX && net.R.some((r, i) => (r.s === "SUB" || r.s === "NOEL") && !net.hidden?.has(i)) ? net.D.LNX : net.D.LN;
+(LN_SRC || []).forEach(([r, c, sl, ow]) => {
   const XS = [], YS = []; let x = 0, y = 0;
   for (let i = 0; i < c.length; i += 2) { x += c[i]; y += c[i + 1]; const [wx, wy] = r < net.R.length && isTram(r) ? [PX(x / 1e5), PY(y / 1e5)] : warp(PX(x / 1e5), PY(y / 1e5)); XS.push(wx); YS.push(wy); }
   const n = XS.length; ow = ow || new Array(n).fill(0);

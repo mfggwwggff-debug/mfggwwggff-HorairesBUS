@@ -1299,9 +1299,11 @@ const minIso = net.isoOf(0), maxIso = net.isoOf(net.nd - 1);
 const inRange = (iso) => iso >= minIso && iso <= maxIso;
 const startIso = inRange(NOW.iso) ? NOW.iso : (NOW.iso < minIso ? minIso : maxIso);
 const todayIdx = () => net.dayIndex(parisNow().iso);
-// #35 : la SUB (bus de substitution du tram) n'apparaît que si elle circule aujourd'hui ou demain
+// #35 : la SUB (bus de substitution du tram) n'apparaît que si elle circule aujourd'hui ou demain.
+// La navette de Noël (NOEL), seulement les jours où elle circule (arrêts, plan, listes de lignes, profil).
+const HIDE_OFF = { SUB: 1, NOEL: 0 }; // nombre de jours à venir où la ligne reste affichée
 net.hidden = new Set();
-{ const t0 = todayIdx(); net.R.forEach((r, ri) => { if (r.s !== "SUB") return; if (!net.pats.some((p) => p.r === ri && p.sv.some((sv) => net.svcOn(sv, t0) || net.svcOn(sv, t0 + 1)))) net.hidden.add(ri); }); }
+{ const t0 = todayIdx(); net.R.forEach((r, ri) => { if (!(r.s in HIDE_OFF)) return; const n = HIDE_OFF[r.s]; if (!net.pats.some((p) => p.r === ri && p.sv.some((sv) => { for (let k = 0; k <= n; k++) if (net.svcOn(sv, t0 + k)) return true; return false; }))) net.hidden.add(ri); }); }
 if (net.hidden.size) net.pRoutes = net.pRoutes.map((l) => l.filter((r) => !net.hidden.has(r)));
 const shownR = (i) => !net.hidden.has(i);
 // #30 : jour « mode SUB » = la SUB (bus de substitution du tram) circule ce jour-là
@@ -1706,7 +1708,7 @@ function endedLines(stop, act, day, t, horizon) {
   const busy = new Set(act.map((G) => G.r + "|" + G.dir));
   const out = [];
   for (const [key, L] of stopLineDirs(net, stop)) {
-    if (busy.has(key)) continue;
+    if (busy.has(key) || net.hidden.has(L.r)) continue; // ligne masquée (SUB, navette de Noël) : rien à l'arrêt
     // #74 : arrêt non desservi à cause d'une déviation : la reprise vient de l'info trafic
     const dv = devSkipAt(stop, day).find((r) => r.ri === L.r && r.dir === L.dir);
     if (dv) { out.push({ r: L.r, h: L.h, dir: L.dir, end: "Arrêt non desservi (déviation)", sub: devReprise(dv, day, t), next: null }); continue; }
@@ -2023,8 +2025,8 @@ function subBarCheck() {
 // ---------- Lignes ----------
 setupDT($("#li-date"), $("#li-time"), () => runLi());
 function buildGrid() {
-  const groups = [["Mes lignes", (r) => myFirst(net.R.indexOf(r)), "star"], ["Tram", (r) => r.m === 1, 1], ["BHNS", (r) => /^O\d/.test(r.s), "bhns"], ["Urbaines", (r) => /^[UCS]/.test(r.s), 3], ["Express", (r) => /^E/.test(r.s), 3]]; // la C et les scolaires à la fin des urbaines (15 nov.)
-  const uOrd = (r) => /^U/.test(r.s) ? 0 : /^C/.test(r.s) ? 1 : 2;
+  const groups = [["Mes lignes", (r) => myFirst(net.R.indexOf(r)), "star"], ["Tram", (r) => r.m === 1, 1], ["BHNS", (r) => /^O\d/.test(r.s), "bhns"], ["Urbaines", (r) => /^([UCS]|NOEL$)/.test(r.s), 3], ["Express", (r) => /^E/.test(r.s), 3]]; // la C et les scolaires à la fin des urbaines (15 nov.)
+  const uOrd = (r) => /^U/.test(r.s) ? 0 : /^C/.test(r.s) ? 1 : r.s === "NOEL" ? 3 : 2; // navette de Noël (seulement les jours où elle circule) tout à la fin
   $("#li-grid").innerHTML = groups.map(([n, f, m]) => { const ids = net.R.map((r, i) => [r, i]).filter(([r, i]) => f(r) && shownR(i)).sort(([a], [b]) => uOrd(a) - uOrd(b)).map(([, i]) => i); return ids.length ? `<div class="lbl withico">${m === "star" ? `<span class="mode" style="color:var(--accent-strong,#C4430F)">${starSvg}</span>` : modeIcon(m)}${n}</div><div class="lgrid">${ids.map((i) => { const n = TR.ok ? (TR.lvl.get(i) || 0) : -1; return `<button type="button" data-r="${i}" aria-pressed="${i === S.line}" aria-label="Ligne ${esc(net.R[i].s)}${n > 0 ? " · " + TR_NIV[n] : ""}"${n >= 0 ? ` class="trlv trlv${n}" title="Ligne ${esc(net.R[i].s)} · ${TR_NIV[n]}"` : ""}>${badge(i, "lg", n >= 0)}${n > 0 ? `<i class="trp">${TR_PICTO[n]}</i>` : ""}</button>`; }).join("")}</div>` : ""; }).join("");
 }
 buildGrid();
@@ -3693,7 +3695,7 @@ function renderHabit(el, k) {
   const isNew = k === "new";
   const H = isNew ? (renderHabit.draft || { stop: fav.stops[0] || "Strasbourg", r: null, dir: null, h: "", t: null, days: [0, 1, 2, 3, 4], min: 10, freq: "steps" }) : Object.assign({}, MY.al.hab[+k]);
   renderHabit.draft = H;
-  const si = findStop(H.stop), dirs = si >= 0 ? [...stopLineDirs(net, si).values()].sort((a, b) => net.R[a.r].s.localeCompare(net.R[b.r].s, "fr", { numeric: true }) || a.dir - b.dir) : [];
+  const si = findStop(H.stop), dirs = si >= 0 ? [...stopLineDirs(net, si).values()].filter((G) => shownR(G.r)).sort((a, b) => net.R[a.r].s.localeCompare(net.R[b.r].s, "fr", { numeric: true }) || a.dir - b.dir) : [];
   if (H.r == null && dirs.length) { H.r = dirs[0].r; H.dir = dirs[0].dir; H.h = dirs[0].h; }
   // départs de ce sens à cet arrêt, le prochain jour choisi, de 6 h à 10 h (ou autour de l'heure choisie)
   const n = parisNow(), base = net.dayIndex(n.iso), wd = (new Date(n.iso + "T12:00:00").getDay() + 6) % 7;
