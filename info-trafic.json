@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-20T04:23:58Z",
+ "at": "2026-11-20T05:10:25Z",
  "items": [
   {
    "id": "d94ce9c029",
@@ -438,79 +438,6 @@
     [
      "CHAMP BERDIN",
      "Champ Berdin"
-    ]
-   ]
-  },
-  {
-   "id": "16eb3530f2",
-   "t": "En raison de contraintes d'exploitation, certains départs ne sont pas assurés aujourd'hui :",
-   "lines": [
-    "U22"
-   ],
-   "p": "",
-   "start": null,
-   "end": null,
-   "b": [
-    {
-     "r": [
-      [
-       "Jeudi 19 novembre:",
-       0
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Départs de Neuvillette Mairie non assurés: 7h17-8h58-17h36-19h24",
-       0
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Départs de Royale non assurés: 6h22-8h07-9h45-18h25-20h08",
-       0
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Conseil déplacement",
-       1
-      ],
-      [
-       ": nous vous invitons à anticiper votre trajet ou à privilégier les lignes à proximité ( https://grandreims-mobilites.fr/fr/3RW-Itineraire.html)",
-       0
-      ]
-     ]
-    }
-   ],
-   "rt": true,
-   "sec": "temps reel",
-   "since": "2026-11-18",
-   "c": {
-    "effets": [
-     "non_assure"
-    ],
-    "grav": "genant",
-    "niv": 2,
-    "pastille": true,
-    "nat": "perturbation",
-    "cond": false,
-    "portee": "ligne",
-    "sur": true
-   },
-   "st": [
-    [
-     "Neuvillette Mairie",
-     "Neuvil. Mairie"
-    ],
-    [
-     "Royale",
-     "Royale"
     ]
    ]
   },
