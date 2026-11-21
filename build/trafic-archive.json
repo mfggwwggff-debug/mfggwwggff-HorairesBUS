@@ -4090,6 +4090,23 @@
     "sur": true
    },
    "attendu": null
+  },
+  "16eb3530f2|O1": {
+   "vu": "2026-11-21",
+   "t": "En raison de contraintes d'exploitation, certains départs ne sont pas assurés aujourd'hui :",
+   "p": "",
+   "lines": [
+    "O1"
+   ],
+   "rt": true,
+   "b": [],
+   "auto": {
+    "grav": "genant",
+    "nat": "perturbation",
+    "portee": "ligne",
+    "sur": true
+   },
+   "attendu": null
   }
  }
 }

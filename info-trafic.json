@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-21T05:00:25Z",
+ "at": "2026-11-21T12:35:20Z",
  "items": [
   {
    "id": "d94ce9c029",
@@ -445,6 +445,60 @@
    "id": "16eb3530f2",
    "t": "En raison de contraintes d'exploitation, certains départs ne sont pas assurés aujourd'hui :",
    "lines": [
+    "U4"
+   ],
+   "p": "",
+   "start": null,
+   "end": null,
+   "b": [],
+   "rt": true,
+   "sec": "temps reel",
+   "since": "2026-11-21",
+   "c": {
+    "effets": [
+     "non_assure"
+    ],
+    "grav": "genant",
+    "niv": 2,
+    "pastille": true,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": []
+  },
+  {
+   "id": "16eb3530f2",
+   "t": "En raison de contraintes d'exploitation, certains départs ne sont pas assurés aujourd'hui :",
+   "lines": [
+    "O1"
+   ],
+   "p": "",
+   "start": null,
+   "end": null,
+   "b": [],
+   "rt": true,
+   "sec": "temps reel",
+   "since": "2026-11-21",
+   "c": {
+    "effets": [
+     "non_assure"
+    ],
+    "grav": "genant",
+    "niv": 2,
+    "pastille": true,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": []
+  },
+  {
+   "id": "16eb3530f2",
+   "t": "En raison de contraintes d'exploitation, certains départs ne sont pas assurés aujourd'hui :",
+   "lines": [
     "U20"
    ],
    "p": "",
@@ -742,80 +796,6 @@
    ]
   },
   {
-   "id": "e7810d9a3b",
-   "t": "Report de l'arrêt Stade de Muire vers P+R Thillois",
-   "lines": [
-    "U1"
-   ],
-   "p": "A partir du lundi 16 novembre 2026 jusqu'au lundi 30 novembre 2026",
-   "start": "2026-11-16",
-   "end": "2026-11-30",
-   "b": [
-    {
-     "l": "U1",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "STADE DE MUIRE",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "P+R THILLOIS",
-       1
-      ],
-      [
-       " est reporté à l'",
-       0
-      ],
-      [
-       "arrêt ISLE DE FRANCE",
-       1
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne",
-   "since": "2026-11-11",
-   "c": {
-    "effets": [
-     "deplacement"
-    ],
-    "grav": "mineur",
-    "niv": 1,
-    "pastille": false,
-    "nat": "perturbation",
-    "cond": false,
-    "portee": "ligne",
-    "sur": true
-   },
-   "st": [
-    [
-     "STADE DE MUIRE",
-     "Stade de Muire"
-    ],
-    [
-     "arrêt ISLE DE FRANCE",
-     "Isle de France"
-    ]
-   ]
-  },
-  {
    "id": "f2cfc03dd2",
    "t": "Travaux rue Gabriel Voisin",
    "lines": [
@@ -1025,6 +1005,80 @@
     [
      "arrêt PARC EXPOSITIONS de la ligne U6 vers Gare Centre",
      "Parc Expositions"
+    ]
+   ]
+  },
+  {
+   "id": "e7810d9a3b",
+   "t": "Report de l'arrêt Stade de Muire vers P+R Thillois",
+   "lines": [
+    "U1"
+   ],
+   "p": "A partir du lundi 16 novembre 2026 jusqu'au lundi 30 novembre 2026",
+   "start": "2026-11-16",
+   "end": "2026-11-30",
+   "b": [
+    {
+     "l": "U1",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "STADE DE MUIRE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "P+R THILLOIS",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt ISLE DE FRANCE",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne",
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": [
+    [
+     "STADE DE MUIRE",
+     "Stade de Muire"
+    ],
+    [
+     "arrêt ISLE DE FRANCE",
+     "Isle de France"
     ]
    ]
   },
