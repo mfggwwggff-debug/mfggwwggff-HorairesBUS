@@ -1,7 +1,703 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-21T22:55:21Z",
+ "at": "2026-11-22T23:00:23Z",
  "items": [
+  {
+   "id": "7c122ca557",
+   "t": "Arrivée des forains au parc des expositions",
+   "lines": [
+    "U5",
+    "U6"
+   ],
+   "p": "Le lundi 30 novembre 2026",
+   "start": "2026-11-30",
+   "end": "2026-11-30",
+   "b": [
+    {
+     "l": "U6",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "PARC EXPOSITIONS",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "CROIX BLANDIN",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt SABINE",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U6",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "PARC EXPOSITIONS",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "GARE CENTRE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt SABINE",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U6",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "ARQUES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "CROIX BLANDIN",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt SABINE",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U6",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "ARQUES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "GARE CENTRE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt SABINE",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U6",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "PATOUX",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "CROIX BLANDIN",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt ADER de la ligne U5",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U6",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "PATOUX",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "GARE CENTRE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt ADER de la ligne U5",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U6",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "ADER",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "CROIX BLANDIN",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt ADER de la ligne U5",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U6",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "ADER",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "GARE CENTRE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt ADER de la ligne U5",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U5",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "HOCHE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "PARC DES EXPOSITIONS",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt INSPE",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U5",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "HOCHE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "CROIX DU SUD",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt INSPE",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U5",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "PARC EXPOSITIONS",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "PARC DES EXPOSITIONS",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt ADER",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U5",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "PARC EXPOSITIONS",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "CROIX DU SUD",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt ADER",
+       1
+      ]
+     ]
+    },
+    {
+     "img": "https://prod.deviations.info/carte/grandreims/public/img/86819.jpg"
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne",
+   "since": "2026-11-23",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "lignes",
+    "sur": true
+   },
+   "st": [
+    [
+     "PARC EXPOSITIONS",
+     "Parc Expositions"
+    ],
+    [
+     "arrêt SABINE",
+     "Sabine"
+    ],
+    [
+     "ARQUES",
+     "Arques"
+    ],
+    [
+     "PATOUX",
+     "Patoux"
+    ],
+    [
+     "arrêt ADER de la ligne U5",
+     "Ader"
+    ],
+    [
+     "ADER",
+     "Ader"
+    ],
+    [
+     "HOCHE",
+     "Hoche"
+    ],
+    [
+     "arrêt INSPE",
+     "INSPE"
+    ],
+    [
+     "arrêt ADER",
+     "Ader"
+    ]
+   ]
+  },
+  {
+   "id": "7ae881280c",
+   "t": "Forte affluence zone commerciale Cormontreuil",
+   "lines": [
+    "U21"
+   ],
+   "p": "De 12h00 à 19h00: Les samedis et dimanches du 28/11 au 20/12 et les 21, 22 et 23/12",
+   "start": null,
+   "end": null,
+   "b": [
+    {
+     "l": "U21",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "LES PARQUES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "C.C. CORMONTREUIL",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt LES LAPS",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U21",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "LES PARQUES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "GARE CHAMPAGNE TGV",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt LES LAPS",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U21",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "RIMBAUD",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "C.C. CORMONTREUIL",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt ALSACE LORRAINE",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U21",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "AUVERGNE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "GARE CHAMPAGNE TGV",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt ALSACE LORRAINE",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U21",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "AUVERGNE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "C.C. CORMONTREUIL",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt ALSACE LORRAINE de la ligne O2",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U21",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "ALSACE LORRAINE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "GARE CHAMPAGNE TGV",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt ALSACE LORRAINE de la ligne O2",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U21",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "RIMBAUD",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "GARE CHAMPAGNE TGV",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt ALSACE LORRAINE de la ligne O2",
+       1
+      ]
+     ]
+    },
+    {
+     "img": "https://prod.deviations.info/carte/grandreims/public/img/86893.jpg"
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne",
+   "since": "2026-11-23",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": [
+    [
+     "LES PARQUES",
+     "Les Parques"
+    ],
+    [
+     "arrêt LES LAPS",
+     "Les Laps"
+    ],
+    [
+     "RIMBAUD",
+     "Rimbaud"
+    ],
+    [
+     "arrêt ALSACE LORRAINE",
+     "Alsace Lorraine"
+    ],
+    [
+     "AUVERGNE",
+     "Auvergne"
+    ],
+    [
+     "arrêt ALSACE LORRAINE de la ligne O2",
+     "Alsace Lorraine"
+    ],
+    [
+     "ALSACE LORRAINE",
+     "Alsace Lorraine"
+    ]
+   ]
+  },
   {
    "id": "d94ce9c029",
    "t": "Report de l'arrêt Muette",
@@ -395,6 +1091,80 @@
    ]
   },
   {
+   "id": "e7810d9a3b",
+   "t": "Report de l'arrêt Stade de Muire vers P+R Thillois",
+   "lines": [
+    "U1"
+   ],
+   "p": "A partir du lundi 16 novembre 2026 jusqu'au lundi 30 novembre 2026",
+   "start": "2026-11-16",
+   "end": "2026-11-30",
+   "b": [
+    {
+     "l": "U1",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "STADE DE MUIRE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "P+R THILLOIS",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt ISLE DE FRANCE",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne",
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": [
+    [
+     "STADE DE MUIRE",
+     "Stade de Muire"
+    ],
+    [
+     "arrêt ISLE DE FRANCE",
+     "Isle de France"
+    ]
+   ]
+  },
+  {
    "id": "f2cfc03dd2",
    "t": "Travaux rue Gabriel Voisin",
    "lines": [
@@ -608,80 +1378,6 @@
    ]
   },
   {
-   "id": "e7810d9a3b",
-   "t": "Report de l'arrêt Stade de Muire vers P+R Thillois",
-   "lines": [
-    "U1"
-   ],
-   "p": "A partir du lundi 16 novembre 2026 jusqu'au lundi 30 novembre 2026",
-   "start": "2026-11-16",
-   "end": "2026-11-30",
-   "b": [
-    {
-     "l": "U1",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "STADE DE MUIRE",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "P+R THILLOIS",
-       1
-      ],
-      [
-       " est reporté à l'",
-       0
-      ],
-      [
-       "arrêt ISLE DE FRANCE",
-       1
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne",
-   "since": "2026-11-11",
-   "c": {
-    "effets": [
-     "deplacement"
-    ],
-    "grav": "mineur",
-    "niv": 1,
-    "pastille": false,
-    "nat": "perturbation",
-    "cond": false,
-    "portee": "ligne",
-    "sur": true
-   },
-   "st": [
-    [
-     "STADE DE MUIRE",
-     "Stade de Muire"
-    ],
-    [
-     "arrêt ISLE DE FRANCE",
-     "Isle de France"
-    ]
-   ]
-  },
-  {
    "id": "e1166714f6",
    "t": "Nouveaux arrêts ESI ligne U5",
    "lines": [
@@ -739,78 +1435,6 @@
     [
      "ESI",
      "ESI"
-    ]
-   ]
-  },
-  {
-   "id": "1539d33ccb",
-   "t": "Travaux de voirie à Treslon",
-   "lines": [
-    "E6"
-   ],
-   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 16 avril 2027",
-   "start": "2026-10-19",
-   "end": "2027-04-16",
-   "b": [
-    {
-     "l": "",
-     "r": [
-      [
-       "Forte perturbation sur les horaires de la ligne durant cette période",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "E6",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "TRESLON",
-       1
-      ],
-      [
-       " dans les deux sens est non desservi par la ligne, mais reste desservi par le",
-       0
-      ],
-      [
-       "Transport A la Demande",
-       1
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne",
-   "since": "2026-11-11",
-   "c": {
-    "effets": [
-     "horaires",
-     "deviation"
-    ],
-    "grav": "genant",
-    "niv": 2,
-    "pastille": true,
-    "nat": "perturbation",
-    "cond": false,
-    "portee": "ligne",
-    "sur": false
-   },
-   "st": [
-    [
-     "TRESLON",
-     null
     ]
    ]
   },
@@ -923,6 +1547,78 @@
     [
      "FOLLE PEINE",
      "Folle Peine"
+    ]
+   ]
+  },
+  {
+   "id": "1539d33ccb",
+   "t": "Travaux de voirie à Treslon",
+   "lines": [
+    "E6"
+   ],
+   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 16 avril 2027",
+   "start": "2026-10-19",
+   "end": "2027-04-16",
+   "b": [
+    {
+     "l": "",
+     "r": [
+      [
+       "Forte perturbation sur les horaires de la ligne durant cette période",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "E6",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "TRESLON",
+       1
+      ],
+      [
+       " dans les deux sens est non desservi par la ligne, mais reste desservi par le",
+       0
+      ],
+      [
+       "Transport A la Demande",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne",
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "horaires",
+     "deviation"
+    ],
+    "grav": "genant",
+    "niv": 2,
+    "pastille": true,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": false
+   },
+   "st": [
+    [
+     "TRESLON",
+     null
     ]
    ]
   },
@@ -2009,106 +2705,6 @@
    ]
   },
   {
-   "id": "f118b20ae9",
-   "t": "Report de l'arrêt D'Orves vers C.C Cormontreuil",
-   "lines": [
-    "O2",
-    "U5"
-   ],
-   "p": "A partir du lundi 28 septembre 2026 jusqu'au jeudi 31 décembre 2026",
-   "start": "2026-09-28",
-   "end": "2026-12-31",
-   "b": [
-    {
-     "l": "O2",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "D'ORVES",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "C.C. CORMONTREUIL",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "200 mètres avant, face au 61 Bld du Président Wilson (ancien arrêt de la ligne 2)",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "U5",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "D'ORVES",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "PARC DES EXPOSITIONS",
-       1
-      ],
-      [
-       " est déplacé ",
-       0
-      ],
-      [
-       "200 mètres avant, face au 61 Bld du Président Wilson (ancien arrêt de la ligne 2)",
-       1
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne",
-   "since": "2026-11-11",
-   "c": {
-    "effets": [
-     "deplacement"
-    ],
-    "grav": "mineur",
-    "niv": 1,
-    "pastille": false,
-    "nat": "perturbation",
-    "cond": false,
-    "portee": "lignes",
-    "sur": true
-   },
-   "st": [
-    [
-     "D'ORVES",
-     "D'Orves"
-    ]
-   ]
-  },
-  {
    "id": "f168938f84",
    "t": "Report des arrêts Alexandre 1er",
    "lines": [
@@ -2216,6 +2812,106 @@
     [
      "ALEXANDRE 1ER",
      "Alexandre 1er"
+    ]
+   ]
+  },
+  {
+   "id": "f118b20ae9",
+   "t": "Report de l'arrêt D'Orves vers C.C Cormontreuil",
+   "lines": [
+    "O2",
+    "U5"
+   ],
+   "p": "A partir du lundi 28 septembre 2026 jusqu'au jeudi 31 décembre 2026",
+   "start": "2026-09-28",
+   "end": "2026-12-31",
+   "b": [
+    {
+     "l": "O2",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "D'ORVES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "C.C. CORMONTREUIL",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "200 mètres avant, face au 61 Bld du Président Wilson (ancien arrêt de la ligne 2)",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "U5",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "D'ORVES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "PARC DES EXPOSITIONS",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "200 mètres avant, face au 61 Bld du Président Wilson (ancien arrêt de la ligne 2)",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne",
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "lignes",
+    "sur": true
+   },
+   "st": [
+    [
+     "D'ORVES",
+     "D'Orves"
     ]
    ]
   },

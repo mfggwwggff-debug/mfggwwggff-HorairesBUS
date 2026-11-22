@@ -4107,6 +4107,591 @@
     "sur": true
    },
    "attendu": null
+  },
+  "7c122ca557|U5,U6": {
+   "vu": "2026-11-23",
+   "t": "Arrivée des forains au parc des expositions",
+   "p": "Le lundi 30 novembre 2026",
+   "lines": [
+    "U5",
+    "U6"
+   ],
+   "rt": false,
+   "b": [
+    {
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "PARC EXPOSITIONS",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "CROIX BLANDIN",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt SABINE",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "PARC EXPOSITIONS",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "GARE CENTRE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt SABINE",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "ARQUES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "CROIX BLANDIN",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt SABINE",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "ARQUES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "GARE CENTRE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt SABINE",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "PATOUX",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "CROIX BLANDIN",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt ADER de la ligne U5",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "PATOUX",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "GARE CENTRE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt ADER de la ligne U5",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "ADER",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "CROIX BLANDIN",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt ADER de la ligne U5",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "ADER",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "GARE CENTRE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt ADER de la ligne U5",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "HOCHE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "PARC DES EXPOSITIONS",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt INSPE",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "HOCHE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "CROIX DU SUD",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt INSPE",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "PARC EXPOSITIONS",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "PARC DES EXPOSITIONS",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt ADER",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "PARC EXPOSITIONS",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "CROIX DU SUD",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt ADER",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "auto": {
+    "grav": "mineur",
+    "nat": "perturbation",
+    "portee": "lignes",
+    "sur": true
+   },
+   "attendu": null
+  },
+  "7ae881280c|U21": {
+   "vu": "2026-11-23",
+   "t": "Forte affluence zone commerciale Cormontreuil",
+   "p": "De 12h00 à 19h00: Les samedis et dimanches du 28/11 au 20/12 et les 21, 22 et 23/12",
+   "lines": [
+    "U21"
+   ],
+   "rt": false,
+   "b": [
+    {
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "LES PARQUES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "C.C. CORMONTREUIL",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt LES LAPS",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "LES PARQUES",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "GARE CHAMPAGNE TGV",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt LES LAPS",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "RIMBAUD",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "C.C. CORMONTREUIL",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt ALSACE LORRAINE",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "AUVERGNE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "GARE CHAMPAGNE TGV",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt ALSACE LORRAINE",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "AUVERGNE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "C.C. CORMONTREUIL",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt ALSACE LORRAINE de la ligne O2",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "ALSACE LORRAINE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "GARE CHAMPAGNE TGV",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt ALSACE LORRAINE de la ligne O2",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "RIMBAUD",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "GARE CHAMPAGNE TGV",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt ALSACE LORRAINE de la ligne O2",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "auto": {
+    "grav": "mineur",
+    "nat": "perturbation",
+    "portee": "ligne",
+    "sur": true
+   },
+   "attendu": null
   }
  }
 }
