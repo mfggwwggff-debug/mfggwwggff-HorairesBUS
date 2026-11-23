@@ -4710,6 +4710,42 @@
     "sur": true
    },
    "attendu": null
+  },
+  "exemple-19": {
+   "exemple": true,
+   "t": "En raison de contraintes d'exploitation, certains départs ne sont pas assurés aujourd'hui :",
+   "p": "",
+   "lines": [
+    "U20"
+   ],
+   "rt": true,
+   "b": [
+    {
+     "r": [
+      [
+       "A l'arrêt Fac des Sciences : 7h57, 9h09, 10h21, 11h33, 16h21, 17h33, 18h47, 20h",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "A l'arrêt Gare Clairmarais : 7h19, 8h31, 9h43, 10h55, 15h42, 16h54, 18h08, 19h22",
+       0
+      ]
+     ]
+    }
+   ],
+   "attendu": {
+    "grav": "genant",
+    "nat": "perturbation",
+    "portee": "ligne",
+    "arrets": {
+     "Fac des Sciences": "Fac des Sciences",
+     "Gare Clairmarais": "Gare Clairmarais"
+    }
+   }
   }
  }
 }

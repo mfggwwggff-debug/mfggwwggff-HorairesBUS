@@ -248,6 +248,9 @@ def arrets_cites(item):
         txt = "".join(x[0] for x in r)
         for m in re.finditer(r"(?i)d[ée]parts? (?:de |du |d'|des )(.+?) (?:sont |ne sont pas )?(?:non|pas) assur", txt):
             out.append(m.group(1))
+        # 23 nov. 2026 : « A l'arrêt Fac des Sciences : 7h57, 9h09… » (sans gras) sous une info « non assurés »
+        m = re.match(r"(?i)\s*(?:à|a|depuis|au départ de|au depart de) l['’]?arr[êe]ts? (?:de |du |d')?([^:]+?)\s*:\s*.*\d{1,2}\s?h", txt)
+        if m: out.append(m.group(1))
     seen, res = set(), []
     for n in out:
         n = n.strip()
