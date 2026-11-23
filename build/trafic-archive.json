@@ -4692,6 +4692,24 @@
     "sur": true
    },
    "attendu": null
+  },
+  "d8e2fc5060|T1,T2": {
+   "vu": "2026-11-23",
+   "t": "Retard à prévoir sur le tramway suite à une intervention pompiers",
+   "p": "",
+   "lines": [
+    "T1",
+    "T2"
+   ],
+   "rt": true,
+   "b": [],
+   "auto": {
+    "grav": "genant",
+    "nat": "perturbation",
+    "portee": "lignes",
+    "sur": true
+   },
+   "attendu": null
   }
  }
 }
