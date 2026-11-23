@@ -3294,7 +3294,10 @@ function trCancel() {
     for (const b of x.b || []) {
       const t = trPlain((b.r || []).map((r) => r[0]).join(""));
       const dl = trDayList(t);
-      const m = t.match(/departs? (?:de |du |d')(.+?) (?:sont |ne sont pas |)(?:non|pas) assures? ?:? ?(.+)/);
+      // 23 nov. 2026 : le réseau écrit aussi « A l'arrêt Fac des Sciences : 7h57, 9h09, … » sous le titre
+      // « certains départs ne sont pas assurés » (l'info entière porte sur des départs non assurés)
+      const m = t.match(/departs? (?:de |du |d')(.+?) (?:sont |ne sont pas |)(?:non|pas) assures? ?:? ?(.+)/)
+        || t.match(/^(?:a|depuis|au depart de) l['’]?arrets? (?:de |du |d')?(.+?) ?: ?(.*\d{1,2} ?h.*)$/);
       if (!m) { if (dl.length) days = dl; continue; } // ligne de date seule
       if (dl.length) days = dl;                       // date et départs sur la même ligne
       const pole = trPole(m[1], poleIds); if (pole == null) continue;

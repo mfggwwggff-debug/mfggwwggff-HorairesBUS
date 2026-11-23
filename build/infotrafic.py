@@ -138,6 +138,16 @@ def parse(page):
             r = runs(seg)
             if r and not re.fullmatch(r"https?://\S+", "".join(x[0] for x in r)):
                 blocks.append({"r": r})
+        # 23 nov. 2026 : le texte n'est pas toujours dans des <p> / <li> (lignes en <div>, séparées par <br> ou sans
+        # balise : « A l'arrêt Fac des Sciences : 7h57, 9h09… »). Le corps restait vide et l'appli n'affichait ni le
+        # texte ni les départs supprimés. Repli : on découpe le reste du corps aux retours à la ligne et aux blocs.
+        if not any(b.get("r") for b in blocks):
+            rest = re.sub(r"<(script|style)\b.*?</\1>", "", body, flags=re.S | re.I)
+            for seg in re.split(r"<br\s*/?>|</?(?:div|p|li|ul|ol|section|article|h[1-6])\b[^>]*>", rest, flags=re.I):
+                seg = re.sub(r"<a[^>]*>\s*(https?://[^<]+)</a>", lambda a: a.group(1), seg)
+                r = runs(seg)
+                if r and not re.fullmatch(r"https?://\S+", "".join(x[0] for x in r)):
+                    blocks.append({"r": r})
         ls = []
         for tok in lines.split(","):
             tok = tok.strip().upper()
