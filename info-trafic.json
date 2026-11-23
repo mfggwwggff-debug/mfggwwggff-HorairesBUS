@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-23T08:10:16Z",
+ "at": "2026-11-23T09:00:21Z",
  "items": [
   {
    "id": "7c122ca557",
@@ -1097,219 +1097,6 @@
    ]
   },
   {
-   "id": "f2cfc03dd2",
-   "t": "Travaux rue Gabriel Voisin",
-   "lines": [
-    "U5"
-   ],
-   "p": "A partir du lundi 16 novembre 2026 jusqu'au lundi 23 novembre 2026",
-   "start": "2026-11-16",
-   "end": "2026-11-23",
-   "b": [
-    {
-     "l": "U5",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "ADER",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "PARC DES EXPOSITIONS",
-       1
-      ],
-      [
-       " est reporté à l'",
-       0
-      ],
-      [
-       "arrêt ADER de la ligne U6 vers Gare Centre",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "U5",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "INSPE",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "PARC DES EXPOSITIONS",
-       1
-      ],
-      [
-       " est reporté à l'",
-       0
-      ],
-      [
-       "arrêt ADER de la ligne U6 vers Gare Centre",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "U5",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "HOCHE",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "PARC DES EXPOSITIONS",
-       1
-      ],
-      [
-       " est reporté à l'",
-       0
-      ],
-      [
-       "arrêt PARC de la ligne U6 vers Gare Centre EXPOSITIONS",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "U5",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "PARC EXPOSITIONS",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "PARC DES EXPOSITIONS",
-       1
-      ],
-      [
-       " est reporté à l'",
-       0
-      ],
-      [
-       "arrêt PARC EXPOSITIONS de la ligne U6 vers Gare Centre",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "U5",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "PARC EXPOSITIONS",
-       1
-      ],
-      [
-       " dans le sens ",
-       0
-      ],
-      [
-       "CROIX DU SUD",
-       1
-      ],
-      [
-       " est reporté à l'",
-       0
-      ],
-      [
-       "arrêt PARC EXPOSITIONS de la ligne U6 vers Gare Centre",
-       1
-      ]
-     ]
-    },
-    {
-     "img": "https://prod.deviations.info/carte/grandreims/public/img/86915.jpg"
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne",
-   "since": "2026-11-16",
-   "c": {
-    "effets": [
-     "deplacement"
-    ],
-    "grav": "mineur",
-    "niv": 1,
-    "pastille": false,
-    "nat": "perturbation",
-    "cond": false,
-    "portee": "ligne",
-    "sur": true
-   },
-   "st": [
-    [
-     "ADER",
-     "Ader"
-    ],
-    [
-     "arrêt ADER de la ligne U6 vers Gare Centre",
-     "Ader"
-    ],
-    [
-     "INSPE",
-     "INSPE"
-    ],
-    [
-     "HOCHE",
-     "Hoche"
-    ],
-    [
-     "arrêt PARC de la ligne U6 vers Gare Centre EXPOSITIONS",
-     "Parc"
-    ],
-    [
-     "PARC EXPOSITIONS",
-     "Parc Expositions"
-    ],
-    [
-     "arrêt PARC EXPOSITIONS de la ligne U6 vers Gare Centre",
-     "Parc Expositions"
-    ]
-   ]
-  },
-  {
    "id": "e1166714f6",
    "t": "Nouveaux arrêts ESI ligne U5",
    "lines": [
@@ -1367,6 +1154,78 @@
     [
      "ESI",
      "ESI"
+    ]
+   ]
+  },
+  {
+   "id": "1539d33ccb",
+   "t": "Travaux de voirie à Treslon",
+   "lines": [
+    "E6"
+   ],
+   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 16 avril 2027",
+   "start": "2026-10-19",
+   "end": "2027-04-16",
+   "b": [
+    {
+     "l": "",
+     "r": [
+      [
+       "Forte perturbation sur les horaires de la ligne durant cette période",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "E6",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "TRESLON",
+       1
+      ],
+      [
+       " dans les deux sens est non desservi par la ligne, mais reste desservi par le",
+       0
+      ],
+      [
+       "Transport A la Demande",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne",
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "horaires",
+     "deviation"
+    ],
+    "grav": "genant",
+    "niv": 2,
+    "pastille": true,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": false
+   },
+   "st": [
+    [
+     "TRESLON",
+     null
     ]
    ]
   },
@@ -1479,78 +1338,6 @@
     [
      "FOLLE PEINE",
      "Folle Peine"
-    ]
-   ]
-  },
-  {
-   "id": "1539d33ccb",
-   "t": "Travaux de voirie à Treslon",
-   "lines": [
-    "E6"
-   ],
-   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 16 avril 2027",
-   "start": "2026-10-19",
-   "end": "2027-04-16",
-   "b": [
-    {
-     "l": "",
-     "r": [
-      [
-       "Forte perturbation sur les horaires de la ligne durant cette période",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "E6",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "TRESLON",
-       1
-      ],
-      [
-       " dans les deux sens est non desservi par la ligne, mais reste desservi par le",
-       0
-      ],
-      [
-       "Transport A la Demande",
-       1
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne",
-   "since": "2026-11-11",
-   "c": {
-    "effets": [
-     "horaires",
-     "deviation"
-    ],
-    "grav": "genant",
-    "niv": 2,
-    "pastille": true,
-    "nat": "perturbation",
-    "cond": false,
-    "portee": "ligne",
-    "sur": false
-   },
-   "st": [
-    [
-     "TRESLON",
-     null
     ]
    ]
   },
