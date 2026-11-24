@@ -4746,6 +4746,60 @@
      "Gare Clairmarais": "Gare Clairmarais"
     }
    }
+  },
+  "dbf52b8f2f|U8": {
+   "vu": "2026-11-25",
+   "t": "Report de l'arrêt Docks Rémois vers Champéa",
+   "p": "A partir du mardi 01 décembre 2026 jusqu'au vendredi 26 février 2027",
+   "lines": [
+    "U8"
+   ],
+   "rt": false,
+   "b": [
+    {
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "DOCKS REMOIS",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "CHAMPEA",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "50 mètres avant l'arrêt, au niveau du 143 rue Léon Faucher",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "auto": {
+    "grav": "mineur",
+    "nat": "perturbation",
+    "portee": "ligne",
+    "sur": true
+   },
+   "attendu": null
   }
  }
 }

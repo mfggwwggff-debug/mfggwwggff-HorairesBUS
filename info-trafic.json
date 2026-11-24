@@ -1,7 +1,83 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-24T09:20:23Z",
+ "at": "2026-11-24T23:00:25Z",
  "items": [
+  {
+   "id": "dbf52b8f2f",
+   "t": "Report de l'arrêt Docks Rémois vers Champéa",
+   "lines": [
+    "U8"
+   ],
+   "p": "A partir du mardi 01 décembre 2026 jusqu'au vendredi 26 février 2027",
+   "start": "2026-12-01",
+   "end": "2027-02-26",
+   "b": [
+    {
+     "l": "U8",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "DOCKS REMOIS",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "CHAMPEA",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "50 mètres avant l'arrêt, au niveau du 143 rue Léon Faucher",
+       1
+      ]
+     ],
+     "geo": {
+      "lat": 49.268741,
+      "lon": 4.044046,
+      "a": "50 mètres avant l'arrêt, au niveau du 143 rue Léon Faucher",
+      "k": "rue Léon Faucher|DOCKS REMOIS"
+     }
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne",
+   "since": "2026-11-25",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": [
+    [
+     "DOCKS REMOIS",
+     "Docks Rémois"
+    ]
+   ]
+  },
   {
    "id": "7c122ca557",
    "t": "Arrivée des forains au parc des expositions",
