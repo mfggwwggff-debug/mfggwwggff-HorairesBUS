@@ -4800,6 +4800,40 @@
     "sur": true
    },
    "attendu": null
+  },
+  "6a4a32bc62|U24": {
+   "vu": "2026-11-25",
+   "t": "Suite à un camion en panne, les arrêts Casanova, Cousin, Appert et Guyard, ne sont pas desservis en direction de Renault",
+   "p": "",
+   "lines": [
+    "U24"
+   ],
+   "rt": true,
+   "b": [],
+   "auto": {
+    "grav": "genant",
+    "nat": "perturbation",
+    "portee": "ligne",
+    "sur": true
+   },
+   "attendu": null
+  },
+  "98675f7bbd|U8": {
+   "vu": "2026-11-25",
+   "t": "Suite à un camion en panne, les arrêts Casanova, Cousin et Appert, ne sont pas desservis en direction de La Couturelle",
+   "p": "",
+   "lines": [
+    "U8"
+   ],
+   "rt": true,
+   "b": [],
+   "auto": {
+    "grav": "genant",
+    "nat": "perturbation",
+    "portee": "ligne",
+    "sur": true
+   },
+   "attendu": null
   }
  }
 }
