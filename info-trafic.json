@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-25T12:05:20Z",
+ "at": "2026-11-25T14:30:22Z",
  "items": [
   {
    "id": "dbf52b8f2f",
@@ -75,6 +75,82 @@
     [
      "DOCKS REMOIS",
      "Docks Rémois"
+    ]
+   ]
+  },
+  {
+   "id": "e7cfd92c87",
+   "t": "Report de l'arrêt Saint Maurice",
+   "lines": [
+    "C"
+   ],
+   "p": "A partir du lundi 30 novembre 2026 jusqu'au vendredi 11 décembre 2026",
+   "start": "2026-11-30",
+   "end": "2026-12-11",
+   "b": [
+    {
+     "l": "C",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "ST MAURICE",
+       1
+      ],
+      [
+       " dans le sens",
+       0
+      ],
+      [
+       "GARE CENTRE",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "au 126 rue Gambetta",
+       1
+      ]
+     ],
+     "geo": {
+      "lat": 49.245873,
+      "lon": 4.039575,
+      "a": "126 rue Gambetta",
+      "k": "126 rue Gambetta|ST MAURICE"
+     }
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne",
+   "since": "2026-11-25",
+   "c": {
+    "effets": [
+     "deplacement"
+    ],
+    "grav": "mineur",
+    "niv": 1,
+    "pastille": false,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": [
+    [
+     "ST MAURICE",
+     "St Maurice"
     ]
    ]
   },
@@ -1252,78 +1328,6 @@
    ]
   },
   {
-   "id": "1539d33ccb",
-   "t": "Travaux de voirie à Treslon",
-   "lines": [
-    "E6"
-   ],
-   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 16 avril 2027",
-   "start": "2026-10-19",
-   "end": "2027-04-16",
-   "b": [
-    {
-     "l": "",
-     "r": [
-      [
-       "Forte perturbation sur les horaires de la ligne durant cette période",
-       1
-      ]
-     ]
-    },
-    {
-     "l": "E6",
-     "r": [
-      [
-       "L'arrêt ",
-       0
-      ],
-      [
-       "TRESLON",
-       1
-      ],
-      [
-       " dans les deux sens est non desservi par la ligne, mais reste desservi par le",
-       0
-      ],
-      [
-       "Transport A la Demande",
-       1
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Merci de votre compréhension",
-       1
-      ]
-     ]
-    }
-   ],
-   "rt": false,
-   "sec": "par ligne",
-   "since": "2026-11-11",
-   "c": {
-    "effets": [
-     "horaires",
-     "deviation"
-    ],
-    "grav": "genant",
-    "niv": 2,
-    "pastille": true,
-    "nat": "perturbation",
-    "cond": false,
-    "portee": "ligne",
-    "sur": false
-   },
-   "st": [
-    [
-     "TRESLON",
-     null
-    ]
-   ]
-  },
-  {
    "id": "7f0499f1fe",
    "t": "Report de l'arrêt Folle Peine",
    "lines": [
@@ -1432,6 +1436,78 @@
     [
      "FOLLE PEINE",
      "Folle Peine"
+    ]
+   ]
+  },
+  {
+   "id": "1539d33ccb",
+   "t": "Travaux de voirie à Treslon",
+   "lines": [
+    "E6"
+   ],
+   "p": "A partir du lundi 19 octobre 2026 jusqu'au vendredi 16 avril 2027",
+   "start": "2026-10-19",
+   "end": "2027-04-16",
+   "b": [
+    {
+     "l": "",
+     "r": [
+      [
+       "Forte perturbation sur les horaires de la ligne durant cette période",
+       1
+      ]
+     ]
+    },
+    {
+     "l": "E6",
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "TRESLON",
+       1
+      ],
+      [
+       " dans les deux sens est non desservi par la ligne, mais reste desservi par le",
+       0
+      ],
+      [
+       "Transport A la Demande",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "rt": false,
+   "sec": "par ligne",
+   "since": "2026-11-11",
+   "c": {
+    "effets": [
+     "horaires",
+     "deviation"
+    ],
+    "grav": "genant",
+    "niv": 2,
+    "pastille": true,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": false
+   },
+   "st": [
+    [
+     "TRESLON",
+     null
     ]
    ]
   },

@@ -4834,6 +4834,60 @@
     "sur": true
    },
    "attendu": null
+  },
+  "e7cfd92c87|C": {
+   "vu": "2026-11-25",
+   "t": "Report de l'arrêt Saint Maurice",
+   "p": "A partir du lundi 30 novembre 2026 jusqu'au vendredi 11 décembre 2026",
+   "lines": [
+    "C"
+   ],
+   "rt": false,
+   "b": [
+    {
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "ST MAURICE",
+       1
+      ],
+      [
+       " dans le sens",
+       0
+      ],
+      [
+       "GARE CENTRE",
+       1
+      ],
+      [
+       " est déplacé ",
+       0
+      ],
+      [
+       "au 126 rue Gambetta",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "auto": {
+    "grav": "mineur",
+    "nat": "perturbation",
+    "portee": "ligne",
+    "sur": true
+   },
+   "attendu": null
   }
  }
 }
