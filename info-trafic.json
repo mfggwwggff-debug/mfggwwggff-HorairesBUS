@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-25T09:20:20Z",
+ "at": "2026-11-25T12:05:20Z",
  "items": [
   {
    "id": "dbf52b8f2f",
@@ -773,62 +773,6 @@
      "Alsace Lorraine"
     ]
    ]
-  },
-  {
-   "id": "6a4a32bc62",
-   "t": "Suite à un camion en panne, les arrêts Casanova, Cousin, Appert et Guyard, ne sont pas desservis en direction de Renault",
-   "lines": [
-    "U24"
-   ],
-   "p": "",
-   "start": null,
-   "end": null,
-   "b": [],
-   "rt": true,
-   "sec": "temps reel",
-   "since": "2026-11-25",
-   "c": {
-    "effets": [
-     "blocage",
-     "deviation"
-    ],
-    "grav": "genant",
-    "niv": 2,
-    "pastille": true,
-    "nat": "perturbation",
-    "cond": false,
-    "portee": "ligne",
-    "sur": true
-   },
-   "st": []
-  },
-  {
-   "id": "98675f7bbd",
-   "t": "Suite à un camion en panne, les arrêts Casanova, Cousin et Appert, ne sont pas desservis en direction de La Couturelle",
-   "lines": [
-    "U8"
-   ],
-   "p": "",
-   "start": null,
-   "end": null,
-   "b": [],
-   "rt": true,
-   "sec": "temps reel",
-   "since": "2026-11-25",
-   "c": {
-    "effets": [
-     "blocage",
-     "deviation"
-    ],
-    "grav": "genant",
-    "niv": 2,
-    "pastille": true,
-    "nat": "perturbation",
-    "cond": false,
-    "portee": "ligne",
-    "sur": true
-   },
-   "st": []
   },
   {
    "id": "16eb3530f2",
