@@ -4950,6 +4950,88 @@
     "sur": true
    },
    "attendu": null
+  },
+  "c3252c9984|U22": {
+   "vu": "2026-11-27",
+   "t": "Manifestation illumination à Betheny",
+   "p": "Le vendredi 04 décembre 2026 à partir de 12h00",
+   "lines": [
+    "U22"
+   ],
+   "rt": false,
+   "b": [
+    {
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "BETHENY MAIRIE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "ROYALE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt TILLEULS",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "BETHENY MAIRIE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "LA NEUVILLETTE MAIRIE",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt TILLEULS",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "auto": {
+    "grav": "genant",
+    "nat": "perturbation",
+    "portee": "ligne",
+    "sur": true
+   },
+   "attendu": null
   }
  }
 }
