@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-26T15:35:17Z",
+ "at": "2026-11-26T15:47:04Z",
  "items": [
   {
    "id": "dbf52b8f2f",
@@ -864,7 +864,15 @@
     {
      "r": [
       [
-       "Réseau tramways immobilisé",
+       "Les arrêts Médiathèque et Debré ne sont pas desservis.",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Le terminus s'effectue sur l'arrêt Blum",
        0
       ]
      ]
@@ -875,7 +883,8 @@
    "since": "2026-11-26",
    "c": {
     "effets": [
-     "blocage"
+     "blocage",
+     "deviation"
     ],
     "grav": "genant",
     "niv": 2,
