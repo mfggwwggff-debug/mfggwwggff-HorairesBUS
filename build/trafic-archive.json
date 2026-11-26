@@ -4888,6 +4888,68 @@
     "sur": true
    },
    "attendu": null
+  },
+  "16eb3530f2|U8": {
+   "vu": "2026-11-26",
+   "t": "En raison de contraintes d'exploitation, certains départs ne sont pas assurés aujourd'hui :",
+   "p": "",
+   "lines": [
+    "U8"
+   ],
+   "rt": true,
+   "b": [
+    {
+     "r": [
+      [
+       "En raison de contraintes d'exploitation, certains départs ne sont pas assurés aujourd'hui :",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "A l'arrêt \"Champea\" : départs de 10h15-11h53-12h39",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "A l'arrêt \"La Couturelle\" : départs de 08h59-10h37-11h26",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Conseil déplacement",
+       1
+      ],
+      [
+       " : nous vous invitons à anticiper votre trajet ou à privilégier les lignes à proximité ( https://grandreims-mobilites.fr/fr/3RW-Itineraire.html)",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci pour votre compréhension.",
+       0
+      ]
+     ]
+    }
+   ],
+   "auto": {
+    "grav": "genant",
+    "nat": "perturbation",
+    "portee": "ligne",
+    "sur": true
+   },
+   "attendu": null
   }
  }
 }
