@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-26T15:47:04Z",
+ "at": "2026-11-26T16:15:17Z",
  "items": [
   {
    "id": "dbf52b8f2f",
@@ -851,52 +851,6 @@
    ]
   },
   {
-   "id": "23a08383c2",
-   "t": "Accident de la circulation",
-   "lines": [
-    "T1",
-    "T2"
-   ],
-   "p": "",
-   "start": null,
-   "end": null,
-   "b": [
-    {
-     "r": [
-      [
-       "Les arrêts Médiathèque et Debré ne sont pas desservis.",
-       0
-      ]
-     ]
-    },
-    {
-     "r": [
-      [
-       "Le terminus s'effectue sur l'arrêt Blum",
-       0
-      ]
-     ]
-    }
-   ],
-   "rt": true,
-   "sec": "temps reel",
-   "since": "2026-11-26",
-   "c": {
-    "effets": [
-     "blocage",
-     "deviation"
-    ],
-    "grav": "genant",
-    "niv": 2,
-    "pastille": true,
-    "nat": "perturbation",
-    "cond": false,
-    "portee": "lignes",
-    "sur": true
-   },
-   "st": []
-  },
-  {
    "id": "16eb3530f2",
    "t": "En raison de contraintes d'exploitation, certains départs ne sont pas assurés aujourd'hui :",
    "lines": [
@@ -909,7 +863,7 @@
     {
      "r": [
       [
-       "jeudi 26 novembre 2026:",
+       "jeudi 26 novembre et vendredi 27 novembre 2026:",
        0
       ]
      ]
@@ -968,6 +922,52 @@
      "Fac des Sciences"
     ]
    ]
+  },
+  {
+   "id": "23a08383c2",
+   "t": "Accident de la circulation",
+   "lines": [
+    "T1",
+    "T2"
+   ],
+   "p": "",
+   "start": null,
+   "end": null,
+   "b": [
+    {
+     "r": [
+      [
+       "Les arrêts Médiathèque et Debré ne sont pas desservis.",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Le terminus s'effectue sur l'arrêt Blum",
+       0
+      ]
+     ]
+    }
+   ],
+   "rt": true,
+   "sec": "temps reel",
+   "since": "2026-11-26",
+   "c": {
+    "effets": [
+     "blocage",
+     "deviation"
+    ],
+    "grav": "genant",
+    "niv": 2,
+    "pastille": true,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "lignes",
+    "sur": true
+   },
+   "st": []
   },
   {
    "id": "d94ce9c029",
