@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-27T05:39:23Z",
+ "at": "2026-11-27T09:55:26Z",
  "items": [
   {
    "id": "c3252c9984",
@@ -956,6 +956,78 @@
      "Alsace Lorraine"
     ]
    ]
+  },
+  {
+   "id": "16eb3530f2",
+   "t": "En raison de contraintes d'exploitation, certains départs ne sont pas assurés aujourd'hui :",
+   "lines": [
+    "U22"
+   ],
+   "p": "",
+   "start": null,
+   "end": null,
+   "b": [
+    {
+     "r": [
+      [
+       "En raison de contraintes d'exploitation, certains départs ne sont pas assurés aujourd'hui :",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "- A l'arrêt \"Neuvillette Mairie\" : départs de 10h45-12h43-14h23-15h58-17h36-19h24",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "- A l'arrêt \"Royale\" : départs de 11h31-13h31-15h09-16h47-18h25-20h08",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Conseil déplacement",
+       1
+      ],
+      [
+       " : nous vous invitons à anticiper votre trajet ou à privilégier les lignes à proximité ( https://grandreims-mobilites.fr/fr/3RW-Itineraire.html)",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci pour votre compréhension.",
+       0
+      ]
+     ]
+    }
+   ],
+   "rt": true,
+   "sec": "temps reel",
+   "since": "2026-11-27",
+   "c": {
+    "effets": [
+     "non_assure"
+    ],
+    "grav": "genant",
+    "niv": 2,
+    "pastille": true,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": []
   },
   {
    "id": "16eb3530f2",
