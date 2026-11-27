@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-27T17:40:22Z",
+ "at": "2026-11-27T18:15:18Z",
  "items": [
   {
    "id": "c3252c9984",
@@ -956,31 +956,6 @@
      "Alsace Lorraine"
     ]
    ]
-  },
-  {
-   "id": "665afb6036",
-   "t": "Forte circulation: retard du réseau bus",
-   "lines": [],
-   "p": "",
-   "start": null,
-   "end": null,
-   "b": [],
-   "rt": true,
-   "sec": "temps reel",
-   "since": "2026-11-27",
-   "c": {
-    "effets": [
-     "blocage"
-    ],
-    "grav": "genant",
-    "niv": 2,
-    "pastille": true,
-    "nat": "perturbation",
-    "cond": false,
-    "portee": "reseau",
-    "sur": true
-   },
-   "st": []
   },
   {
    "id": "16eb3530f2",
