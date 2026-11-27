@@ -5148,6 +5148,21 @@
     "sur": true
    },
    "attendu": null
+  },
+  "665afb6036|": {
+   "vu": "2026-11-27",
+   "t": "Forte circulation: retard du réseau bus",
+   "p": "",
+   "lines": [],
+   "rt": true,
+   "b": [],
+   "auto": {
+    "grav": "genant",
+    "nat": "perturbation",
+    "portee": "reseau",
+    "sur": true
+   },
+   "attendu": null
   }
  }
 }
