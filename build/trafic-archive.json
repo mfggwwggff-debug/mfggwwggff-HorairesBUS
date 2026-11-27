@@ -5094,6 +5094,60 @@
     "sur": true
    },
    "attendu": null
+  },
+  "491193ff8d|U1": {
+   "vu": "2026-11-27",
+   "t": "Report de l'arrêt Stade de Muire vers P+R Thillois",
+   "p": "A partir du lundi 16 novembre 2026 jusqu'au 31 décembre 2026",
+   "lines": [
+    "U1"
+   ],
+   "rt": false,
+   "b": [
+    {
+     "r": [
+      [
+       "L'arrêt ",
+       0
+      ],
+      [
+       "STADE DE MUIRE",
+       1
+      ],
+      [
+       " dans le sens ",
+       0
+      ],
+      [
+       "P+R THILLOIS",
+       1
+      ],
+      [
+       " est reporté à l'",
+       0
+      ],
+      [
+       "arrêt ISLE DE FRANCE",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci de votre compréhension",
+       1
+      ]
+     ]
+    }
+   ],
+   "auto": {
+    "grav": "mineur",
+    "nat": "perturbation",
+    "portee": "ligne",
+    "sur": true
+   },
+   "attendu": null
   }
  }
 }
