@@ -1,6 +1,6 @@
 {
  "src": "https://www.grandreims-mobilites.fr/fr/1JA-Info-trafic.html",
- "at": "2026-11-27T11:50:17Z",
+ "at": "2026-11-27T11:55:25Z",
  "items": [
   {
    "id": "c3252c9984",
@@ -954,6 +954,87 @@
     [
      "ALSACE LORRAINE",
      "Alsace Lorraine"
+    ]
+   ]
+  },
+  {
+   "id": "16eb3530f2",
+   "t": "En raison de contraintes d'exploitation, certains départs ne sont pas assurés aujourd'hui :",
+   "lines": [
+    "U5"
+   ],
+   "p": "",
+   "start": null,
+   "end": null,
+   "b": [
+    {
+     "r": [
+      [
+       "En raison de contraintes d'exploitation, certains départs ne sont pas assurés aujourd'hui :",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "A l'arrêt \"Croix du Sud\" : départs de 12h49-14h45-16h40-18h43",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "A l'arrêt \"Parc Expositions\" : départs de 13h49-15h41-17h42-19h36",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Conseil déplacement",
+       1
+      ],
+      [
+       " : nous vous invitons à anticiper votre trajet ou à privilégier les lignes à proximité ( https://grandreims-mobilites.fr/fr/3RW-Itineraire.html)",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Merci pour votre compréhension.",
+       0
+      ]
+     ]
+    }
+   ],
+   "rt": true,
+   "sec": "temps reel",
+   "since": "2026-11-27",
+   "c": {
+    "effets": [
+     "non_assure"
+    ],
+    "grav": "genant",
+    "niv": 2,
+    "pastille": true,
+    "nat": "perturbation",
+    "cond": false,
+    "portee": "ligne",
+    "sur": true
+   },
+   "st": [
+    [
+     "\"Croix du Sud\"",
+     "Croix du Sud"
+    ],
+    [
+     "\"Parc Expositions\"",
+     "Parc Expositions"
     ]
    ]
   },
