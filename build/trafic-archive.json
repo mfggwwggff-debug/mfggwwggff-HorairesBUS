@@ -5163,6 +5163,54 @@
     "sur": true
    },
    "attendu": null
+  },
+  "9f9ca7b256|": {
+   "vu": "2026-11-28",
+   "t": "Perturbations suite à la manifestation",
+   "p": "",
+   "lines": [],
+   "rt": true,
+   "b": [
+    {
+     "r": [
+      [
+       "Information voyageurs – Perturbations",
+       1
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Suite à la manifestation, des perturbations sont susceptibles d’affecter la circulation de vos lignes de transport en commun.",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Des retards sont à prévoir.",
+       0
+      ]
+     ]
+    },
+    {
+     "r": [
+      [
+       "Nous vous remercions de votre compréhension et vous invitons à anticiper vos déplacements.",
+       0
+      ]
+     ]
+    }
+   ],
+   "auto": {
+    "grav": "genant",
+    "nat": "perturbation",
+    "portee": "reseau",
+    "sur": true
+   },
+   "attendu": null
   }
  }
 }
